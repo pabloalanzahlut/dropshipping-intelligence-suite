@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "cd 'H:\\dropshipping_intelligence_suite'; git add -A; $diff = git diff --cached --quiet 2>&1; if ($LASTEXITCODE -ne 0) { $ts = Get-Date -Format 'yyyy-MM-ddTHH:mm'; git commit -m \"auto: sync cambios GEM OS $ts\"; git push origin master } 2>$null",
+            "timeout": 30,
+            "statusMessage": "Sincronizando con GitHub...",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}
