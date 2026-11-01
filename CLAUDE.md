@@ -76,9 +76,16 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 - `ai_workspace/skills/clasificar_productos/procedimiento.md` — Reglas de clasificación
 - `ai_workspace/skills/estructurar_landing/procedimiento.md` — Framework AIDA
 - `ai_workspace/skills/redactar_guiones_tiktok/procedimiento.md` — Script de video
+- `ai_workspace/skills/redactar_ficha_shopify/procedimiento.md` — Ficha producto Shopify
+- `ai_workspace/skills/publicar_tiktok_automatico/procedimiento.md` — Auto-publicación Make.com
+- `ai_workspace/skills/generar_imagen_producto/procedimiento.md` — Imágenes sin fondo
+- `ai_workspace/config/openrouter_setup.md` — Modelos económicos para volumen alto
+- `ai_workspace/knowledge_base/jack_roberts_strategies.md` — Estrategias AntiGravity/Claude Code
 - `ai_workspace/memory/` — Memoria de decisiones y aprendizajes
 - `ai_workspace/projects/producto_01/` — Proyecto activo actual
 - `.continue/rules/dropshipping_financial_rules.md` — Reglas financieras detalladas
+- `website/adrian-saenz-hostinger-premium-website/SKILL.md` — Skill webs Hostinger
+- `website/adrian-saenz-hostinger-premium-website/reference/11-spline-3d-hero.md` — Hero 3D Spline
 
 ---
 
@@ -93,6 +100,19 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/estructurar-landing` | Crea copy AIDA para landing page |
 | `/validar-financiero` | Valida márgenes 3x y reglas logísticas |
 | `/pipeline-completo` | Ejecuta todo el pipeline desde transcripción |
+| `/redactar-ficha-shopify` | Genera ficha completa de producto para Shopify |
+| `/publicar-tiktok` | Envía guión a Make.com → auto-publicación TikTok |
+| `/generar-imagen-producto` | Remueve fondo + optimiza imagen para Shopify |
+| `/crear-web-hostinger` | Genera sitio web premium (skill Adrián Sáenz) |
+
+---
+
+## AUTOMATIZACIÓN EXTERNA
+
+- **Make.com webhook:** `MAKE_WEBHOOK_TIKTOK` en `.env` → auto-publica guiones TikTok
+- **OpenRouter:** `OPENROUTER_API_KEY` en `.env` → modelos económicos para fichas masivas
+- **remove.bg:** `REMOVEBG_API_KEY` en `.env` → remoción de fondo automática (50 gratis/mes)
+- **Hostinger FTP:** subir carpeta `website/<proyecto>/` via hPanel → public_html
 
 ---
 
@@ -104,4 +124,4 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 
 ---
 
-*GEM OS v2.0 — Aplicando metodología Xavier Mitjana (CLAUDE.md + Skills nativos)*
+*GEM OS v2.1 — Metodología Xavier Mitjana + Jack Roberts AntiGravity + Adrián Sáenz Hostinger*
