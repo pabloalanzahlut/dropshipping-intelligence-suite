@@ -1,4 +1,19 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(python *adrian-saenz-hostinger-premium-website/scripts/*.py*)",
+      "Bash(python3 *adrian-saenz-hostinger-premium-website/scripts/*.py*)",
+      "Bash(bash *adrian-saenz-hostinger-premium-website/scripts/*.sh*)",
+      "Bash(mkdir -p *)",
+      "Bash(ls *)",
+      "Bash(cp *)",
+      "Bash(grep *)",
+      "Bash(command -v *)",
+      "Bash(which *)",
+      "Bash(python -m http.server *)",
+      "Bash(python3 -m http.server *)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
