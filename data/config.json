@@ -1,0 +1,102 @@
+{
+  "_commentario": "Configuración Centralizada GEM OS Suite — FASE 1",
+  "version": "1.0.0",
+
+  "canales_mentores": [
+    {
+      "nombre": "Adrián Sáenz",
+      "url": "https://www.youtube.com/@adriansaenz",
+      "activo": true
+    },
+    {
+      "nombre": "Iván Caicedo",
+      "url": "https://www.youtube.com/@ivancaicedo",
+      "activo": true
+    },
+    {
+      "nombre": "JaviEcom",
+      "url": "https://www.youtube.com/@javiecom",
+      "activo": true
+    },
+    {
+      "nombre": "Marc Verdú",
+      "url": "https://www.youtube.com/@marcverdu",
+      "activo": true
+    },
+    {
+      "nombre": "Vic Ecomilions",
+      "url": "https://www.youtube.com/@vicecomilions",
+      "activo": true
+    }
+  ],
+
+  "reglas_negocio": {
+    "regla_3x": {
+      "multiplicador": 3.0,
+      "descripcion": "El PVP debe ser Costo de Origen × 3 (Adrián Sáenz)"
+    },
+    "margen_bruto_minimo": 0.70,
+    "restriccion_logistica": {
+      "peso_maximo_kg": 1.2,
+      "descripcion": "Productos > 1.2kg requieren auditoría especial (Iván Caicedo)",
+      "baterias_litio": false
+    },
+    "framework_publicitario": "AIDA",
+    "superlativos_prohibidos": [
+      "increíble", "espectacular", "revolucionario", "milagroso",
+      "exclusivo", "secreto", "garantizado", "infalible"
+    ]
+  },
+
+  "throttling": {
+    "max_videos_por_hora": 10,
+    "ventana_segundos": 3600,
+    "cooldown_entre_videos_segundos": 6.0,
+    "cooldown_maximo_segundos": 15.0
+  },
+
+  "reintentos": {
+    "max_reintentos": 3,
+    "retardo_base_segundos": 1.0,
+    "retardo_maximo_segundos": 60.0,
+    "factor_jitter": 0.25
+  },
+
+  "limites_token": {
+    "max_tokens_por_consulta_ia": 16384,
+    "max_tokens_respuesta": 4096,
+    "modelo_ia_default": "qwen2.5-coder:latest",
+    "modelo_fallback": "deepseek/deepseek-v4-flash"
+  },
+
+  "endpoints": {
+    "freellm_api": {
+      "base_url_env": "FREELLM_BASE_URL",
+      "api_key_env": "FREELLM_API_KEY",
+      "modelo_env": "FREELLM_DEFAULT_MODEL"
+    },
+    "openrouter": {
+      "base_url": "https://openrouter.ai/api/v1/chat/completions",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "modelo_default": "google/gemini-2.0-flash-exp:free"
+    },
+    "ollama": {
+      "base_url_env": "OLLAMA_BASE_URL",
+      "base_url_default": "http://127.0.0.1:11434",
+      "modelo_default": "qwen2.5-coder:1.5b"
+    }
+  },
+
+  "logs": {
+    "nivel": "INFO",
+    "rotacion_dias": 7,
+    "directorio_env": "GEM_LOG_DIR"
+  },
+
+  "ytdlp": {
+    "formato_subtitulos": ["es", "es-419"],
+    "formato_convertir": "srt",
+    "cookies_filename": "cookies.txt",
+    "tiempo_espera_segundos": 30
+  }
+}

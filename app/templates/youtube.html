@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}YouTube · Ingesta{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">YouTube · Ingesta</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="youtube()" x-init="init()">
+
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        YouTube · <span style="background:linear-gradient(90deg,#fb7185,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Monitor de Ingesta</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">yt-dlp · Throttle máx. 10 videos/hora · Canales de mentores</p>
+    </div>
+    <button @click="triggerIngest()" :disabled="ingesting" class="btn-primary">
+      <svg x-show="!ingesting" style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+      </svg>
+      <svg x-show="ingesting" x-cloak class="spin" style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24">
+        <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+      <span x-text="ingesting ? 'Iniciando...' : 'Iniciar Ingesta'"></span>
+    </button>
+  </div>
+
+  <!-- Status message -->
+  <div x-show="ingestMsg" x-cloak style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;">
+    <p style="font-size:12px;color:#34d399;margin:0;" x-text="ingestMsg"></p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;">
+
+    <!-- Channels list -->
+    <div class="card card-glow-cyan">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="section-title" style="margin-bottom:0;">
+          <svg style="width:14px;height:14px;color:#22d3ee;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          Canales Registrados
+          <span style="margin-left:4px;font-size:10px;background:rgba(34,211,238,0.1);color:#22d3ee;border:1px solid rgba(34,211,238,0.2);padding:2px 8px;border-radius:20px;font-weight:600;" x-text="channels.length"></span>
+        </div>
+        <button @click="loadChannels()" class="btn-ghost" style="padding:5px 10px;font-size:11px;">
+          <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Recargar
+        </button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <template x-for="ch in channels" :key="ch.url">
+          <div style="display:flex;align-items:center;justify-content:space-between;background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:11px 13px;transition:border-color 0.15s;"
+               onmouseover="this.style.borderColor='#252844'" onmouseout="this.style.borderColor='#1a1d35'">
+            <div style="min-width:0;flex:1;">
+              <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="ch.nombre"></p>
+              <p style="font-size:10px;color:#4a5080;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="ch.url"></p>
+            </div>
+            <span :class="ch.activo ? 'badge badge-done' : 'badge badge-fail'"
+                  x-text="ch.activo ? 'Activo' : 'Inactivo'" style="margin-left:12px;flex-shrink:0;"></span>
+          </div>
+        </template>
+        <div x-show="channels.length === 0" style="text-align:center;padding:40px 0;">
+          <p style="font-size:12px;color:#4a5080;margin:0;">No hay canales registrados aún.</p>
+          <p style="font-size:11px;color:#3a3f68;margin:4px 0 0;">Añade canales usando el formulario →</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add channel form -->
+    <div class="card" style="align-self:start;">
+      <div class="section-title">
+        <svg style="width:14px;height:14px;color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Añadir Canal Mentor
+      </div>
+
+      <form @submit.prevent="addChannel()" style="display:flex;flex-direction:column;gap:13px;">
+        <div>
+          <label class="form-label">Nombre del Canal</label>
+          <input x-model="newCh.nombre" type="text" class="input-field" placeholder="ej: Adrián Sáenz" required>
+        </div>
+        <div>
+          <label class="form-label">URL del Canal YouTube</label>
+          <input x-model="newCh.url" type="url" class="input-field" placeholder="https://youtube.com/@canal" required>
+        </div>
+        <button type="submit" :disabled="adding" class="btn-primary" style="width:100%;justify-content:center;">
+          <svg x-show="adding" class="spin" style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24">
+            <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          <svg x-show="!adding" style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span x-text="adding ? 'Añadiendo...' : 'Añadir Canal'"></span>
+        </button>
+        <div x-show="addError" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:7px;padding:8px 10px;">
+          <p style="font-size:11px;color:#fb7185;margin:0;" x-text="addError"></p>
+        </div>
+        <div x-show="addOk" x-cloak style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:7px;padding:8px 10px;">
+          <p style="font-size:11px;color:#34d399;margin:0;" x-text="addOk"></p>
+        </div>
+      </form>
+
+      <!-- Info box -->
+      <div style="margin-top:16px;padding:12px;background:#08091a;border:1px solid #1a1d35;border-radius:8px;">
+        <p style="font-size:10px;color:#4a5080;margin:0;line-height:1.6;">
+          <strong style="color:#7880b0;">Throttle activo:</strong> máx. 10 videos/hora para respetar rate limits de YouTube.<br>
+          Los transcripts se extraen con yt-dlp y se almacenan en la KB.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function youtube() {
+  return {
+    channels: [], ingesting: false, ingestMsg: '',
+    newCh: { nombre: '', url: '' }, adding: false, addError: '', addOk: '',
+    async init() { await this.loadChannels(); },
+    async loadChannels() {
+      try { const res = await fetch('/api/channels'); this.channels = await res.json(); } catch(e) {}
+    },
+    async triggerIngest() {
+      this.ingesting = true; this.ingestMsg = '';
+      try {
+        const res = await fetch('/api/process', { method: 'POST' });
+        const data = await res.json();
+        this.ingestMsg = data.message || 'Ingesta iniciada.';
+      } catch(e) { this.ingestMsg = 'Error al iniciar ingesta.'; }
+      finally { this.ingesting = false; }
+    },
+    async addChannel() {
+      this.adding = true; this.addError = ''; this.addOk = '';
+      try {
+        const res = await fetch('/api/channels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.newCh) });
+        if (!res.ok) { const err = await res.json(); this.addError = err.detail || 'Error al añadir canal.'; }
+        else { this.addOk = 'Canal añadido correctamente.'; this.newCh = { nombre: '', url: '' }; await this.loadChannels(); }
+      } catch(e) { this.addError = 'Error de conexión.'; }
+      finally { this.adding = false; }
+    }
+  }
+}
+</script>
+{% endblock %}

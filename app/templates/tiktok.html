@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}TikTok Scripts{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">TikTok Scripts</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="tiktok()">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+      Scripts <span style="background:linear-gradient(90deg,#fb7185,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">TikTok</span>
+    </h1>
+    <p style="font-size:12px;color:#4a5080;margin:0;">4 patrones de hooks virales · Estructura 4 columnas · 30–60 s</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+    <!-- Form -->
+    <div class="card" style="border-color:rgba(251,113,133,0.12);">
+      <div class="section-title">
+        <svg style="width:14px;height:14px;color:#fb7185;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+        </svg>
+        Parámetros del Guión
+      </div>
+
+      <form @submit.prevent="generar()" style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label class="form-label">Nombre del Producto</label>
+          <input x-model="form.nombre_producto" type="text" class="input-field"
+                 placeholder="ej: Masajeador Percutivo" required>
+        </div>
+        <div>
+          <label class="form-label">Categoría</label>
+          <select x-model="form.categoria" class="input-field">
+            <option value="hogar">🏠 Hogar</option>
+            <option value="moda">👗 Moda</option>
+            <option value="electronica">📱 Electrónica</option>
+            <option value="belleza">💄 Belleza</option>
+            <option value="fitness">💪 Fitness</option>
+            <option value="mascotas">🐾 Mascotas</option>
+          </select>
+        </div>
+
+        <!-- Hook selector -->
+        <div>
+          <label class="form-label">Patrón de Hook</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <template x-for="p in hookPatterns" :key="p.value">
+              <button type="button"
+                      @click="form.patron_hook = p.value"
+                      :class="form.patron_hook === p.value ? 'hook-btn active' : 'hook-btn'"
+                      style="width:100%;">
+                <p style="font-size:12px;font-weight:600;color:#e8ecff;margin:0 0 2px;" x-text="p.label"></p>
+                <p style="font-size:10px;color:#7880b0;margin:0;" x-text="p.desc"></p>
+              </button>
+            </template>
+          </div>
+        </div>
+
+        <!-- Duration slider -->
+        <div>
+          <label class="form-label">
+            Duración objetivo
+            <span style="color:#22d3ee;font-weight:600;" x-text="' — ' + form.duracion_segundos + 's'"></span>
+          </label>
+          <input x-model.number="form.duracion_segundos" type="range" min="15" max="90" step="15"
+                 style="width:100%;accent-color:#06b6d4;margin-bottom:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#4a5080;">
+            <span>15s</span>
+            <span>45s</span>
+            <span>75s</span>
+            <span>90s</span>
+          </div>
+        </div>
+
+        <button type="submit" :disabled="loading" class="btn-primary" style="width:100%;justify-content:center;background:linear-gradient(135deg,#f43f5e,#8b5cf6);">
+          <svg x-show="loading" class="spin" style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24">
+            <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <svg x-show="!loading" style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <span x-text="loading ? 'Generando con IA...' : 'Generar Guión TikTok'"></span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Output -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div class="section-title" style="margin-bottom:0;">
+          <svg style="width:14px;height:14px;color:#fb7185;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M3 8h8M3 12h5M3 16h3"/>
+          </svg>
+          Guión Generado
+        </div>
+        <template x-if="result?.hook_utilizado">
+          <span class="badge badge-info" x-text="result.hook_utilizado"></span>
+        </template>
+      </div>
+
+      <!-- Empty state -->
+      <div x-show="!result && !error" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:52px 0;gap:10px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:#111328;border:1px solid #1a1d35;display:flex;align-items:center;justify-content:center;">
+          <svg style="width:22px;height:22px;color:#4a5080;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M3 8h8M3 12h5M3 16h3"/>
+          </svg>
+        </div>
+        <p style="font-size:12px;color:#4a5080;margin:0;">El guión TikTok aparecerá aquí.</p>
+      </div>
+
+      <!-- Error -->
+      <div x-show="error" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:12px 14px;">
+        <p style="font-size:12px;color:#fb7185;margin:0;" x-text="error"></p>
+      </div>
+
+      <!-- Script output -->
+      <div x-show="result" x-cloak style="display:flex;flex-direction:column;gap:12px;">
+        <template x-if="result?.script_texto || result?.script">
+          <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:16px;max-height:380px;overflow-y:auto;">
+            <pre style="font-size:12px;color:#a8b0d8;white-space:pre-wrap;margin:0;font-family:inherit;line-height:1.8;" x-text="result.script_texto || result.script"></pre>
+          </div>
+        </template>
+
+        <!-- Fallback -->
+        <template x-if="!result?.script_texto && !result?.script">
+          <pre style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:14px;font-size:11px;color:#a8b0d8;overflow:auto;max-height:280px;"
+               x-text="JSON.stringify(result, null, 2)"></pre>
+        </template>
+
+        <!-- Copy -->
+        <button @click="navigator.clipboard.writeText(result?.script_texto || result?.script || '')" class="btn-ghost" style="font-size:11px;width:100%;justify-content:center;">
+          <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          Copiar guión
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function tiktok() {
+  return {
+    form: { nombre_producto: '', categoria: 'hogar', patron_hook: 'story-telling', duracion_segundos: 60 },
+    hookPatterns: [
+      { value: 'story-telling', label: '📖 Story Telling', desc: 'In medias res, narrativa' },
+      { value: 'curiosity-gap', label: '🔍 Curiosity Gap', desc: 'Genera intriga' },
+      { value: 'shock', label: '⚡ Shock', desc: 'Dato sorprendente' },
+      { value: 'humor', label: '😂 Humor', desc: 'POV cómico' },
+    ],
+    result: null, error: '', loading: false,
+    async generar() {
+      this.loading = true; this.result = null; this.error = '';
+      try {
+        const res = await fetch('/api/tiktok', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.form) });
+        if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al generar guión.'; }
+        else { this.result = await res.json(); }
+      } catch(e) { this.error = 'Error de conexión.'; }
+      finally { this.loading = false; }
+    }
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,207 @@
+"""
+FinancialValidator - Motor de Validación Financiera
+Implementa las reglas inmutables de negocio:
+- Regla 3x (Adrián Sáenz): PVP = Costo_Origen * 3
+- Umbral de Margen Bruto: >= 70%
+- Restricción Logística (Iván Caicedo): Peso neto < 1.2 kg
+"""
+
+import hashlib
+from typing import Dict, List, Optional, Tuple
+from datetime import datetime
+from app.database.connection import DatabaseConnection
+
+
+class FinancialValidator:
+    """Validador financiero con auditoría completa de productos."""
+    
+    # Constantes de Reglas de Negocio (Inmutables)
+    REGLA_3X_MULTIPLICADOR = 3.0
+    MARGEN_BRUTO_MINIMO = 0.70  # 70%
+    PESO_MAXIMO_KG = 1.2
+    
+    def __init__(self, db_manager: Optional[DatabaseConnection] = None):
+        """
+        Args:
+            db_manager: Gestor de conexión a BD. Si no se proporciona, crea uno nuevo.
+        """
+        self.db_manager = db_manager if db_manager else DatabaseConnection()
+        self.validaciones_log = []
+    
+    def validar_producto(
+        self,
+        sku: str,
+        costo_origen: float,
+        peso_kg: float = 0.0,
+        pvp_sugerido: Optional[float] = None
+    ) -> Dict:
+        """
+        Valida un producto contra las reglas de negocio inmutables.
+        
+        Args:
+            sku: SKU del producto
+            costo_origen: Costo de origen en USD
+            peso_kg: Peso neto del producto
+            pvp_sugerido: PVP sugerido (opcional; si no se proporciona, se calcula)
+        
+        Returns:
+            Dict con validación completa:
+            {
+                'sku': str,
+                'validado': bool,
+                'costo_origen': float,
+                'pvp_calculado': float,
+                'margen_bruto': float,
+                'regla_3x_cumple': bool,
+                'margen_cumple': bool,
+                'logistica_cumple': bool,
+                'peso_kg': float,
+                'status_validacion': str,
+                'nota_auditoria': str,
+                'detalles': dict
+            }
+        """
+        
+        # 1. Calcular PVP según Regla 3x (si no se proporciona)
+        pvp_calculado = pvp_sugerido if pvp_sugerido else costo_origen * self.REGLA_3X_MULTIPLICADOR
+        
+        # 2. Calcular margen bruto
+        margen_bruto = (pvp_calculado - costo_origen) / pvp_calculado if pvp_calculado > 0 else 0.0
+        
+        # 3. Validar contra Regla 3x
+        regla_3x_cumple = abs(pvp_calculado - (costo_origen * self.REGLA_3X_MULTIPLICADOR)) < 0.01
+        
+        # 4. Validar margen bruto >= 70%
+        margen_cumple = margen_bruto >= self.MARGEN_BRUTO_MINIMO
+        
+        # 5. Validar restricción logística (peso < 1.2 kg)
+        logistica_cumple = peso_kg < self.PESO_MAXIMO_KG
+        
+        # 6. Determinar estado y nota
+        todas_validas = regla_3x_cumple and margen_cumple and logistica_cumple
+        status_validacion = 'validado' if todas_validas else 'rechazado'
+        
+        notas = []
+        if not regla_3x_cumple:
+            notas.append(f"Regla 3x incumplida: PVP debería ser ${costo_origen * self.REGLA_3X_MULTIPLICADOR:.2f}, es ${pvp_calculado:.2f}")
+        if not margen_cumple:
+            notas.append(f"Margen bruto bajo: {margen_bruto*100:.1f}% (mínimo: 70%)")
+        if not logistica_cumple:
+            notas.append(f"Peso excedido: {peso_kg} kg (máximo: {self.PESO_MAXIMO_KG} kg) - ALERTA IVÁN CAICEDO")
+        
+        nota_auditoria = "; ".join(notas) if notas else "Producto validado exitosamente"
+        
+        resultado = {
+            'sku': sku,
+            'validado': todas_validas,
+            'costo_origen': costo_origen,
+            'pvp_calculado': round(pvp_calculado, 2),
+            'margen_bruto': round(margen_bruto * 100, 2),
+            'regla_3x_cumple': regla_3x_cumple,
+            'margen_cumple': margen_cumple,
+            'logistica_cumple': logistica_cumple,
+            'peso_kg': peso_kg,
+            'status_validacion': status_validacion,
+            'nota_auditoria': nota_auditoria,
+            'detalles': {
+                'pvp_esperado_regla_3x': round(costo_origen * self.REGLA_3X_MULTIPLICADOR, 2),
+                'margen_esperado_pct': round(self.MARGEN_BRUTO_MINIMO * 100, 1),
+                'peso_maximo_kg': self.PESO_MAXIMO_KG,
+                'fecha_validacion': datetime.now().isoformat()
+            }
+        }
+        
+        self.validaciones_log.append(resultado)
+        return resultado
+    
+    def guardar_validacion(self, validacion: Dict) -> int:
+        """
+        Guarda la validación en BD para auditoría.
+        
+        Returns:
+            ID del producto guardado, o -1 si falla
+        """
+        try:
+            with self.db_manager.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO productos_validados 
+                    (sku, costo_origen, pvp, margen_bruto, status_validacion, validado_regla_3x, peso_kg, nota_auditoria)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    validacion['sku'],
+                    validacion['costo_origen'],
+                    validacion['pvp_calculado'],
+                    validacion['margen_bruto'],
+                    validacion['status_validacion'],
+                    validacion['regla_3x_cumple'],
+                    validacion['peso_kg'],
+                    validacion['nota_auditoria']
+                ))
+                conn.commit()
+                return cursor.lastrowid
+        except Exception as e:
+            print(f"[ERROR] FinancialValidator.guardar_validacion: {str(e)}")
+            return -1
+    
+    def validar_lote(self, productos: List[Dict]) -> Tuple[List[Dict], int, int]:
+        """
+        Valida múltiples productos en lote.
+        
+        Args:
+            productos: Lista de dicts con sku, costo_origen, peso_kg
+        
+        Returns:
+            (lista_validaciones, validados_count, rechazados_count)
+        """
+        validaciones = []
+        validados = 0
+        rechazados = 0
+        
+        for producto in productos:
+            validacion = self.validar_producto(
+                sku=producto.get('sku'),
+                costo_origen=producto.get('costo_origen'),
+                peso_kg=producto.get('peso_kg', 0.0),
+                pvp_sugerido=producto.get('pvp')
+            )
+            validaciones.append(validacion)
+            
+            if validacion['validado']:
+                validados += 1
+            else:
+                rechazados += 1
+        
+        return validaciones, validados, rechazados
+    
+    def obtener_reporte_validaciones(self) -> Dict:
+        """
+        Genera un reporte consolidado de validaciones ejecutadas.
+        
+        Returns:
+            Dict con estadísticas consolidadas
+        """
+        if not self.validaciones_log:
+            return {
+                'total': 0,
+                'validados': 0,
+                'rechazados': 0,
+                'tasa_exito': 0.0
+            }
+        
+        total = len(self.validaciones_log)
+        validados = sum(1 for v in self.validaciones_log if v['validado'])
+        rechazados = total - validados
+        
+        return {
+            'total': total,
+            'validados': validados,
+            'rechazados': rechazados,
+            'tasa_exito': round((validados / total) * 100, 2) if total > 0 else 0.0,
+            'validaciones': self.validaciones_log
+        }
+
+
+def hash_contenido(contenido: str) -> str:
+    """Genera hash MD5 de un contenido (para deduplicación)."""
+    return hashlib.md5(contenido.encode()).hexdigest()

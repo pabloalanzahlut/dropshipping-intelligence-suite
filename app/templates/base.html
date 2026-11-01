@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}GEM OS{% endblock %} · GEM OS Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            bg: {
+              base:  '#060810',
+              deep:  '#08091a',
+              card:  '#0d0f1f',
+              hover: '#111328',
+            },
+            border: {
+              dim:    '#1a1d35',
+              mid:    '#252844',
+              bright: '#3a3f68',
+            },
+            text: {
+              muted:  '#4a5080',
+              subtle: '#7880b0',
+              soft:   '#a8b0d8',
+              base:   '#c8d0f0',
+              bright: '#e8ecff',
+            },
+            cyan:   { 400: '#22d3ee', 500: '#06b6d4', glow: 'rgba(34,211,238,0.15)' },
+            violet: { 400: '#a78bfa', 500: '#8b5cf6', glow: 'rgba(139,92,246,0.15)' },
+            emerald:{ 400: '#34d399', 500: '#10b981', glow: 'rgba(52,211,153,0.12)' },
+            amber:  { 400: '#fbbf24', 500: '#f59e0b', glow: 'rgba(251,191,36,0.12)' },
+            rose:   { 400: '#fb7185', 500: '#f43f5e', glow: 'rgba(251,113,133,0.12)' },
+          },
+          boxShadow: {
+            'glow-cyan':    '0 0 20px rgba(34,211,238,0.18), 0 0 60px rgba(34,211,238,0.06)',
+            'glow-violet':  '0 0 20px rgba(139,92,246,0.18), 0 0 60px rgba(139,92,246,0.06)',
+            'glow-emerald': '0 0 20px rgba(52,211,153,0.18), 0 0 60px rgba(52,211,153,0.06)',
+            'card':         '0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    [x-cloak] { display: none !important; }
+
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #060810;
+      color: #c8d0f0;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 224px;
+      min-width: 224px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: #08091a;
+      border-right: 1px solid #1a1d35;
+      display: flex;
+      flex-direction: column;
+      z-index: 30;
+      overflow: hidden;
+    }
+
+    /* Subtle grid texture on sidebar */
+    #sidebar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(34,211,238,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    .sidebar-logo {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid #1a1d35;
+      position: relative;
+    }
+    .logo-mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 0 16px rgba(34,211,238,0.3);
+    }
+    .logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #e8ecff; letter-spacing: -0.3px; }
+    .logo-sub  { font-size: 10px; color: #4a5080; margin-top: 1px; letter-spacing: 0.5px; }
+
+    .sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+    .nav-section-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: #4a5080; padding: 8px 8px 4px; margin-top: 4px;
+    }
+
+    .nav-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: #7880b0;
+      text-decoration: none; cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative; margin-bottom: 1px;
+      border: 1px solid transparent;
+    }
+    .nav-link:hover {
+      background: #0d0f1f;
+      color: #c8d0f0;
+      border-color: #1a1d35;
+    }
+    .nav-link.active {
+      background: linear-gradient(135deg, rgba(6,182,212,0.12), rgba(139,92,246,0.08));
+      color: #22d3ee;
+      border-color: rgba(34,211,238,0.2);
+      font-weight: 600;
+    }
+    .nav-link.active .nav-icon { color: #22d3ee; }
+    .nav-link .nav-icon {
+      width: 16px; height: 16px; flex-shrink: 0; color: #4a5080;
+      transition: color 0.15s;
+    }
+    .nav-link:hover .nav-icon { color: #7880b0; }
+
+    /* Active indicator pill */
+    .nav-link.active::before {
+      content: '';
+      position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 20px;
+      background: linear-gradient(180deg, #06b6d4, #8b5cf6);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .sidebar-footer {
+      padding: 12px 12px;
+      border-top: 1px solid #1a1d35;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    /* ── Main content ── */
+    #main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* Top bar */
+    #topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(6, 8, 16, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1a1d35;
+      padding: 12px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px;
+    }
+
+    /* Page content */
+    #page-content {
+      padding: 28px 28px 40px;
+      flex: 1;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #0d0f1f;
+      border: 1px solid #1a1d35;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+      position: relative;
+    }
+    .card-glow-cyan  { box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 32px rgba(34,211,238,0.06); border-color: rgba(34,211,238,0.12); }
+    .card-glow-violet{ box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 32px rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.12); }
+
+    /* ── Stat tile ── */
+    .stat-tile {
+      background: #0d0f1f;
+      border: 1px solid #1a1d35;
+      border-radius: 12px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-tile::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--tile-color, rgba(34,211,238,0.04)) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .stat-label { font-size: 11px; color: #7880b0; font-weight: 500; letter-spacing: 0.3px; margin-bottom: 6px; }
+    .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; line-height: 1; }
+    .stat-sub   { font-size: 10px; color: #4a5080; margin-top: 6px; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+      color: #fff; font-size: 13px; font-weight: 600;
+      padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer;
+      transition: opacity 0.15s, box-shadow 0.15s;
+      box-shadow: 0 0 20px rgba(34,211,238,0.25);
+    }
+    .btn-primary:hover { opacity: 0.9; box-shadow: 0 0 28px rgba(34,211,238,0.35); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; color: #7880b0;
+      font-size: 12px; font-weight: 500;
+      padding: 7px 14px; border-radius: 8px;
+      border: 1px solid #1a1d35; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-ghost:hover { background: #0d0f1f; color: #c8d0f0; border-color: #252844; }
+
+    /* ── Inputs ── */
+    .input-field {
+      width: 100%;
+      background: #08091a;
+      border: 1px solid #1a1d35;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #e8ecff;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .input-field::placeholder { color: #4a5080; }
+    .input-field:focus {
+      border-color: rgba(34,211,238,0.5);
+      box-shadow: 0 0 0 3px rgba(34,211,238,0.08);
+    }
+    select.input-field { cursor: pointer; }
+
+    /* ── Badges ── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }
+    .badge-done    { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+    .badge-pending { background: rgba(245,158,11,0.10); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+    .badge-fail    { background: rgba(244,63,94,0.10);  color: #fb7185; border: 1px solid rgba(251,113,133,0.2); }
+    .badge-info    { background: rgba(34,211,238,0.10); color: #22d3ee; border: 1px solid rgba(34,211,238,0.2); }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th {
+      text-align: left; padding: 0 12px 10px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      color: #4a5080; border-bottom: 1px solid #1a1d35;
+    }
+    .data-table th:last-child { text-align: right; }
+    .data-table td { padding: 11px 12px; border-bottom: 1px solid rgba(26,29,53,0.6); color: #a8b0d8; vertical-align: middle; }
+    .data-table td:last-child { text-align: right; }
+    .data-table tr:hover td { background: rgba(13,15,31,0.6); }
+    .data-table tr:last-child td { border-bottom: none; }
+
+    /* ── Section heading ── */
+    .section-title { font-size: 13px; font-weight: 600; color: #e8ecff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+    /* ── Insight card ── */
+    .insight-card {
+      background: #08091a;
+      border: 1px solid #1a1d35;
+      border-radius: 10px;
+      padding: 14px 16px;
+      border-left: 2px solid rgba(34,211,238,0.4);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .insight-card:hover { background: #0d0f1f; border-left-color: #22d3ee; }
+
+    /* ── Tab filter ── */
+    .tab-btn {
+      display: inline-flex; align-items: center; padding: 6px 14px;
+      border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+      border: 1px solid #1a1d35; background: transparent; color: #7880b0;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .tab-btn:hover   { border-color: #252844; color: #a8b0d8; }
+    .tab-btn.active  { background: rgba(34,211,238,0.1); border-color: rgba(34,211,238,0.3); color: #22d3ee; }
+
+    /* ── Hook selector ── */
+    .hook-btn {
+      background: #08091a; border: 1px solid #1a1d35;
+      border-radius: 8px; padding: 10px 12px; text-align: left;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .hook-btn:hover { border-color: #252844; background: #0d0f1f; }
+    .hook-btn.active { background: rgba(34,211,238,0.07); border-color: rgba(34,211,238,0.35); }
+
+    /* ── Pulse dot ── */
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #34d399;
+      box-shadow: 0 0 0 0 rgba(52,211,153,0.6);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0 rgba(52,211,153,0.5); }
+      70%  { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+      100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+    }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: #1a1d35; margin: 16px 0; }
+
+    /* Form label */
+    .form-label { display: block; font-size: 11px; font-weight: 500; color: #7880b0; margin-bottom: 5px; letter-spacing: 0.2px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #252844; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3f68; }
+
+    /* Mobile: sidebar hidden by default */
+    @media (max-width: 767px) {
+      body { display: block; }
+      #sidebar {
+        position: fixed; top: 0; left: 0;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+        height: 100vh;
+      }
+      #sidebar.open { transform: translateX(0); }
+      #main-wrapper { height: auto; overflow-y: unset; }
+      #page-content { padding: 16px; }
+      #topbar { padding: 10px 16px; }
+    }
+
+    /* Animated spin */
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body x-data="{ sidebarOpen: false }" :class="sidebarOpen ? 'overflow-hidden' : ''">
+
+  <!-- Mobile overlay -->
+  <div x-show="sidebarOpen" x-cloak
+       @click="sidebarOpen = false"
+       style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:25;"></div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" :class="sidebarOpen ? 'open' : ''">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <div class="logo-text">GEM OS</div>
+          <div class="logo-sub">INTELLIGENCE SUITE v3.7</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Core</div>
+
+      <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <a href="/validador" class="nav-link {% if request.url.path == '/validador' %}active{% endif %}">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        Validador Financiero
+      </a>
+
+      <div class="nav-section-label" style="margin-top:8px;">Ingesta & Contenido</div>
+
+      <a href="/youtube" class="nav-link {% if request.url.path == '/youtube' %}active{% endif %}">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        YouTube · Ingesta
+      </a>
+
+      <a href="/copys" class="nav-link {% if request.url.path == '/copys' %}active{% endif %}">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+        </svg>
+        Copys AIDA
+      </a>
+
+      <a href="/tiktok" class="nav-link {% if request.url.path == '/tiktok' %}active{% endif %}">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4"/>
+        </svg>
+        TikTok Scripts
+      </a>
+
+      <div class="nav-section-label" style="margin-top:8px;">Inteligencia</div>
+
+      <a href="/insights" class="nav-link {% if request.url.path == '/insights' %}active{% endif %}">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Insights KB
+      </a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <a href="/api/status" target="_blank" style="font-size:11px;color:#4a5080;text-decoration:none;"
+         onmouseover="this.style.color='#7880b0'" onmouseout="this.style.color='#4a5080'">
+        Estado del servidor →
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main wrapper -->
+  <div id="main-wrapper">
+
+    <!-- Top bar -->
+    <header id="topbar">
+      <!-- Mobile hamburger -->
+      <button @click="sidebarOpen = !sidebarOpen" class="md:hidden btn-ghost" style="padding:6px 8px;">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+      <!-- Page title breadcrumb - populated per page -->
+      <div id="topbar-title" class="hidden md:block">
+        {% block topbar_title %}{% endblock %}
+      </div>
+
+      <!-- Right cluster -->
+      <div style="display:flex;align-items:center;gap:12px;margin-left:auto;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="pulse-dot"></div>
+          <span style="font-size:11px;color:#4a5080;">Sistema activo</span>
+        </div>
+        <div style="width:1px;height:16px;background:#1a1d35;"></div>
+        <div style="font-size:11px;color:#4a5080;" id="clock">—</div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main id="page-content">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+
+  <script>
+    // Live clock
+    function updateClock() {
+      document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-ES');
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>

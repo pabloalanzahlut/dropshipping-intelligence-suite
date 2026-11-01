@@ -1,0 +1,23 @@
+# --- Núcleo de Conexión y APIs externas ---
+requests==2.32.3
+python-dotenv==1.0.1
+
+# --- Herramientas de Compilación y Distribución (dev local solamente) ---
+pyinstaller==6.11.1
+
+# --- Descarga de Videos y Transcripciones ---
+yt-dlp==2024.10.23
+youtube-transcript-api==0.6.2
+
+# --- Utilities para IA y Prompts ---
+openai==1.54.3
+
+# --- Backend Web Principal (FastAPI + servidor ASGI) ---
+fastapi==0.115.6
+uvicorn==0.34.0
+python-multipart==0.0.9
+jinja2==3.1.4
+markdown==3.7
+
+# --- Scheduler de tareas autónomas (FASE 4 — CronJobs internos) ---
+apscheduler==3.10.4

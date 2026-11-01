@@ -1,0 +1,46 @@
+{
+  "last_global_sync": "2026-10-25T02:05:00Z",
+  "global_cooldown_seconds": 1800,
+  "channels": [
+    {
+      "channel_name": "Adrián Sáenz",
+      "channel_url": "https://www.youtube.com/@adriansaenz",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 1
+    },
+    {
+      "channel_name": "Iván Caicedo",
+      "channel_url": "https://www.youtube.com/@ivancaicedo",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 1
+    },
+    {
+      "channel_name": "JaviEcom",
+      "channel_url": "https://www.youtube.com/@javiecom",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 2
+    },
+    {
+      "channel_name": "Marc Verdú",
+      "channel_url": "https://www.youtube.com/@marcverdu",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 2
+    },
+    {
+      "channel_name": "Vic Ecomilions",
+      "channel_url": "https://www.youtube.com/@vicecomilions",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 3
+    }
+  ]
+}

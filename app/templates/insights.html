@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Insights KB{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Insights KB</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="insights()" x-init="init()">
+
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        Insights · <span style="background:linear-gradient(90deg,#fbbf24,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Base de Conocimiento</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">product_trends · conversion_formulas · operations_traffic</p>
+    </div>
+    <button @click="loadInsights()" :disabled="loading" class="btn-ghost">
+      <svg :class="loading ? 'spin' : ''" style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Stats bar -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+    <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#22d3ee;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="all.length"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Total</p>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid rgba(52,211,153,0.12);border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#34d399;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="all.filter(i=>i.source_table==='product_trends').length"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Tendencias</p>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid rgba(251,191,36,0.12);border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#fbbf24;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="all.filter(i=>i.source_table==='conversion_formulas').length"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Conversión</p>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid rgba(167,139,250,0.12);border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="all.filter(i=>i.source_table==='operations_traffic').length"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Operaciones</p>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">
+    <template x-for="f in filters" :key="f.value">
+      <button @click="activeFilter = f.value"
+              :class="activeFilter === f.value ? 'tab-btn active' : 'tab-btn'"
+              x-text="f.label"></button>
+    </template>
+  </div>
+
+  <!-- Loading -->
+  <div x-show="loading" style="text-align:center;padding:60px 0;">
+    <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px;">
+      <div class="spin" style="width:24px;height:24px;border:2px solid #1a1d35;border-top-color:#22d3ee;border-radius:50%;"></div>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Cargando insights...</p>
+    </div>
+  </div>
+
+  <!-- Insights grid -->
+  <div x-show="!loading" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;">
+    <template x-for="ins in filteredInsights" :key="ins.id + ins.source_table">
+      <div class="insight-card"
+           :style="ins.source_table === 'product_trends' ? 'border-left-color:rgba(52,211,153,0.5)' :
+                   ins.source_table === 'conversion_formulas' ? 'border-left-color:rgba(251,191,36,0.5)' :
+                   'border-left-color:rgba(167,139,250,0.5)'">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">
+          <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span :class="{
+                'badge badge-done':    ins.source_table === 'product_trends',
+                'badge badge-pending': ins.source_table === 'conversion_formulas',
+                'badge':               ins.source_table === 'operations_traffic'
+              }" :style="ins.source_table === 'operations_traffic' ? 'background:rgba(167,139,250,0.1);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);' : ''"
+              x-text="tableLabel(ins.source_table)"></span>
+              <span style="font-size:10px;color:#4a5080;" x-text="ins.channel_name || 'Canal desconocido'"></span>
+            </div>
+            <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+               x-text="ins.video_title || '(Sin título)'"></p>
+          </div>
+          <span style="font-size:10px;color:#4a5080;white-space:nowrap;flex-shrink:0;margin-top:2px;"
+                x-text="ins.created_at?.substring(0,10) || ''"></span>
+        </div>
+        <p style="font-size:11px;color:#7880b0;margin:0;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;"
+           x-text="ins.content_preview || '—'"></p>
+      </div>
+    </template>
+
+    <!-- Empty state -->
+    <div x-show="filteredInsights.length === 0 && !loading"
+         style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;padding:64px 0;gap:12px;">
+      <div style="width:56px;height:56px;border-radius:16px;background:#0d0f1f;border:1px solid #1a1d35;display:flex;align-items:center;justify-content:center;">
+        <svg style="width:26px;height:26px;color:#4a5080;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+      </div>
+      <div style="text-align:center;">
+        <p style="font-size:13px;font-weight:600;color:#7880b0;margin:0 0 4px;">Sin insights todavía</p>
+        <p style="font-size:11px;color:#4a5080;margin:0;">Inicia la ingesta en la pestaña YouTube para comenzar.</p>
+      </div>
+      <a href="/youtube" class="btn-ghost" style="text-decoration:none;">Ir a YouTube · Ingesta →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function insights() {
+  return {
+    all: [], loading: false, activeFilter: 'all',
+    filters: [
+      { value: 'all', label: 'Todos' },
+      { value: 'product_trends', label: 'Tendencias' },
+      { value: 'conversion_formulas', label: 'Conversión' },
+      { value: 'operations_traffic', label: 'Operaciones' },
+    ],
+    get filteredInsights() {
+      if (this.activeFilter === 'all') return this.all;
+      return this.all.filter(i => i.source_table === this.activeFilter);
+    },
+    tableLabel(t) {
+      return { product_trends: 'Tendencias', conversion_formulas: 'Conversión', operations_traffic: 'Operaciones' }[t] || t;
+    },
+    async init() { await this.loadInsights(); },
+    async loadInsights() {
+      this.loading = true;
+      try { const res = await fetch('/api/insights'); this.all = await res.json(); }
+      catch(e) {}
+      finally { this.loading = false; }
+    }
+  }
+}
+</script>
+{% endblock %}

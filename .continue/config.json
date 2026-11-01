@@ -1,0 +1,107 @@
+{
+  "models": [
+    {
+      "title": "Qwen 2.5 Coder 32B (GRATIS - Desarrollo & Python)",
+      "provider": "openai",
+      "model": "qwen/qwen-2.5-coder-32b-instruct:free",
+      "apiBase": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "completionOptions": {
+        "temperature": 0.0,
+        "maxTokens": 4096
+      }
+    },
+    {
+      "title": "Gemini 2.5 Flash Flash (GRATIS - Contexto Largo & KB)",
+      "provider": "openai",
+      "model": "google/gemini-2.5-flash:free",
+      "apiBase": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "completionOptions": {
+        "temperature": 0.0,
+        "maxTokens": 4096
+      }
+    },
+    {
+      "title": "Llama 3.1 8B (GRATIS - Tareas Rápidas & Formateo)",
+      "provider": "openai",
+      "model": "meta-llama/llama-3.1-8b-instruct:free",
+      "apiBase": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "completionOptions": {
+        "temperature": 0.1,
+        "maxTokens": 2048
+      }
+    },
+    {
+      "title": "DeepSeek V3 (Triturador Económico - Pago)",
+      "provider": "openai",
+      "model": "deepseek/deepseek-chat",
+      "apiBase": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "completionOptions": {
+        "temperature": 0.0,
+        "maxTokens": 4096
+      }
+    },
+    {
+      "title": "Claude 3.5 Sonnet (Copywriting CRO - Pago Élite)",
+      "provider": "openai",
+      "model": "anthropic/claude-3.5-sonnet",
+      "apiBase": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "completionOptions": {
+        "temperature": 0.4,
+        "maxTokens": 4096
+      }
+    }
+  ],
+  "agents": [
+    {
+      "name": "@gem-qa-validation",
+      "model": "google/gemini-2.5-flash:free",
+      "apiBase": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "role": "validation",
+      "description": "Agente QA que revisa el cumplimiento de métricas, pruebas de integración y formatos de salida para el GEM OS",
+      "systemPrompt": {
+        "files": [".continue/agents/gem-qa-validation.md", "agent.md", "ai_workspace/agents.md"]
+      }
+    },
+    {
+      "name": "@gem-backend-core",
+      "model": "qwen/qwen-2.5-coder-32b-instruct:free",
+      "apiBase": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "role": "backend_core",
+      "description": "Agente central del backend que gestiona el procesamiento en masa de KB, rutas semánticas e ingesta histórica de datos",
+      "systemPrompt": {
+        "files": [".continue/agents/gem-backend.md", "agent.md", "ai_workspace/agents.md"]
+      }
+    },
+    {
+      "name": "@gem-orchestrator-core",
+      "model": "meta-llama/llama-3.1-8b-instruct:free",
+      "apiBase": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "role": "orchestrator_core",
+      "description": "Agente orquestador que coordina la ejecución de tareas, movimientos de estado entre los procesos y gestión de errores",
+      "systemPrompt": {
+        "files": [".continue/agents/gem-orchestrate.md", "agent.md", "ai_workspace/agents.md"]
+      }
+    }
+  ],
+  "customCommands": [
+    {
+      "name": "copywrite",
+      "description": "Transforma especificaciones técnicas en copys AIDA para Shopify",
+      "prompt": "{{{ systemPrompt }}}\n\nPor favor, lee las especificaciones del producto provistas y aplica el framework AIDA Clásico siguiendo el archivo .github/instructions/ecom-financial-rules.md"
+    },
+    {
+      "name": "validate",
+      "description": "Valida métricas operativas y blindaje XML del contexto",
+      "prompt": "Actúa como el auditor de GEM OS. Revisa la estructura adjunta y verifica que cumpla con los benchmarks cuantitativos de .github/instructions/ecom-financial-rules.md"
+    }
+  ],
+  "systemPrompt": "Eres GEM OS, un ecosistema élite de IA especializado en Dropshipping internacional. Te riges estrictamente por los criterios cuantitativos de tus archivos de instrucciones en .github/ y jamás inventas datos."
+}

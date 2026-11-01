@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Dashboard</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="dashboard()" x-init="init()">
+
+  <!-- Page header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        Dashboard <span style="background:linear-gradient(90deg,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">en Tiempo Real</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Dropshipping Intelligence Suite · <span x-text="(metrics.canales_count ?? 0) + ' canales activos'">— canales activos</span></p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:11px;color:#4a5080;" x-text="lastUpdate">—</span>
+      <button @click="fetchMetrics()" class="btn-ghost" style="padding:6px 12px;font-size:11px;">
+        <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Stat tiles -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+
+    <div class="stat-tile" style="--tile-color:rgba(34,211,238,0.05);">
+      <div class="stat-label">Videos Procesados</div>
+      <div class="stat-value" style="color:#22d3ee;" x-text="metrics.total_videos ?? '—'"></div>
+      <div class="stat-sub">acumulados en KB</div>
+      <div style="position:absolute;top:16px;right:16px;opacity:0.15;">
+        <svg style="width:28px;height:28px;color:#22d3ee;" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="stat-tile" style="--tile-color:rgba(251,191,36,0.05);">
+      <div class="stat-label">Cola Pendiente</div>
+      <div class="stat-value" style="color:#fbbf24;" x-text="metrics.tasks_pending ?? '—'"></div>
+      <div class="stat-sub">canales en espera</div>
+      <div style="position:absolute;top:16px;right:16px;opacity:0.15;">
+        <svg style="width:28px;height:28px;color:#fbbf24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="stat-tile" style="--tile-color:rgba(52,211,153,0.05);">
+      <div class="stat-label">Completados</div>
+      <div class="stat-value" style="color:#34d399;" x-text="metrics.tasks_done ?? '—'"></div>
+      <div class="stat-sub">canales ingestados</div>
+      <div style="position:absolute;top:16px;right:16px;opacity:0.15;">
+        <svg style="width:28px;height:28px;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="stat-tile" style="--tile-color:rgba(167,139,250,0.05);">
+      <div class="stat-label">Registros KB</div>
+      <div class="stat-value" style="color:#a78bfa;" x-text="metrics.kb_count ?? '—'"></div>
+      <div class="stat-sub">Base de Conocimiento</div>
+      <div style="position:absolute;top:16px;right:16px;opacity:0.15;">
+        <svg style="width:28px;height:28px;color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Lower grid: table + insights -->
+  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:14px;">
+
+    <!-- Channels table -->
+    <div class="card card-glow-cyan">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div class="section-title" style="margin-bottom:0;">
+          <svg style="width:14px;height:14px;color:#22d3ee;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          Canales Favoritos
+        </div>
+        <span style="font-size:11px;color:#4a5080;" x-text="(metrics.canales_count ?? 0) + ' canales · ' + (metrics.videos_favoritos ?? 0) + ' videos fav'"></span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Canal</th>
+            <th>Tags</th>
+            <th style="text-align:center;">Idioma</th>
+            <th style="text-align:right;">Videos KB</th>
+            <th style="text-align:right;">Prio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="ch in (metrics.channels || [])" :key="ch.handle">
+            <tr>
+              <td>
+                <span style="color:#e8ecff;font-weight:500;" x-text="ch.nombre"></span>
+                <span style="display:block;color:#4a5080;font-size:10px;" x-text="ch.handle"></span>
+              </td>
+              <td style="color:#7880b0;font-size:11px;" x-text="ch.tags || '—'"></td>
+              <td style="text-align:center;">
+                <span x-show="ch.idioma === 'es'" class="badge badge-done">ES</span>
+                <span x-show="ch.idioma !== 'es'" class="badge badge-pending" x-text="(ch.idioma || 'en').toUpperCase()"></span>
+              </td>
+              <td style="color:#a8b0d8;text-align:right;" x-text="ch.videos_descargados ?? 0"></td>
+              <td style="text-align:right;">
+                <span :style="(ch.prioridad ?? 5) <= 2 ? 'color:#22d3ee;font-weight:700;' : 'color:#4a5080;'" x-text="ch.prioridad ?? 5"></span>
+              </td>
+            </tr>
+          </template>
+          <tr x-show="!metrics.channels || metrics.channels.length === 0">
+            <td colspan="5" style="text-align:center;color:#4a5080;padding:32px 0;font-size:12px;">Sin canales registrados aún</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Latest insights -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div class="section-title" style="margin-bottom:0;">
+          <svg style="width:14px;height:14px;color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          Últimos Insights
+        </div>
+        <a href="/insights" style="font-size:11px;color:#22d3ee;text-decoration:none;font-weight:500;"
+           onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Ver todos →</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <template x-for="ins in (metrics.insights || [])" :key="ins.product_name">
+          <div class="insight-card">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+              <div style="min-width:0;">
+                <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="ins.product_name"></p>
+                <p style="font-size:11px;color:#4a5080;margin:0;">
+                  <span x-text="ins.niche"></span> · <span x-text="ins.channel_name || 'Desconocido'"></span>
+                </p>
+              </div>
+              <span style="font-size:10px;color:#4a5080;white-space:nowrap;flex-shrink:0;" x-text="ins.validated_at?.substring(0,10) || ''"></span>
+            </div>
+            <p style="font-size:11px;color:#7880b0;margin:8px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;" x-text="ins.wow_factor || '—'"></p>
+          </div>
+        </template>
+        <p x-show="!metrics.insights || metrics.insights.length === 0"
+           style="text-align:center;color:#4a5080;font-size:12px;padding:28px 0;margin:0;">
+          Sin insights todavía.<br>
+          <span style="color:#3a3f68;">Inicia la ingesta en YouTube.</span>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Action bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding:14px 18px;background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;">
+    <div>
+      <p x-show="processMsg" x-cloak style="font-size:12px;color:#34d399;margin:0;" x-text="processMsg"></p>
+      <p x-show="!processMsg" style="font-size:12px;color:#4a5080;margin:0;">Procesa los canales de mentores y extrae insights automáticamente</p>
+    </div>
+    <button @click="triggerProcess()" :disabled="processing" class="btn-primary">
+      <svg x-show="!processing" style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      <svg x-show="processing" x-cloak class="spin" style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24">
+        <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      <span x-text="processing ? 'Iniciando...' : 'Iniciar Ingesta Masiva'"></span>
+    </button>
+  </div>
+
+</div>
+
+<script>
+function dashboard() {
+  return {
+    metrics: {},
+    lastUpdate: '—',
+    processing: false,
+    processMsg: '',
+    async init() {
+      await this.fetchMetrics();
+      setInterval(() => this.fetchMetrics(), 10000);
+    },
+    async fetchMetrics() {
+      try {
+        const res = await fetch('/api/metrics');
+        this.metrics = await res.json();
+        this.lastUpdate = new Date().toLocaleTimeString('es-ES');
+      } catch (e) { console.error(e); }
+    },
+    async triggerProcess() {
+      this.processing = true;
+      this.processMsg = '';
+      try {
+        const res = await fetch('/api/process', { method: 'POST' });
+        const data = await res.json();
+        this.processMsg = data.message || 'Ingesta iniciada.';
+      } catch (e) {
+        this.processMsg = 'Error al iniciar ingesta.';
+      } finally {
+        this.processing = false;
+      }
+    }
+  }
+}
+</script>
+{% endblock %}

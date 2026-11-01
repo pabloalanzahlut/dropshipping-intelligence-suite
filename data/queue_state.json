@@ -1,0 +1,150 @@
+{
+  "last_global_sync": "2026-10-25T02:05:00Z",
+  "global_cooldown_seconds": 1800,
+  "channels": [
+    {
+      "channel_name": "Adrián Sáenz",
+      "channel_url": "https://www.youtube.com/@adriansaenz",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 1
+    },
+    {
+      "channel_name": "Iván Caicedo",
+      "channel_url": "https://www.youtube.com/@ivancaicedo",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 1
+    },
+    {
+      "channel_name": "JaviEcom",
+      "channel_url": "https://www.youtube.com/@javiecom",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 2
+    },
+    {
+      "channel_name": "Marc Verdú",
+      "channel_url": "https://www.youtube.com/@marcverdu",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 2
+    },
+    {
+      "channel_name": "Vic Ecomilions",
+      "channel_url": "https://www.youtube.com/@vicecomilions",
+      "status": "pending",
+      "last_video_processed": "",
+      "total_videos_indexed": 0,
+      "priority": 3
+    },
+    {
+      "nombre": "Adrián Sáenz",
+      "url": "https://www.youtube.com/@adriansaenz",
+      "status": "Completado",
+      "last_scan": "2026-11-01T03:13:38.391578+00:00",
+      "total_videos": 7,
+      "processed_count": 0,
+      "failed_count": 7,
+      "videos": [
+        {
+          "video_id": "RR0806XzmOg",
+          "title": "7 Días Haciendo Compra-Venta En Latinoamérica",
+          "status": "Fallido",
+          "timestamp": "2026-11-01T03:13:02.555784+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "fxr3vWjruR8",
+          "title": "Tu Fecha De Nacimiento Revela Tu Don y Tu Mayor Reto | Raúl Durán",
+          "status": "Fallido",
+          "timestamp": "2026-11-01T03:13:16.466475+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "LycpBgBiWKw",
+          "title": "Dame 32 Minutos y Te Enseño a Ganar Dinero Con Claude",
+          "status": "Fallido",
+          "timestamp": "2026-11-01T03:13:26.117669+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "TyQsZpf4DlI",
+          "title": "La gente se está haciendo millonaria con la IA y lo va a perder todo",
+          "status": "Fallido",
+          "timestamp": "2026-11-01T03:13:35.432338+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "_cL6dYjz5H0",
+          "title": "Trata el dropshipping como un videojuego y hazte rico",
+          "status": "Fallido",
+          "timestamp": "2026-11-01T03:13:11.754265+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "ny7qgjwBkdg",
+          "title": "Cómo Reprogramar Tu Mente Para El Éxito y La Riqueza | Adrià Solà Pastor",
+          "status": "Fallido",
+          "timestamp": "2026-11-01T03:13:28.632464+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "uI4CKhT1cvo",
+          "title": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
+          "status": "Fallido",
+          "timestamp": "2026-11-01T03:13:38.391578+00:00",
+          "error": "Transcripción vacía o no disponible"
+        }
+      ]
+    },
+    {
+      "nombre": "Iván Caicedo",
+      "url": "https://www.youtube.com/@ivancaicedo",
+      "status": "Pendiente",
+      "last_scan": null,
+      "total_videos": 0,
+      "processed_count": 0,
+      "failed_count": 0,
+      "videos": []
+    },
+    {
+      "nombre": "JaviEcom",
+      "url": "https://www.youtube.com/@javiecom",
+      "status": "Pendiente",
+      "last_scan": null,
+      "total_videos": 0,
+      "processed_count": 0,
+      "failed_count": 0,
+      "videos": []
+    },
+    {
+      "nombre": "Marc Verdú",
+      "url": "https://www.youtube.com/@marcverdu",
+      "status": "Pendiente",
+      "last_scan": null,
+      "total_videos": 0,
+      "processed_count": 0,
+      "failed_count": 0,
+      "videos": []
+    },
+    {
+      "nombre": "Vic Ecomilions",
+      "url": "https://www.youtube.com/@vicecomilions",
+      "status": "Pendiente",
+      "last_scan": null,
+      "total_videos": 0,
+      "processed_count": 0,
+      "failed_count": 0,
+      "videos": []
+    }
+  ],
+  "metadata": {
+    "last_load": "2026-11-01T03:06:00.720209+00:00",
+    "last_updated": "2026-11-01T03:13:38.391578+00:00"
+  }
+}

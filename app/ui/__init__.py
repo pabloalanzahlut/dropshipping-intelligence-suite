@@ -1,0 +1,1 @@
+"""UI - Capa de presentación desktop (Tkinter)."""
