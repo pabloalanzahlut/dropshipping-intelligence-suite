@@ -453,13 +453,107 @@ class DashboardPanelV3(tk.Frame):
             ], tags=(tag,))
 
     def _draw_charts(self):
-        """Dibujar gráficos de canvas."""
-        for canvas in [self.traffic_canvas, self.nichos_canvas]:
-            canvas.delete("all")
-            # Placeholder simple
-            canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2,
-                             text="📊 Datos en procesamiento...",
-                             fill=COLOR_TEXT_TERTIARY, font=FONT_BODY_SM)
+        """Dibuja gráficos de barras con datos reales de la BD."""
+        self.traffic_canvas.update_idletasks()
+        self.nichos_canvas.update_idletasks()
+        self._draw_bar_chart_productos(self.traffic_canvas)
+        self._draw_bar_chart_nichos(self.nichos_canvas)
+
+    def _draw_bar_chart_productos(self, canvas):
+        """Gráfico de barras: productos/transcripciones/copys/guiones."""
+        canvas.delete("all")
+        w = canvas.winfo_width() or 400
+        h = canvas.winfo_height() or 150
+        if w < 10 or h < 10:
+            return
+
+        try:
+            with self.db_manager.get_connection() as conn:
+                c = conn.cursor()
+                c.execute("SELECT COUNT(*) FROM productos_validados")
+                productos = c.fetchone()[0] or 0
+                c.execute("SELECT COUNT(*) FROM transcripciones_youtube")
+                transcs = c.fetchone()[0] or 0
+                c.execute("SELECT COUNT(*) FROM copys_generados")
+                copys = c.fetchone()[0] or 0
+                c.execute("SELECT COUNT(*) FROM guiones_tiktok")
+                guiones = c.fetchone()[0] or 0
+        except Exception:
+            productos = transcs = copys = guiones = 0
+
+        data = [("Productos", productos, "#6366f1"),
+                ("Transcrip.", transcs, "#3b82f6"),
+                ("Copys", copys, "#10b981"),
+                ("Guiones", guiones, "#f59e0b")]
+
+        max_val = max((v for _, v, _ in data), default=1) or 1
+        pad_l, pad_r, pad_t, pad_b = 10, 10, 12, 28
+        chart_w = w - pad_l - pad_r
+        chart_h = h - pad_t - pad_b
+        bar_w = chart_w / (len(data) * 2)
+
+        for i, (label, val, color) in enumerate(data):
+            x0 = pad_l + i * (chart_w / len(data)) + bar_w * 0.5
+            bar_h = (val / max_val) * chart_h if max_val else 0
+            x1 = x0 + bar_w
+            y1 = h - pad_b
+            y0 = y1 - bar_h
+
+            canvas.create_rectangle(x0, max(y0, pad_t), x1, y1, fill=color, outline="")
+            canvas.create_text((x0 + x1) / 2, h - pad_b + 10,
+                               text=label, fill=COLOR_TEXT_SECONDARY, font=FONT_BODY_SM, anchor="n")
+            if val > 0:
+                canvas.create_text((x0 + x1) / 2, max(y0, pad_t) - 2,
+                                   text=str(val), fill=COLOR_TEXT_PRIMARY, font=FONT_BODY_SM, anchor="s")
+
+        # Eje X
+        canvas.create_line(pad_l, h - pad_b, w - pad_r, h - pad_b,
+                           fill=COLOR_BORDER, width=1)
+
+    def _draw_bar_chart_nichos(self, canvas):
+        """Gráfico de barras horizontales: top categorías por cantidad de productos."""
+        canvas.delete("all")
+        w = canvas.winfo_width() or 400
+        h = canvas.winfo_height() or 150
+        if w < 10 or h < 10:
+            return
+
+        try:
+            with self.db_manager.get_connection() as conn:
+                c = conn.cursor()
+                c.execute("""
+                    SELECT categoria, COUNT(*) as cnt
+                    FROM productos_validados
+                    WHERE categoria IS NOT NULL AND categoria != ''
+                    GROUP BY categoria ORDER BY cnt DESC LIMIT 5
+                """)
+                rows = c.fetchall()
+        except Exception:
+            rows = []
+
+        if not rows:
+            canvas.create_text(w / 2, h / 2, text="Sin datos de categorías aún",
+                               fill=COLOR_TEXT_TERTIARY, font=FONT_BODY_SM)
+            return
+
+        colors = ["#6366f1", "#8b5cf6", "#3b82f6", "#10b981", "#f59e0b"]
+        max_val = max(r[1] for r in rows) or 1
+        pad_l, pad_r, pad_t, pad_b = 100, 40, 8, 8
+        bar_area_w = w - pad_l - pad_r
+        bar_h = max(12, (h - pad_t - pad_b) // len(rows) - 4)
+        gap = (h - pad_t - pad_b - bar_h * len(rows)) / max(len(rows) - 1, 1)
+
+        for i, (cat, cnt) in enumerate(rows):
+            y_center = pad_t + i * (bar_h + gap) + bar_h / 2
+            bw = (cnt / max_val) * bar_area_w
+            canvas.create_rectangle(pad_l, y_center - bar_h / 2,
+                                    pad_l + bw, y_center + bar_h / 2,
+                                    fill=colors[i % len(colors)], outline="")
+            label = cat[:14] + "…" if len(cat) > 14 else cat
+            canvas.create_text(pad_l - 4, y_center, text=label,
+                               fill=COLOR_TEXT_SECONDARY, font=FONT_BODY_SM, anchor="e")
+            canvas.create_text(pad_l + bw + 4, y_center, text=str(cnt),
+                               fill=COLOR_TEXT_PRIMARY, font=FONT_BODY_SM, anchor="w")
 
     def _on_sync(self):
         """Sincronizar datos."""
