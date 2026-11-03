@@ -1,0 +1,15 @@
+# GEM OS — Code Owners
+# Archivos críticos que requieren revisión antes de mergear
+
+# Reglas financieras — cambios requieren revisión
+.continue/rules/                    @pabloalanzahlut
+CLAUDE.md                           @pabloalanzahlut
+
+# Skills del pipeline — cambios requieren revisión
+ai_workspace/skills/                @pabloalanzahlut
+
+# Workflows CI/CD
+.github/workflows/                  @pabloalanzahlut
+
+# Base de datos
+app/database/                       @pabloalanzahlut
