@@ -21,6 +21,7 @@ from pathlib import Path
 
 from app.database.connection import DatabaseConnection
 from app.services.transcript_cleaner import TranscriptCleaner
+from app.services.youtube_rss_fetcher import fetch_channel_videos, download_transcript, hash_content
 
 
 class YouTubeChannelMonitor:
