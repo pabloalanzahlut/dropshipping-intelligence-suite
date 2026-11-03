@@ -227,11 +227,11 @@ class CopywritingPanel(ttk.Frame):
     def _obtener_datos_formulario(self):
         """Lee y valida los campos del formulario."""
         try:
-            nombre = self.entry_nombre.get().strip()
-            categoria = self.entry_categoria.get().strip()
-            costo = float(self.entry_costo.get().strip())
-            pvp = float(self.entry_pvp.get().strip())
-            peso = float(self.entry_peso.get().strip())
+            nombre = self._var_nombre.get().strip()
+            categoria = self._var_categoria.get().strip()
+            costo = float(self._var_costo.get().strip())
+            pvp = float(self._var_pvp.get().strip())
+            peso = float(self._var_peso.get().strip())
             if not nombre or not categoria:
                 raise ValueError("Nombre y categoría son obligatorios")
             return nombre, categoria, costo, pvp, peso
