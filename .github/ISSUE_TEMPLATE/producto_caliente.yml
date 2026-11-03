@@ -1,0 +1,52 @@
+name: Producto Potencial HOT
+description: Registrar un producto candidato para análisis GEM OS
+title: "[PRODUCTO] "
+labels: ["producto", "analisis-pendiente"]
+body:
+  - type: input
+    id: nombre
+    attributes:
+      label: Nombre del producto
+      placeholder: "Ej: Masajeador Cervical Pro"
+    validations:
+      required: true
+
+  - type: input
+    id: costo
+    attributes:
+      label: Costo de origen (USD)
+      placeholder: "Ej: 8.50"
+    validations:
+      required: true
+
+  - type: input
+    id: pvp
+    attributes:
+      label: Precio de venta estimado (USD)
+      placeholder: "Ej: 34.99"
+    validations:
+      required: true
+
+  - type: input
+    id: peso
+    attributes:
+      label: Peso (kg)
+      placeholder: "Ej: 0.45"
+    validations:
+      required: true
+
+  - type: input
+    id: fuente
+    attributes:
+      label: Fuente / URL proveedor
+      placeholder: "AliExpress, CJ Dropshipping, etc."
+
+  - type: dropdown
+    id: clasificacion_previa
+    attributes:
+      label: Clasificación inicial
+      options:
+        - HOT (≥5x margen)
+        - WARM (3-5x margen)
+        - COLD (1.5-3x margen)
+        - Sin clasificar

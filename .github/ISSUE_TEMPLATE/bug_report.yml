@@ -1,0 +1,46 @@
+name: Bug Report — GEM OS
+description: Reportar un error en el pipeline de dropshipping
+title: "[BUG] "
+labels: ["bug", "triage"]
+body:
+  - type: dropdown
+    id: agente
+    attributes:
+      label: Agente afectado
+      options:
+        - Product Hunter (clasificar_productos)
+        - Funnel Builder (estructurar_landing)
+        - Media Buyer (redactar_guiones)
+        - Validador Financiero
+        - Pipeline Completo
+        - Otro
+    validations:
+      required: true
+
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción del error
+      placeholder: "¿Qué ocurrió? ¿Qué esperabas que ocurriera?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducir
+    attributes:
+      label: Pasos para reproducir
+      placeholder: |
+        1. Ejecuté el skill /clasificar-producto
+        2. Con el producto: ...
+        3. El resultado fue: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: datos
+    attributes:
+      label: Datos del producto (si aplica)
+      placeholder: |
+        Precio costo: $X
+        Precio venta: $X
+        Peso: Xkg
