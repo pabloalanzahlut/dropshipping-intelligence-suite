@@ -83,8 +83,16 @@ class CopywritingPanel(ttk.Frame):
         self.gen_status = ttk.Label(row3, text="Listo", foreground="blue")
         self.gen_status.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.X)
 
+        # ── Selector de variantes (oculto hasta que se generen variantes) ──
+        self.variante_frame = ttk.Frame(self)
+        ttk.Label(self.variante_frame, text="Variante:").pack(side=tk.LEFT, padx=4)
+        self.variante_combo = ttk.Combobox(self.variante_frame, state="readonly", width=20)
+        self.variante_combo.pack(side=tk.LEFT, padx=2)
+        self.variante_combo.bind("<<ComboboxSelected>>", self._seleccionar_variante)
+        # Se hace visible en _mostrar_variantes
+
         # ====== Sección Media: Preview AIDA ======
-        preview_frame = ttk.LabelFrame(self, text="Preview AIDA", padding=10)
+        preview_frame = ttk.LabelFrame(self, text="Preview AIDA • tiempo real", padding=10)
         preview_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
         # Título
