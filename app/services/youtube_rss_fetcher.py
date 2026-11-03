@@ -166,3 +166,95 @@ def _parse_vtt(vtt_content: str) -> str:
 
 def hash_content(text: str) -> str:
     return hashlib.md5(text.encode("utf-8")).hexdigest()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# YouTube Data API v3 (opcional — requiere YOUTUBE_API_KEY en .env)
+# Permite búsquedas de videos por keyword, algo que el RSS no puede hacer.
+# Si la key no está configurada, todas las funciones de esta sección devuelven [].
+# ──────────────────────────────────────────────────────────────────────────────
+
+import os as _os
+
+def _yt_api_key() -> Optional[str]:
+    return _os.getenv("YOUTUBE_API_KEY") or None
+
+
+def search_videos_by_keyword(
+    keyword: str,
+    max_results: int = 10,
+    order: str = "viewCount",
+    language: str = "es",
+) -> List[Dict]:
+    """
+    Busca videos en YouTube por keyword usando Data API v3.
+    Requiere YOUTUBE_API_KEY en .env.
+    order: 'viewCount' | 'relevance' | 'date'
+
+    Returns lista de dicts con: video_id, title, channel, published_at, view_count
+    """
+    key = _yt_api_key()
+    if not key:
+        return []
+
+    url = "https://www.googleapis.com/youtube/v3/search"
+    params = {
+        "part": "snippet",
+        "q": keyword,
+        "type": "video",
+        "order": order,
+        "relevanceLanguage": language,
+        "maxResults": min(max_results, 50),
+        "key": key,
+    }
+    try:
+        query = "&".join(f"{k}={urllib.request.quote(str(v))}" for k, v in params.items())
+        req = urllib.request.Request(f"{url}?{query}", headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        results = []
+        for item in data.get("items", []):
+            results.append({
+                "video_id":    item["id"]["videoId"],
+                "title":       item["snippet"]["title"],
+                "channel":     item["snippet"]["channelTitle"],
+                "published_at": item["snippet"]["publishedAt"],
+                "url":         f"https://www.youtube.com/watch?v={item['id']['videoId']}",
+            })
+        return results
+    except Exception as e:
+        print(f"[YT_API] search error: {e}")
+        return []
+
+
+def get_video_stats(video_ids: List[str]) -> Dict[str, Dict]:
+    """
+    Obtiene estadísticas (views, likes, comments) para una lista de video_ids.
+    Requiere YOUTUBE_API_KEY en .env.
+    Returns dict keyed by video_id.
+    """
+    key = _yt_api_key()
+    if not key or not video_ids:
+        return {}
+
+    ids_str = urllib.request.quote(",".join(video_ids[:50]))
+    url = (
+        f"https://www.googleapis.com/youtube/v3/videos"
+        f"?part=statistics&id={ids_str}&key={urllib.request.quote(key)}"
+    )
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        stats = {}
+        for item in data.get("items", []):
+            s = item.get("statistics", {})
+            stats[item["id"]] = {
+                "views":    int(s.get("viewCount", 0)),
+                "likes":    int(s.get("likeCount", 0)),
+                "comments": int(s.get("commentCount", 0)),
+            }
+        return stats
+    except Exception as e:
+        print(f"[YT_API] stats error: {e}")
+        return {}
