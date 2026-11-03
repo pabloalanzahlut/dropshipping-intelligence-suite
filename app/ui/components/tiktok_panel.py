@@ -11,6 +11,7 @@ import json
 from datetime import datetime
 
 from app.services.tiktok_script_generator import TikTokScriptGenerator
+from app.services.tiktok_publisher import TikTokPublisher
 
 
 class TikTokPanel(ttk.Frame):
