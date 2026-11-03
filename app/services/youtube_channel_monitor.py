@@ -238,12 +238,8 @@ Bueno, creo que esto cubre los fundamentos. Vamos al siguiente tema...
     
     def sincronizar_canales(self) -> Dict:
         """
-        Sincroniza todos los canales: descarga nuevas transcripciones.
-        
-        Returns:
-            Dict con estadísticas de sincronización
+        Sincroniza todos los canales via RSS + yt-dlp (sin YouTube API key, sin costo).
         """
-        
         stats = {
             'fecha_sincronizacion': datetime.now().isoformat(),
             'canales_procesados': 0,
@@ -254,28 +250,37 @@ Bueno, creo que esto cubre los fundamentos. Vamos al siguiente tema...
             'tokens_ahorrados': 0,
             'detalles': []
         }
-        
+
         for canal_info in self.canales:
             if not canal_info.get('activo', True):
                 continue
-            canal_nombre = canal_info.get('nombre', 'Sin nombre')
-            max_scan = canal_info.get('max_videos_scan', 30)
 
-            # Mock: Simular descarga de videos por canal (limitado por max_videos_scan)
-            for i in range(min(2, max_scan)):
-                video_id = f"mock_video_{i}_{hash(canal_nombre)}"
-                titulo = f"Video {i+1} - {canal_nombre}"
-                
+            canal_url = canal_info.get('url', '')
+            canal_nombre = canal_info.get('nombre', 'Sin nombre')
+            idioma = canal_info.get('idioma', 'es')
+            max_scan = canal_info.get('max_videos_scan', 15)
+
+            # Obtener lista de videos via RSS (gratuito)
+            videos = fetch_channel_videos(canal_url, max_videos=max_scan)
+            if not videos:
+                print(f"[MONITOR] Sin videos RSS para {canal_nombre}")
+                stats['errores'] += 1
+                stats['canales_procesados'] += 1
+                continue
+
+            for video in videos:
+                video_id = video['video_id']
+                titulo = video['title']
+
                 try:
-                    # Descargar transcripción (mock)
-                    transcripcion = self.descargar_transcripcion_mock(video_id, titulo, canal_nombre)
+                    # Descargar transcripción con yt-dlp (gratuito)
+                    transcripcion = download_transcript(video_id, lang=idioma)
                     if not transcripcion:
                         stats['errores'] += 1
                         continue
-                    
+
                     stats['videos_descargados'] += 1
-                    
-                    # Procesar
+
                     resultado = self.procesar_transcripcion(video_id, titulo, canal_nombre, transcripcion)
                     if resultado:
                         if resultado['duplicado']:
@@ -286,13 +291,13 @@ Bueno, creo que esto cubre los fundamentos. Vamos al siguiente tema...
                         stats['detalles'].append(resultado)
                     else:
                         stats['errores'] += 1
-                
+
                 except Exception as e:
                     print(f"[ERROR] Error procesando {titulo}: {str(e)}")
                     stats['errores'] += 1
-            
+
             stats['canales_procesados'] += 1
-        
+
         self.monitor_log.append(stats)
         return stats
     
