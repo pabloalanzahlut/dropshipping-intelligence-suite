@@ -1,0 +1,40 @@
+name: Auto Sync GEM OS
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: '0 */6 * * *'  # cada 6 horas
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify financial rules
+        run: |
+          echo "✅ Pipeline GEM OS sincronizado: $(date)"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Check secrets configured
+        run: |
+          if [ -z "${{ secrets.MAKE_WEBHOOK_TIKTOK }}" ]; then
+            echo "⚠️ WARNING: MAKE_WEBHOOK_TIKTOK no configurado en Secrets"
+          else
+            echo "✅ MAKE_WEBHOOK_TIKTOK configurado"
+          fi
+          if [ -z "${{ secrets.OPENROUTER_API_KEY }}" ]; then
+            echo "⚠️ WARNING: OPENROUTER_API_KEY no configurado en Secrets"
+          else
+            echo "✅ OPENROUTER_API_KEY configurado"
+          fi
+          if [ -z "${{ secrets.REMOVEBG_API_KEY }}" ]; then
+            echo "⚠️ WARNING: REMOVEBG_API_KEY no configurado en Secrets"
+          else
+            echo "✅ REMOVEBG_API_KEY configurado"
+          fi

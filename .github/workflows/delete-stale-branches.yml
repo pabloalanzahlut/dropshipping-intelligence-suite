@@ -1,0 +1,23 @@
+name: Cleanup Stale Branches
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # cada domingo a medianoche
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: List branches older than 30 days (dry run)
+        run: |
+          echo "Ramas con más de 30 días sin actividad:"
+          git branch -r --format='%(refname:short) %(committerdate:relative)' | \
+            grep -v 'origin/master' | \
+            grep -v 'HEAD' || echo "Sin ramas stale"

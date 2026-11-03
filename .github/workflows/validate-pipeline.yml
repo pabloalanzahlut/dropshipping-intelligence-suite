@@ -1,0 +1,57 @@
+name: Validate GEM OS Pipeline
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+    paths:
+      - 'ai_workspace/**'
+      - 'app/**'
+      - '.continue/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate financial rules file exists
+        run: |
+          test -f ".continue/rules/dropshipping_financial_rules.md" && \
+            echo "✅ Financial rules OK" || \
+            echo "⚠️ WARNING: .continue/rules/dropshipping_financial_rules.md no encontrado"
+
+      - name: Validate CLAUDE.md exists
+        run: |
+          test -f "CLAUDE.md" && \
+            echo "✅ CLAUDE.md OK" || \
+            (echo "❌ ERROR: CLAUDE.md faltante — GEM OS requiere este archivo" && exit 1)
+
+      - name: Validate skills structure
+        run: |
+          for skill in clasificar_productos estructurar_landing redactar_guiones_tiktok; do
+            if [ -d "ai_workspace/skills/$skill" ]; then
+              echo "✅ Skill $skill OK"
+            else
+              echo "⚠️ WARNING: Skill $skill no encontrada en ai_workspace/skills/"
+            fi
+          done
+
+      - name: Check no .env committed
+        run: |
+          if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -q "^\.env$"; then
+            echo "❌ CRITICAL: .env file detectado en commit — SECRETS EXPUESTOS"
+            exit 1
+          else
+            echo "✅ Sin .env en commits"
+          fi
+
+      - name: Validate no hardcoded API keys
+        run: |
+          if grep -rE "(sk-|pk_live_|whsec_)" --include="*.py" --include="*.js" --include="*.ts" . 2>/dev/null | grep -v ".env" | grep -v "example"; then
+            echo "❌ CRITICAL: API keys hardcodeadas detectadas"
+            exit 1
+          else
+            echo "✅ Sin API keys hardcodeadas"
+          fi
