@@ -47,11 +47,11 @@ class CopywritingPanel(ttk.Frame):
         row1.pack(fill=tk.X, pady=2)
 
         ttk.Label(row1, text="Producto:", width=12).pack(side=tk.LEFT, padx=2)
-        self.entry_nombre = ttk.Entry(row1, width=30)
+        self.entry_nombre = ttk.Entry(row1, width=30, textvariable=self._var_nombre)
         self.entry_nombre.pack(side=tk.LEFT, padx=2)
 
         ttk.Label(row1, text="Categoría:", width=10).pack(side=tk.LEFT, padx=2)
-        self.entry_categoria = ttk.Entry(row1, width=25)
+        self.entry_categoria = ttk.Entry(row1, width=25, textvariable=self._var_categoria)
         self.entry_categoria.pack(side=tk.LEFT, padx=2)
 
         # Fila 2: Costo, PVP, Peso
@@ -59,15 +59,15 @@ class CopywritingPanel(ttk.Frame):
         row2.pack(fill=tk.X, pady=2)
 
         ttk.Label(row2, text="Costo Origen ($):", width=14).pack(side=tk.LEFT, padx=2)
-        self.entry_costo = ttk.Entry(row2, width=12)
+        self.entry_costo = ttk.Entry(row2, width=12, textvariable=self._var_costo)
         self.entry_costo.pack(side=tk.LEFT, padx=2)
 
         ttk.Label(row2, text="PVP ($):", width=8).pack(side=tk.LEFT, padx=2)
-        self.entry_pvp = ttk.Entry(row2, width=12)
+        self.entry_pvp = ttk.Entry(row2, width=12, textvariable=self._var_pvp)
         self.entry_pvp.pack(side=tk.LEFT, padx=2)
 
         ttk.Label(row2, text="Peso (kg):", width=10).pack(side=tk.LEFT, padx=2)
-        self.entry_peso = ttk.Entry(row2, width=10)
+        self.entry_peso = ttk.Entry(row2, width=10, textvariable=self._var_peso)
         self.entry_peso.pack(side=tk.LEFT, padx=2)
 
         # Fila 3: Botones de generación
