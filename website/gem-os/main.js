@@ -286,7 +286,8 @@
       ease: "power3.out",
       scrollTrigger: {
         trigger: ".pipeline-steps",
-        start: "top 75%",
+        start: "top 95%",
+        toggleActions: "play none none none",
       },
     });
 
