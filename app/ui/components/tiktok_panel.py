@@ -130,6 +130,16 @@ class TikTokPanel(ttk.Frame):
                                      state=tk.DISABLED)
         self.export_btn.pack(side=tk.LEFT, padx=5)
 
+        self.publish_btn = ttk.Button(
+            action_row, text="▶ Publicar en TikTok",
+            command=self._publicar_tiktok, state=tk.DISABLED
+        )
+        self.publish_btn.pack(side=tk.LEFT, padx=5)
+        if not self.publisher.esta_configurado():
+            self.publish_btn.config(state=tk.DISABLED)
+            ttk.Label(action_row, text="(configura MAKE_WEBHOOK_TIKTOK en .env)",
+                      foreground="#999").pack(side=tk.LEFT, padx=4)
+
         # Product selector
         ttk.Label(action_row, text="Producto:").pack(side=tk.LEFT, padx=(15, 5))
         self.producto_combo = ttk.Combobox(action_row, state='readonly', width=35)
