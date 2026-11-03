@@ -22,6 +22,7 @@ class TikTokPanel(ttk.Frame):
 
         self.db_manager = db_manager
         self.generator = TikTokScriptGenerator(db_manager=db_manager)
+        self.publisher = TikTokPublisher()
         self.guion_actual = None
         self.variantes_actuales = []
 
