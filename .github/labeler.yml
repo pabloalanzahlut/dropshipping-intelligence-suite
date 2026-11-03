@@ -1,0 +1,24 @@
+pipeline:
+  - changed-files:
+    - any-glob-to-any-file: 'ai_workspace/skills/**'
+
+financial-rules:
+  - changed-files:
+    - any-glob-to-any-file: '.continue/rules/**'
+    - any-glob-to-any-file: 'CLAUDE.md'
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file: '.github/workflows/**'
+
+website:
+  - changed-files:
+    - any-glob-to-any-file: 'website/**'
+
+database:
+  - changed-files:
+    - any-glob-to-any-file: 'app/database/**'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: '**/*.md'
