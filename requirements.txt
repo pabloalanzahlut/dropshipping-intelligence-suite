@@ -1,5 +1,5 @@
 # --- Núcleo de Conexión y APIs externas ---
-requests==2.32.3
+requests==2.34.2
 python-dotenv==1.0.1
 
 # --- Herramientas de Compilación y Distribución (dev local solamente) ---
