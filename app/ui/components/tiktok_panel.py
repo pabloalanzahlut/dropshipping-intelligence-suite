@@ -291,6 +291,8 @@ class TikTokPanel(ttk.Frame):
         )
         self.save_btn.config(state=tk.NORMAL)
         self.export_btn.config(state=tk.NORMAL)
+        if self.publisher.esta_configurado():
+            self.publish_btn.config(state=tk.NORMAL)
         self._set_estado("Guión generado", "green")
 
     def _mostrar_variantes(self, variantes):
