@@ -299,7 +299,8 @@
       ease: "power3.out",
       scrollTrigger: {
         trigger: ".pricing-grid",
-        start: "top 80%",
+        start: "top 95%",
+        toggleActions: "play none none none",
       },
     });
   }
