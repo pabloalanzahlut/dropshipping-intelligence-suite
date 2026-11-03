@@ -1,0 +1,51 @@
+name: Release GEM OS
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            COMMITS=$(git log --oneline --pretty=format:"- %s" | head -20)
+          else
+            COMMITS=$(git log --oneline --pretty=format:"- %s" "$PREV_TAG"..HEAD)
+          fi
+          echo "COMMITS<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "GEM OS ${{ github.ref_name }}"
+          body: |
+            ## GEM OS ${{ github.ref_name }}
+
+            ### Cambios en esta versión
+            ${{ steps.changelog.outputs.COMMITS }}
+
+            ### Pipeline activo
+            - ✅ Product Hunter (clasificar_productos)
+            - ✅ Funnel Builder (estructurar_landing)
+            - ✅ Media Buyer (redactar_guiones)
+
+            ### Reglas financieras vigentes
+            - Regla 3x: PVP ≥ 3× costo origen
+            - Margen Bruto ≥ 70%
+            - Peso máximo: < 1.2 kg
+          draft: false
+          prerelease: false
