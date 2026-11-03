@@ -286,7 +286,12 @@ class TikTokPanel(ttk.Frame):
         self.guardado_id = None
         if variantes:
             self._mostrar_guion(variantes[0])
-            self._set_estado(f"5 variantes generadas · mostrando #1", "green")
+            # Activar selector de variante
+            opciones = [f"#{i+1} {v.get('patron_hook','')}" for i, v in enumerate(variantes)]
+            self._batch_combo["values"] = opciones
+            self._batch_combo.current(0)
+            self._batch_var_selector_frame.pack(fill=tk.X, padx=10, pady=2)
+            self._set_estado(f"{len(variantes)} variantes · mostrando #1", "green")
         else:
             self._set_estado("No se generaron variantes", "red")
 
