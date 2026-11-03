@@ -1,0 +1,1137 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Estrategia Orgánica GEM OS</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+
+<style>
+/* ── TOKENS ────────────────────────────────────────────────────────────────── */
+/* Layout: single-column editorial with sticky phase nav + full-bleed accent bands */
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --surface2: #1c1c28;
+  --border: rgba(255,255,255,0.08);
+  --fg: #f0f0f5;
+  --fg2: #9090a8;
+  --fg3: #5a5a72;
+  --accent: #00f5a0;      /* neon mint — TikTok organic energy */
+  --accent2: #7c5cfc;     /* electric violet */
+  --accent3: #ff4d6d;     /* alert red for warnings */
+  --accent-dim: rgba(0,245,160,0.12);
+  --accent2-dim: rgba(124,92,252,0.12);
+  --hot: #ff6b35;
+  --warm: #ffd166;
+  --cold: #06d6a0;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f5f5fa;
+    --surface: #ffffff;
+    --surface2: #eeeef6;
+    --border: rgba(0,0,0,0.08);
+    --fg: #0a0a1a;
+    --fg2: #555570;
+    --fg3: #aaaacc;
+    --accent: #00a86b;
+    --accent2: #5b3fd4;
+    --accent3: #d4001a;
+    --accent-dim: rgba(0,168,107,0.1);
+    --accent2-dim: rgba(91,63,212,0.1);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f5f5fa;
+  --surface: #ffffff;
+  --surface2: #eeeef6;
+  --border: rgba(0,0,0,0.08);
+  --fg: #0a0a1a;
+  --fg2: #555570;
+  --fg3: #aaaacc;
+  --accent: #00a86b;
+  --accent2: #5b3fd4;
+  --accent3: #d4001a;
+  --accent-dim: rgba(0,168,107,0.1);
+  --accent2-dim: rgba(91,63,212,0.1);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+
+/* ── NAV ── */
+.topbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: rgba(10,10,15,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 10px max(16px, env(safe-area-inset-left, 0px));
+}
+.topbar::-webkit-scrollbar { display: none; }
+.topbar-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--accent);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.nav-pill {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  color: var(--fg2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  background: transparent;
+}
+.nav-pill:hover, .nav-pill.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 72px 0 56px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.3;
+  max-width: 120px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 6vw, 58px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin-bottom: 24px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+.hero-sub {
+  font-size: 17px;
+  color: var(--fg2);
+  max-width: 560px;
+  line-height: 1.65;
+  margin-bottom: 36px;
+}
+.mentors {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mentor-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg2);
+}
+.mentor-chip .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── PHILOSOPHY BANNER ── */
+.philosophy {
+  background: linear-gradient(135deg, var(--accent2-dim), var(--accent-dim));
+  border: 1px solid rgba(124,92,252,0.25);
+  border-radius: 20px;
+  padding: 36px 40px;
+  max-width: 780px;
+  margin: 0 auto 64px;
+  position: relative;
+  overflow: hidden;
+}
+.philosophy::before {
+  content: '"';
+  position: absolute;
+  top: -20px; right: 24px;
+  font-family: 'Syne', sans-serif;
+  font-size: 160px;
+  font-weight: 800;
+  color: var(--accent2);
+  opacity: 0.08;
+  line-height: 1;
+}
+.philosophy-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 12px;
+}
+.philosophy blockquote {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(18px, 3vw, 24px);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--fg);
+  margin-bottom: 14px;
+}
+.philosophy cite {
+  font-size: 13px;
+  color: var(--fg2);
+  font-style: normal;
+}
+
+/* ── SECTION ── */
+.section {
+  max-width: 780px;
+  margin: 0 auto;
+  padding-bottom: 72px;
+  scroll-margin-top: 64px;
+}
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.phase-badge {
+  flex-shrink: 0;
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+}
+.badge-green { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,245,160,0.3); }
+.badge-violet { background: var(--accent2-dim); color: var(--accent2); border: 1px solid rgba(124,92,252,0.3); }
+.badge-orange { background: rgba(255,107,53,0.12); color: var(--hot); border: 1px solid rgba(255,107,53,0.3); }
+.badge-red { background: rgba(255,77,109,0.1); color: var(--accent3); border: 1px solid rgba(255,77,109,0.3); }
+.badge-teal { background: rgba(6,214,160,0.1); color: var(--cold); border: 1px solid rgba(6,214,160,0.3); }
+
+.section-title-block {}
+.section-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  margin-bottom: 6px;
+}
+.section h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(22px, 4vw, 30px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 32px;
+}
+
+/* ── CARDS ── */
+.card-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  margin-bottom: 24px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+.card-icon {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.card h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.card p { font-size: 13px; color: var(--fg2); line-height: 1.5; }
+
+/* ── CHECKLIST ── */
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.check-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.check-item:hover { border-color: var(--accent); }
+.check-item.done { background: var(--accent-dim); border-color: rgba(0,245,160,0.3); }
+.check-box {
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--fg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-top: 1px;
+}
+.check-item.done .check-box {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+  font-size: 12px;
+}
+.check-text { font-size: 14px; line-height: 1.4; min-width: 0; }
+.check-text strong { display: block; font-weight: 600; margin-bottom: 2px; }
+.check-text span { font-size: 12px; color: var(--fg2); }
+
+/* ── HOOK FORMULAS ── */
+.hooks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.hook {
+  background: var(--surface);
+  border-left: 3px solid var(--accent2);
+  border-radius: 0 12px 12px 0;
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+}
+.hook-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--accent2);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.hook-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.hook-why { font-size: 12px; color: var(--fg2); }
+
+/* ── CALENDAR ── */
+.week-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.day-col { min-width: 0; }
+.day-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-align: center;
+  color: var(--fg3);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.day-task {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--fg2);
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.35;
+}
+.day-task.publish { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); font-weight: 600; }
+.day-task.film { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-dim); }
+.day-task.edit { border-color: var(--warm); color: var(--warm); background: rgba(255,209,102,0.08); }
+.day-task.analyze { border-color: var(--fg3); color: var(--fg2); }
+
+/* ── PRODUCT CRITERIA ── */
+.criteria-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+.criteria-table th {
+  background: var(--surface2);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  border-bottom: 1px solid var(--border);
+}
+.criteria-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.45;
+}
+.criteria-table tr:last-child td { border-bottom: none; }
+.criteria-table .yes { color: var(--accent); font-weight: 600; }
+.criteria-table .no { color: var(--accent3); font-weight: 600; }
+
+/* ── METRICS BAR ── */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  text-align: center;
+}
+.metric-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.metric-label { font-size: 11px; color: var(--fg2); }
+.metric.accent .metric-val { color: var(--accent); }
+.metric.violet .metric-val { color: var(--accent2); }
+.metric.orange .metric-val { color: var(--hot); }
+
+/* ── ERRORS GRID ── */
+.errors {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  margin-bottom: 24px;
+}
+.error-card {
+  background: rgba(255,77,109,0.06);
+  border: 1px solid rgba(255,77,109,0.2);
+  border-radius: 12px;
+  padding: 16px;
+}
+.error-card .x { color: var(--accent3); font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+.error-card p { font-size: 13px; color: var(--fg2); line-height: 1.45; }
+.error-card strong { color: var(--fg); display: block; margin-bottom: 4px; font-size: 13px; }
+
+/* ── GEM OS INTEGRATION ── */
+.integration-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.integration-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.integration-item code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--surface2);
+  padding: 5px 12px;
+  border-radius: 8px;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.integration-item code:hover { background: var(--accent-dim); }
+.integration-label strong { font-size: 14px; display: block; margin-bottom: 3px; }
+.integration-label span { font-size: 12px; color: var(--fg2); }
+
+/* ── PROGRESS TRACKER ── */
+.progress-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.progress-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+.progress-count { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); }
+.progress-bar-track {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 99px;
+  transition: width 0.4s;
+}
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 0 40px;
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.footer-brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--accent);
+}
+.footer-meta { font-size: 11px; color: var(--fg3); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .week-calendar { grid-template-columns: repeat(4, 1fr); }
+  .week-calendar .day-col:nth-child(n+5) { display: none; }
+  .card-grid { grid-template-columns: 1fr; }
+  .philosophy { padding: 24px; }
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+
+<!-- NAV -->
+<nav class="topbar">
+  <span class="topbar-logo">GEM OS</span>
+  <button class="nav-pill active" onclick="scrollTo('fase0')">Filosofía</button>
+  <button class="nav-pill" onclick="scrollTo('fase1')">Producto</button>
+  <button class="nav-pill" onclick="scrollTo('fase2')">Cuenta</button>
+  <button class="nav-pill" onclick="scrollTo('fase3')">Contenido</button>
+  <button class="nav-pill" onclick="scrollTo('fase4')">Hooks</button>
+  <button class="nav-pill" onclick="scrollTo('fase5')">Rutina</button>
+  <button class="nav-pill" onclick="scrollTo('fase6')">Métricas</button>
+  <button class="nav-pill" onclick="scrollTo('fase7')">GEM OS</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="fase0">
+  <div class="hero-eyebrow">GEM OS v2.1 · Estrategia Orgánica · 2026</div>
+  <h1>Tráfico orgánico.<br><em>Cero euros.</em><br>Primeras ventas.</h1>
+  <p class="hero-sub">El método que usan Marc Verdú y Javi Ecomm para generar ventas sin invertir en publicidad. Orgánico primero, ads después — solo cuando ya tienes un producto probado.</p>
+  <div class="mentors">
+    <div class="mentor-chip"><span class="dot"></span> Marc Verdú · @MarcVerdu</div>
+    <div class="mentor-chip"><span class="dot"></span> Javi Ecomm · @JaviEcomm</div>
+    <div class="mentor-chip"><span class="dot"></span> GEM OS Pipeline</div>
+  </div>
+</div>
+
+<!-- PROGRESS TRACKER -->
+<div class="section" style="padding-bottom: 32px;">
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-title">Tu progreso — Semana 1</span>
+      <span class="progress-count" id="progress-count">0 / 12</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILOSOFÍA -->
+<div class="philosophy">
+  <div class="philosophy-label">Marc Verdú · @MarcVerdu</div>
+  <blockquote>"Trata el dropshipping como un videojuego y hazte rico"</blockquote>
+  <cite>La mentalidad correcta: cada video publicado es un intento. Cada iteración te acerca a la estrategia ganadora. No hay fracasos, solo datos.</cite>
+</div>
+
+<!-- FASE 1 — PRODUCTO PARA ORGÁNICO -->
+<section class="section" id="fase1">
+  <div class="section-header">
+    <div class="phase-badge badge-green">01</div>
+    <div class="section-title-block">
+      <div class="section-eyebrow">Fase 1 · Semana 1</div>
+      <h2>Elegir el producto<br>correcto para orgánico</h2>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <p style="color: var(--fg2); margin-bottom: 24px; font-size: 14px;">En orgánico, el producto <strong style="color: var(--fg)">se tiene que demostrar solo en video</strong>. No cualquier producto sirve. Los criterios son diferentes a los de paid ads.</p>
+
+  <div style="overflow-x: auto; margin-bottom: 24px; border-radius: 14px; border: 1px solid var(--border);">
+    <table class="criteria-table">
+      <thead>
+        <tr>
+          <th>Criterio</th>
+          <th>¿Por qué importa en orgánico?</th>
+          <th>Ideal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Factor WOW visual</strong></td>
+          <td>El viewer para el scroll solo si algo le sorprende visualmente</td>
+          <td class="yes">El producto SE VE funcionando</td>
+        </tr>
+        <tr>
+          <td><strong>Precio &lt; $40</strong></td>
+          <td>Compra impulsiva sin fricción — el viewer no necesita "pensarlo"</td>
+          <td class="yes">$15–$35 punto dulce</td>
+        </tr>
+        <tr>
+          <td><strong>Problema visible</strong></td>
+          <td>El hook muestra el problema, luego el producto lo resuelve en 5 seg</td>
+          <td class="yes">Antes/después demostrable</td>
+        </tr>
+        <tr>
+          <td><strong>Nicho apasionado</strong></td>
+          <td>La audiencia ya consume contenido de ese nicho — el algoritmo te la sirve</td>
+          <td class="yes">Mascotas, cocina, fitness, bebés</td>
+        </tr>
+        <tr>
+          <td><strong>Regla 3x GEM OS</strong></td>
+          <td>Margen mínimo inmutable — orgánico no exime de las reglas financieras</td>
+          <td class="yes">PVP ≥ 3× costo origen</td>
+        </tr>
+        <tr>
+          <td><strong>Peso &lt; 1.2 kg</strong></td>
+          <td>Logística viable — envío económico desde proveedor</td>
+          <td class="yes">&lt; 800g ideal</td>
+        </tr>
+        <tr>
+          <td><strong>Trending en TikTok</strong></td>
+          <td>Si ya hay videos de ese producto con &gt;500k views, hay demanda probada</td>
+          <td class="yes">Buscar &lt; 3 meses de edad</td>
+        </tr>
+        <tr>
+          <td><strong>Baterías de litio sueltas</strong></td>
+          <td>Prohibido por GEM OS — restricciones de envío internacionales</td>
+          <td class="no">RECHAZAR siempre</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="checklist" id="checklist-fase1">
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Buscar en TikTok el producto con "&lt;producto&gt; tiktok made me buy it"</strong><span>Filtrar por últimos 3 meses · +500k views = señal válida</span></div>
+    </div>
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Ejecutar /validar-financiero en GEM OS</strong><span>Confirmar regla 3x + peso + margen ≥70%</span></div>
+    </div>
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Ejecutar /clasificar-producto → debe salir HOT o WARM</strong><span>COLD o DISCARD = buscar otro producto</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FASE 2 — CUENTA -->
+<section class="section" id="fase2">
+  <div class="section-header">
+    <div class="phase-badge badge-violet">02</div>
+    <div class="section-title-block">
+      <div class="section-eyebrow">Fase 2 · Semana 1</div>
+      <h2>Configurar las cuentas<br>de contenido</h2>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="card-grid" style="margin-bottom: 24px;">
+    <div class="card">
+      <div class="card-icon">🎵</div>
+      <h4>TikTok Business</h4>
+      <p>Cuenta de negocio, no personal. Acceso a analytics avanzado y biblioteca de música comercial libre de derechos.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📸</div>
+      <h4>Instagram Reels</h4>
+      <p>Mismos videos, distinto canal. Sube el mismo contenido de TikTok sin marca de agua para maximizar alcance sin trabajo extra.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📘</div>
+      <h4>Facebook Reels</h4>
+      <p>Audiencia mayor (25-45 años), poder adquisitivo más alto. El mismo video puede funcionar diferente.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">▶️</div>
+      <h4>YouTube Shorts</h4>
+      <p>El canal más nuevo en orgánico — menos competencia, el algoritmo está hambriento de contenido.</p>
+    </div>
+  </div>
+
+  <div class="checklist" id="checklist-fase2">
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Crear cuenta TikTok Business con nombre del producto/nicho</strong><span>No tu nombre personal — una marca de nicho es más fácil de escalar luego</span></div>
+    </div>
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Foto de perfil: imagen del producto sobre fondo blanco limpísimo</strong><span>Sin selfies, sin logos genéricos — el producto en portada genera más clicks</span></div>
+    </div>
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Bio: qué resuelves + CTA + link tienda</strong><span>Máx 80 caracteres · "✅ Soluciona [problema] · Envío a toda España · 👇 Ver ahora"</span></div>
+    </div>
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Conectar cuenta a TikTok Shop (si está disponible en tu país)</strong><span>Vendes sin que el viewer salga de TikTok — menos fricción = más conversión</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FASE 3 — CONTENIDO -->
+<section class="section" id="fase3">
+  <div class="section-header">
+    <div class="phase-badge badge-orange">03</div>
+    <div class="section-title-block">
+      <div class="section-eyebrow">Fase 3 · Semana 1-2</div>
+      <h2>El sistema de<br>producción de contenido</h2>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <p style="color: var(--fg2); margin-bottom: 20px; font-size: 14px;">La estructura de video que usan Marc Verdú y Javi Ecomm. Siempre la misma. Lo que cambia es el hook.</p>
+
+  <div class="card-grid" style="margin-bottom: 28px;">
+    <div class="card" style="border-left: 3px solid var(--accent3);">
+      <div class="card-icon">⚡</div>
+      <h4>0–3 seg: El Hook</h4>
+      <p>Muestra el PROBLEMA o el resultado impactante. Sin introducción. Sin saludo. Directo al grano.</p>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--accent2);">
+      <div class="card-icon">🎬</div>
+      <h4>3–15 seg: Demo</h4>
+      <p>El producto en uso. Mostrar la transformación. Planos de cerca. Sin voz en off si no añade valor.</p>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--accent);">
+      <div class="card-icon">🛒</div>
+      <h4>15–25 seg: CTA</h4>
+      <p>"Link en bio" o "Ver en la tienda". Precio. Urgencia real si existe (stock limitado). Sin mentiras.</p>
+    </div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 24px;">
+    <div class="section-eyebrow" style="margin-bottom: 16px;">Setup mínimo de grabación (Marc Verdú lo hace así)</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+      <div style="font-size: 13px; color: var(--fg2);">📱 <strong style="color: var(--fg)">Móvil</strong><br>Cámara trasera, modo video, 1080p 30fps</div>
+      <div style="font-size: 13px; color: var(--fg2);">💡 <strong style="color: var(--fg)">Luz natural</strong><br>Ventana lateral · Hora dorada si es posible</div>
+      <div style="font-size: 13px; color: var(--fg2);">🤫 <strong style="color: var(--fg)">Sin ruido</strong><br>Habitación silenciosa · El producto habla solo</div>
+      <div style="font-size: 13px; color: var(--fg2);">✂️ <strong style="color: var(--fg)">CapCut Mobile</strong><br>Gratis · Subtítulos auto · Trending sounds</div>
+    </div>
+  </div>
+
+  <div class="errors">
+    <div class="error-card">
+      <div class="x">✗</div>
+      <strong>Saludo al inicio</strong>
+      <p>"Hola chicos hoy os traigo..." — el viewer se va en 0.3 seg.</p>
+    </div>
+    <div class="error-card">
+      <div class="x">✗</div>
+      <strong>Videos &gt; 60 seg</strong>
+      <p>En fase inicial, 15-30 seg. La atención se pierde. Corto y directo.</p>
+    </div>
+    <div class="error-card">
+      <div class="x">✗</div>
+      <strong>Calidad ultra-producida</strong>
+      <p>El UGC (contenido de usuario real) convierte mejor que el studio. Lo crudo vende.</p>
+    </div>
+    <div class="error-card">
+      <div class="x">✗</div>
+      <strong>No responder comentarios</strong>
+      <p>El algoritmo de TikTok penaliza la falta de engagement. Responde los primeros 30 min.</p>
+    </div>
+    <div class="error-card">
+      <div class="x">✗</div>
+      <strong>Música con copyright</strong>
+      <p>Usa solo la biblioteca de TikTok o tracks libres. Un claim silencia el video.</p>
+    </div>
+    <div class="error-card">
+      <div class="x">✗</div>
+      <strong>Misma cuenta para probar</strong>
+      <p>Si el nicho no convierte en 20 videos, nueva cuenta nueva. No contamines.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FASE 4 — HOOKS -->
+<section class="section" id="fase4">
+  <div class="section-header">
+    <div class="phase-badge badge-violet">04</div>
+    <div class="section-title-block">
+      <div class="section-eyebrow">Fase 4 · En cada video</div>
+      <h2>Fórmulas de hook<br>que detienen el scroll</h2>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <p style="color: var(--fg2); margin-bottom: 20px; font-size: 14px;">El hook son los primeros 3 segundos. El 80% del resultado de un video se decide aquí. Copia estos formatos probados.</p>
+
+  <div class="hooks">
+    <div class="hook">
+      <div class="hook-type">Story-telling</div>
+      <div class="hook-text">"Hace 3 meses no sabía que esto existía y ahora no puedo vivir sin ello…"</div>
+      <div class="hook-why">Genera curiosidad + FOMO. El viewer quiere saber qué es.</div>
+    </div>
+    <div class="hook">
+      <div class="hook-type">Shock / Dato</div>
+      <div class="hook-text">"El 90% de la gente lo hace mal y ni lo sabe" → [mostrar producto resolviendo el problema]</div>
+      <div class="hook-why">Activa el instinto de "eso me pasa a mí". Retención altísima.</div>
+    </div>
+    <div class="hook">
+      <div class="hook-type">Curiosity-gap</div>
+      <div class="hook-text">"El truco que me dio mi abuela para [problema cotidiano] y que nunca te contarán"</div>
+      <div class="hook-why">La pregunta implícita obliga al viewer a quedarse para la respuesta.</div>
+    </div>
+    <div class="hook">
+      <div class="hook-type">Antes / Después visual</div>
+      <div class="hook-text">[3 seg del problema sin resolver] → corte → [producto en acción] → resultado</div>
+      <div class="hook-why">Sin palabras. La demo visual sola convierte mejor que cualquier texto.</div>
+    </div>
+    <div class="hook">
+      <div class="hook-type">POV / Humor</div>
+      <div class="hook-text">"POV: llevas 5 años usando [solución mala] cuando esto existe desde hace 2"</div>
+      <div class="hook-why">El formato POV genera alta tasa de guardado y compartido.</div>
+    </div>
+    <div class="hook">
+      <div class="hook-type">Urgencia / Escasez</div>
+      <div class="hook-text">"Quedan 12 unidades — lo probé y no me arrepiento" [plano manos + producto]</div>
+      <div class="hook-why">Solo si es real. Nunca mentir sobre el stock — daña la marca.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FASE 5 — RUTINA SEMANAL -->
+<section class="section" id="fase5">
+  <div class="section-header">
+    <div class="phase-badge badge-green">05</div>
+    <div class="section-title-block">
+      <div class="section-eyebrow">Fase 5 · Rutina</div>
+      <h2>Sistema semanal<br>1 video/día</h2>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="week-calendar">
+    <div class="day-col"><div class="day-label">LUN</div><div class="day-task analyze">Analizar videos semana anterior</div></div>
+    <div class="day-col"><div class="day-label">MAR</div><div class="day-task film">Grabar 3–4 videos batch</div></div>
+    <div class="day-col"><div class="day-label">MIÉ</div><div class="day-task edit">Editar + subtítulos en CapCut</div></div>
+    <div class="day-col"><div class="day-label">JUE</div><div class="day-task publish">Publicar × 1 + responder 30 min</div></div>
+    <div class="day-col"><div class="day-label">VIE</div><div class="day-task publish">Publicar × 1 + responder 30 min</div></div>
+    <div class="day-col"><div class="day-label">SÁB</div><div class="day-task publish">Publicar × 1 mejor horario</div></div>
+    <div class="day-col"><div class="day-label">DOM</div><div class="day-task analyze">Revisar métricas · Planificar</div></div>
+  </div>
+
+  <div style="background: var(--surface2); border-radius: 14px; padding: 20px; margin-bottom: 24px;">
+    <div class="section-eyebrow" style="margin-bottom: 12px;">Mejores horarios de publicación (España/LATAM)</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; font-size: 13px;">
+      <div><strong style="color: var(--accent)">🌅 7:00–9:00</strong><br><span style="color: var(--fg2)">Camino al trabajo</span></div>
+      <div><strong style="color: var(--accent)">☀️ 12:00–14:00</strong><br><span style="color: var(--fg2)">Hora de comida</span></div>
+      <div><strong style="color: var(--accent)">🌆 17:00–19:00</strong><br><span style="color: var(--fg2)">Vuelta a casa</span></div>
+      <div><strong style="color: var(--accent)">🌙 20:00–22:00</strong><br><span style="color: var(--fg2)">Prime time — máximo alcance</span></div>
+    </div>
+  </div>
+
+  <div class="checklist" id="checklist-fase5">
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Grabar batch de 4 videos en una sesión de 1h</strong><span>Mismo setup, distintos ángulos y hooks — eficiencia máxima</span></div>
+    </div>
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Activar subtítulos automáticos en CapCut</strong><span>80% de TikTok se ve sin sonido — los subtítulos aumentan el CTR</span></div>
+    </div>
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Publicar el mismo video en TikTok, Reels e YT Shorts</strong><span>Eliminar la marca de agua de TikTut antes de subir a Reels (CapCut: guardar sin watermark)</span></div>
+    </div>
+    <div class="check-item" onclick="toggle(this)">
+      <div class="check-box"></div>
+      <div class="check-text"><strong>Responder todos los comentarios en los primeros 30 minutos</strong><span>El engagement temprano dispara el alcance del algoritmo</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FASE 6 — MÉTRICAS -->
+<section class="section" id="fase6">
+  <div class="section-header">
+    <div class="phase-badge badge-orange">06</div>
+    <div class="section-title-block">
+      <div class="section-eyebrow">Fase 6 · Análisis</div>
+      <h2>Métricas que importan.<br>Las que no, ignorar.</h2>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="metrics-row">
+    <div class="metric accent">
+      <div class="metric-val">&gt;3%</div>
+      <div class="metric-label">CTR mínimo (perfil)</div>
+    </div>
+    <div class="metric violet">
+      <div class="metric-val">&gt;40%</div>
+      <div class="metric-label">Retención a 3 seg</div>
+    </div>
+    <div class="metric orange">
+      <div class="metric-val">&gt;50%</div>
+      <div class="metric-label">Watch time completo</div>
+    </div>
+    <div class="metric accent">
+      <div class="metric-val">1–3%</div>
+      <div class="metric-label">Conv. visita→compra</div>
+    </div>
+    <div class="metric violet">
+      <div class="metric-val">20</div>
+      <div class="metric-label">Videos antes de juzgar</div>
+    </div>
+    <div class="metric orange">
+      <div class="metric-val">3×</div>
+      <div class="metric-label">ROAS objetivo inicial</div>
+    </div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 24px;">
+    <div class="section-eyebrow" style="margin-bottom: 16px;">Cuándo escalar a Meta/TikTok Ads</div>
+    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+      <div style="display: flex; gap: 12px; align-items: center;"><span style="color: var(--accent); font-weight: 700; flex-shrink:0;">✓</span> Tienes 1+ video con &gt;50.000 visualizaciones orgánicas</div>
+      <div style="display: flex; gap: 12px; align-items: center;"><span style="color: var(--accent); font-weight: 700; flex-shrink:0;">✓</span> Al menos 3–5 ventas venidas de orgánico (producto probado)</div>
+      <div style="display: flex; gap: 12px; align-items: center;"><span style="color: var(--accent); font-weight: 700; flex-shrink:0;">✓</span> Tu conversion rate de tienda es &gt; 1%</div>
+      <div style="display: flex; gap: 12px; align-items: center;"><span style="color: var(--accent); font-weight: 700; flex-shrink:0;">✓</span> Tienes presupuesto mínimo de $150–200 para primera campaña</div>
+    </div>
+  </div>
+</section>
+
+<!-- FASE 7 — GEM OS INTEGRATION -->
+<section class="section" id="fase7">
+  <div class="section-header">
+    <div class="phase-badge badge-teal">07</div>
+    <div class="section-title-block">
+      <div class="section-eyebrow">Fase 7 · Automatización</div>
+      <h2>GEM OS automatiza<br>el pipeline completo</h2>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="integration-row">
+    <div class="integration-item">
+      <div class="integration-label">
+        <strong>Validar producto con reglas financieras</strong>
+        <span>Regla 3x · Margen ≥70% · Peso &lt;1.2kg automático</span>
+      </div>
+      <code onclick="copyCmd(this)">/validar-financiero</code>
+    </div>
+    <div class="integration-item">
+      <div class="integration-label">
+        <strong>Clasificar HOT / WARM / COLD / DISCARD</strong>
+        <span>Analiza transcripción de YouTube Monitor → clasifica automático</span>
+      </div>
+      <code onclick="copyCmd(this)">/clasificar-producto</code>
+    </div>
+    <div class="integration-item">
+      <div class="integration-label">
+        <strong>Generar script TikTok 15–30 seg</strong>
+        <span>Hook + Demo + CTA · Reglas GEM OS aplicadas · Sin superlativos</span>
+      </div>
+      <code onclick="copyCmd(this)">/redactar-guion</code>
+    </div>
+    <div class="integration-item">
+      <div class="integration-label">
+        <strong>Generar ficha Shopify completa</strong>
+        <span>Copy AIDA · Specs inmutables · 6–12 días entrega real</span>
+      </div>
+      <code onclick="copyCmd(this)">/redactar-ficha-shopify</code>
+    </div>
+    <div class="integration-item">
+      <div class="integration-label">
+        <strong>Pipeline completo desde transcripción</strong>
+        <span>YouTube → limpiar → clasificar → ficha → guion en un solo comando</span>
+      </div>
+      <code onclick="copyCmd(this)">/pipeline-completo</code>
+    </div>
+  </div>
+
+  <div style="background: var(--accent-dim); border: 1px solid rgba(0,245,160,0.3); border-radius: 14px; padding: 20px;">
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px;">Conectores MCP pendientes de activar</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px;">
+      <span style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">🛍️ Shopify MCP → <code style="color: var(--accent); font-family: monospace; font-size: 11px;">/mcp</code></span>
+      <span style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">📊 TikTok for Business → <code style="color: var(--accent); font-family: monospace; font-size: 11px;">/mcp</code></span>
+      <span style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">📋 Google Sheets (activar OAuth) → <code style="color: var(--accent); font-family: monospace; font-size: 11px;">/mcp</code></span>
+      <span style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;">🎨 Canva (ya instalado, autenticar) → <code style="color: var(--accent); font-family: monospace; font-size: 11px;">/mcp</code></span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-brand">GEM OS v2.1</span>
+  <span class="footer-meta">Estrategia orgánica · Marc Verdú · Javi Ecomm · Xavier Mitjana · Jack Roberts · 2026</span>
+</footer>
+
+<script>
+// ── CHECKLIST + PROGRESS ──────────────────────────────────────────
+const STORAGE_KEY = 'gem-organic-checklist-v1';
+const TOTAL = 12;
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
+}
+
+function updateProgress() {
+  const items = document.querySelectorAll('.check-item');
+  const done = [...items].filter(i => i.classList.contains('done')).length;
+  const pct = Math.round((done / TOTAL) * 100);
+  document.getElementById('progress-count').textContent = done + ' / ' + TOTAL;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function toggle(el) {
+  const state = loadState();
+  const id = el.dataset.id;
+  if (el.classList.contains('done')) {
+    el.classList.remove('done');
+    el.querySelector('.check-box').textContent = '';
+    delete state[id];
+  } else {
+    el.classList.add('done');
+    el.querySelector('.check-box').textContent = '✓';
+    state[id] = true;
+  }
+  saveState(state);
+  updateProgress();
+}
+
+// Assign IDs and restore state
+document.addEventListener('DOMContentLoaded', () => {
+  const items = document.querySelectorAll('.check-item');
+  const state = loadState();
+  items.forEach((item, i) => {
+    item.dataset.id = 'item-' + i;
+    if (state['item-' + i]) {
+      item.classList.add('done');
+      item.querySelector('.check-box').textContent = '✓';
+    }
+  });
+  updateProgress();
+});
+
+// ── NAV PILLS ─────────────────────────────────────────────────────
+function scrollTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ── COPY COMMAND ──────────────────────────────────────────────────
+function copyCmd(el) {
+  const text = el.textContent;
+  navigator.clipboard.writeText(text).catch(() => {});
+  el.textContent = '✓ copiado';
+  setTimeout(() => { el.textContent = text; }, 1500);
+}
+
+// ── ACTIVE SECTION ON SCROLL ──────────────────────────────────────
+const sections = ['fase0','fase1','fase2','fase3','fase4','fase5','fase6','fase7'];
+const pills = document.querySelectorAll('.nav-pill');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sections.indexOf(e.target.id);
+      if (idx >= 0) {
+        pills.forEach((p,i) => p.classList.toggle('active', i === idx));
+      }
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+sections.forEach(id => { const el = document.getElementById(id); if(el) obs.observe(el); });
+</script>
