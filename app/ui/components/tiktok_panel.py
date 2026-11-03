@@ -58,11 +58,21 @@ class TikTokPanel(ttk.Frame):
         self.gen_btn = ttk.Button(btn_row, text="Generar Guión", command=self._generar_guion)
         self.gen_btn.pack(side=tk.LEFT, padx=5)
 
-        self.batch_btn = ttk.Button(btn_row, text="Generar 5 Variantes", command=self._generar_variantes)
+        self.batch_btn = ttk.Button(btn_row, text="⚡ Batch 5 Variantes", command=self._generar_variantes_batch)
         self.batch_btn.pack(side=tk.LEFT, padx=5)
 
         self.status_label = ttk.Label(btn_row, text="Listo", foreground="blue")
         self.status_label.pack(side=tk.LEFT, padx=10, expand=True, fill=tk.X)
+
+        # ── Batch progress (oculto hasta que se active batch) ──
+        self._batch_frame = ttk.LabelFrame(form_frame, text="Progreso Batch", padding=6)
+        # Se muestra/oculta dinámicamente
+        self._batch_rows: list = []
+        self._batch_var_selector_frame = ttk.Frame(form_frame)
+        ttk.Label(self._batch_var_selector_frame, text="Variante:").pack(side=tk.LEFT, padx=4)
+        self._batch_combo = ttk.Combobox(self._batch_var_selector_frame, state="readonly", width=18)
+        self._batch_combo.pack(side=tk.LEFT, padx=2)
+        self._batch_combo.bind("<<ComboboxSelected>>", self._on_batch_select)
 
         # ====== Middle: Preview ======
         preview_frame = ttk.LabelFrame(self, text="Vista Previa del Guión", padding=10)
