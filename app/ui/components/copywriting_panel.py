@@ -25,7 +25,15 @@ class CopywritingPanel(ttk.Frame):
         self.variantes_actuales = []
         self.productos_db = []
 
+        # StringVars para preview en tiempo real
+        self._var_nombre    = tk.StringVar()
+        self._var_categoria = tk.StringVar()
+        self._var_costo     = tk.StringVar()
+        self._var_pvp       = tk.StringVar()
+        self._var_peso      = tk.StringVar()
+
         self._build_ui()
+        self._setup_realtime_preview()
 
     def _build_ui(self):
         """Construye la interfaz gráfica completa."""
