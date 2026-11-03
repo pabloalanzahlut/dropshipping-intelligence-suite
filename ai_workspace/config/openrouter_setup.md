@@ -132,4 +132,37 @@ Supuesto: 100 fichas Shopify/mes + 30 scripts TikTok/mes
 
 ---
 
-*GEM OS v2.0 — Configuración OpenRouter | Actualizado 2026-11-01*
+---
+
+## Stack 100% Sin Costo de APIs Externas (activado 2026-11-03)
+
+| Componente | Solución gratuita | Archivo |
+|------------|------------------|---------|
+| YouTube Monitor | RSS feed público + yt-dlp | `app/services/youtube_rss_fetcher.py` |
+| LLM routing | OpenRouter (clave ya configurada) | `app/services/llm_router.py` |
+| Google Sheets | MCP connector (ya instalado, autenticar) | — |
+| Imágenes de producto | remove.bg free tier (50/mes) | `.env` → `REMOVEBG_API_KEY` |
+| TikTok publish | Make.com free tier + webhook | `.env` → `MAKE_WEBHOOK_TIKTOK` |
+| Shopify | Shopify MCP connector (gratis añadir) | `/mcp` → Shopify |
+
+### Módulo llm_router — uso
+
+```python
+from app.services.llm_router import chat
+
+# Clasificación crítica → Claude Sonnet vía OpenRouter
+resultado = chat(
+    task="clasificar_producto",
+    system_prompt="Clasifica HOT/WARM/COLD según reglas GEM OS...",
+    user_message=transcripcion_limpia,
+)
+
+# Ficha masiva → DeepSeek V3 (21x más barato)
+ficha = chat(
+    task="generar_ficha_shopify",
+    system_prompt="Genera ficha Shopify sin superlativos...",
+    user_message=f"Producto: {nombre}, PVP: {pvp}",
+)
+```
+
+*GEM OS v2.1 — Stack gratuito activado | Actualizado 2026-11-03*
