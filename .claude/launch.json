@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "gem-os",
-      "runtimeExecutable": "python3",
+      "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8765"],
       "port": 8765,
       "url": "http://localhost:8765"
