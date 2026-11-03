@@ -309,6 +309,36 @@ class TikTokPanel(ttk.Frame):
         else:
             self._set_estado("No se generaron variantes", "red")
 
+    # ─────────────────────────── Publicación ──────────────────────────
+
+    def _publicar_tiktok(self):
+        if not self.guion_actual:
+            messagebox.showwarning("Sin guión", "Genera un guión primero.")
+            return
+
+        self._set_estado("Enviando a Make.com...", "orange", disabled=True)
+        self.publish_btn.config(state=tk.DISABLED)
+
+        producto = self.producto_entry.get().strip()
+        categoria = self.categoria_entry.get().strip()
+        guion = self.guion_actual
+
+        def worker():
+            resultado = self.publisher.publicar(guion, producto, categoria)
+            if resultado["ok"]:
+                self.after(0, lambda: self._set_estado("Publicado en TikTok ✓", "green"))
+                self.after(0, lambda: messagebox.showinfo(
+                    "Publicado", resultado["mensaje"]
+                ))
+            else:
+                self.after(0, lambda: self._set_estado("Error al publicar", "red"))
+                self.after(0, lambda: messagebox.showerror(
+                    "Error al publicar", resultado["error"]
+                ))
+            self.after(0, lambda: self.publish_btn.config(state=tk.NORMAL))
+
+        threading.Thread(target=worker, daemon=True).start()
+
     # ─────────────────────────── Persistencia ─────────────────────────
 
     def _guardar_en_bd(self):
