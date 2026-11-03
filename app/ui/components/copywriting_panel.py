@@ -241,6 +241,249 @@ class CopywritingPanel(ttk.Frame):
 
         threading.Thread(target=worker, daemon=True).start()
 
+    # ------------------------------------------------------------------
+    #   Preview en tiempo real
+    # ------------------------------------------------------------------
+    def _setup_realtime_preview(self):
+        """Registra traces en los campos para actualizar preview al escribir."""
+        self._preview_job = None
+
+        def _schedule_preview(*_):
+            if self._preview_job:
+                self.after_cancel(self._preview_job)
+            self._preview_job = self.after(400, self._actualizar_preview_live)
+
+        for var in (self._var_nombre, self._var_categoria, self._var_costo,
+                    self._var_pvp, self._var_peso):
+            var.trace_add("write", _schedule_preview)
+
+    def _actualizar_preview_live(self):
+        """Actualiza el preview AIDA usando solo los datos del formulario (sin IA)."""
+        nombre = self._var_nombre.get().strip()
+        categoria = self._var_categoria.get().strip()
+        if not nombre or not categoria:
+            return
+        try:
+            costo = float(self._var_costo.get() or 0)
+            pvp   = float(self._var_pvp.get()   or 0)
+            peso  = float(self._var_peso.get()  or 0)
+        except ValueError:
+            return
+
+        # Genera copy de plantilla rápida (sin API, instantáneo)
+        def worker():
+            try:
+                contexto = self.engine.obtener_contexto_kb(limite=1)
+                copy = self.engine.generar_copy_template(nombre, categoria, costo, pvp, peso, contexto)
+                self.after(0, lambda: self._mostrar_copy(copy, silent=True))
+            except Exception:
+                pass
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    # ------------------------------------------------------------------
+    #   Visualización del copy
+    # ------------------------------------------------------------------
+    def _mostrar_copy(self, copy, silent=False):
+        """Muestra un copy en el preview AIDA."""
+        if copy is None:
+            if not silent:
+                messagebox.showerror("Error", "No se pudo generar el copy.")
+            return
+
+        self.copy_actual = copy
+
+        titulo  = copy.get("titulo", "")
+        desc    = copy.get("descripcion", copy.get("descripcion_corta", ""))
+        scores  = copy.get("aida_scores", {"attention": 75, "interest": 70, "decision": 65, "action": 80})
+        superlativos = copy.get("superlativos_encontrados", [])
+
+        # Titulo
+        self.text_titulo.config(state=tk.NORMAL)
+        self.text_titulo.delete("1.0", tk.END)
+        self.text_titulo.insert(tk.END, titulo)
+        self.text_titulo.config(state=tk.NORMAL)
+
+        # Descripcion
+        self.text_desc.config(state=tk.NORMAL)
+        self.text_desc.delete("1.0", tk.END)
+        self.text_desc.insert(tk.END, desc)
+        self.text_desc.config(state=tk.NORMAL)
+
+        # Scores AIDA
+        self._set_aida_scores(scores)
+
+        # Superlativos
+        if superlativos:
+            self.super_label.config(text=f"⚠ {len(superlativos)} superlativo(s)", foreground="red")
+            self.super_detail.config(text=", ".join(superlativos[:3]))
+        else:
+            self.super_label.config(text="✓ Sin superlativos", foreground="green")
+            self.super_detail.config(text="")
+
+        if not silent:
+            self.gen_status.config(text="Copy generado ✓", foreground="green")
+            self.btn_generar.config(state=tk.NORMAL)
+            self.btn_variantes.config(state=tk.NORMAL)
+
+    def _mostrar_variantes(self, variantes):
+        """Muestra 5 variantes y permite navegar entre ellas."""
+        if not variantes:
+            self.gen_status.config(text="No se generaron variantes", foreground="red")
+            self.btn_generar.config(state=tk.NORMAL)
+            self.btn_variantes.config(state=tk.NORMAL)
+            return
+
+        self.variantes_actuales = variantes
+        opciones = [f"Variante {i+1}" for i in range(len(variantes))]
+        self.variante_combo["values"] = opciones
+        self.variante_combo.current(0)
+        self.variante_frame.pack(fill=tk.X, padx=10, pady=2)
+        self._mostrar_copy(variantes[0])
+        self.gen_status.config(text=f"{len(variantes)} variantes generadas ✓", foreground="#7c3aed")
+
+    def _seleccionar_variante(self, event=None):
+        idx = self.variante_combo.current()
+        if 0 <= idx < len(self.variantes_actuales):
+            self._mostrar_copy(self.variantes_actuales[idx])
+
+    # ------------------------------------------------------------------
+    #   Persistencia y exportación
+    # ------------------------------------------------------------------
+    def _guardar_bd(self):
+        if not self.copy_actual:
+            messagebox.showwarning("Sin copy", "Genera un copy primero.")
+            return
+        try:
+            nombre    = self._var_nombre.get().strip()
+            categoria = self._var_categoria.get().strip()
+            costo     = float(self._var_costo.get() or 0)
+            pvp       = float(self._var_pvp.get()   or 0)
+            peso      = float(self._var_peso.get()  or 0)
+            if self.db_manager:
+                with self.db_manager.get_connection() as conn:
+                    conn.execute(
+                        """INSERT OR IGNORE INTO productos_validados
+                           (sku, categoria, costo_origen, pvp, peso_kg)
+                           VALUES (?, ?, ?, ?, ?)""",
+                        (nombre, categoria, costo, pvp, peso)
+                    )
+                    conn.commit()
+            self.gen_status.config(text="Guardado en BD ✓", foreground="green")
+            self._refrescar_lista_productos()
+        except Exception as e:
+            messagebox.showerror("Error al guardar", str(e))
+
+    def _exportar_txt(self):
+        if not self.copy_actual:
+            messagebox.showwarning("Sin copy", "Genera un copy primero.")
+            return
+        filepath = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+        )
+        if not filepath:
+            return
+        try:
+            c = self.copy_actual
+            lines = [
+                f"=== COPY AIDA ===",
+                f"Producto: {self._var_nombre.get()}",
+                f"Categoría: {self._var_categoria.get()}",
+                f"Generado: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+                "",
+                f"── TÍTULO ──",
+                c.get("titulo", ""),
+                "",
+                f"── DESCRIPCIÓN ──",
+                c.get("descripcion", c.get("descripcion_corta", "")),
+            ]
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines))
+            messagebox.showinfo("Éxito", f"Exportado a {filepath}")
+        except Exception as e:
+            messagebox.showerror("Error al exportar", str(e))
+
+    def _exportar_html(self):
+        if not self.copy_actual:
+            messagebox.showwarning("Sin copy", "Genera un copy primero.")
+            return
+        filepath = filedialog.asksaveasfilename(
+            defaultextension=".html",
+            filetypes=[("HTML files", "*.html"), ("All files", "*.*")]
+        )
+        if not filepath:
+            return
+        try:
+            c = self.copy_actual
+            titulo = c.get("titulo", "")
+            desc   = c.get("descripcion", c.get("descripcion_corta", "")).replace("\n", "<br>")
+            html = f"""<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>{titulo}</title>
+<style>
+  body{{font-family:system-ui,sans-serif;max-width:700px;margin:2rem auto;color:#333}}
+  h1{{color:#6366f1}}.desc{{line-height:1.7;color:#444}}
+  .badge{{display:inline-block;background:#6366f1;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px}}
+</style></head>
+<body>
+  <span class="badge">{self._var_categoria.get()}</span>
+  <h1>{titulo}</h1>
+  <p class="desc">{desc}</p>
+  <footer style="margin-top:2rem;font-size:12px;color:#aaa">
+    Generado por GEM OS — {datetime.now().strftime('%Y-%m-%d %H:%M')}
+  </footer>
+</body></html>"""
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(html)
+            messagebox.showinfo("Éxito", f"HTML exportado a {filepath}")
+        except Exception as e:
+            messagebox.showerror("Error al exportar", str(e))
+
+    # ------------------------------------------------------------------
+    #   Productos guardados
+    # ------------------------------------------------------------------
+    def _refrescar_lista_productos(self):
+        if not self.db_manager:
+            return
+        try:
+            with self.db_manager.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT id, sku FROM productos_validados ORDER BY id DESC LIMIT 50"
+                )
+                rows = cursor.fetchall()
+            opciones = [f"{r[0]} – {r[1]}" for r in rows]
+            self.producto_combo["values"] = opciones
+        except Exception:
+            self.producto_combo["values"] = []
+
+    def _cargar_producto(self):
+        val = self.producto_combo.get()
+        if not val:
+            return
+        try:
+            pid = int(val.split("–")[0].strip())
+            with self.db_manager.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT sku, categoria, costo_origen, pvp, peso_kg FROM productos_validados WHERE id = ?",
+                    (pid,)
+                )
+                row = cursor.fetchone()
+            if row:
+                self._var_nombre.set(row[0] or "")
+                self._var_categoria.set(row[1] or "")
+                self._var_costo.set(str(row[2] or ""))
+                self._var_pvp.set(str(row[3] or ""))
+                self._var_peso.set(str(row[4] or ""))
+        except Exception as e:
+            messagebox.showerror("Error al cargar", str(e))
+
+    def _actualizar_rating(self):
+        val = self.rating_combo.get()
+        self.gen_status.config(text=f"Rating {val}★ registrado", foreground="blue")
+
     
     def _generar_variantes(self):
         """Genera 5 variantes de copy usando el pool hibrido (con fallback a template)."""
