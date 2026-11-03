@@ -70,6 +70,15 @@ HIDDEN_IMPORTS = [
     "yt_dlp",
     "dotenv",
     "markdown",
+    "requests",
+    "openai",
+    "apscheduler",
+    "apscheduler.schedulers.background",
+    "apscheduler.triggers.interval",
+    "tkinter",
+    "tkinter.ttk",
+    "tkinter.scrolledtext",
+    "xml.etree.ElementTree",
 ]
 
 # Paquetes de datos que PyInstaller debe escanear en profundidad
