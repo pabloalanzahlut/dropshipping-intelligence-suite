@@ -188,28 +188,85 @@ class TikTokPanel(ttk.Frame):
         threading.Thread(target=worker, daemon=True).start()
 
     def _generar_variantes(self):
+        """Alias legacy → usa el nuevo batch visual."""
+        self._generar_variantes_batch()
+
+    def _generar_variantes_batch(self):
+        """Genera 5 variantes con progress bar visual por variante."""
         producto = self.producto_entry.get().strip()
         categoria = self.categoria_entry.get().strip()
+        patrones = ['story-telling', 'curiosity-gap', 'shock', 'humor', 'demo']
 
         if not producto or not categoria:
             messagebox.showwarning("Campos incompletos",
                                    "Completa producto y categoría antes de generar.")
             return
 
-        self._set_estado("Generando 5 variantes...", "orange", disabled=True)
+        self._set_estado("Iniciando batch...", "orange", disabled=True)
+        self._mostrar_batch_ui(patrones)
 
         def worker():
-            try:
-                variantes = self.generator.generar_variantes_lote(
-                    nombre_producto=producto,
-                    categoria=categoria,
-                    cantidad=5
-                )
-                self.after(0, lambda: self._mostrar_variantes(variantes))
-            except Exception as e:
-                self.after(0, lambda: self._error_msg(str(e)))
+            variantes = []
+            for i, patron in enumerate(patrones):
+                self.after(0, lambda i=i: self._batch_set_progress(i, "running"))
+                try:
+                    g = self.generator.generar_guion_completo(
+                        nombre_producto=producto,
+                        categoria=categoria,
+                        patron_hook=patron
+                    )
+                    variantes.append(g)
+                    self.after(0, lambda i=i: self._batch_set_progress(i, "done"))
+                except Exception:
+                    self.after(0, lambda i=i: self._batch_set_progress(i, "error"))
+                    variantes.append(None)
+            validas = [v for v in variantes if v]
+            self.after(0, lambda: self._mostrar_variantes(validas))
+            self.after(0, lambda: self._set_estado(
+                f"Batch completo: {len(validas)}/5 variantes", "green"
+            ))
 
         threading.Thread(target=worker, daemon=True).start()
+
+    def _mostrar_batch_ui(self, patrones):
+        """Construye y muestra el panel de progreso del batch."""
+        # Limpiar filas previas
+        for w in self._batch_frame.winfo_children():
+            w.destroy()
+        self._batch_rows = []
+
+        for i, patron in enumerate(patrones):
+            row = ttk.Frame(self._batch_frame)
+            row.pack(fill=tk.X, pady=1)
+            lbl = ttk.Label(row, text=f"#{i+1} {patron}", width=22, anchor=tk.W)
+            lbl.pack(side=tk.LEFT, padx=4)
+            bar = ttk.Progressbar(row, length=120, mode="indeterminate")
+            bar.pack(side=tk.LEFT, padx=4)
+            status_lbl = ttk.Label(row, text="⏳ pendiente", foreground="#888", width=14)
+            status_lbl.pack(side=tk.LEFT, padx=4)
+            self._batch_rows.append((bar, status_lbl))
+
+        self._batch_frame.pack(fill=tk.X, padx=10, pady=4)
+
+    def _batch_set_progress(self, idx, state):
+        if idx >= len(self._batch_rows):
+            return
+        bar, lbl = self._batch_rows[idx]
+        if state == "running":
+            bar.start(12)
+            lbl.config(text="▶ generando…", foreground="orange")
+        elif state == "done":
+            bar.stop()
+            bar["value"] = 100
+            lbl.config(text="✓ listo", foreground="green")
+        elif state == "error":
+            bar.stop()
+            lbl.config(text="✗ error", foreground="red")
+
+    def _on_batch_select(self, event=None):
+        idx = self._batch_combo.current()
+        if 0 <= idx < len(self.variantes_actuales):
+            self._mostrar_guion(self.variantes_actuales[idx])
 
     def _mostrar_guion(self, guion):
         self.guion_actual = guion
