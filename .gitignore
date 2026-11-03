@@ -8,35 +8,67 @@ env/
 *.egg-info/
 dist/
 build/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+app/database/*.db
 
-# Environment
+# Environment — NUNCA commitear secrets
 .env
 .env.local
+.env.production
+.env.staging
 *.env
+!.env.example
 
 # Node
 node_modules/
-npm-debug.log
+npm-debug.log*
+yarn-error.log
+.pnpm-debug.log
+package-lock.json
 
 # OS
 .DS_Store
 Thumbs.db
 desktop.ini
+ehthumbs.db
 
 # IDE
-.vscode/
+.vscode/settings.json
 .idea/
 *.swp
+*.swo
+*~
 
 # Logs
 *.log
 logs/
+npm-debug.log
 
 # Temporary
 *.tmp
 *.temp
+tmp/
+temp/
+
+# Media generada (pesada, no versionar)
+ai_workspace/output/images/*.png
+ai_workspace/output/images/*.jpg
+ai_workspace/output/videos/*.mp4
+website/*/dist/
+
+# Shopify / Make.com exports
+*.csv
+exports/
+
+# Caché de herramientas
+.cache/
+.parcel-cache/
+*.tsbuildinfo
