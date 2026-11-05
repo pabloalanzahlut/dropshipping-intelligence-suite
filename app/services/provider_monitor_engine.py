@@ -82,7 +82,7 @@ class ProviderMonitorEngine:
         )
 
         # Callbacks para ConsoleView Tkinter (sin romper UI)
-        self.log_callback: Callable = print
+        self.log_callback: Callable = _safe_print
         self.progress_callback: Callable = lambda x: None
 
         os.makedirs(TEMP_TRANSCRIPT_DIR, exist_ok=True)
