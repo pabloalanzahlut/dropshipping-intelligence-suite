@@ -1,5 +1,5 @@
 # GEM OS — Dropshipping Intelligence Suite
-**Sistema:** GEM OS v2.0 | **Dominio:** Dropshipping Global Shopify
+**Sistema:** GEM OS v2.2 | **Dominio:** Dropshipping Global Shopify
 
 ---
 
