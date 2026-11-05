@@ -114,6 +114,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/publicar-tiktok` | Envía guión a Make.com → auto-publicación TikTok |
 | `/generar-imagen-producto` | Remueve fondo + optimiza imagen para Shopify |
 | `/crear-web-hostinger` | Genera sitio web premium (skill Adrián Sáenz) |
+| `/consultar-kb` | Consulta la Knowledge Base interna sobre productos, estrategias y métricas |
 
 ---
 
