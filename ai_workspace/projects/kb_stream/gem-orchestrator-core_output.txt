@@ -1,0 +1,23 @@
+```json
+{
+  "respuesta": "No tengo datos indexados para responder cuántos productos HOT hay en la Knowledge Base. El contexto KB inyectado está vacío: indica 'Base de conocimiento vacía — realiza ingesta de videos YouTube primero'. Por tanto, no puedo confirmar ni un número ni la existencia de productos con clasificación HOT.",
+  "tipo_consulta": "metrica",
+  "datos": [
+    {
+      "campo": "conteo_productos_HOT",
+      "valor": "[DATA_GAP: conteo_productos_HOT]",
+      "motivo": "La tabla product_trends no aparece en el contexto inyectado (últimas 30 entradas)."
+    }
+  ],
+  "fuentes": [],
+  "confianza": "Baja",
+  "fecha_consulta": "2026-11-05",
+  "siguiente_paso_sugerido": [
+    "Ejecutar la ingesta de videos de YouTube mediante el pipeline (YouTube Monitor → Transcript Cleaner → KBRouter).",
+    "Ejecutar POST /api/kb/sync para regenerar kb_index.json desde SQLite y verificar que product_trends tenga registros.",
+    "Repetir esta consulta una vez completada la ingesta para obtener el conteo real."
+  ]
+}
+```
+
+**Registro de bitácora (gem-orchestrator-core):** Consulta recibida sobre productos HOT indexados. Resultado: sin datos disponibles por base de conocimiento vacía. Decisión: no emitir conteo estimado; se requiere ingesta previa.
