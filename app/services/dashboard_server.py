@@ -405,6 +405,11 @@ async def tiktok_page(request: Request):
     return _render(request, "tiktok.html")
 
 
+@app.get("/imagenes", response_class=HTMLResponse)
+async def imagenes_page(request: Request):
+    return _render(request, "imagenes.html")
+
+
 @app.get("/insights", response_class=HTMLResponse)
 async def insights_page(request: Request):
     return _render(request, "insights.html")
