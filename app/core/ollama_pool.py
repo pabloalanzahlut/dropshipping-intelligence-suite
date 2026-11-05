@@ -404,7 +404,7 @@ class HybridInferencePool:
                 timeout=HYBRID_TIMEOUT,
             )
             resp.raise_for_status()
-            return resp.json()["choices"][0]["message"]["content"].strip()
+            return _extraer_contenido(resp.json())
         except Exception as exc:
             logger.warning(f"[HYBRID] OpenRouter error: {exc}")
             return None
