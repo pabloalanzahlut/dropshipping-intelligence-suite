@@ -51,6 +51,20 @@ TEMP_TRANSCRIPT_DIR = str(_GEM_PATHS['data'] / "temp_transcripts")
 # el histórico ya ingerido en vez de reenumerarlo en cada ejecución.
 DEFAULT_SCAN_LIMIT = 30
 
+
+def _safe_print(msg: str) -> None:
+    """
+    print() por defecto del engine.
+
+    La consola de Windows usa cp1252 y estos logs llevan emojis: con print()
+    a secas, un UnicodeEncodeError aborta la ingesta entera.
+    """
+    try:
+        print(msg)
+    except UnicodeEncodeError:
+        enc = getattr(sys.stdout, "encoding", None) or "ascii"
+        print(str(msg).encode(enc, errors="replace").decode(enc, errors="replace"))
+
 # Validación de URLs de canal YouTube (FASE 6C — fuente de verdad unificada)
 # Soporta: @handle, /channel/UC..., /c/..., /user/...
 _YOUTUBE_CHANNEL_RE = re.compile(
