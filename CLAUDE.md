@@ -88,6 +88,11 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 - `ai_workspace/skills/redactar_ficha_shopify/procedimiento.md` — Ficha producto Shopify
 - `ai_workspace/skills/publicar_tiktok_automatico/procedimiento.md` — Auto-publicación Make.com
 - `ai_workspace/skills/generar_imagen_producto/procedimiento.md` — Imágenes sin fondo
+- `ai_workspace/skills/validar_financiero/procedimiento.md` — Validación 3x, margen bruto y CPA máximo
+- `ai_workspace/skills/investigar_nicho/procedimiento.md` — Informe 10 ángulos por nicho para Meta Ads
+- `ai_workspace/skills/redactar_anuncios_meta/procedimiento.md` — Copy estático Meta Ads (imagen + carousel)
+- `ai_workspace/skills/monitorear_flujo_caja/procedimiento.md` — Monitor diario de caja y ROAS
+- `ai_workspace/skills/escalar_campana/procedimiento.md` — Árbol de decisión de escalado de campañas
 - `ai_workspace/config/openrouter_setup.md` — Modelos económicos para volumen alto
 - `ai_workspace/knowledge_base/jack_roberts_strategies.md` — Estrategias AntiGravity/Claude Code
 - `ai_workspace/memory/` — Memoria de decisiones y aprendizajes
@@ -115,6 +120,10 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/generar-imagen-producto` | Remueve fondo + optimiza imagen para Shopify |
 | `/crear-web-hostinger` | Genera sitio web premium (skill Adrián Sáenz) |
 | `/consultar-kb` | Consulta la Knowledge Base interna sobre productos, estrategias y métricas |
+| `/investigar-nicho` | Genera informe de 10 ángulos de ataque para un nicho (Nivel 2) |
+| `/redactar-anuncios-meta` | Copy para Meta Ads estáticos: imagen única, carousel, variantes A/B |
+| `/monitorear-caja` | Revisa salud del flujo de caja con datos pegados del día/semana (Nivel 6) |
+| `/escalar-campana` | Decide si escalar, mantener, optimizar o cortar campaña con reglas cuantitativas (Nivel 5→6) |
 
 ---
 
