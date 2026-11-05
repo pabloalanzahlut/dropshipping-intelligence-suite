@@ -43,6 +43,7 @@ QUEUE_STATE_PATH = str(_GEM_PATHS["queue"])
 CHANNELS_JSON_PATH = str(_GEM_PATHS["config"])
 DASHBOARD_PORT = int(os.getenv("DASHBOARD_PORT", "47821"))
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
+IMG_DIR = _GEM_PATHS["data"] / "imagenes_producto"
 
 # ── Bus SSE de logs en tiempo real ──────────────────────────────────────────────
 # Circular buffer compartido: el engine escribe, los clientes SSE leen
