@@ -94,6 +94,7 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 - `ai_workspace/skills/monitorear_flujo_caja/procedimiento.md` — Monitor diario de caja y ROAS
 - `ai_workspace/skills/escalar_campana/procedimiento.md` — Árbol de decisión de escalado de campañas
 - `ai_workspace/skills/importar_masivo/procedimiento.md` — Importación masiva por URL con validación 3x → Shopify draft
+- `ai_workspace/skills/gestionar_meta_ads/procedimiento.md` — Naming de campañas + hooks s0–3 (Roger Viladrosa)
 - `ai_workspace/config/openrouter_setup.md` — Modelos económicos para volumen alto
 - `ai_workspace/knowledge_base/jack_roberts_strategies.md` — Estrategias AntiGravity/Claude Code
 - `ai_workspace/memory/` — Memoria de decisiones y aprendizajes
@@ -126,6 +127,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/monitorear-caja` | Revisa salud del flujo de caja con datos pegados del día/semana (Nivel 6) |
 | `/escalar-campana` | Decide si escalar, mantener, optimizar o cortar campaña con reglas cuantitativas (Nivel 5→6) |
 | `/importar-masivo` | Pega URLs de AliExpress/CJ/Temu → valida regla 3x → crea borradores en Shopify |
+| `/gestionar-meta-ads` | Genera naming de campañas Business Manager + 3 hooks s0–s3 estilo Roger Viladrosa |
 
 ---
 
