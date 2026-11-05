@@ -3,11 +3,51 @@
   "fuente": "sqlite",
   "nota": "Generado automáticamente desde SQLite. No editar manualmente.",
   "ultima_actualizacion": "2026-11-05",
-  "total_entradas": 0,
+  "total_entradas": 3,
   "por_tipo": {
-    "productos": 0,
-    "conversion": 0,
-    "operaciones": 0
+    "productos": 1,
+    "conversion": 1,
+    "operaciones": 1
   },
-  "entradas": []
+  "entradas": [
+    {
+      "tipo": "producto",
+      "tabla": "product_trends",
+      "id": 1,
+      "video_id": "NOp6IwxlNOc",
+      "video_title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
+      "canal": "Adrián Sáenz",
+      "fecha_indexacion": "2026-11-05",
+      "nombre": "y Tendencias (Criterios, nichos, ángulos)",
+      "nicho": "s, ángulos)",
+      "wow_factor": "Ver transcripción",
+      "margen_estimado": 3.0
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 1,
+      "video_id": "NOp6IwxlNOc",
+      "video_title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
+      "canal": "Adrián Sáenz",
+      "fecha_indexacion": "",
+      "categoria": "landing_page",
+      "framework": "s de Conversión y Copy (Ganchos, landing pages, apps)",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\n- **Estrategia de comunidad**: Crear una comunidad alrededor de la marca es clave para competir con grandes empresas.\n- **Marketing de influencers**: Aunque al inicio no existía, ahora es un canal de comunicación validado y segmentad",
+      "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 1,
+      "video_id": "NOp6IwxlNOc",
+      "video_title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
+      "canal": "Adrián Sáenz",
+      "fecha_indexacion": "",
+      "fuente_trafico": "y Legal (Presupuestos, segmentación, pasarelas, fletes)",
+      "estrategia_escalado": "CBO/ABO Testing",
+      "logistica": ", Tráfico y Legal (Presupuestos, segmentación, pasarelas, fletes)",
+      "peso_kg": 0.0
+    }
+  ]
 }
