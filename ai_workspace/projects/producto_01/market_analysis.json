@@ -1,0 +1,8 @@
+{
+  "proyecto": "producto_01",
+  "fecha_creacion": "2026-11-05",
+  "estado": "pendiente",
+  "busquedas": [],
+  "mejor_candidato": null,
+  "notas": "Generado por buscar_producto v1.0.0. Poblar ejecutando /buscar-producto."
+}

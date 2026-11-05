@@ -1,0 +1,5 @@
+# Transcripciones Producto 01
+# Formato: video_id | canal | fecha | clasificacion
+# Generado por: import_playlist.py → ingerir_transcripcion_kb
+# ----------------------------------------------------------------
+
