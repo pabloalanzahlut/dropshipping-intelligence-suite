@@ -291,22 +291,20 @@ class KBRouter:
         table_metrics: Dict,
     ) -> None:
         """Inserta en product_trends extrayendo datos del bloque producto."""
-        product_name = self._extract_field(
-            r"(?:Producto|Nombre|Product)[:\s]*([^\n]*)",
-            section, "Producto Extraído por IA"
+        product_name = self._extract_labeled(
+            r"Producto|Nombre|Product", section, "Producto Extraído por IA"
         )
-        niche = self._extract_field(
-            r"(?:Nicho|Categoría|Niche|Category)[:\s]*([^\n]*)",
-            section, "Dropshipping"
+        niche = self._extract_labeled(
+            r"Nicho|Niche", section, "Dropshipping"
         )
-        wow_factor = self._extract_field(
-            r"(?:Wow Factor|Factor WOW?|Unique)[:\s]*([^\n]*)",
-            section, "Ver transcripción"
+        wow_factor = self._extract_labeled(
+            r"Wow Factor|Factor WOW?|Unique", section, "Ver transcripción"
         )
         margin_str = self._extract_field(
-            r"(?:Margen|Multiplicador|Margin|Multiplier)[:\s]*([0-9.]+)",
+            r"^[\s\-\*>]*(?:\*\*|__)?\s*(?:Margen|Multiplicador|Margin|Multiplier)"
+            r"(?:\*\*|__)?\s*:\s*[^\d]*([0-9]+(?:[.,][0-9]+)?)",
             section, "3.0"
-        )
+        ).replace(",", ".")
         try:
             estimated_margin = float(margin_str)
         except ValueError:
