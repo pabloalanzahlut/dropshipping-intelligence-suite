@@ -579,8 +579,109 @@ async def trigger_process(background_tasks: BackgroundTasks) -> Dict[str, str]:
     engine = _get_engine()
     if engine is None:
         raise HTTPException(status_code=503, detail="Motor de ingesta no disponible.")
-    background_tasks.add_task(engine.run_global_ingestion)
+
+    def _run_with_logs():
+        set_pipeline_state(active=True, started_at=time.strftime("%H:%M:%S"),
+                           processed=0, total=0, current_channel=None, current_video=None)
+        push_log("🚀 Ingesta masiva iniciada", "INFO")
+        try:
+            engine.run_global_ingestion()
+        except Exception as exc:
+            push_log(f"❌ Error en ingesta: {exc}", "ERROR")
+        finally:
+            set_pipeline_state(active=False, current_channel=None, current_video=None)
+            push_log("✅ Ingesta finalizada", "INFO")
+
+    background_tasks.add_task(_run_with_logs)
     return {"status": "started", "message": "Ingesta masiva lanzada en segundo plano."}
+
+
+@app.get("/api/logs/stream")
+async def api_logs_stream(request: Request):
+    """Server-Sent Events: emite logs del pipeline en tiempo real."""
+    async def _generator() -> AsyncGenerator[str, None]:
+        # Enviar historial reciente al conectar
+        with _LOG_BUS_LOCK:
+            snapshot = list(_LOG_BUS)
+        for entry in snapshot[-50:]:
+            yield f"data: {json.dumps(entry, ensure_ascii=False)}\n\n"
+
+        last_len = len(snapshot)
+        while True:
+            if await request.is_disconnected():
+                break
+            with _LOG_BUS_LOCK:
+                current = list(_LOG_BUS)
+            if len(current) > last_len:
+                for entry in current[last_len:]:
+                    yield f"data: {json.dumps(entry, ensure_ascii=False)}\n\n"
+                last_len = len(current)
+            # keepalive cada 15s
+            yield ": keepalive\n\n"
+            await asyncio.sleep(1)
+
+    return StreamingResponse(
+        _generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
+
+
+@app.get("/api/pipeline/status")
+async def api_pipeline_status() -> Dict[str, Any]:
+    """Estado en tiempo real del pipeline (canal actual, progreso)."""
+    with _PIPELINE_LOCK:
+        return dict(_PIPELINE_STATE)
+
+
+@app.get("/api/kb/stream")
+async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "gem-orchestrator-core"):
+    """SSE: emite la respuesta del agente KB carácter a carácter (simulado streaming)."""
+    async def _generator() -> AsyncGenerator[str, None]:
+        if not pregunta.strip():
+            yield f"data: {json.dumps({'token': '[ERROR] Pregunta vacía'})}\n\n"
+            return
+        try:
+            from app.agents_engine.executor import AgentExecutor
+            executor = AgentExecutor()
+            kb_context = _build_kb_context(30)
+            pregunta_enriquecida = (
+                f"CONTEXTO KB (últimos insights del sistema):\n"
+                f"---\n{kb_context}\n---\n\n"
+                f"PREGUNTA DEL OPERADOR:\n{pregunta}"
+            )
+            # Ejecutar en hilo (es síncrono) y emitir por chunks
+            loop = asyncio.get_event_loop()
+            resultado = await loop.run_in_executor(
+                None,
+                lambda: executor.execute_agent_task(
+                    agent_name=agente,
+                    skill_name="consultar_kb_agente",
+                    project_name="kb_stream",
+                    user_request=pregunta_enriquecida,
+                )
+            )
+            # Emitir chunk a chunk para efecto streaming
+            chunk_size = 8
+            for i in range(0, len(resultado), chunk_size):
+                if await request.is_disconnected():
+                    break
+                chunk = resultado[i:i + chunk_size]
+                yield f"data: {json.dumps({'token': chunk}, ensure_ascii=False)}\n\n"
+                await asyncio.sleep(0.015)
+            yield f"data: {json.dumps({'done': True, 'raw': resultado}, ensure_ascii=False)}\n\n"
+        except Exception as exc:
+            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+
+    return StreamingResponse(
+        _generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
