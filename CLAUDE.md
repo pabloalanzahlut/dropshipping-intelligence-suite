@@ -93,6 +93,7 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 - `ai_workspace/skills/redactar_anuncios_meta/procedimiento.md` — Copy estático Meta Ads (imagen + carousel)
 - `ai_workspace/skills/monitorear_flujo_caja/procedimiento.md` — Monitor diario de caja y ROAS
 - `ai_workspace/skills/escalar_campana/procedimiento.md` — Árbol de decisión de escalado de campañas
+- `ai_workspace/skills/importar_masivo/procedimiento.md` — Importación masiva por URL con validación 3x → Shopify draft
 - `ai_workspace/config/openrouter_setup.md` — Modelos económicos para volumen alto
 - `ai_workspace/knowledge_base/jack_roberts_strategies.md` — Estrategias AntiGravity/Claude Code
 - `ai_workspace/memory/` — Memoria de decisiones y aprendizajes
