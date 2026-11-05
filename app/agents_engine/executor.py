@@ -40,14 +40,16 @@ AGENT_TEMP_MAP = {
 }
 
 # Max tokens por agente
+# El agente de KB devuelve un JSON con una entrada por insight: a medida que
+# la KB crece, 2048 tokens cortan la respuesta a media cadena y deja de parsear.
 AGENT_TOKENS_MAP = {
     "gem-qa-validation":     4096,
     "gem-backend-core":      4096,
-    "gem-orchestrator-core": 2048,
-    "consultar_kb_agente":   2048,
+    "gem-orchestrator-core": 8192,
+    "consultar_kb_agente":   8192,
     "@gem-qa-validation":     4096,
     "@gem-backend-core":      4096,
-    "@gem-orchestrator-core": 2048,
+    "@gem-orchestrator-core": 8192,
 }
 
 
