@@ -46,6 +46,11 @@ _GEM_PATHS = PathManager.get_paths()
 DATA_DIR = str(_GEM_PATHS['data'])
 TEMP_TRANSCRIPT_DIR = str(_GEM_PATHS['data'] / "temp_transcripts")
 
+# Cuántos videos recientes mirar por canal cuando no hay max_videos_scan.
+# YouTube los lista del más nuevo al más viejo, así que el corte deja fuera
+# el histórico ya ingerido en vez de reenumerarlo en cada ejecución.
+DEFAULT_SCAN_LIMIT = 30
+
 # Validación de URLs de canal YouTube (FASE 6C — fuente de verdad unificada)
 # Soporta: @handle, /channel/UC..., /c/..., /user/...
 _YOUTUBE_CHANNEL_RE = re.compile(
