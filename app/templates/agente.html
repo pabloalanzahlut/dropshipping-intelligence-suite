@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% block title %}Agente IA{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Agente IA · KB</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="agente()" x-init="init()">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        Agente IA · <span style="background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">consultar_kb_agente</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Consulta directa a la Knowledge Base con contexto SQLite inyectado automáticamente</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;color:#4a5080;" x-text="kbCount > 0 ? kbCount + ' insights en KB' : 'KB vacía'"></span>
+      <div :class="kbCount > 0 ? 'pulse-dot' : ''" style="width:8px;height:8px;border-radius:50%;background:#34d399;" x-show="kbCount > 0"></div>
+    </div>
+  </div>
+
+  <!-- Selector de agente + stats -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
+    <div style="background:#0d0f1f;border:1px solid rgba(167,139,250,0.15);border-radius:10px;padding:14px;">
+      <label class="form-label">Agente</label>
+      <select x-model="agenteSeleccionado" class="input-field">
+        <option value="gem-orchestrator-core">gem-orchestrator-core (Llama 3.1)</option>
+        <option value="gem-qa-validation">gem-qa-validation (Gemini Flash)</option>
+        <option value="gem-backend-core">gem-backend-core (Qwen 2.5 Coder)</option>
+      </select>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="historial.length"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Consultas sesión</p>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#22d3ee;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="kbCount"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Entradas KB</p>
+    </div>
+  </div>
+
+  <!-- Chat window -->
+  <div style="background:#08091a;border:1px solid #1a1d35;border-radius:12px;overflow:hidden;">
+
+    <!-- Messages area -->
+    <div id="chat-msgs" style="height:420px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;">
+
+      <!-- Welcome message -->
+      <div x-show="historial.length === 0"
+           style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:24px;">
+        <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,rgba(167,139,250,0.15),rgba(34,211,238,0.1));border:1px solid rgba(167,139,250,0.2);display:flex;align-items:center;justify-content:center;">
+          <svg style="width:24px;height:24px;color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+        </div>
+        <div style="text-align:center;">
+          <p style="font-size:13px;font-weight:600;color:#7880b0;margin:0 0 4px;">Agente listo para consultas</p>
+          <p style="font-size:11px;color:#4a5080;margin:0;">El contexto KB se inyecta automáticamente en cada pregunta.</p>
+        </div>
+        <!-- Quick prompts -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:4px;">
+          <template x-for="q in quickPrompts" :key="q">
+            <button @click="pregunta = q" class="btn-ghost" style="font-size:11px;padding:5px 10px;" x-text="q"></button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <template x-for="(msg, idx) in historial" :key="idx">
+        <div>
+          <!-- Usuario -->
+          <div x-show="msg.rol === 'user'" style="display:flex;justify-content:flex-end;">
+            <div style="max-width:72%;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(34,211,238,0.08));border:1px solid rgba(167,139,250,0.2);border-radius:12px 12px 4px 12px;padding:10px 14px;">
+              <p style="font-size:13px;color:#e8ecff;margin:0;line-height:1.5;" x-text="msg.texto"></p>
+              <p style="font-size:10px;color:#4a5080;margin:4px 0 0;text-align:right;" x-text="msg.hora"></p>
+            </div>
+          </div>
+          <!-- Agente -->
+          <div x-show="msg.rol === 'agente'" style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+              <svg style="width:14px;height:14px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <span style="font-size:10px;font-weight:700;color:#a78bfa;" x-text="msg.agente || 'gem-orchestrator-core'"></span>
+                <span style="font-size:10px;color:#4a5080;" x-text="msg.hora"></span>
+              </div>
+              <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:4px 12px 12px 12px;padding:12px 14px;">
+                <!-- Muestra respuesta estructurada o texto plano -->
+                <template x-if="typeof msg.resultado === 'object' && msg.resultado !== null">
+                  <div>
+                    <template x-for="[k, v] in Object.entries(msg.resultado)" :key="k">
+                      <div style="margin-bottom:8px;" x-show="v && String(v).trim()">
+                        <p style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4a5080;margin:0 0 3px;" x-text="k"></p>
+                        <p style="font-size:12px;color:#c8d0f0;margin:0;line-height:1.6;white-space:pre-wrap;" x-text="typeof v === 'object' ? JSON.stringify(v, null, 2) : v"></p>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template x-if="typeof msg.resultado !== 'object' || msg.resultado === null">
+                  <p style="font-size:12px;color:#c8d0f0;margin:0;line-height:1.6;white-space:pre-wrap;" x-text="msg.texto"></p>
+                </template>
+              </div>
+            </div>
+          </div>
+          <!-- Error -->
+          <div x-show="msg.rol === 'error'" style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="background:#0d0f1f;border:1px solid rgba(251,113,133,0.3);border-radius:8px;padding:10px 14px;flex:1;">
+              <p style="font-size:11px;color:#fb7185;margin:0;" x-text="'⚠ ' + msg.texto"></p>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Typing indicator -->
+      <div x-show="cargando" style="display:flex;gap:10px;align-items:center;">
+        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg style="width:14px;height:14px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+        </div>
+        <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:4px 12px 12px 12px;padding:10px 16px;display:flex;gap:4px;align-items:center;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:dot-bounce 1.2s ease-in-out infinite;" ></span>
+          <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:dot-bounce 1.2s ease-in-out 0.2s infinite;"></span>
+          <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:dot-bounce 1.2s ease-in-out 0.4s infinite;"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Input area -->
+    <div style="border-top:1px solid #1a1d35;padding:16px 20px;background:#0d0f1f;">
+      <div style="display:flex;gap:10px;align-items:flex-end;">
+        <div style="flex:1;">
+          <textarea
+            x-model="pregunta"
+            @keydown.enter.prevent="if(!$event.shiftKey) enviar()"
+            placeholder="Escribe tu consulta... (Enter para enviar, Shift+Enter para nueva línea)"
+            rows="2"
+            :disabled="cargando"
+            class="input-field"
+            style="resize:none;line-height:1.5;"></textarea>
+        </div>
+        <button @click="enviar()" :disabled="cargando || !pregunta.trim()" class="btn-primary" style="height:52px;padding:0 20px;white-space:nowrap;">
+          <svg x-show="!cargando" style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+          <svg x-show="cargando" class="spin" style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span x-text="cargando ? 'Consultando...' : 'Consultar'"></span>
+        </button>
+      </div>
+      <p style="font-size:10px;color:#4a5080;margin:6px 0 0;">
+        El agente recibe automáticamente los últimos <span style="color:#a78bfa;" x-text="kbCount"></span> insights de la KB como contexto.
+        · Modelo: <span style="color:#22d3ee;" x-text="modeloActivo"></span>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<style>
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+</style>
+
+<script>
+function agente() {
+  return {
+    pregunta: '',
+    agenteSeleccionado: 'gem-orchestrator-core',
+    historial: [],
+    cargando: false,
+    kbCount: 0,
+    quickPrompts: [
+      '¿Qué productos HOT han aparecido en la KB?',
+      '¿Cuáles son las mejores fórmulas de conversión registradas?',
+      '¿Qué estrategias de tráfico menciona la base de conocimiento?',
+      'Dame un resumen de las últimas tendencias de producto',
+    ],
+    get modeloActivo() {
+      const m = {
+        'gem-orchestrator-core': 'Llama 3.1 8B',
+        'gem-qa-validation': 'Gemini 2.5 Flash',
+        'gem-backend-core': 'Qwen 2.5 Coder 32B',
+      };
+      return m[this.agenteSeleccionado] || this.agenteSeleccionado;
+    },
+    hora() {
+      return new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    },
+    async init() {
+      try {
+        const r = await fetch('/api/metrics');
+        const d = await r.json();
+        this.kbCount = d.kb_count || 0;
+      } catch(e) {}
+    },
+    scrollToBottom() {
+      this.$nextTick(() => {
+        const el = document.getElementById('chat-msgs');
+        if (el) el.scrollTop = el.scrollHeight;
+      });
+    },
+    async enviar() {
+      const q = this.pregunta.trim();
+      if (!q || this.cargando) return;
+      this.historial.push({ rol: 'user', texto: q, hora: this.hora() });
+      this.pregunta = '';
+      this.cargando = true;
+      this.scrollToBottom();
+      try {
+        const res = await fetch('/api/kb/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pregunta: q,
+            agente: this.agenteSeleccionado,
+            proyecto: 'kb_consulta',
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          this.historial.push({ rol: 'error', texto: data.detail || 'Error desconocido', hora: this.hora() });
+        } else {
+          const resultado = data.resultado || {};
+          const textoPlano = typeof resultado === 'object'
+            ? (resultado.respuesta || resultado.output || resultado.resultado || JSON.stringify(resultado, null, 2))
+            : String(resultado);
+          this.historial.push({
+            rol: 'agente',
+            texto: textoPlano,
+            resultado: resultado,
+            agente: data.agente,
+            hora: this.hora(),
+          });
+        }
+      } catch(e) {
+        this.historial.push({ rol: 'error', texto: 'Error de red: ' + e.message, hora: this.hora() });
+      } finally {
+        this.cargando = false;
+        this.scrollToBottom();
+      }
+    }
+  }
+}
+</script>
+{% endblock %}
