@@ -398,6 +398,31 @@ Resultado: Rentable desde el primer día.
                 print("[INFO] Fallback al template local.")
                 return self.generar_guion_completo(nombre_producto, categoria, patron_hook, duracion_segundos)
 
+    def _construir_resultado(self, texto: str, nombre_producto: str,
+                             patron_hook: str, duracion_segundos: int,
+                             referencia: str) -> Dict:
+        """Arma el dict de guión a partir del texto del modelo."""
+        hook = self.generar_hook(patron_hook)
+        for linea in texto.split('\n'):
+            if 'EL GANCHO' in linea or 'Hook' in linea:
+                partes = linea.split('|')
+                if len(partes) >= 4:
+                    hook = partes[3].strip()
+                break
+
+        return {
+            'titulo': f"{nombre_producto} - Hook {patron_hook}",
+            'hook': hook,
+            'cuerpo': texto,
+            'cta': "Haz clic en 'Comprar Ahora' para asegurar tu envío.",
+            'guion_completo': texto,
+            'script_texto': texto,
+            'patron_hook': patron_hook,
+            'duracion_segundos': duracion_segundos,
+            'contexto_kb_reference': referencia,
+            'timestamp': datetime.now().isoformat(),
+        }
+
     def guardar_guion(self, producto_id: int, guion_data: Dict) -> int:
         """
         Guarda un guión en BD.
