@@ -59,6 +59,25 @@ class KBRouter:
         match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE)
         return match.group(1).strip() if match else default
 
+    def _extract_labeled(self, labels: str, text: str,
+                         default: str = "No especificado") -> str:
+        """
+        Extrae el valor de un campo "Etiqueta: valor".
+
+        Exige inicio de línea y dos puntos: sin eso, una etiqueta como
+        "Producto" matchea dentro del propio título de sección
+        ("### 1. Datos de Producto y Tendencias") y guarda el fragmento
+        sobrante en lugar del dato.
+        """
+        pattern = (
+            rf"^[\s\-\*>]*(?:\*\*|__)?\s*(?:{labels})\s*(?:\*\*|__)?\s*:\s*(.+)$"
+        )
+        valor = self._extract_field(pattern, text, "")
+        valor = re.sub(r"[*_`]", "", valor).strip()
+        if not valor or valor.lower() in ("no especificado", "n/a", "-", "none"):
+            return default
+        return valor
+
     def _extract_all_fields(self, pattern: str, text: str) -> List[str]:
         """Extrae todas las ocurrencias de un patrón."""
         matches = re.findall(pattern, text, re.IGNORECASE | re.MULTILINE)
