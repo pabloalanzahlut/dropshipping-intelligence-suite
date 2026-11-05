@@ -128,7 +128,7 @@ class AgentExecutor:
               "messages": [{"role": "system", "content": "QA de GEM OS."},
                            {"role": "user", "content": cp}]}
         try:
-            r = requests.post(self.url + "/api/v1/chat/completions", headers=hdrs, json=pl, timeout=60)
+            r = requests.post(self.url, headers=hdrs, json=pl, timeout=60)
             r.raise_for_status()
             up = r.json()['choices'][0]['message']['content'].strip()
             self._write_file(current_skill_path, up)
