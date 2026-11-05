@@ -124,6 +124,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/redactar-anuncios-meta` | Copy para Meta Ads estáticos: imagen única, carousel, variantes A/B |
 | `/monitorear-caja` | Revisa salud del flujo de caja con datos pegados del día/semana (Nivel 6) |
 | `/escalar-campana` | Decide si escalar, mantener, optimizar o cortar campaña con reglas cuantitativas (Nivel 5→6) |
+| `/importar-masivo` | Pega URLs de AliExpress/CJ/Temu → valida regla 3x → crea borradores en Shopify |
 
 ---
 
