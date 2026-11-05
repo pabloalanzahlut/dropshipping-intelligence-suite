@@ -63,7 +63,7 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 OLLAMA_DEFAULT_MODEL = os.getenv("OLLAMA_DEFAULT_MODEL", "qwen2.5-coder:1.5b")
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_DEFAULT_MODEL = "google/gemini-2.0-flash-exp:free"
+OPENROUTER_DEFAULT_MODEL = "deepseek/deepseek-v4.1-flash-1017"
 
 FREELLM_DEFAULT_MODEL = "qwen2.5-coder:latest"
 
