@@ -46,58 +46,79 @@
       "nombre": "Adrián Sáenz",
       "url": "https://www.youtube.com/@adriansaenz",
       "status": "Completado",
-      "last_scan": "2026-11-01T03:13:38.391578+00:00",
-      "total_videos": 7,
+      "last_scan": "2026-11-05T21:00:03.586030+00:00",
+      "total_videos": 10,
       "processed_count": 0,
-      "failed_count": 7,
+      "failed_count": 10,
       "videos": [
         {
           "video_id": "RR0806XzmOg",
           "title": "7 Días Haciendo Compra-Venta En Latinoamérica",
           "status": "Fallido",
-          "timestamp": "2026-11-01T03:13:02.555784+00:00",
+          "timestamp": "2026-11-05T20:58:39.565416+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "fxr3vWjruR8",
-          "title": "Tu Fecha De Nacimiento Revela Tu Don y Tu Mayor Reto | Raúl Durán",
+          "title": "Experto En Numerología Revela Lo Que Esconde Tu Fecha De Nacimiento | Raúl Durán",
           "status": "Fallido",
-          "timestamp": "2026-11-01T03:13:16.466475+00:00",
+          "timestamp": "2026-11-05T20:58:50.373612+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "LycpBgBiWKw",
-          "title": "Dame 32 Minutos y Te Enseño a Ganar Dinero Con Claude",
+          "title": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
           "status": "Fallido",
-          "timestamp": "2026-11-01T03:13:26.117669+00:00",
+          "timestamp": "2026-11-05T20:59:01.335119+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "TyQsZpf4DlI",
           "title": "La gente se está haciendo millonaria con la IA y lo va a perder todo",
           "status": "Fallido",
-          "timestamp": "2026-11-01T03:13:35.432338+00:00",
+          "timestamp": "2026-11-05T20:59:20.782054+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "_cL6dYjz5H0",
           "title": "Trata el dropshipping como un videojuego y hazte rico",
           "status": "Fallido",
-          "timestamp": "2026-11-01T03:13:11.754265+00:00",
+          "timestamp": "2026-11-05T20:59:29.440575+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "ny7qgjwBkdg",
           "title": "Cómo Reprogramar Tu Mente Para El Éxito y La Riqueza | Adrià Solà Pastor",
           "status": "Fallido",
-          "timestamp": "2026-11-01T03:13:28.632464+00:00",
+          "timestamp": "2026-11-05T20:59:40.188045+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "uI4CKhT1cvo",
           "title": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
           "status": "Fallido",
-          "timestamp": "2026-11-01T03:13:38.391578+00:00",
+          "timestamp": "2026-11-05T20:59:48.768276+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "NOp6IwxlNOc",
+          "title": "De Fracasar Emprendiendo a Crear El Imperio De Scalpers | Borja Vázquez",
+          "status": "Fallido",
+          "timestamp": "2026-11-05T20:58:11.826853+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "DBdC5Y5vNuo",
+          "title": "¿Qué Es Claude? Explicado En 4 Minutos",
+          "status": "Fallido",
+          "timestamp": "2026-11-05T20:58:22.704378+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "nCu2xSFVvv8",
+          "title": "6 Formas De Ganar Dinero Con Claude Siendo Estudiante",
+          "status": "Fallido",
+          "timestamp": "2026-11-05T21:00:03.586030+00:00",
           "error": "Transcripción vacía o no disponible"
         }
       ]
@@ -144,7 +165,7 @@
     }
   ],
   "metadata": {
-    "last_load": "2026-11-01T03:06:00.720209+00:00",
-    "last_updated": "2026-11-01T03:13:38.391578+00:00"
+    "last_load": "2026-11-05T20:55:40.883479+00:00",
+    "last_updated": "2026-11-05T21:00:03.586030+00:00"
   }
 }
