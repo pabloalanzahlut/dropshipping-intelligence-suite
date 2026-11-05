@@ -315,6 +315,11 @@ async def insights_page(request: Request):
     return _render(request, "insights.html")
 
 
+@app.get("/agente", response_class=HTMLResponse)
+async def agente_page(request: Request):
+    return _render(request, "agente.html")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # API — MÉTRICAS Y ESTADO
 # ═══════════════════════════════════════════════════════════════════════════════
