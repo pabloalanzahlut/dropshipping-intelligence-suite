@@ -403,21 +403,24 @@ class ProviderMonitorEngine:
             # Marcar inicio de escaneo
             self.queue_manager.mark_channel_scan_started(creator)
 
-            # Obtener videos (con retry/UA rotation)
-            all_videos = self.get_all_channel_videos(url)
+            # Obtener videos (con retry/UA rotation), solo los más recientes
+            max_scan = self.scan_limits.get(creator, DEFAULT_SCAN_LIMIT)
+            all_videos = self.get_all_channel_videos(url, max_scan=max_scan)
             if not all_videos:
                 self.log_callback(f"📭 Sin videos para {creator}")
                 continue
 
-            self.log_callback(f"📊 {len(all_videos)} videos totales")
+            nuevos = [v for v in all_videos
+                      if not self.validator.check_video_exists(v["video_id"])]
+            self.log_callback(
+                f"📊 {len(all_videos)} revisados · {len(nuevos)} nuevos "
+                f"· {len(all_videos) - len(nuevos)} ya en KB")
+            if not nuevos:
+                self.log_callback(f"✅ {creator} al día, nada que ingerir")
+                continue
 
             channel_processed = 0
-            for video in all_videos:
-                video_id = video["video_id"]
-
-                # 1. Idempotency Guard rápido (sin descarga)
-                if self.validator.check_video_exists(video_id):
-                    continue
+            for video in nuevos:
 
                 # 2. Throttling: 10 videos/hora máximo
                 if not self.throttle.can_proceed():
