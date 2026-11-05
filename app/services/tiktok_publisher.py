@@ -5,9 +5,10 @@ Requiere MAKE_WEBHOOK_TIKTOK en .env.
 
 import os
 import json
+import uuid
 import urllib.request
 import urllib.error
-from datetime import datetime
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
