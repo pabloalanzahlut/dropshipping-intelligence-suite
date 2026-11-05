@@ -646,6 +646,23 @@ def _build_kb_context(limit: int = 30) -> str:
 
 # ─── Agente IA endpoint ───────────────────────────────────────────────────────
 
+@app.post("/api/kb/sync")
+async def api_kb_sync(background_tasks: BackgroundTasks) -> Dict[str, Any]:
+    """Regenera kb_index.json y los archivos kb_*.md desde SQLite."""
+    def _do_sync():
+        from app.services.kb_index_sync import KBIndexSync
+        syncer = KBIndexSync(db_path=DB_PATH)
+        index = syncer.sync()
+        # Exportar .md por cada video_id único en la KB
+        video_ids = {e["video_id"] for e in index.get("entradas", []) if e.get("video_id")}
+        for vid in video_ids:
+            syncer.export_md_for_video(vid)
+        log.info(f"[KB SYNC] {index['total_entradas']} entradas · {len(video_ids)} archivos .md")
+
+    background_tasks.add_task(_do_sync)
+    return {"status": "started", "message": "Sincronización KB lanzada en segundo plano."}
+
+
 @app.post("/api/kb/query")
 async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
     """Envía una pregunta al AgentExecutor con contexto KB inyectado desde SQLite."""
