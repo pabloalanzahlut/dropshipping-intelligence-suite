@@ -253,6 +253,16 @@ class KBQueryIn(BaseModel):
     proyecto: str = "kb_consulta"
 
 
+class PublicarTikTokIn(BaseModel):
+    producto: str
+    categoria: str
+    hook: str
+    cuerpo: str
+    cta: str
+    patron_hook: str = ""
+    duracion_segundos: int = 0
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def _get_db() -> DatabaseConnection:
     return DatabaseConnection(DB_PATH)
