@@ -184,18 +184,29 @@ class ProviderMonitorEngine:
             self.queue_manager.ensure_channel(nombre, url)
 
     @with_retry(max_retries=3, base_delay=2.0)
-    def get_all_channel_videos(self, channel_url: str) -> List[Dict[str, str]]:
+    def get_all_channel_videos(
+        self, channel_url: str, max_scan: Optional[int] = None
+    ) -> List[Dict[str, str]]:
         """
-        Extrae el catálogo completo de videos de un canal usando yt-dlp real.
+        Extrae los videos más recientes de un canal usando yt-dlp real.
         Con User-Agent rotado y cookies opcionales.
+
+        max_scan limita la enumeración a los N videos más nuevos; con None
+        se recorre el canal entero (primera ingesta de un canal).
         """
-        self.log_callback(f"📡 Escaneando HISTORIAL COMPLETO: {channel_url}")
+        if max_scan:
+            self.log_callback(
+                f"📡 Escaneando últimos {max_scan} videos: {channel_url}")
+        else:
+            self.log_callback(f"📡 Escaneando HISTORIAL COMPLETO: {channel_url}")
 
         cmd = [
             "yt-dlp", "--dump-json", "--flat-playlist", "--no-warnings",
             "--user-agent", self.user_agent_rotator.current_user_agent,
             "--add-header", "Accept-Language:es-ES,es;q=0.9,en;q=0.5",
         ]
+        if max_scan:
+            cmd.extend(["--playlist-end", str(max_scan)])
         if self.user_agent_rotator.has_cookies:
             cmd.extend(["--cookies", self.user_agent_rotator.cookies_path])
 
