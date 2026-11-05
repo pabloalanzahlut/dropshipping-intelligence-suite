@@ -104,6 +104,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 
 | Comando | Función |
 |---------|---------|
+| `/buscar-producto` | Descubre candidatos en AutoDS Trending + Ad Spy + Shopify Analytics |
 | `/clasificar-producto` | Analiza transcripción → clasifica HOT/WARM/COLD |
 | `/redactar-guion` | Genera script TikTok 15-30s |
 | `/estructurar-landing` | Crea copy AIDA para landing page |
