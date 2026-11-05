@@ -164,6 +164,12 @@ class TikTokIn(BaseModel):
     duracion_segundos: int = 60
 
 
+class KBQueryIn(BaseModel):
+    pregunta: str
+    agente: str = "gem-orchestrator-core"
+    proyecto: str = "kb_consulta"
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def _get_db() -> DatabaseConnection:
     return DatabaseConnection(DB_PATH)
