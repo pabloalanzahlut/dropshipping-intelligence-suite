@@ -951,6 +951,92 @@ async def api_tiktok(data: TikTokIn) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+@app.post("/api/tiktok/publicar")
+async def api_tiktok_publicar(data: PublicarTikTokIn) -> Dict[str, Any]:
+    """Envía el guión a Make.com (webhook) para registro y aviso automático."""
+    from app.services.tiktok_publisher import TikTokPublisher
+
+    publisher = TikTokPublisher()
+    if not publisher.esta_configurado():
+        raise HTTPException(
+            status_code=400,
+            detail="MAKE_WEBHOOK_TIKTOK no está configurado en .env",
+        )
+
+    resultado = publisher.publicar(
+        guion={
+            "patron_hook": data.patron_hook,
+            "hook": data.hook,
+            "cuerpo": data.cuerpo,
+            "cta": data.cta,
+            "duracion_segundos": data.duracion_segundos,
+        },
+        producto=data.producto,
+        categoria=data.categoria,
+    )
+
+    if not resultado.get("ok"):
+        raise HTTPException(status_code=502, detail=resultado.get("error", "Error desconocido"))
+
+    push_log(f"Guión TikTok enviado a Make.com: {data.producto}", "INFO")
+    return resultado
+
+
+@app.get("/api/imagenes/estado")
+async def api_imagenes_estado() -> Dict[str, Any]:
+    """Informa qué método de remoción de fondo está disponible."""
+    from app.services.image_remover import ImageRemover
+
+    remover = ImageRemover()
+    try:
+        import rembg  # noqa: F401
+        local_ok = True
+    except ImportError:
+        local_ok = False
+
+    return {
+        "removebg": bool(remover.removebg_key),
+        "rembg_local": local_ok,
+        "metodo_activo": "remove.bg" if remover.removebg_key else ("rembg-local" if local_ok else None),
+    }
+
+
+@app.post("/api/imagenes/remover-fondo")
+async def api_remover_fondo(imagen: UploadFile = File(...)) -> Dict[str, Any]:
+    """Sube una imagen, remueve el fondo y devuelve PNG + WebP listos para Shopify."""
+    from app.services.image_remover import ImageRemover
+
+    sufijo = Path(imagen.filename or "producto.png").suffix.lower()
+    if sufijo not in {".png", ".jpg", ".jpeg", ".webp"}:
+        raise HTTPException(status_code=400, detail="Formato no soportado: usa PNG, JPG o WebP")
+
+    IMG_DIR.mkdir(parents=True, exist_ok=True)
+    origen = IMG_DIR / f"{uuid.uuid4().hex}{sufijo}"
+    origen.write_bytes(await imagen.read())
+
+    resultado = ImageRemover().procesar_completo(str(origen), str(IMG_DIR))
+    origen.unlink(missing_ok=True)
+
+    if not resultado.get("ok"):
+        raise HTTPException(status_code=502, detail=resultado.get("error", "Error desconocido"))
+
+    push_log(f"Imagen procesada ({resultado['metodo']}): {resultado['size_kb']} KB", "INFO")
+    return {
+        **resultado,
+        "png_url": f"/api/imagenes/archivo/{Path(resultado['png']).name}",
+        "webp_url": f"/api/imagenes/archivo/{Path(resultado['webp']).name}",
+    }
+
+
+@app.get("/api/imagenes/archivo/{nombre}")
+async def api_imagen_archivo(nombre: str) -> FileResponse:
+    """Sirve una imagen ya procesada."""
+    destino = (IMG_DIR / nombre).resolve()
+    if destino.parent != IMG_DIR.resolve() or not destino.is_file():
+        raise HTTPException(status_code=404, detail="Imagen no encontrada")
+    return FileResponse(destino)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # COMPATIBILIDAD CON TKINTER (app/main.py en modo dev)
 # ═══════════════════════════════════════════════════════════════════════════════
