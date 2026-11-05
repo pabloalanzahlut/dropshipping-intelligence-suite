@@ -135,4 +135,4 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 
 ---
 
-*GEM OS v2.1 — Metodología Xavier Mitjana + Jack Roberts AntiGravity + Adrián Sáenz Hostinger*
+*GEM OS v2.2 — Metodología Xavier Mitjana + Jack Roberts AntiGravity + Adrián Sáenz Hostinger*
