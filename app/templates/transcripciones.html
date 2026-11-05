@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% block title %}Transcripciones{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Transcripciones</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="transcripciones()" x-init="init()">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        Transcripciones · <span style="background:linear-gradient(90deg,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">YouTube KB</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">transcripciones_youtube · texto limpio listo para ingesta</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button @click="cargar()" :disabled="cargando" class="btn-ghost">
+        <svg :class="cargando ? 'spin' : ''" style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;">
+    <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#22d3ee;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="stats.total ?? '—'"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Total</p>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid rgba(52,211,153,0.12);border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#34d399;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="stats.procesadas ?? '—'"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Procesadas</p>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid rgba(251,191,36,0.12);border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#fbbf24;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="stats.pendientes ?? '—'"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Pendientes</p>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid rgba(167,139,250,0.12);border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="stats.canales_unicos ?? '—'"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Canales</p>
+    </div>
+    <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
+      <p style="font-size:18px;font-weight:700;color:#e8ecff;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="formatTokens(stats.tokens_totales)"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Tokens limpios</p>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div style="display:grid;grid-template-columns:1fr auto auto;gap:10px;margin-bottom:16px;align-items:end;">
+    <div>
+      <label class="form-label">Buscar</label>
+      <input x-model="buscar" @input.debounce.400ms="cargar()"
+             type="text" placeholder="Título, canal o contenido..."
+             class="input-field" />
+    </div>
+    <div>
+      <label class="form-label">Estado</label>
+      <select x-model="filtroEstado" @change="cargar()" class="input-field" style="width:140px;">
+        <option value="">Todos</option>
+        <option value="true">Procesadas</option>
+        <option value="false">Pendientes</option>
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Por página</label>
+      <select x-model="limite" @change="cargar()" class="input-field" style="width:80px;">
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div x-show="cargando" style="text-align:center;padding:60px 0;">
+    <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px;">
+      <div class="spin" style="width:24px;height:24px;border:2px solid #1a1d35;border-top-color:#22d3ee;border-radius:50%;"></div>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Cargando transcripciones...</p>
+    </div>
+  </div>
+
+  <!-- Lista -->
+  <div x-show="!cargando">
+
+    <!-- Tabla -->
+    <div x-show="lista.length > 0" style="background:#08091a;border:1px solid #1a1d35;border-radius:12px;overflow:hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Título · Canal</th>
+            <th>Fecha</th>
+            <th style="text-align:center;">Tokens</th>
+            <th style="text-align:center;">Estado</th>
+            <th style="text-align:right;">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="t in lista" :key="t.id">
+            <tr style="cursor:pointer;" @click="verDetalle(t.id)">
+              <td style="max-width:360px;">
+                <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="t.titulo || '(sin título)'"></p>
+                <p style="font-size:11px;color:#4a5080;margin:0;" x-text="t.canal"></p>
+                <p style="font-size:11px;color:#7880b0;margin:4px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;" x-text="t.preview || '—'"></p>
+              </td>
+              <td style="white-space:nowrap;font-size:11px;color:#7880b0;" x-text="t.fecha?.substring(0,10) || t.creada_at?.substring(0,10) || '—'"></td>
+              <td style="text-align:center;">
+                <span style="font-size:12px;font-weight:600;" :style="t.tokens_limpios > 0 ? 'color:#22d3ee' : 'color:#4a5080'" x-text="t.tokens_limpios > 0 ? t.tokens_limpios.toLocaleString() : (t.tokens_original > 0 ? t.tokens_original.toLocaleString() : '—')"></span>
+              </td>
+              <td style="text-align:center;">
+                <span :class="t.procesada ? 'badge badge-done' : 'badge badge-pending'"
+                      x-text="t.procesada ? 'Procesada' : 'Pendiente'"></span>
+              </td>
+              <td style="text-align:right;">
+                <button @click.stop="verDetalle(t.id)" class="btn-ghost" style="font-size:11px;padding:5px 10px;">Ver →</button>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty state -->
+    <div x-show="lista.length === 0"
+         style="display:flex;flex-direction:column;align-items:center;padding:64px 0;gap:12px;background:#08091a;border:1px solid #1a1d35;border-radius:12px;">
+      <div style="width:56px;height:56px;border-radius:16px;background:#0d0f1f;border:1px solid #1a1d35;display:flex;align-items:center;justify-content:center;">
+        <svg style="width:26px;height:26px;color:#4a5080;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <div style="text-align:center;">
+        <p style="font-size:13px;font-weight:600;color:#7880b0;margin:0 0 4px;">Sin transcripciones</p>
+        <p style="font-size:11px;color:#4a5080;margin:0;" x-show="!buscar && !filtroEstado">Inicia la ingesta de canales YouTube para generar transcripciones.</p>
+        <p style="font-size:11px;color:#4a5080;margin:0;" x-show="buscar || filtroEstado">No hay resultados para el filtro actual.</p>
+      </div>
+      <a href="/youtube" class="btn-ghost" style="text-decoration:none;" x-show="!buscar && !filtroEstado">Ir a YouTube · Ingesta →</a>
+      <button @click="buscar=''; filtroEstado=''; cargar()" class="btn-ghost" x-show="buscar || filtroEstado">Limpiar filtros</button>
+    </div>
+  </div>
+
+  <!-- Modal detalle -->
+  <div x-show="detalle" x-cloak
+       @keydown.escape.window="detalle = null"
+       style="position:fixed;inset:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);"
+       @click.self="detalle = null">
+
+    <div x-show="detalle" style="background:#0d0f1f;border:1px solid #252844;border-radius:16px;width:100%;max-width:780px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.6);">
+
+      <!-- Modal header -->
+      <div style="padding:20px 24px 16px;border-bottom:1px solid #1a1d35;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;">
+        <div style="min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span :class="detalle?.procesada ? 'badge badge-done' : 'badge badge-pending'"
+                  x-text="detalle?.procesada ? 'Procesada' : 'Pendiente'"></span>
+            <span style="font-size:10px;color:#4a5080;" x-text="detalle?.canal"></span>
+          </div>
+          <h2 style="font-size:16px;font-weight:700;color:#e8ecff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="detalle?.titulo"></h2>
+          <p style="font-size:11px;color:#4a5080;margin:4px 0 0;">
+            ID: <span x-text="detalle?.id"></span>
+            · video_id: <span x-text="detalle?.video_id"></span>
+            · <span x-text="detalle?.tokens_limpios > 0 ? detalle.tokens_limpios.toLocaleString() + ' tokens limpios' : (detalle?.tokens_original ?? 0).toLocaleString() + ' tokens originales'"></span>
+          </p>
+        </div>
+        <button @click="detalle = null" class="btn-ghost" style="flex-shrink:0;padding:6px 8px;">
+          <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Toggle vista limpia / cruda -->
+      <div style="padding:12px 24px;border-bottom:1px solid #1a1d35;display:flex;gap:6px;flex-shrink:0;">
+        <button @click="vistaLimpia = true"
+                :class="vistaLimpia ? 'tab-btn active' : 'tab-btn'">Texto limpio</button>
+        <button @click="vistaLimpia = false"
+                :class="!vistaLimpia ? 'tab-btn active' : 'tab-btn'">Texto original</button>
+      </div>
+
+      <!-- Modal body -->
+      <div style="flex:1;overflow-y:auto;padding:20px 24px;">
+        <div x-show="cargandoDetalle" style="text-align:center;padding:40px 0;">
+          <div class="spin" style="display:inline-block;width:20px;height:20px;border:2px solid #1a1d35;border-top-color:#22d3ee;border-radius:50%;"></div>
+        </div>
+        <div x-show="!cargandoDetalle">
+          <pre style="font-size:12px;color:#a8b0d8;line-height:1.7;white-space:pre-wrap;word-break:break-word;margin:0;font-family:'Inter',system-ui,sans-serif;"
+               x-text="vistaLimpia ? (detalle?.transcripcion_limpia || '(Sin texto limpio — pendiente de ingesta)') : (detalle?.transcripcion_texto || '—')"></pre>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div style="padding:14px 24px;border-top:1px solid #1a1d35;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <span style="font-size:10px;color:#4a5080;" x-text="'Creada: ' + (detalle?.creada_at?.substring(0,16) || '—') + ' · Actualizada: ' + (detalle?.actualizada_at?.substring(0,16) || '—')"></span>
+        <div style="display:flex;gap:8px;">
+          <button @click="copiarTexto()" class="btn-ghost" style="font-size:11px;">
+            <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            <span x-text="copiado ? '¡Copiado!' : 'Copiar texto'"></span>
+          </button>
+          <button @click="detalle = null" class="btn-ghost" style="font-size:11px;">Cerrar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function transcripciones() {
+  return {
+    lista: [], stats: {}, cargando: false,
+    buscar: '', filtroEstado: '', limite: 50,
+    detalle: null, cargandoDetalle: false,
+    vistaLimpia: true, copiado: false,
+
+    formatTokens(n) {
+      if (!n) return '0';
+      if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+      return String(n);
+    },
+
+    async init() {
+      await Promise.all([this.cargar(), this.cargarStats()]);
+    },
+
+    async cargarStats() {
+      try {
+        const r = await fetch('/api/transcripciones/stats/resumen');
+        this.stats = await r.json();
+      } catch(e) {}
+    },
+
+    async cargar() {
+      this.cargando = true;
+      try {
+        const params = new URLSearchParams({ limite: this.limite });
+        if (this.buscar) params.set('buscar', this.buscar);
+        if (this.filtroEstado !== '') params.set('solo_procesadas', this.filtroEstado);
+        const r = await fetch('/api/transcripciones?' + params.toString());
+        this.lista = await r.json();
+      } catch(e) { this.lista = []; }
+      finally { this.cargando = false; }
+    },
+
+    async verDetalle(id) {
+      this.detalle = {};
+      this.cargandoDetalle = true;
+      this.vistaLimpia = true;
+      try {
+        const r = await fetch('/api/transcripciones/' + id);
+        if (!r.ok) throw new Error('Not found');
+        this.detalle = await r.json();
+      } catch(e) {
+        this.detalle = null;
+      } finally {
+        this.cargandoDetalle = false;
+      }
+    },
+
+    async copiarTexto() {
+      const texto = this.vistaLimpia
+        ? (this.detalle?.transcripcion_limpia || '')
+        : (this.detalle?.transcripcion_texto || '');
+      try {
+        await navigator.clipboard.writeText(texto);
+        this.copiado = true;
+        setTimeout(() => this.copiado = false, 2000);
+      } catch(e) {}
+    }
+  }
+}
+</script>
+{% endblock %}
