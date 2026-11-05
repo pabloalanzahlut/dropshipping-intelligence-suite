@@ -85,7 +85,8 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 - `ai_workspace/skills/clasificar_productos/procedimiento.md` — Reglas de clasificación
 - `ai_workspace/skills/estructurar_landing/procedimiento.md` — Framework AIDA
 - `ai_workspace/skills/redactar_guiones_tiktok/procedimiento.md` — Script de video
-- `ai_workspace/skills/redactar_ficha_shopify/procedimiento.md` — Ficha producto Shopify
+- `ai_workspace/skills/redactar_ficha_shopify/procedimiento.md` — Ficha producto Shopify (v2.0: multi-ángulo AIDA + SEO enriquecido)
+- `ai_workspace/skills/redactar_hook_matrix/procedimiento.md` — Matriz ≥10 hooks TikTok/Meta Ads por fórmula
 - `ai_workspace/skills/publicar_tiktok_automatico/procedimiento.md` — Auto-publicación Make.com
 - `ai_workspace/skills/generar_imagen_producto/procedimiento.md` — Imágenes sin fondo
 - `ai_workspace/skills/validar_financiero/procedimiento.md` — Validación 3x, margen bruto y CPA máximo
