@@ -34,14 +34,26 @@ class TikTokPublisher:
             return {"ok": False, "error": "MAKE_WEBHOOK_TIKTOK no está configurado en .env"}
 
         payload = {
+            "source": "GEM_OS_v2",
+            "correlation_id": str(uuid.uuid4()),
             "producto": producto,
             "categoria": categoria,
-            "patron_hook": guion.get("patron_hook", ""),
-            "hook": guion.get("hook", ""),
-            "cuerpo": guion.get("cuerpo", ""),
-            "cta": guion.get("cta", ""),
-            "duracion_segundos": guion.get("duracion_segundos", 0),
-            "timestamp": datetime.now().isoformat(),
+            "guion": {
+                "patron_hook": guion.get("patron_hook", ""),
+                "hook": guion.get("hook", ""),
+                "demostracion": guion.get("cuerpo", ""),
+                "cta": guion.get("cta", ""),
+                "hashtags": guion.get("hashtags", []),
+                "descripcion_post": guion.get("descripcion_post", "")[:150],
+            },
+            "media": {
+                "url_imagen": guion.get("url_imagen", ""),
+                "tipo": "video",
+            },
+            "schedule": {
+                "publicar_en": datetime.now(timezone.utc).isoformat(),
+                "ventana_permitida": "18:00-21:00",
+            },
         }
 
         data = json.dumps(payload).encode("utf-8")
