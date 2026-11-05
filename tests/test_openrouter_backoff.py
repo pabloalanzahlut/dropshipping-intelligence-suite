@@ -193,7 +193,8 @@ class TestExponentialBackoffUtil(unittest.TestCase):
         """Agota los reintentos → lanza RuntimeError."""
         from app.utils.openrouter_backoff import call_openrouter_with_backoff
 
-        mock_post.side_effect = _openrouter_rate_limit_response()
+        # Siempre devuelve la misma respuesta 429
+        mock_post.return_value = _openrouter_rate_limit_response()
 
         with self.assertRaises(RuntimeError) as ctx:
             call_openrouter_with_backoff(
@@ -202,7 +203,7 @@ class TestExponentialBackoffUtil(unittest.TestCase):
                 payload={},
                 max_retries=3,
             )
-        self.assertIn("429", str(ctx.exception))
+        self.assertIn("reintentos agotados", str(ctx.exception))
 
     @patch("time.sleep")
     @patch("requests.post")
