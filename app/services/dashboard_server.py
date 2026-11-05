@@ -520,6 +520,55 @@ async def api_insights() -> List[Dict[str, Any]]:
     return _get_kb_insights_combined(50)
 
 
+# ─── KB context helper ────────────────────────────────────────────────────────
+
+def _build_kb_context(limit: int = 30) -> str:
+    """Construye un bloque de texto con los insights KB más recientes para inyectar al agente."""
+    rows = _get_kb_insights_combined(limit)
+    if not rows:
+        return "(Base de conocimiento vacía — realiza ingesta de videos YouTube primero.)"
+    lines = []
+    for r in rows:
+        tabla = r.get("source_table", "")
+        titulo = r.get("video_title") or "(sin título)"
+        canal = r.get("channel_name") or "?"
+        preview = (r.get("content_preview") or "").strip()
+        lines.append(f"[{tabla}] {titulo} | {canal}\n{preview}")
+    return "\n\n".join(lines)
+
+
+# ─── Agente IA endpoint ───────────────────────────────────────────────────────
+
+@app.post("/api/kb/query")
+async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
+    """Envía una pregunta al AgentExecutor con contexto KB inyectado desde SQLite."""
+    try:
+        from app.agents_engine.executor import AgentExecutor
+        executor = AgentExecutor()
+        kb_context = _build_kb_context(30)
+        pregunta_enriquecida = (
+            f"CONTEXTO KB (últimos insights del sistema):\n"
+            f"---\n{kb_context}\n---\n\n"
+            f"PREGUNTA DEL OPERADOR:\n{data.pregunta}"
+        )
+        resultado = executor.execute_agent_task(
+            agent_name=data.agente,
+            skill_name="consultar_kb_agente",
+            project_name=data.proyecto,
+            user_request=pregunta_enriquecida,
+        )
+        try:
+            parsed = json.loads(resultado)
+        except (json.JSONDecodeError, TypeError):
+            parsed = {"respuesta": resultado}
+        return {"status": "ok", "agente": data.agente, "resultado": parsed}
+    except RuntimeError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    except Exception as exc:
+        log.error(f"[KB QUERY] Error: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # API — ACCIONES DE NEGOCIO (Fase 3)
 # ═══════════════════════════════════════════════════════════════════════════════
