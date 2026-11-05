@@ -256,10 +256,12 @@ class ProviderMonitorEngine:
         video_url = f"https://youtube.com/watch?v={video_id}"
         output_tmpl = os.path.join(TEMP_TRANSCRIPT_DIR, video_id)
 
+        # Sin --convert-subs: esa conversión exige ffmpeg y aquí basta el VTT
+        # nativo de YouTube, que _parse_vtt() limpia sin dependencias externas.
         cmd = [
             "yt-dlp", "--skip-download", "--write-subs",
             "--write-auto-subs", "--sub-lang", "es,es-419",
-            "--convert-subs", "srt", "--no-warnings",
+            "--no-warnings",
             "--user-agent", self.user_agent_rotator.current_user_agent,
             "-o", output_tmpl,
         ]
