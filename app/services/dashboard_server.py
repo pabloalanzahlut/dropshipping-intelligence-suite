@@ -88,6 +88,21 @@ _engine = None
 _engine_lock = threading.Lock()
 
 
+def _engine_log_adapter(msg: str) -> None:
+    """Callback del engine: vuelca sus mensajes al bus SSE y deduce el paso actual."""
+    text = str(msg)
+    level = "ERROR" if text.startswith("❌") else "WARNING" if text.startswith("⚠") else "INFO"
+    push_log(text, level)
+
+    if "Escaneando" in text and ":" in text:
+        set_pipeline_state(current_channel=text.split(":", 1)[1].strip())
+    elif "Extrayendo valor" in text and ":" in text:
+        set_pipeline_state(current_video=text.split(":", 1)[1].strip())
+    elif "Guardado en KB" in text:
+        with _PIPELINE_LOCK:
+            _PIPELINE_STATE["processed"] = _PIPELINE_STATE.get("processed", 0) + 1
+
+
 def _get_engine():
     global _engine
     if _engine is None:
@@ -96,6 +111,7 @@ def _get_engine():
                 try:
                     from app.services.provider_monitor_engine import ProviderMonitorEngine
                     _engine = ProviderMonitorEngine()
+                    _engine.log_callback = _engine_log_adapter
                 except Exception as exc:
                     log.warning(f"[SERVER] ProviderMonitorEngine no disponible: {exc}")
     return _engine
