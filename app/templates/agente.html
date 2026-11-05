@@ -220,36 +220,61 @@ function agente() {
       this.pregunta = '';
       this.cargando = true;
       this.scrollToBottom();
+
+      // Placeholder de respuesta en streaming
+      const idx = this.historial.length;
+      this.historial.push({ rol: 'agente', texto: '', resultado: null, agente: this.agenteSeleccionado, hora: this.hora(), streaming: true });
+      this.scrollToBottom();
+
       try {
-        const res = await fetch('/api/kb/query', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            pregunta: q,
-            agente: this.agenteSeleccionado,
-            proyecto: 'kb_consulta',
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          this.historial.push({ rol: 'error', texto: data.detail || 'Error desconocido', hora: this.hora() });
-        } else {
-          const resultado = data.resultado || {};
-          const textoPlano = typeof resultado === 'object'
-            ? (resultado.respuesta || resultado.output || resultado.resultado || JSON.stringify(resultado, null, 2))
-            : String(resultado);
-          this.historial.push({
-            rol: 'agente',
-            texto: textoPlano,
-            resultado: resultado,
-            agente: data.agente,
-            hora: this.hora(),
-          });
-        }
+        const url = `/api/kb/stream?pregunta=${encodeURIComponent(q)}&agente=${encodeURIComponent(this.agenteSeleccionado)}`;
+        const sse = new EventSource(url);
+        let buffer = '';
+
+        sse.onmessage = (e) => {
+          try {
+            const d = JSON.parse(e.data);
+            if (d.token) {
+              buffer += d.token;
+              this.historial[idx].texto = buffer;
+              this.scrollToBottom();
+            }
+            if (d.done) {
+              sse.close();
+              this.cargando = false;
+              this.historial[idx].streaming = false;
+              // Intentar parsear JSON final
+              try {
+                const parsed = JSON.parse(d.raw || buffer);
+                this.historial[idx].resultado = parsed;
+                this.historial[idx].texto = parsed.respuesta || parsed.output || buffer;
+              } catch {}
+              this.scrollToBottom();
+            }
+            if (d.error) {
+              sse.close();
+              this.cargando = false;
+              this.historial[idx] = { rol: 'error', texto: d.error, hora: this.hora() };
+              this.scrollToBottom();
+            }
+          } catch {}
+        };
+
+        sse.onerror = () => {
+          sse.close();
+          if (this.cargando) {
+            this.cargando = false;
+            if (!buffer) {
+              this.historial[idx] = { rol: 'error', texto: 'Error de conexión SSE', hora: this.hora() };
+            } else {
+              this.historial[idx].streaming = false;
+            }
+            this.scrollToBottom();
+          }
+        };
       } catch(e) {
-        this.historial.push({ rol: 'error', texto: 'Error de red: ' + e.message, hora: this.hora() });
-      } finally {
         this.cargando = false;
+        this.historial[idx] = { rol: 'error', texto: 'Error: ' + e.message, hora: this.hora() };
         this.scrollToBottom();
       }
     }
