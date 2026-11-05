@@ -335,17 +335,14 @@ class KBRouter:
         table_metrics: Dict,
     ) -> None:
         """Inserta en conversion_formulas."""
-        category = self._extract_field(
-            r"(?:Categoría|Tipo|Category|Type)[:\s]*([^\n]*)",
-            section, "landing_page"
+        category = self._extract_labeled(
+            r"Categoría|Tipo|Category|Type", section, "landing_page"
         )
-        framework = self._extract_field(
-            r"(?:Framework|Estructura|Structure)[:\s]*([^\n]*)",
-            section, "AIDA"
+        framework = self._extract_labeled(
+            r"Framework|Estructura|Structure", section, "AIDA"
         )
-        apps = self._extract_field(
-            r"(?:Apps|Herramientas|Tools|Recommended)[:\s]*([^\n]*)",
-            section, "Shopify Native"
+        apps = self._extract_labeled(
+            r"Apps|Herramientas|Tools|Recommended", section, "Shopify Native"
         )
 
         raw_structure = section
