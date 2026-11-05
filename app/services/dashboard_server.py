@@ -24,6 +24,7 @@ import uvicorn
 import jinja2
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app.config.path_manager import PathManager
