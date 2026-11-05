@@ -346,6 +346,14 @@ class ProviderMonitorEngine:
                 self.log_callback(f"✅ Guardado en KB: {title}")
                 self.queue_manager.update_video_status(
                     creator, video_id, STATUS_COMPLETED, title=title)
+                # Sincronizar índice y exportar .md para este video
+                try:
+                    from app.services.kb_index_sync import KBIndexSync
+                    syncer = KBIndexSync(db_path=self.db_manager.db_path)
+                    syncer.sync()
+                    syncer.export_md_for_video(video_id)
+                except Exception as _sync_err:
+                    self.log_callback(f"⚠️ KBIndexSync: {_sync_err}")
                 return True
             else:
                 self.log_callback(f"⚠️ IA: VACÍO (sin valor CRO): {title}")
