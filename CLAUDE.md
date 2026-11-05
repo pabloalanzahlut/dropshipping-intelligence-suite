@@ -79,6 +79,9 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 
 ## ARCHIVOS DE CONTEXTO
 
+- `ai_workspace/skills/buscar_producto/procedimiento.md` — Búsqueda mobile-first (AutoDS + Ad Spy + Shopify Analytics)
+- `ai_workspace/skills/ingerir_transcripcion_kb/procedimiento.md` — Extracción de entidades → Knowledge Base
+- `ai_workspace/skills/consultar_kb_agente/procedimiento.md` — Consultas internas del operador sobre la KB
 - `ai_workspace/skills/clasificar_productos/procedimiento.md` — Reglas de clasificación
 - `ai_workspace/skills/estructurar_landing/procedimiento.md` — Framework AIDA
 - `ai_workspace/skills/redactar_guiones_tiktok/procedimiento.md` — Script de video
