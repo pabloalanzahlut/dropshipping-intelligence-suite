@@ -317,3 +317,23 @@ def mig_0012_valor_score(conn: sqlite3.Connection):
     cols = {r[1] for r in cursor.fetchall()}
     if "valor_score" not in cols:
         conn.execute("ALTER TABLE product_trends ADD COLUMN valor_score REAL DEFAULT 0.0")
+
+
+@migration(13, "Crear tabla importaciones_masivas para importación por URL")
+def mig_0013_importaciones_masivas(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS importaciones_masivas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            correlation_id TEXT UNIQUE NOT NULL,
+            url_origen TEXT NOT NULL,
+            plataforma TEXT NOT NULL,
+            product_id_externo TEXT DEFAULT '',
+            shopify_draft_id TEXT,
+            status TEXT DEFAULT 'pending',
+            validacion_financiera TEXT DEFAULT '{}',
+            error_msg TEXT,
+            creada_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_import_status ON importaciones_masivas(status)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_import_plataforma ON importaciones_masivas(plataforma)")
