@@ -131,15 +131,41 @@
   </div>
 </div>
 
+<style>
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+</style>
 <script>
 function youtube() {
   return {
     channels: [], ingesting: false, ingestMsg: '',
     newCh: { nombre: '', url: '' }, adding: false, addError: '', addOk: '',
-    async init() { await this.loadChannels(); },
+    pipeline: { active: false, current_channel: null, current_video: null },
+    _pipelineTimer: null,
+
+    async init() {
+      await this.loadChannels();
+      this._pipelineTimer = setInterval(() => this.fetchPipeline(), 2000);
+    },
+
     async loadChannels() {
       try { const res = await fetch('/api/channels'); this.channels = await res.json(); } catch(e) {}
     },
+
+    async fetchPipeline() {
+      try {
+        const res = await fetch('/api/pipeline/status');
+        this.pipeline = await res.json();
+      } catch(e) {}
+    },
+
+    isActive(ch) {
+      if (!this.pipeline.active || !this.pipeline.current_channel) return false;
+      const name = (ch.nombre || '').toLowerCase();
+      const url  = (ch.url   || '').toLowerCase();
+      const cur  = this.pipeline.current_channel.toLowerCase();
+      return name.includes(cur) || url.includes(cur) || cur.includes(name);
+    },
+
     async triggerIngest() {
       this.ingesting = true; this.ingestMsg = '';
       try {
@@ -149,6 +175,7 @@ function youtube() {
       } catch(e) { this.ingestMsg = 'Error al iniciar ingesta.'; }
       finally { this.ingesting = false; }
     },
+
     async addChannel() {
       this.adding = true; this.addError = ''; this.addOk = '';
       try {
