@@ -43,6 +43,39 @@ CHANNELS_JSON_PATH = str(_GEM_PATHS["config"])
 DASHBOARD_PORT = int(os.getenv("DASHBOARD_PORT", "47821"))
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
 
+# ── Bus SSE de logs en tiempo real ──────────────────────────────────────────────
+# Circular buffer compartido: el engine escribe, los clientes SSE leen
+_LOG_BUS: deque = deque(maxlen=200)
+_LOG_BUS_LOCK = threading.Lock()
+
+# Estado actual del pipeline (canal procesando ahora)
+_PIPELINE_STATE: Dict[str, Any] = {
+    "active": False,
+    "current_channel": None,
+    "current_video": None,
+    "processed": 0,
+    "total": 0,
+    "started_at": None,
+}
+_PIPELINE_LOCK = threading.Lock()
+
+
+def push_log(msg: str, level: str = "INFO") -> None:
+    """Escribe una línea en el bus SSE. Llamar desde el engine o cualquier servicio."""
+    entry = {"ts": time.strftime("%H:%M:%S"), "level": level, "msg": msg}
+    with _LOG_BUS_LOCK:
+        _LOG_BUS.append(entry)
+
+
+def set_pipeline_state(**kwargs) -> None:
+    """Actualiza el estado del pipeline en tiempo real."""
+    with _PIPELINE_LOCK:
+        _PIPELINE_STATE.update(kwargs)
+
+
+# Inyectar push_log en el engine para que emita eventos sin importar circular
+os.environ.setdefault("GEM_PUSH_LOG", "1")
+
 # Regex de validación de URLs de canal YouTube (misma fuente de verdad que el engine)
 _YOUTUBE_CHANNEL_RE = re.compile(
     r"^(?:https?://)?(?:www\.)?(?:youtube\.com|youtu\.be)/"
