@@ -93,7 +93,7 @@ class KBRouter:
     def _extract_float(self, pattern: str, text: str, default: float = 0.0) -> float:
         val = self._extract_field(pattern, text, str(default))
         try:
-            return float(val)
+            return float(val.replace(",", "."))
         except ValueError:
             return default
 
