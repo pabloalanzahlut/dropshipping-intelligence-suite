@@ -46,6 +46,7 @@ Todos los archivos tienen `[PLACEHOLDER]` marcados. Sustituirlos antes de public
 | [politica_reembolso.md](03_politicas_legales/politica_reembolso.md) | Settings → Policies → Refund | ⬜ Pendiente |
 | [terminos_servicio.md](03_politicas_legales/terminos_servicio.md) | Settings → Policies → Terms of Service | ⬜ Pendiente |
 | [envio_entrega.md](03_politicas_legales/envio_entrega.md) | Settings → Policies → Shipping | ⬜ Pendiente |
+| [aviso_legal.md](03_politicas_legales/aviso_legal.md) | Pages → "Aviso Legal" | ⬜ Pendiente |
 
 ---
 
