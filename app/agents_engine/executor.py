@@ -18,13 +18,14 @@ from app.services.protocol_enforcer import ProtocolEnforcer
 # Mapa de ruteo de agentes → modelos OpenRouter (FASE 4)
 # Cada agente usa un modelo específico según su rol y criticidad.
 AGENT_MODEL_MAP = {
-    "gem-qa-validation":     "google/gemini-2.5-flash:free",
-    "gem-backend-core":      "qwen/qwen-2.5-coder-32b-instruct:free",
-    "gem-orchestrator-core": "meta-llama/llama-3.1-8b-instruct:free",
+    "gem-qa-validation":     "anthropic/claude-haiku-5.5",
+    "gem-backend-core":      "anthropic/claude-haiku-5.5",
+    "gem-orchestrator-core": "anthropic/claude-haiku-5.5",
+    "consultar_kb_agente":   "anthropic/claude-haiku-5.5",
     # Aliases con @
-    "@gem-qa-validation":     "google/gemini-2.5-flash:free",
-    "@gem-backend-core":      "qwen/qwen-2.5-coder-32b-instruct:free",
-    "@gem-orchestrator-core": "meta-llama/llama-3.1-8b-instruct:free",
+    "@gem-qa-validation":     "anthropic/claude-haiku-5.5",
+    "@gem-backend-core":      "anthropic/claude-haiku-5.5",
+    "@gem-orchestrator-core": "anthropic/claude-haiku-5.5",
 }
 
 # Temperatura por agente
