@@ -15,6 +15,7 @@ from app.ui.components.copywriting_panel import CopywritingPanel
 from app.ui.components.tiktok_panel import TikTokPanel
 from app.ui.components.governance_panel import GovernancePanel
 from app.ui.components.ollama_panel import OllamaPanel
+from app.ui.components.kb_agent_panel import KBAgentPanel
 from app.database.connection import DatabaseConnection
 from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 from app.ui.themes.jack_styles import apply_jack_styles
