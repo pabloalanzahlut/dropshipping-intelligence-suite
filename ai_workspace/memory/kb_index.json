@@ -1,6 +1,13 @@
 {
-  "kb_version": "1.0.0",
+  "kb_version": "2.0.0",
+  "fuente": "sqlite",
+  "nota": "Generado automáticamente desde SQLite. No editar manualmente.",
   "ultima_actualizacion": "2026-11-05",
   "total_entradas": 0,
+  "por_tipo": {
+    "productos": 0,
+    "conversion": 0,
+    "operaciones": 0
+  },
   "entradas": []
 }
