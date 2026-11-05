@@ -322,146 +322,146 @@ class HybridInferencePool:
         logger.error("[HYBRID] ❌ Todas las capas de inferencia fallaron.")
         return None
 
-# ------------------------------------------------------------------
-# Métodos privados de consulta por capa
-# ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Métodos privados de consulta por capa
+    # ------------------------------------------------------------------
 
-def _query_freellm(
-    self,
-    system_prompt: str,
-    user_prompt: str,
-    temperature: float,
-    max_tokens: int,
-) -> Optional[str]:
-    """Consulta a FreeLLMAPI Proxy."""
-    headers = {
-        "Authorization": f"Bearer {self.freellm_api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://github.com",
-    }
-    payload = {
-        "model": self.freellm_model,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-    }
-    try:
-        resp = requests.post(
-            self.freellm_base_url,
-            headers=headers,
-            json=payload,
-            timeout=HYBRID_TIMEOUT,
-        )
-        resp.raise_for_status()
-        return resp.json()["choices"][0]["message"]["content"].strip()
-    except Exception as exc:
-        logger.warning(f"[HYBRID] FreeLLMAPI error: {exc}")
-        return None
-
-def _query_openrouter(
-    self,
-    system_prompt: str,
-    user_prompt: str,
-    temperature: float,
-    max_tokens: int,
-) -> Optional[str]:
-    """Consulta a OpenRouter API."""
-    headers = {
-        "Authorization": f"Bearer {self.openrouter_api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://github.com",
-    }
-    payload = {
-        "model": self.openrouter_model,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-    }
-    try:
-        resp = requests.post(
-            OPENROUTER_URL,
-            headers=headers,
-            json=payload,
-            timeout=HYBRID_TIMEOUT,
-        )
-        resp.raise_for_status()
-        return resp.json()["choices"][0]["message"]["content"].strip()
-    except Exception as exc:
-        logger.warning(f"[HYBRID] OpenRouter error: {exc}")
-        return None
-
-def _query_ollama(
-    self,
-    system_prompt: str,
-    user_prompt: str,
-    stream_callback: Optional[Callable[[str], None]],
-    temperature: float,
-    max_tokens: int,
-) -> Optional[str]:
-    """Consulta a Ollama local con soporte opcional de streaming."""
-    url = f"{self.ollama_base_url}/api/chat"
-    payload = {
-        "model": self.ollama_model,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        "options": {
+    def _query_freellm(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        max_tokens: int,
+    ) -> Optional[str]:
+        """Consulta a FreeLLMAPI Proxy."""
+        headers = {
+            "Authorization": f"Bearer {self.freellm_api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://github.com",
+        }
+        payload = {
+            "model": self.freellm_model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
             "temperature": temperature,
-            "num_predict": max_tokens,
-        },
-        "stream": stream_callback is not None,
-    }
-    try:
-        if stream_callback:
-            return self._query_ollama_stream(url, payload, stream_callback)
-
-        resp = requests.post(url, json=payload, timeout=HYBRID_TIMEOUT)
-        resp.raise_for_status()
-        return resp.json()["message"]["content"].strip()
-
-    except Exception as exc:
-        logger.warning(f"[HYBRID] Ollama error: {exc}")
-        return None
-
-def _query_ollama_stream(
-    self,
-    url: str,
-    payload: Dict[str, Any],
-    stream_callback: Callable[[str], None],
-) -> Optional[str]:
-    """Consulta a Ollama con streaming y callback por chunk."""
-    full_content: list[str] = []
-    try:
-        with requests.post(url, json=payload, stream=True, timeout=HYBRID_TIMEOUT) as resp:
+            "max_tokens": max_tokens,
+        }
+        try:
+            resp = requests.post(
+                self.freellm_base_url,
+                headers=headers,
+                json=payload,
+                timeout=HYBRID_TIMEOUT,
+            )
             resp.raise_for_status()
-            for line in resp.iter_lines(decode_unicode=True):
-                if not line:
-                    continue
-                try:
-                    chunk = json.loads(line)
-                    content = chunk.get("message", {}).get("content", "")
-                    if content:
-                        full_content.append(content)
-                        stream_callback(content)
-                    if chunk.get("done", False):
-                        break
-                except json.JSONDecodeError:
-                    continue
-        return "".join(full_content)
-    except Exception as exc:
-        logger.warning(f"[HYBRID] Ollama streaming error: {exc}")
-        return None
+            return resp.json()["choices"][0]["message"]["content"].strip()
+        except Exception as exc:
+            logger.warning(f"[HYBRID] FreeLLMAPI error: {exc}")
+            return None
 
-# ------------------------------------------------------------------
-# Auto-incio de Ollama (delegado al startup engine)
-# ------------------------------------------------------------------
+    def _query_openrouter(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        max_tokens: int,
+    ) -> Optional[str]:
+        """Consulta a OpenRouter API."""
+        headers = {
+            "Authorization": f"Bearer {self.openrouter_api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://github.com",
+        }
+        payload = {
+            "model": self.openrouter_model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+        try:
+            resp = requests.post(
+                OPENROUTER_URL,
+                headers=headers,
+                json=payload,
+                timeout=HYBRID_TIMEOUT,
+            )
+            resp.raise_for_status()
+            return resp.json()["choices"][0]["message"]["content"].strip()
+        except Exception as exc:
+            logger.warning(f"[HYBRID] OpenRouter error: {exc}")
+            return None
+
+    def _query_ollama(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        stream_callback: Optional[Callable[[str], None]],
+        temperature: float,
+        max_tokens: int,
+    ) -> Optional[str]:
+        """Consulta a Ollama local con soporte opcional de streaming."""
+        url = f"{self.ollama_base_url}/api/chat"
+        payload = {
+            "model": self.ollama_model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            "options": {
+                "temperature": temperature,
+                "num_predict": max_tokens,
+            },
+            "stream": stream_callback is not None,
+        }
+        try:
+            if stream_callback:
+                return self._query_ollama_stream(url, payload, stream_callback)
+
+            resp = requests.post(url, json=payload, timeout=HYBRID_TIMEOUT)
+            resp.raise_for_status()
+            return resp.json()["message"]["content"].strip()
+
+        except Exception as exc:
+            logger.warning(f"[HYBRID] Ollama error: {exc}")
+            return None
+
+    def _query_ollama_stream(
+        self,
+        url: str,
+        payload: Dict[str, Any],
+        stream_callback: Callable[[str], None],
+    ) -> Optional[str]:
+        """Consulta a Ollama con streaming y callback por chunk."""
+        full_content: list[str] = []
+        try:
+            with requests.post(url, json=payload, stream=True, timeout=HYBRID_TIMEOUT) as resp:
+                resp.raise_for_status()
+                for line in resp.iter_lines(decode_unicode=True):
+                    if not line:
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                        content = chunk.get("message", {}).get("content", "")
+                        if content:
+                            full_content.append(content)
+                            stream_callback(content)
+                        if chunk.get("done", False):
+                            break
+                    except json.JSONDecodeError:
+                        continue
+            return "".join(full_content)
+        except Exception as exc:
+            logger.warning(f"[HYBRID] Ollama streaming error: {exc}")
+            return None
+
+    # ------------------------------------------------------------------
+    # Auto-incio de Ollama (delegado al startup engine)
+    # ------------------------------------------------------------------
 
     def _try_auto_start_ollama(self) -> bool:
         """Intenta iniciar Ollama usando el motor de control de ciclo."""
