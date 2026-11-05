@@ -315,6 +315,10 @@ Resultado: Rentable desde el primer día.
 
                 if texto_generado:
                     print(f"[TIKTOK] Guión generado vía pool híbrido (capa activa: {pool.get_active_layer()})")
+                    return self._construir_resultado(
+                        texto_generado, nombre_producto, patron_hook,
+                        duracion_segundos, f"pool_{pool.get_active_layer()}"
+                    )
 
             # 2. Si el pool no funcionó, usar OpenRouter directo (legacy)
         if not texto_generado:
