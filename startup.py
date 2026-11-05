@@ -24,6 +24,14 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.resolve()
 sys.path.insert(0, str(PROJECT_ROOT))
 
+# La consola de Windows usa cp1252 y los logs del engine llevan emojis:
+# sin esto, print() lanza UnicodeEncodeError y tumba la ingesta al instanciarse.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
