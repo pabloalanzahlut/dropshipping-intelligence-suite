@@ -320,6 +320,11 @@ async def agente_page(request: Request):
     return _render(request, "agente.html")
 
 
+@app.get("/transcripciones", response_class=HTMLResponse)
+async def transcripciones_page(request: Request):
+    return _render(request, "transcripciones.html")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # API — MÉTRICAS Y ESTADO
 # ═══════════════════════════════════════════════════════════════════════════════
