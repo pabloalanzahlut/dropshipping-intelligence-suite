@@ -48,6 +48,13 @@ Todos los archivos tienen `[PLACEHOLDER]` marcados. Sustituirlos antes de public
 | [envio_entrega.md](03_politicas_legales/envio_entrega.md) | Settings → Policies → Shipping | ⬜ Pendiente |
 | [aviso_legal.md](03_politicas_legales/aviso_legal.md) | Pages → "Aviso Legal" | ⬜ Pendiente |
 
+### 04 — Diseño Visual (Dawn)
+| Archivo | Destino en Shopify | Estado |
+|---|---|---|
+| [tema_dawn.md](04_diseno_visual/tema_dawn.md) | Themes → Dawn → Customize → Settings | ⬜ Pendiente |
+| [paleta_marca.md](04_diseno_visual/paleta_marca.md) | Colors + Typography (referencia) | ⬜ Pendiente |
+| [homepage.md](04_diseno_visual/homepage.md) | Home page → Secciones del editor | ⬜ Pendiente |
+
 ---
 
 ## Verificación GEM OS superada
