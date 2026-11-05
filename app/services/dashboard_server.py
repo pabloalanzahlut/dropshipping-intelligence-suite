@@ -681,6 +681,7 @@ async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "gem
                     user_request=pregunta_enriquecida,
                 )
             )
+            resultado = _strip_md_fences(resultado)
             # Emitir chunk a chunk para efecto streaming
             chunk_size = 8
             for i in range(0, len(resultado), chunk_size):
