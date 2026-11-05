@@ -44,6 +44,7 @@ AGENT_TOKENS_MAP = {
     "gem-qa-validation":     4096,
     "gem-backend-core":      4096,
     "gem-orchestrator-core": 2048,
+    "consultar_kb_agente":   2048,
     "@gem-qa-validation":     4096,
     "@gem-backend-core":      4096,
     "@gem-orchestrator-core": 2048,
