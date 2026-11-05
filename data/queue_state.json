@@ -46,80 +46,87 @@
       "nombre": "Adrián Sáenz",
       "url": "https://www.youtube.com/@adriansaenz",
       "status": "Completado",
-      "last_scan": "2026-11-05T21:48:24.011566+00:00",
-      "total_videos": 10,
-      "processed_count": 1,
-      "failed_count": 9,
+      "last_scan": "2026-11-05T22:26:47.915189+00:00",
+      "total_videos": 11,
+      "processed_count": 11,
+      "failed_count": 0,
       "videos": [
         {
           "video_id": "RR0806XzmOg",
           "title": "7 Días Haciendo Compra-Venta En Latinoamérica",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:58:39.565416+00:00",
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:09:36.848889+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "fxr3vWjruR8",
-          "title": "Experto En Numerología Revela Lo Que Esconde Tu Fecha De Nacimiento | Raúl Durán",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:58:50.373612+00:00",
-          "error": "Transcripción vacía o no disponible"
+          "title": "Si Tu Fecha Suma 8, 10 o 22, Esto Dice La Numerología Sobre Tu Dinero | Raúl Durán",
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:09:55.660403+00:00",
+          "error": "IA returned VACÍO"
         },
         {
           "video_id": "LycpBgBiWKw",
           "title": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:59:01.335119+00:00",
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:10:29.326892+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "TyQsZpf4DlI",
           "title": "La gente se está haciendo millonaria con la IA y lo va a perder todo",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:59:20.782054+00:00",
-          "error": "Transcripción vacía o no disponible"
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:10:45.511131+00:00",
+          "error": "IA returned VACÍO"
         },
         {
           "video_id": "_cL6dYjz5H0",
           "title": "Trata el dropshipping como un videojuego y hazte rico",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:59:29.440575+00:00",
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:11:21.634028+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "ny7qgjwBkdg",
           "title": "Cómo Reprogramar Tu Mente Para El Éxito y La Riqueza | Adrià Solà Pastor",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:59:40.188045+00:00",
-          "error": "Transcripción vacía o no disponible"
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:11:44.151736+00:00",
+          "error": "IA returned VACÍO"
         },
         {
           "video_id": "uI4CKhT1cvo",
           "title": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:59:48.768276+00:00",
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:12:31.742790+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "NOp6IwxlNOc",
-          "title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
+          "title": "Cómo Funciona El Rentable Negocio De Las Marcas De Ropa | Borja Vázquez",
           "status": "Completado",
-          "timestamp": "2026-11-05T21:48:24.011566+00:00",
-          "error": "Transcripción vacía o no disponible"
+          "timestamp": "2026-11-05T22:26:47.915189+00:00",
+          "error": "IA returned VACÍO"
         },
         {
           "video_id": "DBdC5Y5vNuo",
           "title": "¿Qué Es Claude? Explicado En 4 Minutos",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:58:22.704378+00:00",
-          "error": "Transcripción vacía o no disponible"
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:09:04.704042+00:00",
+          "error": "IA returned VACÍO"
         },
         {
           "video_id": "nCu2xSFVvv8",
           "title": "6 Formas De Ganar Dinero Con Claude Siendo Estudiante",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T21:00:03.586030+00:00",
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:13:28.740754+00:00",
           "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "sdcb5llAj5Y",
+          "title": "Millonario Revela El Simple Método Que Le Ha Hecho Rico Partiendo Desde Cero | Antonio Faya",
+          "status": "Completado",
+          "timestamp": "2026-11-05T22:14:10.783882+00:00",
+          "error": ""
         }
       ]
     },
@@ -165,7 +172,7 @@
     }
   ],
   "metadata": {
-    "last_load": "2026-11-05T21:47:41.050148+00:00",
-    "last_updated": "2026-11-05T21:48:24.011566+00:00"
+    "last_load": "2026-11-05T22:26:42.834957+00:00",
+    "last_updated": "2026-11-05T22:26:47.915189+00:00"
   }
 }

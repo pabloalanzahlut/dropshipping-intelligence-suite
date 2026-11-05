@@ -1,15 +1,53 @@
 ```json
 {
-  "respuesta": "No tengo datos indexados sobre productos HOT. La Knowledge Base SQLite (tablas product_trends, conversion_formulas y operations_traffic) está vacía, por lo que no puedo identificar productos HOT ni de otra categoría. Para obtener esa información, primero hay que ejecutar la ingesta de videos de YouTube. ¿Quieres que busque un video sobre productos ganadores de dropshipping para iniciar la ingesta?",
+  "respuesta": "La Knowledge Base contiene 6 entradas de tipo product_trends. El contexto no incluye ningún dato de margen, costo de proveedor, precio de venta, nicho ni fecha para ninguna de ellas, por lo que no es posible indicar el margen de ningún producto. Además, las descripciones de producto no coinciden de forma clara con los títulos de los videos de origen, así que la asociación título-producto debe verificarse antes de usarla. Para calcular el margen según la Regla del 3x se necesitan costos reales del proveedor en origen.",
   "tipo_consulta": "producto",
-  "datos": [],
-  "fuentes": [],
-  "confianza": "Baja",
-  "fecha_consulta": "[DATA_GAP: fecha_consulta]",
-  "bitacora": {
-    "decision": "CONSULTA_SIN_DATOS",
-    "detalle": "KB vacía en el contexto inyectado (_build_kb_context). No se generaron productos ni métricas para evitar datos inventados.",
-    "accion_sugerida": "Ejecutar ingesta de transcripciones YouTube → TranscriptCleaner → KBRouter.route_and_insert() y luego repetir la consulta."
-  }
-}
-```
+  "datos": [
+    {
+      "nombre": "[DATA_GAP: nombre_producto]",
+      "descripcion_indexada": "Permite eclosionar pollitos en casa, ideal para aficionados a la crianza de aves.",
+      "titulo_video_origen": "Millonario Revela El Simple Método Que Le Ha Hecho Rico Partiendo Desde Cero",
+      "nicho": "[DATA_GAP: nicho]",
+      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "canal": "[DATA_GAP: canal] (el título menciona a Antonio Faya y Adrián Sáenz)",
+      "fecha": "[DATA_GAP: fecha]"
+    },
+    {
+      "nombre": "[DATA_GAP: nombre_producto]",
+      "descripcion_indexada": "Creación rápida y profesional de páginas web con plantillas personalizadas",
+      "titulo_video_origen": "6 Formas De Ganar Dinero Con Claude Siendo Estudiante",
+      "nicho": "[DATA_GAP: nicho]",
+      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "canal": "Adrián Sáenz",
+      "fecha": "[DATA_GAP: fecha]"
+    },
+    {
+      "nombre": "[DATA_GAP: nombre_producto]",
+      "descripcion_indexada": "Solución de transporte regulada, con seguro y matrícula, amplio público objetivo",
+      "titulo_video_origen": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
+      "nicho": "[DATA_GAP: nicho]",
+      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "canal": "Adrián Sáenz",
+      "fecha": "[DATA_GAP: fecha]"
+    },
+    {
+      "nombre": "[DATA_GAP: nombre_producto]",
+      "descripcion_indexada": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
+      "titulo_video_origen": "Trata el dropshipping como un videojuego y hazte rico",
+      "nicho": "[DATA_GAP: nicho]",
+      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "canal": "Adrián Sáenz",
+      "fecha": "[DATA_GAP: fecha]"
+    },
+    {
+      "nombre": "[DATA_GAP: nombre_producto]",
+      "descripcion_indexada": "Aprendizaje gamificado y personalizado para ganar dinero online",
+      "titulo_video_origen": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
+      "nicho": "[DATA_GAP: nicho]",
+      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "canal": "Adrián Sáenz",
+      "fecha": "[DATA_GAP: fecha]"
+    },
+    {
+      "nombre": "[DATA_GAP: nombre_producto]",
+      "descripcion_indexada": "
