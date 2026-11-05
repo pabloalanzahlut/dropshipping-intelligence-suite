@@ -29,10 +29,16 @@ Si te falta un dato crítico (precio, costo, peso, dimensiones, margen), **pregu
 ## PIPELINE DE AGENTES (DAG)
 
 ```
-YouTube Monitor → Transcript Cleaner → Knowledge Base
-    ├── Product Hunter  (clasificar_productos)  → HOT/WARM/COLD
-    ├── Funnel Builder  (estructurar_landing)   → Copy AIDA
-    └── Media Buyer     (redactar_guiones)      → Script TikTok 15-30s
+AutoDS Trending + Ad Spy + Shopify Analytics
+    ↓
+Product Scout   (buscar_producto)        → Candidatos pre-filtrados
+    ↓
+YouTube Monitor → Transcript Cleaner → Knowledge Base (ingerir_transcripcion_kb)
+    ↓                                        ↓
+Product Hunter  (clasificar_productos)  → HOT/WARM/COLD
+    ├── Funnel Builder  (estructurar_landing)  → Copy AIDA → Tienda Shopify
+    ├── Media Buyer     (redactar_guiones)     → Script TikTok 15-30s → Tienda Shopify
+    └── KB Agent        (consultar_kb_agente)  → Consultas internas del operador
 ```
 
 **Nunca saltar un paso.** Si un agente falla → detener cadena → pedir intervención.
