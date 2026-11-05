@@ -246,6 +246,27 @@ class ProviderMonitorEngine:
             self.log_callback(f"⚠️ Error escaneando {channel_url}: {e}")
         return videos
 
+    @staticmethod
+    def _parse_vtt(raw: str) -> str:
+        """
+        Extrae el texto de un VTT de YouTube.
+
+        Los subtítulos automáticos van en ventana deslizante: cada cue repite
+        las líneas de la anterior, así que sin deduplicar el texto se triplica
+        y se dispara el coste de tokens de la llamada a la IA.
+        """
+        salida: List[str] = []
+        for linea in raw.split("\n"):
+            linea = linea.strip()
+            if (not linea or "-->" in linea or linea.isdigit()
+                    or linea.startswith(("WEBVTT", "Kind:", "Language:"))):
+                continue
+            # Quita tags de karaoke: <00:00:01.234> y <c>...</c>
+            linea = re.sub(r"<[^>]+>", "", linea).strip()
+            if linea and (not salida or salida[-1] != linea):
+                salida.append(linea)
+        return " ".join(salida)
+
     @with_retry(max_retries=3, base_delay=1.0)
     def download_transcript(self, video_id: str) -> str:
         """
