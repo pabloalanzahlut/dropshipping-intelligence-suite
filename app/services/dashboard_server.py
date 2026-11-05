@@ -813,6 +813,17 @@ async def api_transcripciones_stats() -> Dict[str, Any]:
 
 # ─── KB context helper ────────────────────────────────────────────────────────
 
+def _strip_md_fences(text: str) -> str:
+    """Los modelos suelen envolver el JSON en ```json ... ```; deja solo el JSON."""
+    t = (text or "").strip()
+    if not t.startswith("```"):
+        return t
+    t = t.split("\n", 1)[1] if "\n" in t else ""
+    if t.rstrip().endswith("```"):
+        t = t.rstrip()[:-3]
+    return t.strip()
+
+
 def _build_kb_context(limit: int = 30) -> str:
     """Construye un bloque de texto con los insights KB más recientes para inyectar al agente."""
     rows = _get_kb_insights_combined(limit)
