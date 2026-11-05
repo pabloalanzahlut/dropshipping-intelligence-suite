@@ -23,14 +23,18 @@ def _openrouter_ok_response(text: str = "copy generado") -> MagicMock:
 def _openrouter_rate_limit_response() -> MagicMock:
     r = MagicMock()
     r.status_code = 429
-    r.raise_for_status.side_effect = requests.HTTPError(response=r)
+    err = requests.HTTPError(response=r)
+    err.response = r  # asegura que exc.response.status_code esté disponible
+    r.raise_for_status.side_effect = err
     return r
 
 
 def _openrouter_server_error_response() -> MagicMock:
     r = MagicMock()
     r.status_code = 500
-    r.raise_for_status.side_effect = requests.HTTPError(response=r)
+    err = requests.HTTPError(response=r)
+    err.response = r
+    r.raise_for_status.side_effect = err
     return r
 
 
