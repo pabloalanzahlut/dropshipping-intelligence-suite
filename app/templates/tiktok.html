@@ -140,6 +140,23 @@
           </svg>
           Copiar guión
         </button>
+
+        <!-- Publicar en Make.com -->
+        <button @click="publicar()" :disabled="publicando" class="btn-primary"
+                style="font-size:11px;width:100%;justify-content:center;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);">
+          <svg x-show="publicando" class="spin" style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24">
+            <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <svg x-show="!publicando" style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+          <span x-text="publicando ? 'Enviando...' : 'Publicar en TikTok'"></span>
+        </button>
+
+        <template x-if="publicadoMsg">
+          <p style="font-size:11px;color:#34d399;margin:0;text-align:center;" x-text="publicadoMsg"></p>
+        </template>
       </div>
     </div>
 
