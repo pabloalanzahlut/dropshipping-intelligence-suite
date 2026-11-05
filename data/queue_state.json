@@ -45,11 +45,11 @@
     {
       "nombre": "Adrián Sáenz",
       "url": "https://www.youtube.com/@adriansaenz",
-      "status": "Procesando",
-      "last_scan": "2026-11-05T21:33:37.465683+00:00",
+      "status": "Completado",
+      "last_scan": "2026-11-05T21:43:27.602013+00:00",
       "total_videos": 10,
-      "processed_count": 0,
-      "failed_count": 10,
+      "processed_count": 1,
+      "failed_count": 9,
       "videos": [
         {
           "video_id": "RR0806XzmOg",
@@ -102,9 +102,9 @@
         },
         {
           "video_id": "NOp6IwxlNOc",
-          "title": "De Fracasar Emprendiendo a Crear El Imperio De Scalpers | Borja Vázquez",
-          "status": "Fallido",
-          "timestamp": "2026-11-05T20:58:11.826853+00:00",
+          "title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
+          "status": "Completado",
+          "timestamp": "2026-11-05T21:43:27.602013+00:00",
           "error": "Transcripción vacía o no disponible"
         },
         {
@@ -165,7 +165,7 @@
     }
   ],
   "metadata": {
-    "last_load": "2026-11-05T21:33:24.040868+00:00",
-    "last_updated": "2026-11-05T21:00:03.586030+00:00"
+    "last_load": "2026-11-05T21:43:00.988977+00:00",
+    "last_updated": "2026-11-05T21:43:27.602013+00:00"
   }
 }
