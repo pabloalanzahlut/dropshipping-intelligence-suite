@@ -1,6 +1,6 @@
 # --- Núcleo de Conexión y APIs externas ---
 requests==2.34.2
-python-dotenv==1.0.1
+python-dotenv==1.2.4
 
 # --- Herramientas de Compilación y Distribución (dev local solamente) ---
 pyinstaller==6.22.3
