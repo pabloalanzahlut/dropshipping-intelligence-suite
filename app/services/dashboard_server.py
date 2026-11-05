@@ -878,7 +878,7 @@ async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
             user_request=pregunta_enriquecida,
         )
         try:
-            parsed = json.loads(resultado)
+            parsed = json.loads(_strip_md_fences(resultado))
         except (json.JSONDecodeError, TypeError):
             parsed = {"respuesta": resultado}
         return {"status": "ok", "agente": data.agente, "resultado": parsed}
