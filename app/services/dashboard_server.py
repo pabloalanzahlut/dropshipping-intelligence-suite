@@ -126,6 +126,14 @@ async def lifespan(app: FastAPI):
 # ── App FastAPI ───────────────────────────────────────────────────────────────
 app = FastAPI(title="GEM OS Dashboard", version="3.7.2", lifespan=lifespan)
 
+# Webhooks Shopify
+try:
+    from app.routes.webhooks import webhooks_router
+    app.include_router(webhooks_router)
+    log.info("[SERVER] Webhooks Shopify montados en /webhooks")
+except Exception as _wh_err:
+    log.warning(f"[SERVER] Webhooks no disponibles: {_wh_err}")
+
 # ── Jinja2 Templates ─────────────────────────────────────────────────────────
 _jinja_env: Optional[jinja2.Environment] = (
     jinja2.Environment(
