@@ -1,1 +1,0 @@
-# Package marker — Capa de Robustez de Entorno y Despliegue
