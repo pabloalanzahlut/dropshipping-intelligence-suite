@@ -284,8 +284,8 @@ class HybridInferencePool:
             # --- Capa 3: Ollama Local ---
             return self._try_ollama_fallback(system_prompt, user_prompt, stream_callback, temperature, max_tokens, operation_type)
 
-        
-def _try_ollama_fallback(
+
+    def _try_ollama_fallback(
         self,
         system_prompt: str,
         user_prompt: str,
