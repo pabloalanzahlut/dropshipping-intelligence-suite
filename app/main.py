@@ -66,6 +66,7 @@ class GEMOSApplication:
             ("📋", "Gobernanza", lambda: self._show(5)),
             ("🔗", "Enrutador", lambda: self._show(6)),
             ("📥", "Ingesta",  lambda: self._show(7)),
+            ("🤖", "Agente IA", lambda: self._show(8)),
         ])
         self.sidebar.grid(row=0, column=0, sticky="ns")
         
