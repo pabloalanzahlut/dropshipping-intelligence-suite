@@ -18,6 +18,7 @@ import re
 import sqlite3
 import threading
 import time
+import uuid
 from collections import deque
 from contextlib import asynccontextmanager
 from pathlib import Path
