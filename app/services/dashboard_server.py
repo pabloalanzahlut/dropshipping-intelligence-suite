@@ -10,15 +10,18 @@ FASE 2 — Transformación Desktop → Plataforma Web:
 - Endpoints REST completos para todas las funciones del negocio.
 - Jinja2 + Tailwind CDN para las 6 pestañas web.
 """
+import asyncio
 import json
 import logging
 import os
 import re
 import sqlite3
 import threading
+import time
+from collections import deque
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import uvicorn
 import jinja2
