@@ -72,3 +72,6 @@ exports/
 .cache/
 .parcel-cache/
 *.tsbuildinfo
+
+# Imagenes de producto generadas (salida, no fuente)
+data/imagenes_producto/
