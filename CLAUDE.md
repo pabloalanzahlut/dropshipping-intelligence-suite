@@ -127,6 +127,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/redactar-anuncios-meta` | Copy para Meta Ads estáticos: imagen única, carousel, variantes A/B |
 | `/monitorear-caja` | Revisa salud del flujo de caja con datos pegados del día/semana (Nivel 6) |
 | `/escalar-campana` | Decide si escalar, mantener, optimizar o cortar campaña con reglas cuantitativas (Nivel 5→6) |
+| `/hook-matrix` | Genera matriz ≥10 hooks TikTok/Meta Ads por fórmula (Story, Shock, Curiosity, Before/After, POV, Urgencia) |
 | `/importar-masivo` | Pega URLs de AliExpress/CJ/Temu → valida regla 3x → crea borradores en Shopify |
 | `/gestionar-meta-ads` | Genera naming de campañas Business Manager + 3 hooks s0–s3 estilo Roger Viladrosa |
 
