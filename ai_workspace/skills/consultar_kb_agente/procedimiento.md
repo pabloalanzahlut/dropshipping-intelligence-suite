@@ -1,11 +1,16 @@
 # Skill: Consultar Knowledge Base (Agente IA Interno)
 
 **ID:** `consultar_kb_agente`
-**Versión:** 1.0.0
-**Propósito:** Permite al agente IA web interno responder consultas del operador sobre productos, estrategias y métricas indexadas en la Knowledge Base.
+**Versión:** 2.0.0 (actualizado GEM OS v3.7)
+**Propósito:** Permite al agente IA web interno responder consultas del operador sobre productos, estrategias y métricas indexadas en la Knowledge Base SQLite.
 
-**Audiencia:** SOLO el operador (uso interno). Este agente NO responde a clientes finales de la tienda.
-**Fuente de datos:** `ai_workspace/knowledge_base/kb_*.md` + `ai_workspace/memory/kb_index.json`
+**Audiencia:** SOLO el operador (uso interno). Este agente NO responde a clientes finales.
+**Fuente de datos:** SQLite — tablas `product_trends`, `conversion_formulas`, `operations_traffic`
+**Acceso web:** `POST /api/kb/query` → `AgentExecutor.execute_agent_task()` con contexto KB inyectado
+
+> **Nota arquitectural:** La fuente de verdad es SQLite, no los archivos `.md`.
+> El endpoint `_build_kb_context()` inyecta automáticamente los últimos 30 insights
+> como texto en el system prompt antes de cada consulta. No leer archivos `.md` directamente.
 
 ---
 
@@ -16,36 +21,38 @@
 - "¿Hay algún producto de fitness con margen >5x?"
 - "Muéstrame los últimos 3 productos WARM"
 
-**Respuesta esperada:**
-```
-Producto: {nombre}
-Clasificación: HOT/WARM
-Margen: {margen}x | Precio ref: ${precio}
-Fuente: {canal} ({video_id}) — {fecha}
+**Respuesta esperada (JSON):**
+```json
+{
+  "tipo": "producto",
+  "resultado": [
+    {
+      "nombre": "...",
+      "nicho": "...",
+      "margen_estimado": 4.5,
+      "canal": "...",
+      "fecha": "..."
+    }
+  ],
+  "fuentes": ["video_id_1", "video_id_2"],
+  "confianza": "Alta"
+}
 ```
 
-### 2. Consultas de Estrategia
+### 2. Consultas de Estrategia / Conversión
 - "¿Qué estrategia de TikTok Ads funcionó mejor según la KB?"
 - "¿Qué hooks usa {canal}?"
-- "¿Cuál es el ROAS promedio que mencionan los creadores?"
+- "¿Cuál es el framework de conversión más mencionado?"
 
-**Respuesta esperada:**
-```
-Estrategia: {nombre}
-Resultado: {resultado}
-Fuente: {canal} ({video_id})
-Notas: {descripcion}
-```
-
-### 3. Consultas de Proveedor
-- "¿Qué proveedores de electrónica están bien valorados en la KB?"
-- "¿Aparece CJ Dropshipping en algún video reciente?"
+### 3. Consultas de Operaciones y Tráfico
+- "¿Qué fuentes de tráfico recomienda la KB?"
+- "¿Qué notas de logística hay para productos >0.5kg?"
 
 ### 4. Consultas de Métricas Agregadas
-- "¿Cuál es el margen promedio de los productos HOT en la KB?"
-- "¿Qué conversion rate mencionan los creadores?"
+- "¿Cuál es el margen promedio de los productos indexados?"
+- "¿Qué escala de ROAS mencionan los creadores?"
 
-**Respuesta esperada:** Valor calculado + rango (min-max) + número de fuentes
+**Respuesta:** valor calculado + rango (min-max) + número de fuentes
 
 ### 5. Consultas de Lecciones
 - "¿Qué errores comunes menciona la KB?"
@@ -55,49 +62,46 @@ Notas: {descripcion}
 
 ## Protocolo de Respuesta
 
-1. **Buscar** en `kb_index.json` los archivos relevantes (filtrar por clasificacion, fecha, canal)
-2. **Leer** los archivos KB correspondientes
-3. **Extraer** la entidad pedida
-4. **Formatear** la respuesta con: dato + fuente (video_id + canal) + fecha de indexación
-5. **Citar siempre la fuente**: nunca dar un dato sin indicar de qué video proviene
+El agente recibe en su system prompt:
+1. El contexto KB completo (últimas 30 entradas de las 3 tablas, formato texto)
+2. La pregunta del operador
 
-### Formato estándar de respuesta
-```
-[CONSULTA KB — {fecha_hoy}]
+Debe responder SIEMPRE en JSON estructurado con estos campos:
 
-{respuesta_principal}
-
-Fuentes:
-- {video_id} | {canal} | Indexado: {fecha} | Clasificación: {clasificacion}
-(+ N más si aplica)
-
-Confianza: Alta/Media/Baja
-Última actualización KB: {fecha_ultimo_kb}
+```json
+{
+  "respuesta": "...",
+  "tipo_consulta": "producto|conversion|operaciones|metrica|leccion",
+  "datos": [...],
+  "fuentes": ["video_id · canal · fecha"],
+  "confianza": "Alta|Media|Baja",
+  "fecha_consulta": "YYYY-MM-DD"
+}
 ```
 
----
-
-## Restricciones
-
-- **Nunca inventar datos** no presentes en la KB → si no hay información, responder: "No tengo datos indexados sobre eso. ¿Quieres que busque un video sobre el tema?"
-- **No responder preguntas de clientes finales** sobre pedidos, envíos o garantías → redirigir a Shopify Inbox
-- **No ejecutar acciones** (no publicar, no escribir a Shopify) desde esta consulta → solo lectura
-- **Datos financieros**: siempre aclarar que son referencias de videos, no garantías
+### Reglas de respuesta
+1. **Nunca inventar datos** no presentes en el contexto KB inyectado → si no hay información: `"No tengo datos indexados sobre eso. ¿Quieres que busque un video sobre el tema?"`
+2. **Citar siempre la fuente**: cada dato debe ir acompañado de su video_id y canal
+3. **No ejecutar acciones** (no publicar, no escribir a Shopify) → solo lectura
+4. **Datos financieros**: siempre aclarar que son referencias de videos, no garantías
 
 ---
 
 ## Integración con el Pipeline
 
 ```
-YouTube Monitor
-      ↓
-import_playlist.py
-      ↓
-clasificar_productos (HOT/WARM)
-      ↓
-ingerir_transcripcion_kb  ← guarda en KB
-      ↓
-consultar_kb_agente  ← operador consulta
+YouTube Monitor → yt-dlp → TranscriptCleaner → OpenRouter
+        ↓
+KBRouter.route_and_insert() → SQLite (product_trends, conversion_formulas, operations_traffic)
+        ↓
+KBIndexSync.sync() → kb_index.json (caché exportado)
+        ↓
+POST /api/kb/query
+  → _build_kb_context() inyecta SQLite como texto
+  → AgentExecutor.execute_agent_task("consultar_kb_agente")
+  → Respuesta JSON al operador vía UI /agente
 ```
 
-El agente web lee la KB generada por `ingerir_transcripcion_kb`. No tiene acceso directo a las transcripciones crudas ni a la base de datos SQLite.
+## Endpoint de sincronización manual
+`POST /api/kb/sync` — regenera `kb_index.json` y todos los archivos `kb_*.md`
+desde el estado actual de SQLite. Útil para inspección o debugging.
