@@ -1,0 +1,12 @@
+title = "GEM OS gitleaks config"
+
+[extend]
+useDefault = true
+
+# Only documented placeholders, never whole files: a real key pasted into README or .env.example must still fail.
+[[allowlists]]
+description = "OpenRouter placeholders in docs and .env.example"
+regexTarget = "secret"
+regexes = [
+  '''^sk-or-v1-(?:tu_clave|TU_API_KEY_AQUI|X{8,})$''',
+]
