@@ -68,6 +68,16 @@ Todos los archivos tienen `[PLACEHOLDER]` marcados. Sustituirlos antes de public
 
 ---
 
-## Siguiente paso → Fase 2
+## Siguiente paso
 
-Una vez implementada esta estructura, el siguiente bloque del curso de Adrián Sáenz cubre: selección de tema, personalización visual, y subida del primer producto.
+**Pendiente de la Fase 1 (en curso):**
+- [ ] Generar `aviso_legal.md` (añadido al índice por el usuario)
+- [ ] Elegir paleta de la Opción A/B/C/D en `paleta_marca.md`
+
+**Fase 2 (configuración técnica):**
+- [ ] Dominio propio conectado
+- [ ] Shopify Payments + PayPal activados
+- [ ] Emails transaccionales personalizados
+- [ ] AutoDS instalado y conectado
+- [ ] Producto estrella importado con precio × 3.5
+- [ ] Pedido de prueba procesado
