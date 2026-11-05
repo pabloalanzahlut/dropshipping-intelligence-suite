@@ -197,7 +197,7 @@ class AgentExecutor:
                    "response_format": {"type": "json_object"}}
 
         try:
-            r = requests.post(self.url + "/api/v1/chat/completions", headers=headers, json=payload, timeout=60)
+            r = requests.post(self.url, headers=headers, json=payload, timeout=60)
             r.raise_for_status()
             output = r.json()['choices'][0]['message']['content'].strip()
 
