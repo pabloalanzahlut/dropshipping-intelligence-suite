@@ -152,6 +152,7 @@ class GEMOSApplication:
             ("Gobernanza", lambda: GovernancePanel(self._pc, db_manager=self.db_manager)),
             ("Enrutador", lambda: OllamaPanel(self._pc, db_manager=self.db_manager)),
             ("Ingesta", self._build_console),
+            ("Agente IA", lambda: KBAgentPanel(self._pc, db_manager=self.db_manager)),
         ]
         self._panel_factories = specs
         self._panel_loaded = [False] * len(specs)
