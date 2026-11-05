@@ -372,24 +372,22 @@ class KBRouter:
         table_metrics: Dict,
     ) -> None:
         """Inserta en operations_traffic."""
-        traffic_source = self._extract_field(
-            r"(?:Fuente de Tráfico|Tráfico|Traffic|Source)[:\s]*([^\n]*)",
-            section, "TikTok/Meta Ads"
+        traffic_source = self._extract_labeled(
+            r"Fuente de Tráfico|Tráfico|Traffic|Source", section, "TikTok/Meta Ads"
         )
-        scaling = self._extract_field(
-            r"(?:Escalamiento|Estrategia|Scaling|Strategy)[:\s]*([^\n]*)",
-            section, "CBO/ABO Testing"
+        scaling = self._extract_labeled(
+            r"Escalamiento|Escalado|Scaling|Strategy", section, "CBO/ABO Testing"
         )
-        logistics = self._extract_field(
-            r"(?:Logística|Logistics|Envío|Shipping|Notas)[:\s]*([^\n]*)",
-            section, "No especificado"
+        logistics = self._extract_labeled(
+            r"Logística|Logistics|Envío|Shipping|Notas", section, "No especificado"
         )
         weight = self._extract_float(
-            r"(?:Peso|Weight)[:\s]*([0-9.]+)", section, 0.0
+            r"^[\s\-\*>]*(?:\*\*|__)?\s*(?:Peso|Weight)(?:\*\*|__)?\s*:\s*"
+            r"[^\d]*([0-9]+(?:\.[0-9]+)?)",
+            section, 0.0
         )
-        gateways = self._extract_field(
-            r"(?:Pasarela|Gateway|Pago|Payment)[:\s]*([^\n]*)",
-            section, "Shopify Payments / PayPal"
+        gateways = self._extract_labeled(
+            r"Pasarela|Pasarelas|Gateway|Payment", section, "Shopify Payments / PayPal"
         )
 
         logistics_notes = logistics
