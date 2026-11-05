@@ -9,12 +9,45 @@ on:
       - 'ai_workspace/**'
       - 'app/**'
       - '.continue/**'
+      - '.github/workflows/validate-pipeline.yml'
+      - '.gitleaks.toml'
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Imagen del runner (usa ubuntu-26.04 para validar compatibilidad)'
+        type: choice
+        default: ubuntu-latest
+        options:
+          - ubuntu-latest
+          - ubuntu-24.04
+          - ubuntu-26.04
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256_LINUX_X64: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+  GITLEAKS_SHA256_LINUX_ARM64: e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Runner info
+        run: |
+          . /etc/os-release
+          echo "Runner: $PRETTY_NAME ($(uname -m))"
 
       - name: Validate financial rules file exists
         run: |
@@ -38,29 +71,31 @@ jobs:
             fi
           done
 
-      - name: Check no .env committed
+      - name: Check no .env tracked
         run: |
-          if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -q "^\.env$"; then
-            echo "❌ CRITICAL: .env file detectado en commit — SECRETS EXPUESTOS"
+          tracked=$(git ls-files | grep -E '(^|/)\.env($|\.)' | grep -vE '\.env\.example$' || true)
+          if [ -n "$tracked" ]; then
+            echo "❌ CRITICAL: archivos .env versionados — SECRETS EXPUESTOS:"
+            echo "$tracked"
             exit 1
-          else
-            echo "✅ Sin .env en commits"
           fi
+          echo "✅ Ningún .env versionado"
 
-      - name: Validate no hardcoded API keys
+      - name: Install gitleaks
         run: |
-          # Exclude security audit files (regex patterns) and test fixtures
-          if grep -rE "(sk-|pk_live_|whsec_)" --include="*.py" --include="*.js" --include="*.ts" . 2>/dev/null \
-            | grep -v ".env" \
-            | grep -v "example" \
-            | grep -v "security_audit" \
-            | grep -v "test_unit_suite" \
-            | grep -v "sanitize_api_key" \
-            | grep -v "# " \
-            | grep -v "r'" \
-            | grep -v '\.\.\.'; then
-            echo "❌ CRITICAL: API keys hardcodeadas detectadas"
-            exit 1
-          else
-            echo "✅ Sin API keys hardcodeadas"
-          fi
+          case "$(uname -m)" in
+            x86_64)  arch=x64;   sha="$GITLEAKS_SHA256_LINUX_X64" ;;
+            aarch64) arch=arm64; sha="$GITLEAKS_SHA256_LINUX_ARM64" ;;
+            *) echo "❌ Arquitectura no soportada: $(uname -m)"; exit 1 ;;
+          esac
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_${arch}.tar.gz"
+          curl -sSfL --retry 3 -o "$RUNNER_TEMP/$tarball" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tarball}"
+          echo "${sha}  $RUNNER_TEMP/$tarball" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      - name: Scan secrets with gitleaks (full history)
+        run: |
+          gitleaks version
+          gitleaks git . --config .gitleaks.toml --redact --verbose --no-banner --exit-code 1
