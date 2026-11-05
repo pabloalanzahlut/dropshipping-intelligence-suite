@@ -128,6 +128,8 @@ class ProviderMonitorEngine:
                             f"⚠️ [CHANNELS] URL inválida omitida: {nombre} -> {url}")
                         continue
                     channels[nombre] = url
+                    self.scan_limits[nombre] = int(
+                        entry.get("max_videos_scan", DEFAULT_SCAN_LIMIT))
                 if channels:
                     self.log_callback(
                         f"📡 [CHANNELS] Cargados {len(channels)} canales desde "
