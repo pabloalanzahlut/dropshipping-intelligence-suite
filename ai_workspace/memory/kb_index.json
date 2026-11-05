@@ -13,41 +13,41 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 1,
+      "id": 2,
       "video_id": "NOp6IwxlNOc",
       "video_title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
       "canal": "Adrián Sáenz",
       "fecha_indexacion": "2026-11-05",
-      "nombre": "y Tendencias (Criterios, nichos, ángulos)",
-      "nicho": "s, ángulos)",
-      "wow_factor": "Ver transcripción",
+      "nombre": "Ropa de moda (Scalpers)",
+      "nicho": "Moda masculina, femenina y infantil",
+      "wow_factor": "Creación de comunidad y cuidado del producto",
       "margen_estimado": 3.0
     },
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 1,
+      "id": 2,
       "video_id": "NOp6IwxlNOc",
       "video_title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
       "canal": "Adrián Sáenz",
       "fecha_indexacion": "",
-      "categoria": "landing_page",
-      "framework": "s de Conversión y Copy (Ganchos, landing pages, apps)",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\n- **Estrategia de comunidad**: Crear una comunidad alrededor de la marca es clave para competir con grandes empresas.\n- **Marketing de influencers**: Aunque al inicio no existía, ahora es un canal de comunicación validado y segmentad",
+      "categoria": "Tienda física y digital",
+      "framework": "AIDA",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: Tienda física y digital  \nFramework: No especificado  \nApps: No especificado  \n\n- Scalpers utiliza tiendas físicas como puntos de contacto sensoriales para diferenciarse de la competencia digital.  \n- La experiencia en tie",
       "triggers": "Gatillos detectados en pauta"
     },
     {
       "tipo": "operaciones",
       "tabla": "operations_traffic",
-      "id": 1,
+      "id": 2,
       "video_id": "NOp6IwxlNOc",
       "video_title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
       "canal": "Adrián Sáenz",
       "fecha_indexacion": "",
-      "fuente_trafico": "y Legal (Presupuestos, segmentación, pasarelas, fletes)",
-      "estrategia_escalado": "CBO/ABO Testing",
-      "logistica": ", Tráfico y Legal (Presupuestos, segmentación, pasarelas, fletes)",
-      "peso_kg": 0.0
+      "fuente_trafico": "Tiendas físicas y digitales",
+      "estrategia_escalado": "Expansión internacional con socios locales",
+      "logistica": "Circuitos de fabricación en Asia (Camboya, Vietnam, China, India, Bangladesh, Pakistán) y proximidad (Turquía, Portugal, Marruecos, España)",
+      "peso_kg": 280.0
     }
   ]
 }

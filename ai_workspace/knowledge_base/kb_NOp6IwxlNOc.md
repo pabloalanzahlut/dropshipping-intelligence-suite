@@ -9,15 +9,18 @@
 ---
 
 ## Productos
-- **y Tendencias (Criterios, nichos, ángulos)** | Nicho: s, ángulos) | Margen: 3.0x | Ver transcripción
+- **Ropa de moda (Scalpers)** | Nicho: Moda masculina, femenina y infantil | Margen: 3.0x | Creación de comunidad y cuidado del producto
 
 ## Fórmulas de Conversión
-- **s de Conversión y Copy (Ganchos, landing pages, apps)** (landing_page): 2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)
-- **Estrategia de comunidad**: Crear una comunidad alrededor de la marca es clave para competir con grandes empresas.
-- **Marketing d
+- **AIDA** (Tienda física y digital): 2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)
+Categoría: Tienda física y digital  
+Framework: No especificado  
+Apps: No especificado  
+
+- Scalpers utiliza tiendas físicas como pu
 
 ## Operaciones & Tráfico
-- Tráfico: y Legal (Presupuestos, segmentación, pasarelas, fletes) | Escalado: CBO/ABO Testing
+- Tráfico: Tiendas físicas y digitales | Escalado: Expansión internacional con socios locales
 
 ---
 *Exportado por KBIndexSync v2.0.0 · GEM OS*

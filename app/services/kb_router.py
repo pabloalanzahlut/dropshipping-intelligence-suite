@@ -300,9 +300,12 @@ class KBRouter:
         wow_factor = self._extract_labeled(
             r"Wow Factor|Factor WOW?|Unique", section, "Ver transcripción"
         )
+        # [^\d\n]* y no [^\d]*: esa clase incluye el salto de línea, así que
+        # cuando el campo viene sin número se comía el resto del texto hasta
+        # encontrar cualquier cifra suelta de la transcripción.
         margin_str = self._extract_field(
             r"^[\s\-\*>]*(?:\*\*|__)?\s*(?:Margen|Multiplicador|Margin|Multiplier)"
-            r"(?:\*\*|__)?\s*:\s*[^\d]*([0-9]+(?:[.,][0-9]+)?)",
+            r"(?:\*\*|__)?\s*:[^\d\n]*([0-9]+(?:[.,][0-9]+)?)",
             section, "3.0"
         ).replace(",", ".")
         try:
