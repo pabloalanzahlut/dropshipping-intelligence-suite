@@ -86,6 +86,23 @@ async def lifespan(app: FastAPI):
 
     engine = _get_engine()
 
+    # Sincronizar kb_index.json al arrancar (en background, no bloquea)
+    try:
+        import asyncio
+        from app.services.kb_index_sync import KBIndexSync
+        loop = asyncio.get_event_loop()
+
+        def _initial_kb_sync():
+            try:
+                KBIndexSync(db_path=DB_PATH).sync()
+                log.info("[SERVER] kb_index.json sincronizado al arrancar.")
+            except Exception as _e:
+                log.warning(f"[SERVER] KBIndexSync al arrancar: {_e}")
+
+        loop.run_in_executor(None, _initial_kb_sync)
+    except Exception:
+        pass
+
     if _scheduler_available and _scheduler is not None and engine is not None:
         _scheduler.add_job(
             engine.run_global_ingestion,
