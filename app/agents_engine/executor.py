@@ -33,6 +33,7 @@ AGENT_TEMP_MAP = {
     "gem-qa-validation":     0.0,
     "gem-backend-core":      0.0,
     "gem-orchestrator-core": 0.1,
+    "consultar_kb_agente":   0.1,
     "@gem-qa-validation":     0.0,
     "@gem-backend-core":      0.0,
     "@gem-orchestrator-core": 0.1,
