@@ -7,6 +7,13 @@
       "runtimeArgs": ["-m", "http.server", "8765", "--directory", "website/gem-os"],
       "port": 8765,
       "url": "http://localhost:8765"
+    },
+    {
+      "name": "gem-os-web",
+      "runtimeExecutable": "C:\\Users\\Alan\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app.services.dashboard_server:app", "--host", "127.0.0.1", "--port", "47821"],
+      "port": 47821,
+      "url": "http://localhost:47821"
     }
   ]
 }
