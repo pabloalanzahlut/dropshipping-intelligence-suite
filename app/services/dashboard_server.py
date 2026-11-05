@@ -525,6 +525,108 @@ async def api_insights() -> List[Dict[str, Any]]:
     return _get_kb_insights_combined(50)
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# API — TRANSCRIPCIONES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/transcripciones")
+async def api_transcripciones(
+    limite: int = 50,
+    buscar: str = "",
+    solo_procesadas: Optional[bool] = None,
+    canal: str = "",
+) -> List[Dict[str, Any]]:
+    """Lista transcripciones con filtros opcionales de búsqueda, canal y estado."""
+    try:
+        import sqlite3 as _sq
+        with _sq.connect(DB_PATH) as conn:
+            conn.row_factory = _sq.Row
+            conditions = []
+            params: list = []
+            if buscar:
+                conditions.append(
+                    "(t.titulo LIKE ? OR t.canal LIKE ? OR t.transcripcion_limpia LIKE ?)"
+                )
+                like = f"%{buscar}%"
+                params += [like, like, like]
+            if solo_procesadas is not None:
+                conditions.append("t.procesada = ?")
+                params.append(1 if solo_procesadas else 0)
+            if canal:
+                conditions.append("t.canal LIKE ?")
+                params.append(f"%{canal}%")
+            where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+            params.append(limite)
+            rows = conn.execute(f"""
+                SELECT t.id, t.video_id, t.titulo, t.canal, t.fecha,
+                       t.tokens_original, t.tokens_limpios, t.procesada,
+                       t.creada_at,
+                       CASE WHEN t.transcripcion_limpia IS NOT NULL
+                            THEN substr(t.transcripcion_limpia, 1, 300)
+                            ELSE substr(t.transcripcion_texto, 1, 300)
+                       END AS preview
+                FROM transcripciones_youtube t
+                {where}
+                ORDER BY t.id DESC LIMIT ?
+            """, params).fetchall()
+            return [dict(r) for r in rows]
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/transcripciones/{transcripcion_id}")
+async def api_transcripcion_detalle(transcripcion_id: int) -> Dict[str, Any]:
+    """Retorna una transcripción completa (texto limpio o crudo) por su ID."""
+    try:
+        import sqlite3 as _sq
+        with _sq.connect(DB_PATH) as conn:
+            conn.row_factory = _sq.Row
+            row = conn.execute(
+                """SELECT t.id, t.video_id, t.titulo, t.canal, t.fecha,
+                          t.transcripcion_texto, t.transcripcion_limpia,
+                          t.hash_md5, t.tokens_original, t.tokens_limpios,
+                          t.procesada, t.creada_at, t.actualizada_at,
+                          v.platform, v.processed_at
+                   FROM transcripciones_youtube t
+                   LEFT JOIN video_sources v ON t.video_id = v.video_id
+                   WHERE t.id = ?""",
+                (transcripcion_id,)
+            ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail="Transcripción no encontrada.")
+        return dict(row)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/transcripciones/stats/resumen")
+async def api_transcripciones_stats() -> Dict[str, Any]:
+    """Resumen estadístico de la tabla de transcripciones."""
+    try:
+        import sqlite3 as _sq
+        with _sq.connect(DB_PATH) as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(*) FROM transcripciones_youtube")
+            total = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(*) FROM transcripciones_youtube WHERE procesada = 1")
+            procesadas = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(DISTINCT canal) FROM transcripciones_youtube")
+            canales = cur.fetchone()[0]
+            cur.execute("SELECT SUM(tokens_limpios) FROM transcripciones_youtube")
+            tokens = cur.fetchone()[0] or 0
+        return {
+            "total": total,
+            "procesadas": procesadas,
+            "pendientes": total - procesadas,
+            "canales_unicos": canales,
+            "tokens_totales": tokens,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 # ─── KB context helper ────────────────────────────────────────────────────────
 
 def _build_kb_context(limit: int = 30) -> str:
