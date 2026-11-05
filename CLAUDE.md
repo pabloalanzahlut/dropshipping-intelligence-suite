@@ -133,6 +133,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/hook-matrix` | Genera matriz ≥10 hooks TikTok/Meta Ads por fórmula (Story, Shock, Curiosity, Before/After, POV, Urgencia) |
 | `/importar-masivo` | Pega URLs de AliExpress/CJ/Temu → valida regla 3x → crea borradores en Shopify |
 | `/gestionar-meta-ads` | Genera naming de campañas Business Manager + 3 hooks s0–s3 estilo Roger Viladrosa |
+| `/resolver-github` | Diagnostica y resuelve problemas GitHub (CI, PRs, Dependabot, secretos) + auto-documenta en KB |
 
 ---
 
