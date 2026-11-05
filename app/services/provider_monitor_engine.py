@@ -233,6 +233,10 @@ class ProviderMonitorEngine:
                         })
                 except json.JSONDecodeError:
                     continue
+            # --playlist-end aplica por pestaña (videos, shorts, lives),
+            # así que el total puede superar el límite pedido.
+            if max_scan and len(videos) > max_scan:
+                videos = videos[:max_scan]
             self.log_callback(f"📊 {len(videos)} videos encontrados")
         except subprocess.TimeoutExpired:
             self.log_callback(f"⚠️ Timeout escaneando {channel_url}")
