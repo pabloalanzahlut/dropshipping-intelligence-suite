@@ -37,6 +37,16 @@ Archivo: [03_envio/zonas_tarifas.md](03_envio/zonas_tarifas.md)
 - Umbral de envío gratuito
 - Perfil de envío en Shopify
 
+### 04 — Componentes de Conversión
+Archivo: [04_componentes_conversion/INDICE.md](04_componentes_conversion/INDICE.md)
+
+Equivalentes nativos a los GPTs del documento complementario del curso ("GPTs para diseñar tu tienda"): banner, marquesina, beneficios, trust badges, reviews (clientes/influencers), comparador, acordeón FAQ.
+
+### 05 — Proveedores de Pago
+Archivo: [05_pagos/proveedores_pago.md](05_pagos/proveedores_pago.md)
+
+Checklist de activación de Shopify Payments / PayPal — acción manual del operador en Shopify Admin (no generable por GEM OS).
+
 ---
 
 ## Checklist de implementación
@@ -46,10 +56,12 @@ Archivo: [03_envio/zonas_tarifas.md](03_envio/zonas_tarifas.md)
 - [ ] Primer producto creado con ficha AIDA
 - [ ] Precio verificado con `/validar-financiero`
 - [ ] Zonas de envío configuradas (sin prometer < 6 días)
+- [ ] Componentes de conversión (módulo 04) pegados en Home/producto
+- [ ] Al menos un método de pago activo (módulo 05)
 - [ ] Vista previa en móvil revisada
 
 ---
 
 ## Estado: PENDIENTE
 
-Ejecutar `/redactar-ficha-shopify` y `/validar-financiero` antes de completar módulo 02.
+Ejecutar `/redactar-ficha-shopify` y `/validar-financiero` antes de completar módulo 02. Módulos 04 y 05 pueden avanzarse en paralelo (no dependen del producto final), pero el contenido con placeholders de color/marca depende de que el módulo 01 (tema) esté completado.
