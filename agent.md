@@ -42,6 +42,30 @@ Tu misión como agente es **generar valor comercial real** mediante copywriting,
   - ✅ Reglas de negocio inmutables presentes
 - Si alguna validación falla → **detener ejecución** y reportar.
 
+### 2.5 Reglas de Negocio Inmutables
+
+Ningún agente puede alterar, relajar ni reinterpretar estas reglas.
+
+| Regla | Umbral | Acción si falla |
+|-------|--------|-----------------|
+| **Regla 3x** | `PVP ≥ costo_origen * 3` | RECHAZAR producto |
+| **Margen bruto** | `≥ 70%` | ADVERTIR inmediatamente |
+| **Peso máximo** | `< 1.2 kg` | RECHAZAR producto |
+| **Baterías de litio sueltas** | Prohibido | RECHAZAR categoría |
+
+**Clasificación por múltiplo de margen:**
+- `HOT` → ≥ 5x · `WARM` → 3–5x · `COLD` → 1.5–3x · `DISCARD` → < 1.5x
+
+**Prohibición de superlativos.** Queda prohibido el uso de superlativos vacíos
+en todo copy generado (increíble, fantástico, alucinante, revolucionario, el mejor,
+único en el mundo). El copy debe sostenerse en beneficios verificables.
+
+**Logística real.** Mencionar siempre **6-12 días laborables** de envío.
+Prohibido prometer 24-48h o "envío express" cuando no corresponde al proveedor real.
+
+**Framework de copy.** Toda landing sigue la estructura **AIDA**:
+Atención (título ≤ 6 palabras) → Interés (3 beneficios) → Deseo (garantías reales) → Acción (CTA directo).
+
 ---
 
 ## 3. 📋 MÉTODO 1 — USO DE HERRAMIENTAS EXTERNAS Y FORMATO TÉCNICO
