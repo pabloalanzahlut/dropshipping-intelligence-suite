@@ -124,7 +124,7 @@ class AgentExecutor:
               f"Analiza: 1) ignoraste skills? 2) inconsistente?\n"
               f"Original:\n```md\n{csc}\n```\nReescribe en {current_skill_path}.")
         hdrs = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
-        pl = {"model": "google/gemini-flash",
+        pl = {"model": "anthropic/claude-haiku-5.5",
               "messages": [{"role": "system", "content": "QA de GEM OS."},
                            {"role": "user", "content": cp}]}
         try:
