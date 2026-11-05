@@ -112,6 +112,24 @@ Formato: `Agregar al carrito` (botón Shopify nativo — no modificar el texto d
 
 Copy de apoyo (≤8 palabras): `Stock limitado · Pedido sale en 24 h`
 
+### Paso 7: Multi-Ángulo AIDA (3 variantes del bloque Interés+Deseo)
+
+Generar 3 versiones alternativas de los bullets + garantía para A/B testing. Cada versión ataca un ángulo psicológico distinto. Las specs técnicas son idénticas en las tres; solo varía el copy emocional.
+
+**Ángulo 1 — Dolor** (el problema que resuelve)
+Bullets enfocados en la frustración actual del buyer. Garantía redactada como alivio.
+Ejemplo intro: `"Cansado de [problema]? Esto cambia todo."`
+
+**Ángulo 2 — Aspiración** (el resultado que desea obtener)
+Bullets enfocados en la vida mejorada. Garantía redactada como inversión en sí mismo.
+Ejemplo intro: `"Imagina [resultado deseado] cada vez que [acción]."`
+
+**Ángulo 3 — Social Proof** (lo que están haciendo otros compradores)
+Bullets en tercera persona plural. Garantía redactada como confianza de comunidad.
+Ejemplo intro: `"Miles de clientes en [mercado] ya han [resultado]."`
+
+Regla: Ningún ángulo puede inventar testimonios, cifras de ventas o estadísticas no verificadas.
+
 ---
 
 ## 3. Output Esperado
@@ -130,7 +148,24 @@ Copy de apoyo (≤8 palabras): `Stock limitado · Pedido sale en 24 h`
       "compatibilidad": "str"
     },
     "seccion_confianza": ["str", "str", "str", "str"],
-    "copy_apoyo_cta": "str"
+    "copy_apoyo_cta": "str",
+    "angulos_aida": {
+      "dolor": {
+        "intro": "str",
+        "bullets": ["str", "str", "str"],
+        "garantia": "str"
+      },
+      "aspiracion": {
+        "intro": "str",
+        "bullets": ["str", "str", "str"],
+        "garantia": "str"
+      },
+      "social_proof": {
+        "intro": "str",
+        "bullets": ["str", "str", "str"],
+        "garantia": "str"
+      }
+    }
   },
   "validacion": {
     "regla_3x_ok": true,
@@ -142,6 +177,11 @@ Copy de apoyo (≤8 palabras): `Stock limitado · Pedido sale en 24 h`
   "metadatos_shopify": {
     "meta_title": "str (≤60 chars)",
     "meta_description": "str (≤155 chars)",
+    "h1_sugerido": "str (keyword secundaria, distinto del meta_title)",
+    "url_handle": "str (slug sin stopwords, minúsculas, guiones)",
+    "alt_text_imagen_principal": "str (≤125 chars, producto + uso + contexto)",
+    "schema_product_description": "str (≤300 chars, para Google Rich Results)",
+    "tags_seo": ["producto_1", "producto_2", "nicho", "beneficio", "tendencia"],
     "tags": ["str"],
     "vendor": "str",
     "product_type": "str"
@@ -186,4 +226,4 @@ Copy de apoyo (≤8 palabras): `Stock limitado · Pedido sale en 24 h`
 
 ---
 
-*Fin del procedimiento. Versión 1.0.0 — GEM OS*
+*Fin del procedimiento. Versión 2.0.0 — GEM OS · Fase 3 Copywriting Avanzado*

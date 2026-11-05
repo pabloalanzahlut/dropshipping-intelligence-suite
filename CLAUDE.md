@@ -1,5 +1,5 @@
 # GEM OS — Dropshipping Intelligence Suite
-**Sistema:** GEM OS v2.0 | **Dominio:** Dropshipping Global Shopify
+**Sistema:** GEM OS v2.2 | **Dominio:** Dropshipping Global Shopify
 
 ---
 
@@ -29,10 +29,16 @@ Si te falta un dato crítico (precio, costo, peso, dimensiones, margen), **pregu
 ## PIPELINE DE AGENTES (DAG)
 
 ```
-YouTube Monitor → Transcript Cleaner → Knowledge Base
-    ├── Product Hunter  (clasificar_productos)  → HOT/WARM/COLD
-    ├── Funnel Builder  (estructurar_landing)   → Copy AIDA
-    └── Media Buyer     (redactar_guiones)      → Script TikTok 15-30s
+AutoDS Trending + Ad Spy + Shopify Analytics
+    ↓
+Product Scout   (buscar_producto)        → Candidatos pre-filtrados
+    ↓
+YouTube Monitor → Transcript Cleaner → Knowledge Base (ingerir_transcripcion_kb)
+    ↓                                        ↓
+Product Hunter  (clasificar_productos)  → HOT/WARM/COLD
+    ├── Funnel Builder  (estructurar_landing)  → Copy AIDA → Tienda Shopify
+    ├── Media Buyer     (redactar_guiones)     → Script TikTok 15-30s → Tienda Shopify
+    └── KB Agent        (consultar_kb_agente)  → Consultas internas del operador
 ```
 
 **Nunca saltar un paso.** Si un agente falla → detener cadena → pedir intervención.
@@ -73,12 +79,23 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 
 ## ARCHIVOS DE CONTEXTO
 
+- `ai_workspace/skills/buscar_producto/procedimiento.md` — Búsqueda mobile-first (AutoDS + Ad Spy + Shopify Analytics)
+- `ai_workspace/skills/ingerir_transcripcion_kb/procedimiento.md` — Extracción de entidades → Knowledge Base
+- `ai_workspace/skills/consultar_kb_agente/procedimiento.md` — Consultas internas del operador sobre la KB
 - `ai_workspace/skills/clasificar_productos/procedimiento.md` — Reglas de clasificación
 - `ai_workspace/skills/estructurar_landing/procedimiento.md` — Framework AIDA
 - `ai_workspace/skills/redactar_guiones_tiktok/procedimiento.md` — Script de video
-- `ai_workspace/skills/redactar_ficha_shopify/procedimiento.md` — Ficha producto Shopify
+- `ai_workspace/skills/redactar_ficha_shopify/procedimiento.md` — Ficha producto Shopify (v2.0: multi-ángulo AIDA + SEO enriquecido)
+- `ai_workspace/skills/redactar_hook_matrix/procedimiento.md` — Matriz ≥10 hooks TikTok/Meta Ads por fórmula
 - `ai_workspace/skills/publicar_tiktok_automatico/procedimiento.md` — Auto-publicación Make.com
 - `ai_workspace/skills/generar_imagen_producto/procedimiento.md` — Imágenes sin fondo
+- `ai_workspace/skills/validar_financiero/procedimiento.md` — Validación 3x, margen bruto y CPA máximo
+- `ai_workspace/skills/investigar_nicho/procedimiento.md` — Informe 10 ángulos por nicho para Meta Ads
+- `ai_workspace/skills/redactar_anuncios_meta/procedimiento.md` — Copy estático Meta Ads (imagen + carousel)
+- `ai_workspace/skills/monitorear_flujo_caja/procedimiento.md` — Monitor diario de caja y ROAS
+- `ai_workspace/skills/escalar_campana/procedimiento.md` — Árbol de decisión de escalado de campañas
+- `ai_workspace/skills/importar_masivo/procedimiento.md` — Importación masiva por URL con validación 3x → Shopify draft
+- `ai_workspace/skills/gestionar_meta_ads/procedimiento.md` — Naming de campañas + hooks s0–3 (Roger Viladrosa)
 - `ai_workspace/config/openrouter_setup.md` — Modelos económicos para volumen alto
 - `ai_workspace/knowledge_base/jack_roberts_strategies.md` — Estrategias AntiGravity/Claude Code
 - `ai_workspace/memory/` — Memoria de decisiones y aprendizajes
@@ -95,6 +112,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 
 | Comando | Función |
 |---------|---------|
+| `/buscar-producto` | Descubre candidatos en AutoDS Trending + Ad Spy + Shopify Analytics |
 | `/clasificar-producto` | Analiza transcripción → clasifica HOT/WARM/COLD |
 | `/redactar-guion` | Genera script TikTok 15-30s |
 | `/estructurar-landing` | Crea copy AIDA para landing page |
@@ -104,6 +122,15 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/publicar-tiktok` | Envía guión a Make.com → auto-publicación TikTok |
 | `/generar-imagen-producto` | Remueve fondo + optimiza imagen para Shopify |
 | `/crear-web-hostinger` | Genera sitio web premium (skill Adrián Sáenz) |
+| `/recuperar-carrito` | Webhook Shopify → Make.com → email nocturno 20–23h |
+| `/consultar-kb` | Consulta la Knowledge Base interna sobre productos, estrategias y métricas |
+| `/investigar-nicho` | Genera informe de 10 ángulos de ataque para un nicho (Nivel 2) |
+| `/redactar-anuncios-meta` | Copy para Meta Ads estáticos: imagen única, carousel, variantes A/B |
+| `/monitorear-caja` | Revisa salud del flujo de caja con datos pegados del día/semana (Nivel 6) |
+| `/escalar-campana` | Decide si escalar, mantener, optimizar o cortar campaña con reglas cuantitativas (Nivel 5→6) |
+| `/hook-matrix` | Genera matriz ≥10 hooks TikTok/Meta Ads por fórmula (Story, Shock, Curiosity, Before/After, POV, Urgencia) |
+| `/importar-masivo` | Pega URLs de AliExpress/CJ/Temu → valida regla 3x → crea borradores en Shopify |
+| `/gestionar-meta-ads` | Genera naming de campañas Business Manager + 3 hooks s0–s3 estilo Roger Viladrosa |
 
 ---
 
@@ -124,4 +151,4 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 
 ---
 
-*GEM OS v2.1 — Metodología Xavier Mitjana + Jack Roberts AntiGravity + Adrián Sáenz Hostinger*
+*GEM OS v2.2 — Metodología Xavier Mitjana + Jack Roberts AntiGravity + Adrián Sáenz Hostinger*

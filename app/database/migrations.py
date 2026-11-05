@@ -317,3 +317,49 @@ def mig_0012_valor_score(conn: sqlite3.Connection):
     cols = {r[1] for r in cursor.fetchall()}
     if "valor_score" not in cols:
         conn.execute("ALTER TABLE product_trends ADD COLUMN valor_score REAL DEFAULT 0.0")
+
+
+@migration(13, "Crear tabla importaciones_masivas para importación por URL")
+def mig_0013_importaciones_masivas(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS importaciones_masivas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            correlation_id TEXT UNIQUE NOT NULL,
+            url_origen TEXT NOT NULL,
+            plataforma TEXT NOT NULL,
+            product_id_externo TEXT DEFAULT '',
+            shopify_draft_id TEXT,
+            status TEXT DEFAULT 'pending',
+            validacion_financiera TEXT DEFAULT '{}',
+            error_msg TEXT,
+            creada_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_import_status ON importaciones_masivas(status)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_import_plataforma ON importaciones_masivas(plataforma)")
+
+
+@migration(14, "Agregar columna correlation_id a productos_validados")
+def mig_0014_correlation_id_productos(conn: sqlite3.Connection):
+    cursor = conn.execute("PRAGMA table_info(productos_validados)")
+    cols = {r[1] for r in cursor.fetchall()}
+    if "correlation_id" not in cols:
+        conn.execute("""
+            ALTER TABLE productos_validados
+            ADD COLUMN correlation_id TEXT DEFAULT ''
+        """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_productos_correlation_id
+        ON productos_validados(correlation_id)
+    """)
+
+
+@migration(15, "Agregar columna vertical a productos_validados")
+def mig_0015_vertical_productos(conn: sqlite3.Connection):
+    cursor = conn.execute("PRAGMA table_info(productos_validados)")
+    cols = {r[1] for r in cursor.fetchall()}
+    if "vertical" not in cols:
+        conn.execute("""
+            ALTER TABLE productos_validados
+            ADD COLUMN vertical TEXT DEFAULT ''
+        """)

@@ -1,0 +1,49 @@
+name: Setup Repository Labels
+
+on:
+  workflow_dispatch:  # solo manual, ejecutar una vez
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Create GEM OS labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              { name: 'pipeline', color: '0075ca', description: 'Cambios en skills del pipeline' },
+              { name: 'financial-rules', color: 'e4e669', description: 'Cambios en reglas financieras críticas' },
+              { name: 'ci', color: '1d76db', description: 'Cambios en workflows CI/CD' },
+              { name: 'website', color: 'bfd4f2', description: 'Cambios en sitios web' },
+              { name: 'database', color: 'f9d0c4', description: 'Cambios en base de datos' },
+              { name: 'documentation', color: '0075ca', description: 'Mejoras en documentación' },
+              { name: 'dependencies', color: '0366d6', description: 'Actualización de dependencias' },
+              { name: 'security', color: 'ee0701', description: 'Problema de seguridad' },
+              { name: 'stale', color: 'ffffff', description: 'Sin actividad reciente' },
+              { name: 'producto', color: 'd4c5f9', description: 'Producto candidato HOT/WARM/COLD' },
+              { name: 'analisis-pendiente', color: 'f1c40f', description: 'Esperando análisis GEM OS' },
+              { name: 'triage', color: 'e11d48', description: 'Necesita clasificación' },
+              { name: 'github-actions', color: '000000', description: 'Cambios en GitHub Actions' },
+            ];
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description,
+                });
+                console.log(`✅ Created: ${label.name}`);
+              } catch (e) {
+                if (e.status === 422) {
+                  console.log(`⚠️ Already exists: ${label.name}`);
+                } else {
+                  throw e;
+                }
+              }
+            }
