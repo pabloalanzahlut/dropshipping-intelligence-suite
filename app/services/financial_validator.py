@@ -68,8 +68,9 @@ class FinancialValidator:
         # 2. Calcular margen bruto
         margen_bruto = (pvp_calculado - costo_origen) / pvp_calculado if pvp_calculado > 0 else 0.0
         
-        # 3. Validar contra Regla 3x
-        regla_3x_cumple = abs(pvp_calculado - (costo_origen * self.REGLA_3X_MULTIPLICADOR)) < 0.01
+        # 3. Validar contra Regla 3x — el 3x es un piso, no un objetivo exacto
+        pvp_minimo_3x = costo_origen * self.REGLA_3X_MULTIPLICADOR
+        regla_3x_cumple = pvp_calculado >= pvp_minimo_3x - 0.01
         
         # 4. Validar margen bruto >= 70%
         margen_cumple = margen_bruto >= self.MARGEN_BRUTO_MINIMO
