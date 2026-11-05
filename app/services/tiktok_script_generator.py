@@ -388,28 +388,10 @@ Resultado: Rentable desde el primer día.
                 response = requests.post(url, headers=headers, json=payload, timeout=60)
                 response.raise_for_status()
                 guion_generado = response.json()['choices'][0]['message']['content'].strip()
-
-                # Extraer hook de la primera fila de la tabla
-                hook_generado = self.generar_hook(patron_hook)
-                lineas = guion_generado.split('\n')
-                for linea in lineas:
-                    if 'EL GANCHO' in linea or 'Hook' in linea:
-                        partes = linea.split('|')
-                        if len(partes) >= 4:
-                            hook_generado = partes[3].strip()
-                        break
-
-                return {
-                    'titulo': f"{nombre_producto} - Hook {patron_hook}",
-                    'hook': hook_generado,
-                    'cuerpo': guion_generado,
-                    'cta': "Haz clic en 'Comprar Ahora' para asegurar tu envío.",
-                    'guion_completo': guion_generado,
-                    'patron_hook': patron_hook,
-                    'duracion_segundos': duracion_segundos,
-                    'contexto_kb_reference': 'openrouter_kb',
-                    'timestamp': datetime.now().isoformat()
-                }
+                return self._construir_resultado(
+                    guion_generado, nombre_producto, patron_hook,
+                    duracion_segundos, 'openrouter_kb'
+                )
 
             except Exception as e:
                 print(f"[ERROR] Fallo al generar guión con OpenRouter: {str(e)}")
