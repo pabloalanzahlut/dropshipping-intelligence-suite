@@ -385,8 +385,8 @@ class KBRouter:
             r"Logística|Logistics|Envío|Shipping|Notas", section, "No especificado"
         )
         weight = self._extract_float(
-            r"^[\s\-\*>]*(?:\*\*|__)?\s*(?:Peso|Weight)(?:\*\*|__)?\s*:\s*"
-            r"[^\d]*([0-9]+(?:\.[0-9]+)?)",
+            r"^[\s\-\*>]*(?:\*\*|__)?\s*(?:Peso|Weight)(?:\*\*|__)?\s*"
+            r":[^\d\n]*([0-9]+(?:[.,][0-9]+)?)",
             section, 0.0
         )
         gateways = self._extract_labeled(
