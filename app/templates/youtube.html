@@ -53,16 +53,27 @@
         </button>
       </div>
 
+      <!-- Pipeline status bar -->
+      <div x-show="pipeline.active" x-cloak style="display:flex;align-items:center;gap:10px;background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.15);border-radius:8px;padding:10px 13px;margin-bottom:8px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#22d3ee;animation:pulse-dot 1s infinite;flex-shrink:0;"></div>
+        <div style="min-width:0;">
+          <p style="font-size:11px;font-weight:600;color:#22d3ee;margin:0;" x-text="'Procesando: ' + (pipeline.current_channel || '...')"></p>
+          <p x-show="pipeline.current_video" style="font-size:10px;color:#4a5080;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="pipeline.current_video"></p>
+        </div>
+      </div>
+
       <div style="display:flex;flex-direction:column;gap:6px;">
         <template x-for="ch in channels" :key="ch.url">
-          <div style="display:flex;align-items:center;justify-content:space-between;background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:11px 13px;transition:border-color 0.15s;"
-               onmouseover="this.style.borderColor='#252844'" onmouseout="this.style.borderColor='#1a1d35'">
+          <div :style="isActive(ch) ? 'display:flex;align-items:center;justify-content:space-between;background:#08091a;border:1px solid rgba(34,211,238,0.3);border-radius:8px;padding:11px 13px;' : 'display:flex;align-items:center;justify-content:space-between;background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:11px 13px;'">
             <div style="min-width:0;flex:1;">
               <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="ch.nombre"></p>
               <p style="font-size:10px;color:#4a5080;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="ch.url"></p>
             </div>
-            <span :class="ch.activo ? 'badge badge-done' : 'badge badge-fail'"
-                  x-text="ch.activo ? 'Activo' : 'Inactivo'" style="margin-left:12px;flex-shrink:0;"></span>
+            <div style="display:flex;align-items:center;gap:8px;margin-left:12px;flex-shrink:0;">
+              <span x-show="isActive(ch)" style="font-size:9px;color:#22d3ee;animation:pulse-dot 1s infinite;">⬤ procesando</span>
+              <span :class="ch.activo ? 'badge badge-done' : 'badge badge-fail'"
+                    x-text="ch.activo ? 'Activo' : 'Inactivo'"></span>
+            </div>
           </div>
         </template>
         <div x-show="channels.length === 0" style="text-align:center;padding:40px 0;">
