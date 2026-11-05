@@ -1,0 +1,42 @@
+/*
+ * gem.css — Tokens CSS globales GEM OS v3.7
+ * Complementa Tailwind; no duplicar clases de utilidad.
+ */
+
+:root {
+  /* Paleta oscura */
+  --color-bg-base:   #060810;
+  --color-bg-deep:   #08091a;
+  --color-bg-card:   #0d0f1f;
+  --color-bg-hover:  #111328;
+
+  /* Bordes */
+  --color-border-dim:    #1a1d35;
+  --color-border-mid:    #252844;
+  --color-border-bright: #3a3f68;
+
+  /* Acento violeta */
+  --color-accent-500: #6366f1;
+  --color-accent-400: #818cf8;
+  --color-accent-300: #a5b4fc;
+
+  /* Estado */
+  --color-hot:  #f97316;
+  --color-warm: #eab308;
+  --color-cold: #3b82f6;
+
+  /* Tipografía */
+  --font-sans:    'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+}
+
+/* Scrollbar global */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--color-border-mid); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-border-bright); }
+
+/* Badge helpers */
+.badge-hot  { color: var(--color-hot);  border-color: var(--color-hot); }
+.badge-warm { color: var(--color-warm); border-color: var(--color-warm); }
+.badge-cold { color: var(--color-cold); border-color: var(--color-cold); }
