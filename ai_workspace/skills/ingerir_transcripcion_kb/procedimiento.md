@@ -1,112 +1,80 @@
 # Skill: Ingerir Transcripción en Knowledge Base
 
 **ID:** `ingerir_transcripcion_kb`
-**Versión:** 1.0.0
-**Propósito:** Tomar una transcripción limpia de YouTube y extraer entidades clave para indexarlas en la Knowledge Base, disponibles para consulta del agente IA interno.
+**Versión:** 2.0.0 (actualizado GEM OS v3.7)
+**Propósito:** Tomar una transcripción limpia de YouTube y extraer entidades clave para indexarlas en la Knowledge Base SQLite, disponibles para consulta del agente IA interno.
 
 **Trigger:** Automático tras clasificación HOT o WARM por `clasificar_productos`
 **Input:** Transcripción limpia + metadatos del video (video_id, canal, fecha, clasificacion)
-**Output:** Archivo `ai_workspace/knowledge_base/kb_{video_id}.md`
+**Output primario:** Filas en SQLite (`product_trends`, `conversion_formulas`, `operations_traffic`)
+**Output secundario:** `ai_workspace/memory/kb_index.json` (snapshot exportado) + `ai_workspace/knowledge_base/kb_{video_id}.md` (copia legible)
+
+> **Nota arquitectural:** La fuente de verdad es SQLite. Los archivos `.md` y `kb_index.json`
+> son exportaciones generadas automáticamente por `KBIndexSync` tras cada ingesta.
+> No editar manualmente esos archivos; serán sobreescritos.
 
 ---
 
 ## Reglas de Indexación
 
 ### Qué GUARDAR en la KB
-- Productos mencionados con precio, margen o métricas de ventas
-- Estrategias de marketing con resultados numéricos verificables
-- Nombres de proveedores o plataformas con contexto de uso
-- Hooks o copy que el creador describe como exitosos
-- Errores o lecciones aprendidas con contexto
+- Productos mencionados con precio, margen o métricas de ventas → `product_trends`
+- Estrategias de marketing con resultados numéricos verificables → `conversion_formulas`
+- Nombres de proveedores o plataformas con contexto de uso → `operations_traffic`
+- Hooks o copy que el creador describe como exitosos → `conversion_formulas`
+- Errores o lecciones aprendidas con contexto → `operations_traffic`
 
 ### Qué DESCARTAR
 - Opiniones sin datos ("este producto es increíble")
 - Contenido off-topic (política, entretenimiento sin relación)
-- Repeticiones del mismo dato ya indexado (usar dedup)
+- Repeticiones del mismo dato ya indexado (usar dedup por hash MD5)
 - Datos de envío expresamente ficticios ("llega en 24h")
 
 ---
 
-## Pipeline de Ingesta
-
-### Paso 1 — Extracción de Entidades
-Para cada transcripción limpia, identificar y extraer:
+## Pipeline de Ingesta (implementado en Python)
 
 ```
-PRODUCTOS:
-  - nombre, categoría, precio_mencionado, margen_mencionado, plataforma_venta
-
-ESTRATEGIAS:
-  - nombre_estrategia, descripcion_breve, resultado_numerico, fuente_tráfico
-
-PROVEEDORES:
-  - nombre, plataforma (AutoDS/AliExpress/CJ), valoracion_mencionada
-
-MÉTRICAS:
-  - roas, cpc, conversion_rate, revenue_mencionado, periodo
-
-LECCIONES:
-  - tipo (error|acierto), descripcion, impacto
+Transcripción cruda (yt-dlp)
+        ↓
+TranscriptCleaner.clean_for_ia()       → pre-limpieza local (gratis)
+        ↓
+OpenRouterTranscriptionCleaner         → extracción de valor CRO
+        ↓
+KBRouter.route_and_insert()            → INSERT en SQLite
+        ├─ product_trends              (productos + nicho + margen)
+        ├─ conversion_formulas         (AIDA + frameworks)
+        └─ operations_traffic          (tráfico + logística)
+        ↓
+KBIndexSync.sync()                     → regenera kb_index.json
+KBIndexSync.export_md_for_video()      → genera kb_{video_id}.md
 ```
 
-### Paso 2 — Validación de Calidad
-- Descartar entidades con confianza < 0.6
-- Si una entidad duplica una ya en KB (Jaccard > 0.85): actualizar la existente, no crear nueva
-- Mínimo 3 entidades válidas para proceder; si hay menos → registrar como INFO y no guardar
+### Tablas SQLite destino
 
-### Paso 3 — Formato del Chunk para Búsqueda Semántica
+| Tabla | Campos clave |
+|-------|-------------|
+| `product_trends` | video_id, product_name, niche, wow_factor, estimated_margin |
+| `conversion_formulas` | video_id, category, framework_name, raw_structure, persuasion_triggers |
+| `operations_traffic` | video_id, traffic_source, scaling_strategy, logistics_notes, weight_kg |
 
-Cada archivo KB tiene la siguiente estructura:
-
-```markdown
-# KB: {titulo_video}
-
-**video_id:** {video_id}
-**canal:** {canal}
-**fecha_indexacion:** {YYYY-MM-DD}
-**clasificacion:** HOT | WARM
-**fuente:** youtube_transcript
+### Idempotencia
+- Guard por hash MD5 del texto pre-limpiado en `video_sources.content_hash`
+- Si el video ya existe → saltar sin reinsertar (dedup automático)
+- Dedup de contenido en `transcripciones_youtube` por `hash_md5`
 
 ---
 
-## Productos
+## Paso Post-Ingesta — Exportación automática
 
-- **{nombre}** | Categoría: {cat} | Precio ref: ${precio} | Margen: {margen}%
+Tras cada ingesta exitosa, `provider_monitor_engine._process_single_video()` llama:
 
-## Estrategias
-
-- **{nombre}**: {descripcion} → Resultado: {resultado}
-
-## Proveedores Mencionados
-
-- {nombre} ({plataforma}) — {valoracion}
-
-## Métricas Clave
-
-- ROAS: {roas} | CPC: ${cpc} | CR: {cr}% | Revenue: ${revenue} ({periodo})
-
-## Lecciones
-
-- [{tipo}] {descripcion} → Impacto: {impacto}
-
----
-*Generado por ingerir_transcripcion_kb v1.0.0*
+```python
+KBIndexSync(db_path=...).sync()                    # actualiza kb_index.json
+KBIndexSync(db_path=...).export_md_for_video(vid)  # genera/actualiza kb_{vid}.md
 ```
 
-### Paso 4 — Guardar y Registrar
-1. Escribir archivo en `ai_workspace/knowledge_base/kb_{video_id}.md`
-2. Registrar en `ai_workspace/memory/kb_index.json`:
-   ```json
-   {
-     "video_id": "",
-     "archivo": "kb_{video_id}.md",
-     "fecha": "",
-     "clasificacion": "",
-     "entidades_indexadas": 0,
-     "canal": ""
-   }
-   ```
-3. Notificar Orchestrator Core: "KB actualizada — {video_id}"
+El endpoint `POST /api/kb/sync` permite forzar una sincronización manual completa.
 
 ---
 
@@ -114,6 +82,7 @@ Cada archivo KB tiene la siguiente estructura:
 
 | Nivel | Condición | Acción |
 |-------|-----------|--------|
-| INFO | < 3 entidades extraídas | Registrar, no guardar |
-| WARNING | Transcripción vacía o < 200 palabras | Registrar + notificar |
-| ERROR | Falla escritura en disco | Detener, reintentar 1 vez |
+| INFO | Transcripción VACÍA (sin valor CRO) | Registrar STATUS_COMPLETED, no insertar en KB |
+| WARNING | Falla KBIndexSync post-ingesta | Registrar, no detener pipeline |
+| ERROR | Falla route_and_insert | Registrar STATUS_FAILED, reintentar en próximo ciclo |
+| CRITICAL | Falla DB connection | Detener pipeline, alertar |
