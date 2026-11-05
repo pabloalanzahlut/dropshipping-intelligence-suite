@@ -69,6 +69,16 @@ FREELLM_DEFAULT_MODEL = "qwen2.5-coder:latest"
 
 HYBRID_TIMEOUT = int(os.getenv("HYBRID_TIMEOUT", "120"))
 
+
+def _extraer_contenido(payload: Dict[str, Any]) -> Optional[str]:
+    """
+    Texto de una respuesta estilo OpenAI. Los modelos de razonamiento devuelven
+    content=null cuando agotan max_tokens pensando; en ese caso sirve `reasoning`.
+    """
+    mensaje = payload["choices"][0]["message"]
+    texto = (mensaje.get("content") or mensaje.get("reasoning") or "").strip()
+    return texto or None
+
 # ---------------------------------------------------------------------------
 # Pool Singleton
 # ---------------------------------------------------------------------------
