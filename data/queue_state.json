@@ -45,8 +45,8 @@
     {
       "nombre": "Adrián Sáenz",
       "url": "https://www.youtube.com/@adriansaenz",
-      "status": "Completado",
-      "last_scan": "2026-11-05T21:00:03.586030+00:00",
+      "status": "Procesando",
+      "last_scan": "2026-11-05T21:12:41.718848+00:00",
       "total_videos": 10,
       "processed_count": 0,
       "failed_count": 10,
