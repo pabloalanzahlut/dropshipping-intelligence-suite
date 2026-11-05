@@ -296,12 +296,7 @@ class ProviderMonitorEngine:
                     vtt_path = os.path.join(TEMP_TRANSCRIPT_DIR, fname)
                     try:
                         with open(vtt_path, "r", encoding="utf-8") as f:
-                            raw = f.read()
-                        lines = [l.strip() for l in raw.split("\n")
-                                 if l.strip() and "-->" not in l
-                                 and not l.strip().isdigit()
-                                 and "WEBVTT" not in l]
-                        return " ".join(lines)
+                            return self._parse_vtt(f.read())
                     finally:
                         try:
                             os.remove(vtt_path)
