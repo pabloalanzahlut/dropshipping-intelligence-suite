@@ -183,7 +183,7 @@ class AgentExecutor:
         )
 
         # FASE 4: Resolver modelo OpenRouter según el agente
-        model = self.agent_model_map.get(agent_name, "deepseek/deepseek-chat")
+        model = self.agent_model_map.get(agent_name, "anthropic/claude-haiku-5.5")
         temperature = self.agent_temp_map.get(agent_name, 0.2)
         max_tokens = self.agent_tokens_map.get(agent_name, 4096)
 
