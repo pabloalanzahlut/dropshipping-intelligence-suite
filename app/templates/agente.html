@@ -106,7 +106,9 @@
                   </div>
                 </template>
                 <template x-if="typeof msg.resultado !== 'object' || msg.resultado === null">
-                  <p style="font-size:12px;color:#c8d0f0;margin:0;line-height:1.6;white-space:pre-wrap;" x-text="msg.texto"></p>
+                  <p style="font-size:12px;color:#c8d0f0;margin:0;line-height:1.6;white-space:pre-wrap;">
+                    <span x-text="msg.texto"></span><span x-show="msg.streaming" style="display:inline-block;width:2px;height:13px;background:#a78bfa;margin-left:2px;animation:blink-cursor .7s step-end infinite;vertical-align:text-bottom;"></span>
+                  </p>
                 </template>
               </div>
             </div>
