@@ -81,6 +81,7 @@ class ProviderMonitorEngine:
         self.progress_callback: Callable = lambda x: None
 
         os.makedirs(TEMP_TRANSCRIPT_DIR, exist_ok=True)
+        self.scan_limits: Dict[str, int] = {}
         self.favorite_channels = self._load_channels_from_json()
         self._sync_channels_to_queue()
 
