@@ -127,6 +127,11 @@ async def lifespan(app: FastAPI):
 # ── App FastAPI ───────────────────────────────────────────────────────────────
 app = FastAPI(title="GEM OS Dashboard", version="3.7.2", lifespan=lifespan)
 
+# Static files
+_static_dir = Path(__file__).parent.parent / "static"
+if _static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
+
 # Webhooks Shopify
 try:
     from app.routes.webhooks import webhooks_router
