@@ -84,7 +84,7 @@ class FinancialValidator:
         
         notas = []
         if not regla_3x_cumple:
-            notas.append(f"Regla 3x incumplida: PVP debería ser ${costo_origen * self.REGLA_3X_MULTIPLICADOR:.2f}, es ${pvp_calculado:.2f}")
+            notas.append(f"Regla 3x incumplida: PVP mínimo ${pvp_minimo_3x:.2f}, es ${pvp_calculado:.2f}")
         if not margen_cumple:
             notas.append(f"Margen bruto bajo: {margen_bruto*100:.1f}% (mínimo: 70%)")
         if not logistica_cumple:
