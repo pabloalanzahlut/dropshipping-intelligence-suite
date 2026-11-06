@@ -13,18 +13,18 @@
     <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
       Validador <span style="background:linear-gradient(90deg,#34d399,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Financiero</span>
     </h1>
-    <p style="font-size:12px;color:#4a5080;margin:0;">Regla 3x · Margen ≥ 70% · Peso &lt; 1.2 kg</p>
+    <p style="font-size:12px;color:#4a5080;margin:0;">Mínimo x2 · Objetivo x3 · Peso &lt; 1.2 kg</p>
   </div>
 
   <!-- Rule badges -->
   <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
     <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#0d0f1f;border:1px solid rgba(34,211,238,0.2);border-radius:20px;">
       <span style="width:6px;height:6px;border-radius:50%;background:#22d3ee;display:block;"></span>
-      <span style="font-size:11px;font-weight:500;color:#a8b0d8;">Regla 3x (Adrián Sáenz)</span>
+      <span style="font-size:11px;font-weight:500;color:#a8b0d8;">Mínimo x2 (Adrián Sáenz)</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#0d0f1f;border:1px solid rgba(52,211,153,0.2);border-radius:20px;">
       <span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:block;"></span>
-      <span style="font-size:11px;font-weight:500;color:#a8b0d8;">Margen ≥ 70%</span>
+      <span style="font-size:11px;font-weight:500;color:#a8b0d8;">Objetivo x3</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#0d0f1f;border:1px solid rgba(167,139,250,0.2);border-radius:20px;">
       <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;display:block;"></span>
@@ -59,7 +59,7 @@
         <div>
           <label class="form-label">
             PVP Sugerido (USD)
-            <span style="color:#4a5080;font-weight:400;"> — opcional, usa Regla 3x si vacío</span>
+            <span style="color:#4a5080;font-weight:400;"> — opcional, usa x3 si vacío</span>
           </label>
           <div style="position:relative;">
             <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#4a5080;font-size:13px;">$</span>
@@ -137,7 +137,7 @@
           <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
             <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Margen Bruto</p>
             <p style="font-size:16px;font-weight:700;margin:0;font-family:'Space Grotesk',sans-serif;"
-               :style="result?.margen_cumple ? 'color:#34d399' : 'color:#fb7185'"
+               :style="result?.objetivo_x3_cumple ? 'color:#34d399' : 'color:#fb7185'"
                x-text="result?.margen_bruto !== undefined ? result.margen_bruto.toFixed(1) + '%' : '—'"></p>
           </div>
           <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
@@ -151,12 +151,12 @@
         <!-- Rule checks -->
         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
-            <span :style="result?.regla_3x_cumple ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="result?.regla_3x_cumple ? '✓' : '✗'"></span>
-            <span style="font-size:12px;color:#a8b0d8;">Regla 3x (Adrián Sáenz)</span>
+            <span :style="result?.regla_minimo_cumple ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="result?.regla_minimo_cumple ? '✓' : '✗'"></span>
+            <span style="font-size:12px;color:#a8b0d8;">Mínimo x2 (Adrián Sáenz)</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
-            <span :style="result?.margen_cumple ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="result?.margen_cumple ? '✓' : '✗'"></span>
-            <span style="font-size:12px;color:#a8b0d8;">Margen bruto ≥ 70%</span>
+            <span :style="result?.objetivo_x3_cumple ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="result?.objetivo_x3_cumple ? '✓' : '✗'"></span>
+            <span style="font-size:12px;color:#a8b0d8;">Objetivo x3 (recomendado)</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
             <span :style="result?.logistica_cumple ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="result?.logistica_cumple ? '✓' : '✗'"></span>

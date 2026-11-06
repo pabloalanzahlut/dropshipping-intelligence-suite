@@ -463,9 +463,9 @@
       "nombre": "Marc Verdú",
       "url": "https://www.youtube.com/@marcverdu",
       "status": "Completado",
-      "last_scan": "2026-11-06T05:15:08.221113+00:00",
-      "total_videos": 5,
-      "processed_count": 5,
+      "last_scan": "2026-11-06T06:15:21.306690+00:00",
+      "total_videos": 12,
+      "processed_count": 12,
       "failed_count": 0,
       "videos": [
         {
@@ -502,6 +502,55 @@
           "status": "Completado",
           "timestamp": "2026-11-06T05:15:08.221113+00:00",
           "error": ""
+        },
+        {
+          "video_id": "hP8iGHn9dVg",
+          "title": "The Dropshipping Hack That Makes Me $10,000+ a Month",
+          "status": "Completado",
+          "timestamp": "2026-11-06T06:10:37.079196+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "MpBmX_bBgg8",
+          "title": "How to Boost Sales with Shopify Dropshipping in Q4",
+          "status": "Completado",
+          "timestamp": "2026-11-06T06:11:33.032042+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "WEPjmGkt_Fs",
+          "title": "He works from 8 to 5 and has made over €90,000 in dropshipping with AI",
+          "status": "Completado",
+          "timestamp": "2026-11-06T06:12:26.220417+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "tIApr3ooLEs",
+          "title": "This Changes How You Find Dropshipping Products Forever",
+          "status": "Completado",
+          "timestamp": "2026-11-06T06:12:59.627642+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "pNfRiPZky_w",
+          "title": "What I WOULD Do If I Only Had 30 Minutes a Day for Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-06T06:13:25.891406+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "gyRGTS-a-WY",
+          "title": "He Considers Himself Lazy and Has Made +$220,000 with Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-06T06:14:25.074794+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "F54i0iDWIxU",
+          "title": "How to get people visiting your Dropshipping store to buy",
+          "status": "Completado",
+          "timestamp": "2026-11-06T06:15:21.306690+00:00",
+          "error": "Transcripción vacía o no disponible"
         }
       ]
     },
@@ -518,6 +567,6 @@
   ],
   "metadata": {
     "last_load": "2026-11-05T22:04:30.898080+00:00",
-    "last_updated": "2026-11-06T05:15:08.221113+00:00"
+    "last_updated": "2026-11-06T06:15:21.306690+00:00"
   }
 }
