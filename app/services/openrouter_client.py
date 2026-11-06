@@ -47,14 +47,38 @@ class OpenRouterTranscriptionCleaner:
         if not self.api_key and not self.freellm_api_key:
             raise ValueError("CRÍTICO: No se encuentra definida ninguna variable de entorno válida (OPENROUTER_API_KEY o FREELLM_API_KEY).")
 
-    def clean_transcript(self, raw_text: str) -> Optional[str]:
-        """Tritura intros, saludos y humos para extraer la data dura de e-commerce."""
+    def clean_transcript(
+        self,
+        raw_text: str,
+        canal: str = "Desconocido",
+        rol_canal: str = "complementaria"
+    ) -> Optional[str]:
+        """Extrae datos estructurados de una transcripción, etiquetados con su fuente."""
+
+        # Bloque de contexto de fuente: se inyecta en el prompt para que el modelo
+        # sepa si está procesando la fuente primaria (Adrián Sáenz) o una complementaria.
+        if rol_canal == "primaria":
+            contexto_fuente = (
+                f"CANAL: {canal} — FUENTE PRIMARIA.\n"
+                "Este canal define las reglas financieras del sistema (multiplicadores, "
+                "rangos de coste, ROAS). Extrae todos sus criterios con precisión máxima.\n"
+            )
+        else:
+            contexto_fuente = (
+                f"CANAL: {canal} — FUENTE COMPLEMENTARIA.\n"
+                "Este canal aporta valor adicional (tácticas, productos, creativos, operaciones). "
+                "IMPORTANTE: si el contenido sugiere reglas financieras distintas a las de Adrián Sáenz "
+                "(multiplicadores, márgenes, costes), NO las extraigas como reglas — extráelas como "
+                "'táctica observada en {canal}' sin que reemplacen los criterios de la fuente primaria.\n"
+            )
+
         system_prompt = (
             "Eres un extractor de datos de alto rendimiento especializado en Dropshipping y Shopify.\n"
             "Tu única tarea es analizar la transcripción de un video de un experto, eliminar todo el relleno "
-            "(saludos, intros, promociones, pantallas de ganancias falsas, solicitudes de suscripción) and "
-            "devolver la información técnica estructurada en Markdown.\n\n"
-            "Divide los hallazgos estrictamente bajo estos tres subheadings si existen datos en el texto:\n"
+            "(saludos, intros, promociones, pantallas de ganancias falsas, solicitudes de suscripción) "
+            "y devolver la información técnica estructurada en Markdown.\n\n"
+            + contexto_fuente + "\n"
+            "Divide los hallazgos estrictamente bajo estos tres subheadings si existen datos:\n"
             "### 1. Datos de Producto y Tendencias (Criterios, nichos, ángulos)\n"
             "### 2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\n"
             "### 3. Logística, Tráfico y Legal (Presupuestos, segmentación, pasarelas, fletes)\n\n"
@@ -77,7 +101,7 @@ class OpenRouterTranscriptionCleaner:
             "Peso: <solo el número en kg, ej. 0.4>\n"
             "Pasarela: <pasarelas de pago mencionadas>\n\n"
             "Debajo de esos campos añade las viñetas con el resto de hallazgos.\n\n"
-            "Si el texto no contiene datos de valor para ninguna categoría, devuelve únicamente la palabra: VACÍO."
+            "Si el texto no contiene datos de valor para ninguna categoría, devuelve únicamente: VACÍO."
         )
 
         # ◄ ADICIONADO: Enrutamiento lógico asimétrico basado en la disponibilidad de FreeLLMAPI
