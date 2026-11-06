@@ -1,9 +1,13 @@
 """
 FinancialValidator - Motor de Validación Financiera
-Implementa las reglas inmutables de negocio:
-- Regla 3x (Adrián Sáenz): PVP = Costo_Origen * 3
-- Umbral de Margen Bruto: >= 70%
-- Restricción Logística (Iván Caicedo): Peso neto < 1.2 kg
+Implementa las reglas del curso de Adrián Sáenz (Q4Ykcwh5Osc):
+- Mínimo 2x: PVP >= costo_origen * 2  → RECHAZAR si no cumple  (24:40)
+- Objetivo 3x: PVP >= costo_origen * 3 → ADVERTIR si no cumple  (24:40)
+- Coste de origen $5-15               → ADVERTIR fuera de rango (17:50)
+- ROAS mínimo 2                       → ADVERTIR (métrica de campaña) (09:40)
+
+El curso NO fija umbral de margen (%), NO fija límite de peso en kg.
+Esos criterios NO se inventan ni se añaden.
 """
 
 import hashlib
