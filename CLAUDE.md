@@ -63,7 +63,7 @@ Product Hunter  (clasificar_productos)  → HOT/WARM/COLD
 ### Funnel Builder (AIDA)
 - **Prohibido** alterar dimensiones, pesos o materiales del proveedor
 - Estructura: Atención (título 6 palabras) → Interés (3 beneficios) → Deseo (garantías reales) → Acción (CTA directo)
-- Logística: mencionar **6-12 días laborables** reales, nunca 24-48h
+- Logística: mencionar **5-7 días** reales (TikTok Shop) o **2-5 días hábiles** (Shopify) según proveedor — nunca 24-48h ni "envío express" sin confirmación (`Q4Ykcwh5Osc`, 26:03 y 22:27)
 
 ### Media Buyer (TikTok/Reels)
 - Hook en **primeros 3 segundos** (demostración visual del problema)
