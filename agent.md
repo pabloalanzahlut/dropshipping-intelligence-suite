@@ -68,7 +68,9 @@ Solo el multiplicador mínimo y el peso bloquean. Un 2,38× con 58% de margen
 en todo copy generado (increíble, fantástico, alucinante, revolucionario, el mejor,
 único en el mundo). El copy debe sostenerse en beneficios verificables.
 
-**Logística real.** Mencionar siempre **6-12 días laborables** de envío.
+**Logística real.** Mencionar siempre los días reales del proveedor:
+- Shopify: **2-5 días hábiles** (`Q4Ykcwh5Osc`, 22:27)
+- TikTok Shop: **5-7 días** (`Q4Ykcwh5Osc`, 26:03)
 Prohibido prometer 24-48h o "envío express" cuando no corresponde al proveedor real.
 
 **Framework de copy.** Toda landing sigue la estructura **AIDA**:
