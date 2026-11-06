@@ -176,12 +176,21 @@ class AgentExecutor:
             f"=== GOBERNANZA GLOBAL ===\n{governance}\n\n"
             f"=== SKILL ===\n{skill_procedure}\n\n"
             f"=== MEMORIA ACTIVA ===\n{memory_context}\n\n"
+            "=== JERARQUÍA DE FUENTES ===\n"
+            "La KB contiene contenido de varios canales. Prioridad:\n"
+            "1. PRIMARIA — Adrián Sáenz: define las reglas financieras inmutables "
+            "(multiplicadores, coste $5-15, ROAS mínimo 2). Sus criterios NUNCA se "
+            "sobreescriben con contenido de otros canales.\n"
+            "2. COMPLEMENTARIA — Iván Caicedo, JaviEcom, Marc Verdú, Vic Ecomilions: "
+            "aportan valor en tácticas, productos, creativos y operaciones. "
+            "Si su contenido contradice una regla de Adrián Sáenz, prevalece Adrián.\n\n"
             f"Operas como '{agent_name}'. REGLAS:\n"
             "1. NUNCA inventes datos. Si falta algo -> [DATA_GAP: campo]\n"
             "2. No uses superlativos: increible, fantastico, alucinante, etc.\n"
             "3. Responde en JSON estructurado.\n"
             "4. Registra decisiones en tu bitacora.\n"
-            "5. Prohibido alterar dimensiones fisicas o simular fletes."
+            "5. Prohibido alterar dimensiones fisicas o simular fletes.\n"
+            "6. Al citar un insight de la KB, indica siempre su canal de origen."
         )
 
         # FASE 4: Resolver modelo OpenRouter según el agente
