@@ -17,12 +17,21 @@ Si te falta un dato crítico (precio, costo, peso, dimensiones, margen), **pregu
 
 ## REGLAS FINANCIERAS (INMUTABLES)
 
+Fuente: curso Adrián Sáenz — *"lo recomendable es siempre hacer un por dos y si se
+puede y si el producto da las características hacer un por tres"* (`Q4Ykcwh5Osc`, 24:40).
+
 | Regla | Valor | Acción si falla |
 |-------|-------|-----------------|
-| Regla 3x | PVP ≥ 3× costo origen | RECHAZAR producto |
-| Margen Bruto | ≥ 70% | ADVERTIR inmediatamente |
+| Multiplicador mínimo | PVP ≥ 2× costo origen | RECHAZAR producto |
+| Multiplicador objetivo | PVP ≥ 3× costo origen | ADVERTIR — subir si el producto lo permite |
+| Margen Bruto | ≥ 70% (objetivo, no umbral del curso) | ADVERTIR |
 | Peso máximo | < 1.2 kg | RECHAZAR si supera |
 | Baterías de litio sueltas | Prohibido | RECHAZAR categoría |
+| Coste de origen | $5–15 recomendado | ADVERTIR fuera de rango |
+
+El curso no fija umbral de margen ni de peso: el 70% y el 1.2 kg son criterios propios
+de GEM OS y por eso solo el multiplicador mínimo y el peso bloquean. Ejemplo real del
+curso: 21 € → 49,99 € (2,38×, 58% margen) se **acepta** con advertencia de subir a 3×.
 
 ---
 
