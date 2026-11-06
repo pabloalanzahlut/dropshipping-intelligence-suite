@@ -57,8 +57,8 @@ Product Hunter  (clasificar_productos)  → HOT/WARM/COLD
 ## RESTRICCIONES POR ROL
 
 ### Product Hunter
-- Margen mínimo: **3x** (basado en tarifas reales del proveedor)
-- Clasificación: HOT (≥5x) | WARM (3-5x) | COLD (1.5-3x) | DISCARD (<1.5x)
+- Multiplicador mínimo: **2x** · objetivo **3x** (sobre tarifas reales del proveedor)
+- Clasificación: HOT (≥5x) | WARM (3-5x) | COLD (2-3x) | DISCARD (<2x)
 
 ### Funnel Builder (AIDA)
 - **Prohibido** alterar dimensiones, pesos o materiales del proveedor
