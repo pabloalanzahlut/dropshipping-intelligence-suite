@@ -393,10 +393,12 @@ class ProviderMonitorEngine:
                     creator, video_id, STATUS_COMPLETED, title=title)
                 return True
 
-            # 5. Limpiar con IA (FreeLLMAPI → OpenRouter → Ollama)
+            # 5. Limpiar con IA — se pasa el canal para que el prompt sepa la jerarquía
             self.log_callback(f"🤖 Extrayendo valor técnico: {title}")
-            # Enviamos texto pre-limpiado en vez de raw (menos tokens, más barato)
-            clean_markdown = self.cleaner.clean_transcript(pre_cleaned)
+            rol = self.channel_roles.get(creator, "complementaria")
+            clean_markdown = self.cleaner.clean_transcript(
+                pre_cleaned, canal=creator, rol_canal=rol
+            )
 
             if clean_markdown:
                 self.router.route_and_insert(
