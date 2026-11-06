@@ -102,6 +102,7 @@ class ProviderMonitorEngine:
 
         os.makedirs(TEMP_TRANSCRIPT_DIR, exist_ok=True)
         self.scan_limits: Dict[str, int] = {}
+        self.channel_roles: Dict[str, str] = {}   # "primaria" | "complementaria"
         self.favorite_channels = self._load_channels_from_json()
         self._sync_channels_to_queue()
 
