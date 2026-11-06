@@ -49,19 +49,19 @@ Ningún agente puede alterar, relajar ni reinterpretar estas reglas.
 Fuente: curso Adrián Sáenz — *"lo recomendable es siempre hacer un por dos y si se
 puede y si el producto da las características hacer un por tres"* (`Q4Ykcwh5Osc`, 24:40).
 
-| Regla | Umbral | Acción si falla |
-|-------|--------|-----------------|
-| **Multiplicador mínimo** | `PVP ≥ costo_origen * 2` | RECHAZAR producto |
-| **Multiplicador objetivo** | `PVP ≥ costo_origen * 3` | ADVERTIR — subir si el producto lo permite |
-| **Margen bruto** | `≥ 70%` (objetivo propio, no del curso) | ADVERTIR |
-| **Peso máximo** | `< 1.2 kg` | RECHAZAR producto |
-| **Baterías de litio sueltas** | Prohibido | RECHAZAR categoría |
-| **Coste de origen** | `$5–15` recomendado | ADVERTIR fuera de rango |
-| **ROAS mínimo** | `≥ 2` en campañas activas | ADVERTIR si no se alcanza |
-| **Presupuesto test** | `15 €/día` como base | Referencia de escalado |
+Solo se aplican reglas que el curso menciona explícitamente. No se inventa ninguna.
 
-Solo el multiplicador mínimo y el peso bloquean. Un 2,38× con 58% de margen
-(el ejemplo real del curso: 21 € → 49,99 €) se acepta con advertencia.
+| Regla | Umbral | Timestamp | Acción si falla |
+|-------|--------|-----------|-----------------|
+| **Multiplicador mínimo** | `PVP ≥ costo_origen * 2` | 24:40 | RECHAZAR producto |
+| **Multiplicador objetivo** | `PVP ≥ costo_origen * 3` | 24:40 | ADVERTIR — subir si el producto lo permite |
+| **Coste de origen** | `$5–15` recomendado | 17:50 | ADVERTIR fuera de rango |
+| **ROAS mínimo** | `≥ 2` en campañas activas | 09:40 | ADVERTIR si no se alcanza |
+| **Presupuesto test** | `15 €/día` base | 11:06 | Referencia de escalado |
+| **Baterías de litio sueltas** | Prohibido | — | RECHAZAR (restricción aduanera) |
+
+El curso **NO fija** umbral de margen %, **NO fija** límite de peso. No se aplican.
+Ejemplo real del curso (23:54): 21 € → 49,99 € = **2,38×, 58% de margen** → VALIDADO.
 
 **Clasificación por múltiplo de margen:**
 - `HOT` → ≥ 5x · `WARM` → 3–5x · `COLD` → 2–3x · `DISCARD` → < 2x
