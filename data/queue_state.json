@@ -463,9 +463,9 @@
       "nombre": "Marc Verdú",
       "url": "https://www.youtube.com/@marcverdu",
       "status": "Completado",
-      "last_scan": "2026-11-06T06:15:21.306690+00:00",
-      "total_videos": 12,
-      "processed_count": 12,
+      "last_scan": "2026-11-06T09:13:07.508085+00:00",
+      "total_videos": 30,
+      "processed_count": 30,
       "failed_count": 0,
       "videos": [
         {
@@ -551,14 +551,140 @@
           "status": "Completado",
           "timestamp": "2026-11-06T06:15:21.306690+00:00",
           "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "60bXbijGM6U",
+          "title": "TOP 5 WINNING DROPSHIPPING PRODUCTS OCTOBER",
+          "status": "Completado",
+          "timestamp": "2026-11-06T07:10:50.247157+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "gX07B9Ktmdc",
+          "title": "He Wasn't Good at Recording, and Now He Makes +€70,000 with AI Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-06T07:11:24.973484+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "eXSoz78o6a4",
+          "title": "I Tried Dropshipping with Only $2 and AI Videos... and This Happened",
+          "status": "Completado",
+          "timestamp": "2026-11-06T07:12:38.368714+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "I6G_EUdDvu0",
+          "title": "Free AI Dropshipping Course: From 0 to Your First Orders in 7 Days",
+          "status": "Completado",
+          "timestamp": "2026-11-06T07:13:16.015579+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "BZRn0PX40Cg",
+          "title": "No One Would Hire Him and Now He Makes $340,000 with Dropshipping with ADS",
+          "status": "Completado",
+          "timestamp": "2026-11-06T07:13:46.849320+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "ugSNaw6gb98",
+          "title": "Leaking the Dropshipping Strategy That Made Us $60,494 in 53 Days",
+          "status": "Completado",
+          "timestamp": "2026-11-06T07:14:34.007739+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "26rRZSy8zI4",
+          "title": "I Bought 3 Dropshipping Products in China to Find Out if They’re Selling Junk...",
+          "status": "Completado",
+          "timestamp": "2026-11-06T07:15:46.514131+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "cA3k4oB2L3A",
+          "title": "He searched \"How to make money from home\" on YouTube and now makes a living from dropshipping.",
+          "status": "Completado",
+          "timestamp": "2026-11-06T08:11:02.403943+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "MwbtxthKR_I",
+          "title": "How to create free AI-powered videos for dropshipping (without Higgsfield)",
+          "status": "Completado",
+          "timestamp": "2026-11-06T08:11:15.644003+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "vxGYFSixHeo",
+          "title": "How to Do Dropshipping in Colombia Without Paying for Advertising",
+          "status": "Completado",
+          "timestamp": "2026-11-06T08:11:43.028924+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "5pl7H8Pw6BI",
+          "title": "I Thought I'd Make Money in 1 Month with Dropshipping and Ended Up Making $15,000",
+          "status": "Completado",
+          "timestamp": "2026-11-06T08:12:47.777307+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "TCekVpwFx-Q",
+          "title": "This type of people DISGUSTS me... Dropshipping is NOT THIS",
+          "status": "Completado",
+          "timestamp": "2026-11-06T08:13:01.532674+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "9UGrhUq2IBc",
+          "title": "How to Build a Dropshipping Store in 5 Minutes with Claude",
+          "status": "Completado",
+          "timestamp": "2026-11-06T08:14:00.507837+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "NN95_wMvmSc",
+          "title": "They Couldn't Afford Rent and Now They Make $100,000 with Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-06T08:14:50.252565+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "8eo_7E1fiSA",
+          "title": "The Secret to Making $10,000/Month With Dropshipping That No One Uses",
+          "status": "Completado",
+          "timestamp": "2026-11-06T08:15:37.748447+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "01rYgelVNz0",
+          "title": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
+          "status": "Completado",
+          "timestamp": "2026-11-06T09:11:10.775608+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "8lzoWVqgvhI",
+          "title": "They Started Out Skeptical and Ended Up Making $20,000 from Colombia",
+          "status": "Completado",
+          "timestamp": "2026-11-06T09:11:42.327446+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "tGPFM_UN2N0",
+          "title": "How to Sell Your First Dropshipping Product Without Paid Ads",
+          "status": "Completado",
+          "timestamp": "2026-11-06T09:13:07.508085+00:00",
+          "error": ""
         }
       ]
     },
     {
       "nombre": "Vic Ecomilions",
       "url": "https://www.youtube.com/@vicecomilions",
-      "status": "Pendiente",
-      "last_scan": null,
+      "status": "Procesando",
+      "last_scan": "2026-11-06T09:13:07.522456+00:00",
       "total_videos": 0,
       "processed_count": 0,
       "failed_count": 0,
@@ -567,6 +693,6 @@
   ],
   "metadata": {
     "last_load": "2026-11-05T22:04:30.898080+00:00",
-    "last_updated": "2026-11-06T06:15:21.306690+00:00"
+    "last_updated": "2026-11-06T09:13:07.508085+00:00"
   }
 }
