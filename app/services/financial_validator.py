@@ -124,15 +124,21 @@ class FinancialValidator:
             'costo_origen': costo_origen,
             'pvp_calculado': round(pvp_calculado, 2),
             'margen_bruto': round(margen_bruto * 100, 2),
-            'regla_3x_cumple': regla_3x_cumple,
+            'multiplicador': round(multiplicador, 2),
+            'regla_minimo_cumple': regla_minimo_cumple,
+            'objetivo_x3_cumple': objetivo_cumple,
+            'regla_3x_cumple': objetivo_cumple,  # alias retrocompatible
             'margen_cumple': margen_cumple,
             'logistica_cumple': logistica_cumple,
             'peso_kg': peso_kg,
             'status_validacion': status_validacion,
             'nota_auditoria': nota_auditoria,
+            'advertencias': advertencias,
             'detalles': {
-                'pvp_esperado_regla_3x': round(costo_origen * self.REGLA_3X_MULTIPLICADOR, 2),
-                'margen_esperado_pct': round(self.MARGEN_BRUTO_MINIMO * 100, 1),
+                'pvp_minimo_x2': round(pvp_minimo, 2),
+                'pvp_objetivo_x3': round(pvp_objetivo, 2),
+                'pvp_esperado_regla_3x': round(pvp_objetivo, 2),  # alias
+                'margen_objetivo_pct': round(self.MARGEN_BRUTO_OBJETIVO * 100, 1),
                 'peso_maximo_kg': self.PESO_MAXIMO_KG,
                 'fecha_validacion': datetime.now().isoformat()
             }
