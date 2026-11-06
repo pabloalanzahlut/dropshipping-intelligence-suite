@@ -28,10 +28,14 @@ puede y si el producto da las características hacer un por tres"* (`Q4Ykcwh5Osc
 | Peso máximo | < 1.2 kg | RECHAZAR si supera |
 | Baterías de litio sueltas | Prohibido | RECHAZAR categoría |
 | Coste de origen | $5–15 recomendado | ADVERTIR fuera de rango |
+| ROAS mínimo | ≥ 2 (campañas de pago) | ADVERTIR si no se alcanza |
+| Presupuesto test | 15 € al día (base) | Referencia para escalado |
 
 El curso no fija umbral de margen ni de peso: el 70% y el 1.2 kg son criterios propios
 de GEM OS y por eso solo el multiplicador mínimo y el peso bloquean. Ejemplo real del
 curso: 21 € → 49,99 € (2,38×, 58% margen) se **acepta** con advertencia de subir a 3×.
+
+ROAS mínimo de 2: *"debe convertir por lo menos dos o tres veces y con un ROAS mínimo de dos"* (`Q4Ykcwh5Osc`, 09:40). El margen 70% NO sale del curso — es criterio GEM OS.
 
 ---
 
