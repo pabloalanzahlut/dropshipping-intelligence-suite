@@ -131,36 +131,36 @@
             <p style="font-size:16px;font-weight:700;color:#e8ecff;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="'$' + (result?.costo_origen?.toFixed(2) || '—')"></p>
           </div>
           <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
-            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">PVP 3x</p>
+            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">PVP calculado</p>
             <p style="font-size:16px;font-weight:700;color:#22d3ee;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="'$' + (result?.pvp_calculado?.toFixed(2) || '—')"></p>
           </div>
           <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
-            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Margen Bruto</p>
+            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Multiplicador</p>
             <p style="font-size:16px;font-weight:700;margin:0;font-family:'Space Grotesk',sans-serif;"
-               :style="result?.objetivo_x3_cumple ? 'color:#34d399' : 'color:#fb7185'"
-               x-text="result?.margen_bruto !== undefined ? result.margen_bruto.toFixed(1) + '%' : '—'"></p>
+               :style="result?.regla_minimo_cumple ? 'color:#34d399' : 'color:#fb7185'"
+               x-text="result?.multiplicador !== undefined ? result.multiplicador.toFixed(2) + 'x' : '—'"></p>
           </div>
           <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
-            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Peso</p>
-            <p style="font-size:16px;font-weight:700;margin:0;font-family:'Space Grotesk',sans-serif;"
-               :style="result?.logistica_cumple ? 'color:#34d399' : 'color:#fb7185'"
-               x-text="(result?.peso_kg?.toFixed(2) || '—') + ' kg'"></p>
+            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Margen Bruto</p>
+            <p style="font-size:16px;font-weight:700;color:#a8b0d8;margin:0;font-family:'Space Grotesk',sans-serif;"
+               x-text="result?.margen_bruto !== undefined ? result.margen_bruto.toFixed(1) + '%' : '—'"></p>
           </div>
         </div>
 
-        <!-- Rule checks -->
+        <!-- Rule checks — solo lo que el curso dice -->
         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
             <span :style="result?.regla_minimo_cumple ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="result?.regla_minimo_cumple ? '✓' : '✗'"></span>
-            <span style="font-size:12px;color:#a8b0d8;">Mínimo x2 (Adrián Sáenz)</span>
+            <span style="font-size:12px;color:#a8b0d8;">Mínimo x2 — Adrián Sáenz (24:40)</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
-            <span :style="result?.objetivo_x3_cumple ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="result?.objetivo_x3_cumple ? '✓' : '✗'"></span>
-            <span style="font-size:12px;color:#a8b0d8;">Objetivo x3 (recomendado)</span>
+            <span :style="result?.objetivo_x3_cumple ? 'color:#34d399' : 'color:#fbbf24'" style="font-size:14px;font-weight:700;" x-text="result?.objetivo_x3_cumple ? '✓' : '!'"></span>
+            <span style="font-size:12px;color:#a8b0d8;">Objetivo x3 recomendado (24:40)</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
-            <span :style="result?.logistica_cumple ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="result?.logistica_cumple ? '✓' : '✗'"></span>
-            <span style="font-size:12px;color:#a8b0d8;">Logística &lt; 1.2 kg (Iván Caicedo)</span>
+            <span :style="result?.costo_origen >= 5 && result?.costo_origen <= 15 ? 'color:#34d399' : 'color:#fbbf24'" style="font-size:14px;font-weight:700;"
+                  x-text="result?.costo_origen >= 5 && result?.costo_origen <= 15 ? '✓' : '!'"></span>
+            <span style="font-size:12px;color:#a8b0d8;">Coste $5–15 recomendado (17:50)</span>
           </div>
         </div>
 
