@@ -177,7 +177,7 @@ function validador() {
     async validar() {
       this.loading = true; this.result = null; this.error = '';
       try {
-        const payload = { sku: this.form.sku, costo_origen: this.form.costo_origen, peso_kg: this.form.peso_kg || 0 };
+        const payload = { sku: this.form.sku, costo_origen: this.form.costo_origen };
         if (this.form.pvp_sugerido) payload.pvp_sugerido = this.form.pvp_sugerido;
         const res = await fetch('/api/validar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al validar.'; }
