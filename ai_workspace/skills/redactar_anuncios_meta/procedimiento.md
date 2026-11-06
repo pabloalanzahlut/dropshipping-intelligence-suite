@@ -39,7 +39,7 @@ Público objetivo: [descripción]
 **Headline** (máx. 27 caracteres):
 ```
 [Acción + beneficio directo]
-Ejemplos válidos: "Organiza tu cocina hoy", "Envío en 6-12 días"
+Ejemplos válidos: "Organiza tu cocina hoy", "Envío en 5-7 días"
 ```
 
 **Descripción** (máx. 30 caracteres, aparece bajo el headline en desktop):
@@ -95,8 +95,11 @@ Si el copy no pasa la "prueba de dedo" (¿haría clic yo mismo en este anuncio?)
 ## 4. Reglas de Comportamiento
 
 - **Prohibido**: superlativos vacíos ("increíble", "revolucionario", "el mejor")
-- **Prohibido**: tiempo de envío < 6 días (cumplir política de CLAUDE.md: 6-12 días laborables)
+- **Prohibido**: tiempo de envío < 6 días (cumplir política de CLAUDE.md: 5-7 días (TikTok Shop) o 2-5 días hábiles (Shopify))
 - **Prohibido**: promesas de resultado médico o de pérdida de peso sin evidencia
 - Siempre incluir las 2 variantes A/B — nunca entregar una sola versión
 - El copy de Meta Ads es distinto al guión de TikTok: no adaptar un guión de video directamente; re-escribir desde cero con la estructura de este procedimiento
 - Basar los beneficios únicamente en datos proporcionados por el usuario; no inventar especificaciones del producto
+
+
+

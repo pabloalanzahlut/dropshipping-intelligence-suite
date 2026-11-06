@@ -125,7 +125,7 @@ IF(
 
 - **Un solo email por checkout** — el `correlation_id` evita duplicados en Google Sheets
 - **Nunca enviar entre 23:00 y 20:00** — acumular en hoja "pendientes"
-- **El email NO menciona tiempos de envío irreales** — usar "6–12 días laborables" (Regla CLAUDE.md)
+- **El email NO menciona tiempos de envío irreales** — usar "5-7 días o 2-5 días hábiles según proveedor" (Q4Ykcwh5Osc, 22:27 y 26:03)
 - **Si `email` está vacío** → descartar silenciosamente, no contar como error
 
 ---
@@ -171,3 +171,4 @@ python app/services/abandoned_cart_handler.py --test
 | Email vacío en checkout | Descartar silenciosamente |
 | Firma Shopify inválida | HTTP 401, registrar WARNING |
 | Rate limit Make.com | Postponer 1h, registrar WARNING |
+
