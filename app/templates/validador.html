@@ -67,11 +67,6 @@
                    class="input-field" style="padding-left:22px;" placeholder="37.50">
           </div>
         </div>
-        <div>
-          <label class="form-label">Peso Neto del Producto (kg)</label>
-          <input x-model.number="form.peso_kg" type="number" step="0.01" min="0"
-                 class="input-field" placeholder="0.85">
-        </div>
         <button type="submit" :disabled="loading" class="btn-primary" style="width:100%;justify-content:center;">
           <svg x-show="loading" class="spin" style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24">
             <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
