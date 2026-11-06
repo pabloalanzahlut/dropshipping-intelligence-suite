@@ -13,8 +13,6 @@
 
 | Criterio | Umbral | Acción si falla |
 |----------|--------|-----------------|
-| Margen bruto | ≥ 70% (≥ 3x costo) | DESCARTAR |
-| Peso | < 1.2 kg | DESCARTAR |
 | Baterías de litio sueltas | Prohibido | DESCARTAR |
 | Categorías prohibidas | Armas, adultos, medicamentos | DESCARTAR |
 
@@ -27,7 +25,7 @@
 2. Aplicar filtros:
    - Categoría: Electronics / Home & Living / Fitness / Pet Supplies (únicas permitidas para HOT)
    - Tendencia: ordenar por "más viral" o "crecimiento últimas 24h"
-   - Margen: filtrar >70% (si el filtro está disponible)
+   - Coste: filtrar $5-15 (Q4Ykcwh5Osc 17:50)
 3. Para cada producto candidato, registrar:
    - Nombre del producto
    - Precio del proveedor (costo origen)
@@ -152,3 +150,6 @@ Si `apto_para_clasificador = true`:
 Si `apto_para_clasificador = false`:
 - Registrar en `ai_workspace/memory/productos_descartados.json` con motivo
 - No avanzar en el pipeline
+
+
+

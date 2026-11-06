@@ -38,8 +38,6 @@ guardar en tabla importaciones_masivas
 
 ## Reglas de negocio aplicadas
 - **Regla 3x**: PVP = costo_origen × 3 (mínimo)
-- **Peso máximo**: < 1.2 kg (RECHAZAR si supera)
-- **Margen bruto mínimo**: ≥ 70%
 - **Baterías de litio**: categoría prohibida → RECHAZAR
 
 ## Outputs
@@ -74,3 +72,5 @@ guardar en tabla importaciones_masivas
 SHOPIFY_STORE_URL=https://tu-tienda.myshopify.com
 SHOPIFY_ACCESS_TOKEN=shpat_xxxxxxxxxxxxx
 ```
+
+

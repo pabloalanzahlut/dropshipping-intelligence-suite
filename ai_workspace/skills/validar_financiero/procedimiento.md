@@ -33,8 +33,6 @@ Si falta algún dato crítico → aplicar protocolo `DATA_GAP_REQUEST`: pregunta
 
 | Condición | Resultado |
 |-----------|-----------|
-| Peso < 1.2 kg | CONTINUAR |
-| Peso ≥ 1.2 kg | **RECHAZAR** — `PESO_EXCEDIDO` |
 
 ### Paso 2: Categoría Prohibida
 
@@ -65,7 +63,7 @@ Margen_Bruto = ((PVP - Costo_origen - Envío_estimado) / PVP) × 100
 
 | Resultado | Acción |
 |-----------|--------|
-| ≥ 70% | APROBADO |
+| — | El curso no fija umbral de margen |
 | 60% – 69.9% | **ADVERTENCIA** — `MARGEN_AJUSTADO` |
 | < 60% | **RECHAZAR** — `MARGEN_BRUTO_BAJO` |
 
@@ -119,3 +117,4 @@ CPA_objetivo = CPA_max × 0.70   (reserva 30% de margen operativo)
 - Si hay ADVERTENCIA → completar todos los cálculos y mostrar el motivo al final
 - El CPA máximo es siempre orientativo; los costes reales de Meta Ads varían
 - Registrar resultado en DB si está disponible `app/database/dropshipping_suite.db`
+

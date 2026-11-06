@@ -196,8 +196,6 @@ Regla: Ningún ángulo puede inventar testimonios, cifras de ventas o estadísti
 | Regla | Origen | Consecuencia de violar |
 |-------|--------|------------------------|
 | PVP = CO × 3 mínimo | Adrián Sáenz | Rechazar producto |
-| Margen bruto ≥ 70% | GEM OS Financial | Rechazar producto |
-| Peso ≤ 1.2 kg | Iván Caicedo | Rechazar producto |
 | Sin alteración de specs físicas | Protección Stripe/PayPal | CRITICAL + auditoría |
 | Sin superlativos vacíos | agent.md §2.2 | WARNING + corrección |
 | Sin fechas de envío inventadas | agent.md §2.2 | CRITICAL |
@@ -209,7 +207,6 @@ Regla: Ningún ángulo puede inventar testimonios, cifras de ventas o estadísti
 | Condición | Comportamiento |
 |-----------|---------------|
 | Regla 3x violada | Retornar error, no generar ficha |
-| Peso > 1.2 kg | Retornar error, no generar ficha |
 | Campo físico faltante | `[DATA_GAP: campo]` + detener |
 | Superlativo detectado en output | Auto-corregir y registrar en `advertencias[]` |
 | Spec alterada por el modelo | Revertir al valor de input + CRITICAL log |
@@ -227,3 +224,4 @@ Regla: Ningún ángulo puede inventar testimonios, cifras de ventas o estadísti
 ---
 
 *Fin del procedimiento. Versión 2.0.0 — GEM OS · Fase 3 Copywriting Avanzado*
+
