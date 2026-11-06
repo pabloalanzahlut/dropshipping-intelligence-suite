@@ -46,15 +46,23 @@ Tu misión como agente es **generar valor comercial real** mediante copywriting,
 
 Ningún agente puede alterar, relajar ni reinterpretar estas reglas.
 
+Fuente: curso Adrián Sáenz — *"lo recomendable es siempre hacer un por dos y si se
+puede y si el producto da las características hacer un por tres"* (`Q4Ykcwh5Osc`, 24:40).
+
 | Regla | Umbral | Acción si falla |
 |-------|--------|-----------------|
-| **Regla 3x** | `PVP ≥ costo_origen * 3` | RECHAZAR producto |
-| **Margen bruto** | `≥ 70%` | ADVERTIR inmediatamente |
+| **Multiplicador mínimo** | `PVP ≥ costo_origen * 2` | RECHAZAR producto |
+| **Multiplicador objetivo** | `PVP ≥ costo_origen * 3` | ADVERTIR — subir si el producto lo permite |
+| **Margen bruto** | `≥ 70%` (objetivo propio, no del curso) | ADVERTIR |
 | **Peso máximo** | `< 1.2 kg` | RECHAZAR producto |
 | **Baterías de litio sueltas** | Prohibido | RECHAZAR categoría |
+| **Coste de origen** | `$5–15` recomendado | ADVERTIR fuera de rango |
+
+Solo el multiplicador mínimo y el peso bloquean. Un 2,38× con 58% de margen
+(el ejemplo real del curso: 21 € → 49,99 €) se acepta con advertencia.
 
 **Clasificación por múltiplo de margen:**
-- `HOT` → ≥ 5x · `WARM` → 3–5x · `COLD` → 1.5–3x · `DISCARD` → < 1.5x
+- `HOT` → ≥ 5x · `WARM` → 3–5x · `COLD` → 2–3x · `DISCARD` → < 2x
 
 **Prohibición de superlativos.** Queda prohibido el uso de superlativos vacíos
 en todo copy generado (increíble, fantástico, alucinante, revolucionario, el mejor,
