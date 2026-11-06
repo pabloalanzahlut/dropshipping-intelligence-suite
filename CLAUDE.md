@@ -15,27 +15,22 @@ Si te falta un dato crítico (precio, costo, peso, dimensiones, margen), **pregu
 
 ---
 
-## REGLAS FINANCIERAS (INMUTABLES)
+## REGLAS FINANCIERAS
 
-Fuente: curso Adrián Sáenz — *"lo recomendable es siempre hacer un por dos y si se
-puede y si el producto da las características hacer un por tres"* (`Q4Ykcwh5Osc`, 24:40).
+Fuente única: curso Adrián Sáenz (`Q4Ykcwh5Osc`). Solo se aplican reglas que el curso dice explícitamente. No se inventa ninguna.
 
-| Regla | Valor | Acción si falla |
-|-------|-------|-----------------|
-| Multiplicador mínimo | PVP ≥ 2× costo origen | RECHAZAR producto |
-| Multiplicador objetivo | PVP ≥ 3× costo origen | ADVERTIR — subir si el producto lo permite |
-| Margen Bruto | ≥ 70% (objetivo, no umbral del curso) | ADVERTIR |
-| Peso máximo | < 1.2 kg | RECHAZAR si supera |
-| Baterías de litio sueltas | Prohibido | RECHAZAR categoría |
-| Coste de origen | $5–15 recomendado | ADVERTIR fuera de rango |
-| ROAS mínimo | ≥ 2 (campañas de pago) | ADVERTIR si no se alcanza |
-| Presupuesto test | 15 € al día (base) | Referencia para escalado |
+| Regla | Valor | Timestamp | Acción si falla |
+|-------|-------|-----------|-----------------|
+| Multiplicador mínimo | PVP ≥ 2× costo origen | 24:40 | RECHAZAR producto |
+| Multiplicador objetivo | PVP ≥ 3× costo origen | 24:40 | ADVERTIR — subir si el producto lo permite |
+| Coste de origen | $5–15 recomendado | 17:50 | ADVERTIR fuera de rango |
+| ROAS mínimo | ≥ 2 en campañas activas | 09:40 | ADVERTIR si no se alcanza |
+| Presupuesto test | 15 €/día como base | 11:06 | Referencia de escalado |
+| Baterías de litio sueltas | Prohibido | — | RECHAZAR (restricción aduanera) |
 
-El curso no fija umbral de margen ni de peso: el 70% y el 1.2 kg son criterios propios
-de GEM OS y por eso solo el multiplicador mínimo y el peso bloquean. Ejemplo real del
-curso: 21 € → 49,99 € (2,38×, 58% margen) se **acepta** con advertencia de subir a 3×.
+**El curso NO menciona:** umbral de margen %, límite de peso en kg. Esas reglas no existen.
 
-ROAS mínimo de 2: *"debe convertir por lo menos dos o tres veces y con un ROAS mínimo de dos"* (`Q4Ykcwh5Osc`, 09:40). El margen 70% NO sale del curso — es criterio GEM OS.
+Ejemplo real del curso (23:54): 21 € → 49,99 € = **2,38×, 58% de margen** → VALIDADO con advertencia de subir a x3.
 
 ---
 
