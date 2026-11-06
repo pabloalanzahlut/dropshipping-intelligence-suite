@@ -73,75 +73,63 @@ class FinancialValidator:
             }
         """
         
-        # 1. Sin PVP dado, partir del objetivo del curso (x3)
+        # 1. Sin PVP dado, usar el objetivo del curso (x3)
         pvp_calculado = pvp_sugerido if pvp_sugerido else costo_origen * self.MULTIPLICADOR_OBJETIVO
 
-        # 2. Calcular margen bruto y multiplicador real
-        margen_bruto = (pvp_calculado - costo_origen) / pvp_calculado if pvp_calculado > 0 else 0.0
-        multiplicador = pvp_calculado / costo_origen if costo_origen > 0 else 0.0
+        # 2. Multiplicador y margen informativo
+        multiplicador  = pvp_calculado / costo_origen if costo_origen > 0 else 0.0
+        margen_bruto   = (pvp_calculado - costo_origen) / pvp_calculado if pvp_calculado > 0 else 0.0
 
-        # 3. Piso del curso: por debajo de x2 el producto se descarta
-        pvp_minimo = costo_origen * self.MULTIPLICADOR_MINIMO
+        # 3. Regla del curso: solo x2 rechaza (24:40)
+        pvp_minimo      = costo_origen * self.MULTIPLICADOR_MINIMO
+        pvp_objetivo    = costo_origen * self.MULTIPLICADOR_OBJETIVO
         regla_minimo_cumple = pvp_calculado >= pvp_minimo - 0.01
+        objetivo_cumple     = pvp_calculado >= pvp_objetivo - 0.01
 
-        # 4. x3 es la recomendación "si el producto da las características"
-        pvp_objetivo = costo_origen * self.MULTIPLICADOR_OBJETIVO
-        objetivo_cumple = pvp_calculado >= pvp_objetivo - 0.01
-
-        # 5. Margen: el curso no fija umbral, así que informa sin bloquear
-        margen_cumple = margen_bruto >= self.MARGEN_BRUTO_OBJETIVO
-
-        # 6. Peso: el curso no lo trata; se mantiene como límite logístico real
-        logistica_cumple = peso_kg < self.PESO_MAXIMO_KG
-
-        # 7. Solo el piso x2 y el peso rechazan
-        todas_validas = regla_minimo_cumple and logistica_cumple
-        status_validacion = 'validado' if todas_validas else 'rechazado'
+        # 4. Solo el piso x2 rechaza — el curso no impone otra condición de rechazo
+        status_validacion = 'validado' if regla_minimo_cumple else 'rechazado'
 
         notas = []
         if not regla_minimo_cumple:
             notas.append(
-                f"Multiplicador {multiplicador:.2f}x bajo el mínimo x2 del curso: "
-                f"PVP mínimo ${pvp_minimo:.2f}, es ${pvp_calculado:.2f}"
+                f"Multiplicador {multiplicador:.2f}x por debajo del mínimo x2 del curso "
+                f"(Q4Ykcwh5Osc 24:40) — PVP mínimo ${pvp_minimo:.2f}, actual ${pvp_calculado:.2f}"
             )
-        if not logistica_cumple:
-            notas.append(f"Peso excedido: {peso_kg} kg (máximo: {self.PESO_MAXIMO_KG} kg) - ALERTA IVÁN CAICEDO")
 
         advertencias = []
         if regla_minimo_cumple and not objetivo_cumple:
             advertencias.append(
-                f"Multiplicador {multiplicador:.2f}x: por debajo del x3 recomendado "
-                f"(PVP ${pvp_objetivo:.2f}) — subirlo si el producto lo permite"
+                f"Multiplicador {multiplicador:.2f}x: el curso recomienda x3 "
+                f"(${pvp_objetivo:.2f}) si el producto lo permite"
             )
-        if not margen_cumple:
+        if not (self.COSTE_MIN <= costo_origen <= self.COSTE_MAX):
             advertencias.append(
-                f"Margen bruto {margen_bruto*100:.1f}% (objetivo {self.MARGEN_BRUTO_OBJETIVO*100:.0f}%)"
+                f"Coste ${costo_origen:.2f} fuera del rango $5–15 que filtra el curso "
+                f"(Q4Ykcwh5Osc 17:50)"
             )
 
         nota_auditoria = "; ".join(notas + advertencias) or "Producto validado exitosamente"
-        
+
         resultado = {
             'sku': sku,
-            'validado': todas_validas,
+            'validado': regla_minimo_cumple,
             'costo_origen': costo_origen,
             'pvp_calculado': round(pvp_calculado, 2),
             'margen_bruto': round(margen_bruto * 100, 2),
             'multiplicador': round(multiplicador, 2),
             'regla_minimo_cumple': regla_minimo_cumple,
             'objetivo_x3_cumple': objetivo_cumple,
-            'regla_3x_cumple': objetivo_cumple,  # alias retrocompatible
-            'margen_cumple': margen_cumple,
-            'logistica_cumple': logistica_cumple,
+            'regla_3x_cumple': objetivo_cumple,
             'peso_kg': peso_kg,
+            'logistica_cumple': True,   # alias retrocompatible; el curso no rechaza por peso
+            'margen_cumple': True,      # alias retrocompatible; el curso no fija umbral de margen
             'status_validacion': status_validacion,
             'nota_auditoria': nota_auditoria,
             'advertencias': advertencias,
             'detalles': {
                 'pvp_minimo_x2': round(pvp_minimo, 2),
                 'pvp_objetivo_x3': round(pvp_objetivo, 2),
-                'pvp_esperado_regla_3x': round(pvp_objetivo, 2),  # alias
-                'margen_objetivo_pct': round(self.MARGEN_BRUTO_OBJETIVO * 100, 1),
-                'peso_maximo_kg': self.PESO_MAXIMO_KG,
+                'pvp_esperado_regla_3x': round(pvp_objetivo, 2),
                 'fecha_validacion': datetime.now().isoformat()
             }
         }
