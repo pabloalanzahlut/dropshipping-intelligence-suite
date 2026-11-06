@@ -151,6 +151,7 @@ class ProviderMonitorEngine:
                     channels[nombre] = url
                     self.scan_limits[nombre] = int(
                         entry.get("max_videos_scan", DEFAULT_SCAN_LIMIT))
+                    self.channel_roles[nombre] = entry.get("rol", "complementaria")
                 if channels:
                     self.log_callback(
                         f"📡 [CHANNELS] Cargados {len(channels)} canales desde "
