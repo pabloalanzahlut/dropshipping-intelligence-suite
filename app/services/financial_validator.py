@@ -71,35 +71,52 @@ class FinancialValidator:
             }
         """
         
-        # 1. Calcular PVP según Regla 3x (si no se proporciona)
-        pvp_calculado = pvp_sugerido if pvp_sugerido else costo_origen * self.REGLA_3X_MULTIPLICADOR
-        
-        # 2. Calcular margen bruto
+        # 1. Sin PVP dado, partir del objetivo del curso (x3)
+        pvp_calculado = pvp_sugerido if pvp_sugerido else costo_origen * self.MULTIPLICADOR_OBJETIVO
+
+        # 2. Calcular margen bruto y multiplicador real
         margen_bruto = (pvp_calculado - costo_origen) / pvp_calculado if pvp_calculado > 0 else 0.0
-        
-        # 3. Validar contra Regla 3x — el 3x es un piso, no un objetivo exacto
-        pvp_minimo_3x = costo_origen * self.REGLA_3X_MULTIPLICADOR
-        regla_3x_cumple = pvp_calculado >= pvp_minimo_3x - 0.01
-        
-        # 4. Validar margen bruto >= 70%
-        margen_cumple = margen_bruto >= self.MARGEN_BRUTO_MINIMO
-        
-        # 5. Validar restricción logística (peso < 1.2 kg)
+        multiplicador = pvp_calculado / costo_origen if costo_origen > 0 else 0.0
+
+        # 3. Piso del curso: por debajo de x2 el producto se descarta
+        pvp_minimo = costo_origen * self.MULTIPLICADOR_MINIMO
+        regla_minimo_cumple = pvp_calculado >= pvp_minimo - 0.01
+
+        # 4. x3 es la recomendación "si el producto da las características"
+        pvp_objetivo = costo_origen * self.MULTIPLICADOR_OBJETIVO
+        objetivo_cumple = pvp_calculado >= pvp_objetivo - 0.01
+
+        # 5. Margen: el curso no fija umbral, así que informa sin bloquear
+        margen_cumple = margen_bruto >= self.MARGEN_BRUTO_OBJETIVO
+
+        # 6. Peso: el curso no lo trata; se mantiene como límite logístico real
         logistica_cumple = peso_kg < self.PESO_MAXIMO_KG
-        
-        # 6. Determinar estado y nota
-        todas_validas = regla_3x_cumple and margen_cumple and logistica_cumple
+
+        # 7. Solo el piso x2 y el peso rechazan
+        todas_validas = regla_minimo_cumple and logistica_cumple
         status_validacion = 'validado' if todas_validas else 'rechazado'
-        
+
         notas = []
-        if not regla_3x_cumple:
-            notas.append(f"Regla 3x incumplida: PVP mínimo ${pvp_minimo_3x:.2f}, es ${pvp_calculado:.2f}")
-        if not margen_cumple:
-            notas.append(f"Margen bruto bajo: {margen_bruto*100:.1f}% (mínimo: 70%)")
+        if not regla_minimo_cumple:
+            notas.append(
+                f"Multiplicador {multiplicador:.2f}x bajo el mínimo x2 del curso: "
+                f"PVP mínimo ${pvp_minimo:.2f}, es ${pvp_calculado:.2f}"
+            )
         if not logistica_cumple:
             notas.append(f"Peso excedido: {peso_kg} kg (máximo: {self.PESO_MAXIMO_KG} kg) - ALERTA IVÁN CAICEDO")
-        
-        nota_auditoria = "; ".join(notas) if notas else "Producto validado exitosamente"
+
+        advertencias = []
+        if regla_minimo_cumple and not objetivo_cumple:
+            advertencias.append(
+                f"Multiplicador {multiplicador:.2f}x: por debajo del x3 recomendado "
+                f"(PVP ${pvp_objetivo:.2f}) — subirlo si el producto lo permite"
+            )
+        if not margen_cumple:
+            advertencias.append(
+                f"Margen bruto {margen_bruto*100:.1f}% (objetivo {self.MARGEN_BRUTO_OBJETIVO*100:.0f}%)"
+            )
+
+        nota_auditoria = "; ".join(notas + advertencias) or "Producto validado exitosamente"
         
         resultado = {
             'sku': sku,
