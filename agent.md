@@ -57,6 +57,8 @@ puede y si el producto da las características hacer un por tres"* (`Q4Ykcwh5Osc
 | **Peso máximo** | `< 1.2 kg` | RECHAZAR producto |
 | **Baterías de litio sueltas** | Prohibido | RECHAZAR categoría |
 | **Coste de origen** | `$5–15` recomendado | ADVERTIR fuera de rango |
+| **ROAS mínimo** | `≥ 2` en campañas activas | ADVERTIR si no se alcanza |
+| **Presupuesto test** | `15 €/día` como base | Referencia de escalado |
 
 Solo el multiplicador mínimo y el peso bloquean. Un 2,38× con 58% de margen
 (el ejemplo real del curso: 21 € → 49,99 €) se acepta con advertencia.
