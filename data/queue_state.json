@@ -46,9 +46,9 @@
       "nombre": "Adrián Sáenz",
       "url": "https://www.youtube.com/@adriansaenz",
       "status": "Completado",
-      "last_scan": "2026-11-05T22:26:47.915189+00:00",
-      "total_videos": 11,
-      "processed_count": 11,
+      "last_scan": "2026-11-06T04:12:34.591383+00:00",
+      "total_videos": 50,
+      "processed_count": 50,
       "failed_count": 0,
       "videos": [
         {
@@ -62,7 +62,7 @@
           "video_id": "fxr3vWjruR8",
           "title": "Si Tu Fecha Suma 8, 10 o 22, Esto Dice La Numerología Sobre Tu Dinero | Raúl Durán",
           "status": "Completado",
-          "timestamp": "2026-11-05T22:09:55.660403+00:00",
+          "timestamp": "2026-11-05T23:10:10.118271+00:00",
           "error": "IA returned VACÍO"
         },
         {
@@ -76,7 +76,7 @@
           "video_id": "TyQsZpf4DlI",
           "title": "La gente se está haciendo millonaria con la IA y lo va a perder todo",
           "status": "Completado",
-          "timestamp": "2026-11-05T22:10:45.511131+00:00",
+          "timestamp": "2026-11-05T23:10:26.403495+00:00",
           "error": "IA returned VACÍO"
         },
         {
@@ -90,7 +90,7 @@
           "video_id": "ny7qgjwBkdg",
           "title": "Cómo Reprogramar Tu Mente Para El Éxito y La Riqueza | Adrià Solà Pastor",
           "status": "Completado",
-          "timestamp": "2026-11-05T22:11:44.151736+00:00",
+          "timestamp": "2026-11-05T23:11:02.313190+00:00",
           "error": "IA returned VACÍO"
         },
         {
@@ -102,16 +102,16 @@
         },
         {
           "video_id": "NOp6IwxlNOc",
-          "title": "Cómo Funciona El Rentable Negocio De Las Marcas De Ropa | Borja Vázquez",
+          "title": "De Un Sótano a Crear El Imperio De Scalpers | Borja Vázquez",
           "status": "Completado",
-          "timestamp": "2026-11-05T22:26:47.915189+00:00",
-          "error": "IA returned VACÍO"
+          "timestamp": "2026-11-05T21:48:24.011566+00:00",
+          "error": "Transcripción vacía o no disponible"
         },
         {
           "video_id": "DBdC5Y5vNuo",
           "title": "¿Qué Es Claude? Explicado En 4 Minutos",
           "status": "Completado",
-          "timestamp": "2026-11-05T22:09:04.704042+00:00",
+          "timestamp": "2026-11-05T23:09:19.147892+00:00",
           "error": "IA returned VACÍO"
         },
         {
@@ -127,14 +127,287 @@
           "status": "Completado",
           "timestamp": "2026-11-05T22:14:10.783882+00:00",
           "error": ""
+        },
+        {
+          "video_id": "fJzUnSEnKNs",
+          "title": "La Gente Se Está Haciendo Millonaria Con Higgsfield (Así Lo Hacen)",
+          "status": "Completado",
+          "timestamp": "2026-11-05T23:11:12.433426+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "0g8krWW4Of8",
+          "title": "Dame 14 Minutos y Te Doy 1000 Horas De Conocimiento Sobre IA",
+          "status": "Completado",
+          "timestamp": "2026-11-05T23:11:44.794020+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "hVUWiBgaDHI",
+          "title": "Ministro Español: Terror y Caos En Barcelona, Extrema Izquierda y El Futuro De España",
+          "status": "Completado",
+          "timestamp": "2026-11-05T23:12:04.302247+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "2gk1RXw0gSM",
+          "title": "7 Máquinas Que Puedes Comprar Para Ganar Dinero",
+          "status": "Completado",
+          "timestamp": "2026-11-05T23:13:00.682157+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "fUnHXOfbVcI",
+          "title": "Si ganas mucho dinero haciendo dropshipping, mira este vídeo",
+          "status": "Completado",
+          "timestamp": "2026-11-05T23:13:52.327962+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "1hkTJ8wg9bY",
+          "title": "Experto En Marketing Digital Revela Cómo Crecer En Redes Sociales | Jordi Segués",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:09:25.387909+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "d5KV-iAYDXU",
+          "title": "He Creado Un Juego Que Paga Por Jugar",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:09:41.709974+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "R9HLtrNlRj4",
+          "title": "He Creado Un Canal De YouTube Solo Con Claude",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:10:19.975988+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "b5VTu29RTIk",
+          "title": "Experto En Comunicación Revela Cómo Hacerte Respetar Al Instante | Fernando Miralles",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:11:07.426189+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "1IiTges2IUY",
+          "title": "He Creado Una Marca De Ropa Con 0€ En 24 Horas",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:11:39.127114+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "-xKnTA6afVg",
+          "title": "He Comprado Un Apartamento En Dubái | Opinión Brutalmente Honesta",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:11:58.538206+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "_rAc7NhL8fY",
+          "title": "Se Acerca Algo Peor Que Una Recesión l José Luis Cava",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:12:17.977666+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "gfvOBMxeIR8",
+          "title": "He Probado 14 Negocios IA, Estos 3 Te Harán Rico",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:13:44.618235+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "wWC8SoeQ_Fk",
+          "title": "Cómo optimizar tu tienda online para generar cientos de miles de euros este black friday",
+          "status": "Completado",
+          "timestamp": "2026-11-06T00:14:37.070849+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "5UWuYIaOpLM",
+          "title": "Cómo Ganar Dinero Con Cualquier Ordenador (Utilizando Claude)",
+          "status": "Completado",
+          "timestamp": "2026-11-06T01:09:45.337289+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "0h3L33kDmIM",
+          "title": "Guía Para Ganar $4,000/mes Siendo Entrenador Online",
+          "status": "Completado",
+          "timestamp": "2026-11-06T01:10:41.850175+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "yvnOa45d978",
+          "title": "Experta En Protocolo Revela Cómo Hacerte Respetar y Eliminar Tu Timidez Para Siempre | Mar Casas",
+          "status": "Completado",
+          "timestamp": "2026-11-06T01:11:26.297300+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "Ra3GIwwT4Yc",
+          "title": "Dame 34 Minutos y Te Doy 1000 Horas De Conocimiento Sobre Claude",
+          "status": "Completado",
+          "timestamp": "2026-11-06T01:11:52.403976+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "H4Een5I47rI",
+          "title": "Doctor Del Sueño Explica Cómo Funcionan Los Sueños y Por Qué Parecen Tan Reales | Eduard Estivill",
+          "status": "Completado",
+          "timestamp": "2026-11-06T01:12:20.235677+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "GI7Mco6T4Zs",
+          "title": "3 Años Usando Trade Republic | Opinión Brutalmente Honesta",
+          "status": "Completado",
+          "timestamp": "2026-11-06T01:12:38.636001+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "mR7n7kHxtI4",
+          "title": "Experto En Kabbalah: Cómo Reprogramar Tu Alma, Hacerte Rico y Escapar Del Sistema | Mario Sabán",
+          "status": "Completado",
+          "timestamp": "2026-11-06T01:13:27.202089+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "_7Jbmf8UULE",
+          "title": "5 Skills De Claude Para Ganar Dinero (Explicación Paso a Paso)",
+          "status": "Completado",
+          "timestamp": "2026-11-06T01:14:50.142355+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "sgAUi9NGMg4",
+          "title": "Cómo Funciona El Rentable Negocio Del Narcotráfico | Laureano Oubiña",
+          "status": "Completado",
+          "timestamp": "2026-11-06T02:09:45.805522+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "qgK3GfY5ZC4",
+          "title": "La Única Guía De Dropshipping Que Necesitas Para Ganar Dinero",
+          "status": "Completado",
+          "timestamp": "2026-11-06T02:12:08.450530+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "qH7EUv1v4ng",
+          "title": "Curso Completo De Claude Cowork: Crea Gratis Un Trabajador IA Que Hace Todo Lo Que Le Pides",
+          "status": "Completado",
+          "timestamp": "2026-11-06T02:12:19.055475+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "eaNzx2v1sk4",
+          "title": "Cómo Funciona El Rentable y Oscuro Negocio De Ser Hacker",
+          "status": "Completado",
+          "timestamp": "2026-11-06T02:12:29.986203+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "xzJxHlXRVNc",
+          "title": "La Gente Se Está Haciendo Millonaria Con Claude | Así Lo Hacen",
+          "status": "Completado",
+          "timestamp": "2026-11-06T02:13:29.512738+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "w-VM5oyeboM",
+          "title": "Curso Claude Code: Cómo Utilizar La IA Para Ganar Dinero En 2026",
+          "status": "Completado",
+          "timestamp": "2026-11-06T02:14:20.035271+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "gN53tjaTofA",
+          "title": "6 Negocios Chinos Aburridos Pero Ultra Rentables | Antonio Lui Yang",
+          "status": "Completado",
+          "timestamp": "2026-11-06T03:10:03.567551+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "4JGeKANrv7g",
+          "title": "Cómo Crear Una Tienda Online Con Shopify",
+          "status": "Completado",
+          "timestamp": "2026-11-06T03:10:38.687787+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "qNtBZxHJh-o",
+          "title": "5 Formas Probadas De Ganar Dinero Con IA (Sin Experiencia)",
+          "status": "Completado",
+          "timestamp": "2026-11-06T03:11:36.372760+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "pvdYrfTykzg",
+          "title": "Ex-Banquero Suizo: \"Estoy Cambiando Mi Forma De Invertir Por Culpa De La IA\"",
+          "status": "Completado",
+          "timestamp": "2026-11-06T03:11:53.855346+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "rpHz-i9hGq0",
+          "title": "Pregunto a Los VIP De La Final Del Mundial Cómo Se Han Hecho Ricos",
+          "status": "Completado",
+          "timestamp": "2026-11-06T03:12:33.145495+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "UHVR0MqJYfM",
+          "title": "Cómo Crear Páginas Web Increíbles Utilizando Claude",
+          "status": "Completado",
+          "timestamp": "2026-11-06T03:14:01.258397+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "i1eHoDmcL0E",
+          "title": "Cómo Ganar Dinero Según Jesús y La Biblia | José Carlos González-Hurtado",
+          "status": "Completado",
+          "timestamp": "2026-11-06T03:14:36.287516+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "DRE8lqZoIn0",
+          "title": "La Forma Más Fácil De Empezar Dropshipping En 2026",
+          "status": "Completado",
+          "timestamp": "2026-11-06T04:10:25.328518+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "HaNTewfQu7c",
+          "title": "6 Negocios Aburridos Pero Ultra Rentables",
+          "status": "Completado",
+          "timestamp": "2026-11-06T04:11:11.058572+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "-Ax9cBPlD7w",
+          "title": "Millonario Revela Cómo Escapar Del Sistema y Hacerte Rico | Sergio Fernández",
+          "status": "Completado",
+          "timestamp": "2026-11-06T04:11:58.820033+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "rqMrq2MGdpw",
+          "title": "$29,356 En 30 Días Haciendo Dropshipping Con Claude (Solo Cópiame)",
+          "status": "Completado",
+          "timestamp": "2026-11-06T04:12:34.591383+00:00",
+          "error": ""
         }
       ]
     },
     {
       "nombre": "Iván Caicedo",
       "url": "https://www.youtube.com/@ivancaicedo",
-      "status": "Pendiente",
-      "last_scan": null,
+      "status": "Procesando",
+      "last_scan": "2026-11-06T04:12:34.595269+00:00",
       "total_videos": 0,
       "processed_count": 0,
       "failed_count": 0,
@@ -143,22 +416,94 @@
     {
       "nombre": "JaviEcom",
       "url": "https://www.youtube.com/@javiecom",
-      "status": "Pendiente",
-      "last_scan": null,
-      "total_videos": 0,
-      "processed_count": 0,
-      "failed_count": 0,
-      "videos": []
+      "status": "Completado",
+      "last_scan": "2026-11-06T05:10:53.907340+00:00",
+      "total_videos": 5,
+      "processed_count": 3,
+      "failed_count": 2,
+      "videos": [
+        {
+          "video_id": "p1pOsZ4axgU",
+          "title": "Los 3 Productos que Más Van a Vender este Q4 2026",
+          "status": "Completado",
+          "timestamp": "2026-11-06T04:13:21.220870+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "Db6NU2u0jjc",
+          "title": "Cómo crear anuncios con IA que venden (dropshipping 2026)",
+          "status": "Completado",
+          "timestamp": "2026-11-06T04:14:13.033483+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "5iRa2nYlq_c",
+          "title": "Cómo Imprimir 100k€/Mes en Q4 con Shopify y Publicidad de Pago (Nichos + Errores)",
+          "status": "Completado",
+          "timestamp": "2026-11-06T04:15:07.787120+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "8M5J43pBYUs",
+          "title": "Focus #dropshipping",
+          "status": "Fallido",
+          "timestamp": "2026-11-06T05:10:16.023358+00:00",
+          "error": "Transcripción vacía o no disponible"
+        },
+        {
+          "video_id": "ObdJQ_k4Ajo",
+          "title": "Mándaselo a quien quieras que monte un negocio contigo 🫡 #dropshipping #lamborghini #dubai",
+          "status": "Fallido",
+          "timestamp": "2026-11-06T05:10:53.907340+00:00",
+          "error": "Transcripción vacía o no disponible"
+        }
+      ]
     },
     {
       "nombre": "Marc Verdú",
       "url": "https://www.youtube.com/@marcverdu",
-      "status": "Pendiente",
-      "last_scan": null,
-      "total_videos": 0,
-      "processed_count": 0,
+      "status": "Completado",
+      "last_scan": "2026-11-06T05:15:08.221113+00:00",
+      "total_videos": 5,
+      "processed_count": 5,
       "failed_count": 0,
-      "videos": []
+      "videos": [
+        {
+          "video_id": "Jw2iENPPE-I",
+          "title": "I'm Giving You 5 Winning Dropshipping Products So You Can Make Money",
+          "status": "Completado",
+          "timestamp": "2026-11-06T05:11:57.762542+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "gNticX19mMg",
+          "title": "He Was Scammed by Another Course, and Now He’s Making Over $40,000 with Me Through Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-06T05:12:47.322924+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "hMDJLkqlbWo",
+          "title": "Nadie te enseña a encontrar productos ganadores de Dropshipping así",
+          "status": "Completado",
+          "timestamp": "2026-11-06T05:13:17.532764+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "KBsLZg7tANw",
+          "title": "Stop Overthinking and Start Dropshipping with This Step-by-Step Guide",
+          "status": "Completado",
+          "timestamp": "2026-11-06T05:14:19.902500+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "ywD_808Bi4o",
+          "title": "They Started Out Losing Money and Now Make Over $700,000 with Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-06T05:15:08.221113+00:00",
+          "error": ""
+        }
+      ]
     },
     {
       "nombre": "Vic Ecomilions",
@@ -172,7 +517,7 @@
     }
   ],
   "metadata": {
-    "last_load": "2026-11-05T22:26:42.834957+00:00",
-    "last_updated": "2026-11-05T22:26:47.915189+00:00"
+    "last_load": "2026-11-05T22:04:30.898080+00:00",
+    "last_updated": "2026-11-06T05:15:08.221113+00:00"
   }
 }

@@ -1,53 +1,75 @@
 ```json
 {
-  "respuesta": "La Knowledge Base contiene 6 entradas de tipo product_trends. El contexto no incluye ningún dato de margen, costo de proveedor, precio de venta, nicho ni fecha para ninguna de ellas, por lo que no es posible indicar el margen de ningún producto. Además, las descripciones de producto no coinciden de forma clara con los títulos de los videos de origen, así que la asociación título-producto debe verificarse antes de usarla. Para calcular el margen según la Regla del 3x se necesitan costos reales del proveedor en origen.",
+  "respuesta": "La Knowledge Base contiene 6 entradas de la tabla product_trends. Ninguna incluye un margen calculado: no hay datos de costo en origen, precio de venta ni margen multiplicador. El margen de cada entrada es [DATA_GAP: margen_estimado]. Las entradas son títulos y descripciones de videos, no fichas de producto verificadas. Varias descripciones corresponden a servicios, cursos o formación (eclosionadora de pollitos, creación de páginas web, transporte regulado, aprendizaje gamificado), por lo que no son productos físicos aptos para la Regla del 3x sin datos de proveedor.",
   "tipo_consulta": "producto",
   "datos": [
     {
-      "nombre": "[DATA_GAP: nombre_producto]",
-      "descripcion_indexada": "Permite eclosionar pollitos en casa, ideal para aficionados a la crianza de aves.",
-      "titulo_video_origen": "Millonario Revela El Simple Método Que Le Ha Hecho Rico Partiendo Desde Cero",
-      "nicho": "[DATA_GAP: nicho]",
+      "titulo_video": "Millonario Revela El Simple Método Que Le Ha Hecho Rico Partiendo Desde Cero",
+      "canal": "Antonio Faya",
+      "descripcion_kb": "Permite eclosionar pollitos en casa, ideal para aficionados a la crianza de aves.",
+      "tipo_item": "Producto físico (aparente)",
       "margen_estimado": "[DATA_GAP: margen_estimado]",
-      "canal": "[DATA_GAP: canal] (el título menciona a Antonio Faya y Adrián Sáenz)",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "nombre": "[DATA_GAP: nombre_producto]",
-      "descripcion_indexada": "Creación rápida y profesional de páginas web con plantillas personalizadas",
-      "titulo_video_origen": "6 Formas De Ganar Dinero Con Claude Siendo Estudiante",
-      "nicho": "[DATA_GAP: nicho]",
-      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "titulo_video": "6 Formas De Ganar Dinero Con Claude Siendo Estudiante",
       "canal": "Adrián Sáenz",
-      "fecha": "[DATA_GAP: fecha]"
-    },
-    {
-      "nombre": "[DATA_GAP: nombre_producto]",
-      "descripcion_indexada": "Solución de transporte regulada, con seguro y matrícula, amplio público objetivo",
-      "titulo_video_origen": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
-      "nicho": "[DATA_GAP: nicho]",
+      "descripcion_kb": "Creación rápida y profesional de páginas web con plantillas personalizadas",
+      "tipo_item": "Servicio digital",
       "margen_estimado": "[DATA_GAP: margen_estimado]",
-      "canal": "Adrián Sáenz",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "nombre": "[DATA_GAP: nombre_producto]",
-      "descripcion_indexada": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
-      "titulo_video_origen": "Trata el dropshipping como un videojuego y hazte rico",
-      "nicho": "[DATA_GAP: nicho]",
+      "titulo_video": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
+      "canal": "Adrián Sáenz",
+      "descripcion_kb": "Solución de transporte regulada, con seguro y matrícula, amplio público objetivo",
+      "tipo_item": "Servicio (transporte)",
       "margen_estimado": "[DATA_GAP: margen_estimado]",
-      "canal": "Adrián Sáenz",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "nombre": "[DATA_GAP: nombre_producto]",
-      "descripcion_indexada": "Aprendizaje gamificado y personalizado para ganar dinero online",
-      "titulo_video_origen": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
-      "nicho": "[DATA_GAP: nicho]",
+      "titulo_video": "Trata el dropshipping como un videojuego y hazte rico",
+      "canal": "Adrián Sáenz",
+      "descripcion_kb": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
+      "tipo_item": "Producto físico (aparente)",
       "margen_estimado": "[DATA_GAP: margen_estimado]",
-      "canal": "Adrián Sáenz",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "nombre": "[DATA_GAP: nombre_producto]",
-      "descripcion_indexada": "
+      "titulo_video": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
+      "canal": "Adrián Sáenz",
+      "descripcion_kb": "Aprendizaje gamificado y personalizado para ganar dinero online",
+      "tipo_item": "Curso / formación digital",
+      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "fecha": "[DATA_GAP: fecha]"
+    },
+    {
+      "titulo_video": "7 Días Haciendo Compra-Venta En Latinoamérica",
+      "canal": "Adrián Sáenz",
+      "descripcion_kb": "Funciona en cualquier país del mundo",
+      "tipo_item": "Modelo de negocio (sin producto específico)",
+      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "fecha": "[DATA_GAP: fecha]"
+    }
+  ],
+  "fuentes": [
+    "[DATA_GAP: video_id] · Antonio Faya · [DATA_GAP: fecha]",
+    "[DATA_GAP: video_id] · Adrián Sáenz · [DATA_GAP: fecha]"
+  ],
+  "confianza": "Baja",
+  "fecha_consulta": "[DATA_GAP: fecha_consulta]",
+  "datos_faltantes_para_margen": [
+    "costo_origen_proveedor",
+    "precio_venta_propuesto",
+    "costos_logisticos",
+    "comisiones_pasarela",
+    "presupuesto_pauta"
+  ],
+  "aviso": "Las referencias son de videos de mentores y no constituyen garantías de rentabilidad.",
+  "bitacora": {
+    "decision": "Responder con inventario de product_trends sin calcular margen.",
+    "motivo": "El contexto KB no contiene costos ni precios; calcular margen sería inventar datos financieros.",
+    "accion_sugerida": "Aportar costo en origen y precio de venta para aplicar la Regla del 3x por producto."
+  }
+}
+```
