@@ -5,6 +5,8 @@
     "activo": true,
     "tags": ["shopify", "ads", "dropshipping"],
     "prioridad": 1,
+    "rol": "primaria",
+    "nota": "Fuente de las reglas financieras inmutables. Sus criterios NUNCA se sobreescriben con contenido de otros canales.",
     "idioma": "es",
     "max_videos_scan": 50
   },
@@ -12,8 +14,10 @@
     "url": "https://www.youtube.com/@ivancaicedo",
     "nombre": "Iván Caicedo",
     "activo": true,
-    "tags": ["dropshipping", "productos"],
+    "tags": ["dropshipping", "productos", "logistica"],
     "prioridad": 2,
+    "rol": "complementaria",
+    "nota": "Valor agregado en selección de productos y logística. No reemplaza ni modifica reglas de Adrián Sáenz.",
     "idioma": "es",
     "max_videos_scan": 30
   },
@@ -21,8 +25,10 @@
     "url": "https://www.youtube.com/@javiecom",
     "nombre": "JaviEcom",
     "activo": true,
-    "tags": ["shopify", "ecom"],
+    "tags": ["shopify", "ecom", "operaciones"],
     "prioridad": 2,
+    "rol": "complementaria",
+    "nota": "Valor agregado en operaciones y Shopify. No reemplaza ni modifica reglas de Adrián Sáenz.",
     "idioma": "es",
     "max_videos_scan": 30
   },
@@ -30,8 +36,10 @@
     "url": "https://www.youtube.com/@marcverdu",
     "nombre": "Marc Verdú",
     "activo": true,
-    "tags": ["shopify", "productos"],
+    "tags": ["shopify", "productos", "creativos"],
     "prioridad": 3,
+    "rol": "complementaria",
+    "nota": "Valor agregado en creativos y productos. No reemplaza ni modifica reglas de Adrián Sáenz.",
     "idioma": "es",
     "max_videos_scan": 30
   },
@@ -39,8 +47,10 @@
     "url": "https://www.youtube.com/@vicecomilions",
     "nombre": "Vic Ecomilions",
     "activo": true,
-    "tags": ["dropshipping", "scaling"],
+    "tags": ["dropshipping", "scaling", "ads"],
     "prioridad": 3,
+    "rol": "complementaria",
+    "nota": "Valor agregado en escalado y ads. No reemplaza ni modifica reglas de Adrián Sáenz.",
     "idioma": "es",
     "max_videos_scan": 30
   }
