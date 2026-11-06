@@ -19,19 +19,17 @@ from app.database.connection import DatabaseConnection
 class FinancialValidator:
     """Validador financiero con auditoría completa de productos."""
     
-    # Constantes de Reglas de Negocio — curso Adrián Sáenz
-    # "lo recomendable es siempre hacer un por dos y si se puede y si el producto
-    #  da las características hacer un por tres" (Q4Ykcwh5Osc, 24:40).
-    # Por eso 2x rechaza y 3x solo recomienda: su producto de ejemplo del curso
-    # (21 € -> 49,99 €) es un 2,38x, que con un piso de 3x quedaría descartado.
-    MULTIPLICADOR_MINIMO = 2.0
-    MULTIPLICADOR_OBJETIVO = 3.0
-    MARGEN_BRUTO_OBJETIVO = 0.70  # advertencia, no rechazo
-    PESO_MAXIMO_KG = 1.2
+    # Reglas del curso Adrián Sáenz (Q4Ykcwh5Osc) — solo lo que el curso dice.
+    MULTIPLICADOR_MINIMO  = 2.0   # 24:40 — rechaza si no cumple
+    MULTIPLICADOR_OBJETIVO = 3.0  # 24:40 — advierte si no cumple
+    COSTE_MIN = 5.0               # 17:50 — advierte fuera de rango
+    COSTE_MAX = 15.0              # 17:50
 
-    # Alias retrocompatible: otros módulos siguen leyendo este nombre.
+    # Alias retrocompatibles para módulos existentes.
     REGLA_3X_MULTIPLICADOR = MULTIPLICADOR_OBJETIVO
-    MARGEN_BRUTO_MINIMO = MARGEN_BRUTO_OBJETIVO
+    MARGEN_BRUTO_MINIMO    = 0.0   # el curso no fija umbral; se conserva alias en 0
+    MARGEN_BRUTO_OBJETIVO  = 0.0   # ídem
+    PESO_MAXIMO_KG         = None  # el curso no fija límite de peso
     
     def __init__(self, db_manager: Optional[DatabaseConnection] = None):
         """
