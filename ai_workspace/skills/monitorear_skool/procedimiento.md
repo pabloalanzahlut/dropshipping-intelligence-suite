@@ -64,8 +64,6 @@ Por cada post relevante, capturar:
 ### Paso 3 — Validación con reglas GEM OS
 Aplicar SIEMPRE:
 - ✅ Regla 3x: precio_venta ≥ 3 × costo_proveedor
-- ✅ Margen bruto ≥ 70%
-- ✅ Peso < 1.2 kg
 - ❌ Sin baterías de litio sueltas
 
 ### Paso 4 — Clasificación Dr. Marcus Chen
@@ -142,3 +140,4 @@ Ejemplos:
 ---
 
 *Skill creada por GEM OS v2.2 — Agente Dr. Marcus Chen*
+

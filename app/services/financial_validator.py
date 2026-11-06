@@ -25,11 +25,10 @@ class FinancialValidator:
     COSTE_MIN = 5.0               # 17:50 — advierte fuera de rango
     COSTE_MAX = 15.0              # 17:50
 
-    # Alias retrocompatibles para módulos existentes.
+    # Alias retrocompatibles (no cambian la lógica; evitan romper código existente).
     REGLA_3X_MULTIPLICADOR = MULTIPLICADOR_OBJETIVO
-    MARGEN_BRUTO_MINIMO    = 0.0   # el curso no fija umbral; se conserva alias en 0
-    MARGEN_BRUTO_OBJETIVO  = 0.0   # ídem
-    PESO_MAXIMO_KG         = None  # el curso no fija límite de peso
+    MARGEN_BRUTO_MINIMO    = 0.0  # el curso no fija umbral de margen
+    MARGEN_BRUTO_OBJETIVO  = 0.0  # ídem
     
     def __init__(self, db_manager: Optional[DatabaseConnection] = None):
         """
