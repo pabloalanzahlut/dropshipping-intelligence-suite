@@ -15,6 +15,20 @@ Si te falta un dato crítico (precio, costo, peso, dimensiones, margen), **pregu
 
 ---
 
+## JERARQUÍA DE FUENTES
+
+| Rol | Canal | Qué aporta |
+|-----|-------|------------|
+| **PRIMARIA** | Adrián Sáenz | Reglas financieras inmutables. Sus criterios nunca se sobreescriben. |
+| Complementaria | Iván Caicedo | Selección de productos, logística, operaciones |
+| Complementaria | JaviEcom | Shopify, operaciones, automatización |
+| Complementaria | Marc Verdú | Creativos, selección de productos |
+| Complementaria | Vic Ecomilions | Escalado, Meta Ads |
+
+Los canales complementarios **añaden valor** sin reemplazar ni modificar ninguna regla de Adrián Sáenz. Si hay contradicción, Adrián prevalece siempre.
+
+---
+
 ## REGLAS FINANCIERAS
 
 Fuente única: curso Adrián Sáenz (`Q4Ykcwh5Osc`). Solo se aplican reglas que el curso dice explícitamente. No se inventa ninguna.
