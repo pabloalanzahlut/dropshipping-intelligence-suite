@@ -26,12 +26,15 @@
   <!-- Selector de agente + stats -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
     <div style="background:#0d0f1f;border:1px solid rgba(167,139,250,0.15);border-radius:10px;padding:14px;">
-      <label class="form-label">Agente</label>
-      <select x-model="agenteSeleccionado" class="input-field">
-        <option value="gem-orchestrator-core">gem-orchestrator-core (Llama 3.1)</option>
-        <option value="gem-qa-validation">gem-qa-validation (Gemini Flash)</option>
-        <option value="gem-backend-core">gem-backend-core (Qwen 2.5 Coder)</option>
+      <label class="form-label" for="agente-sel">Agente</label>
+      <select id="agente-sel" x-model="agenteSeleccionado" @change="detectar()" class="input-field">
+        <option value="auto">Automático · elige según tu pregunta</option>
+        <template x-for="a in agentes" :key="a.nombre">
+          <option :value="a.nombre" x-text="a.rol + ' · ' + a.nombre"></option>
+        </template>
       </select>
+      <p style="font-size:10px;color:#4a5080;margin:6px 0 0;"
+         x-text="agenteSeleccionado === 'auto' ? 'Reconoce el tipo de pregunta y cambia de agente solo.' : 'Agente fijado a mano: no cambiará solo.'"></p>
     </div>
     <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
       <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="historial.length"></p>
@@ -91,6 +94,8 @@
             <div style="flex:1;min-width:0;">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                 <span style="font-size:10px;font-weight:700;color:#a78bfa;" x-text="msg.agente || 'gem-orchestrator-core'"></span>
+                <span x-show="msg.ruta" class="badge badge-info" x-text="msg.ruta?.tipo_etiqueta"></span>
+                <span x-show="msg.ruta?.automatico" class="badge badge-done">Auto</span>
                 <span style="font-size:10px;color:#4a5080;" x-text="msg.hora"></span>
               </div>
               <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:4px 12px 12px 12px;padding:12px 14px;">
@@ -142,10 +147,23 @@
     <div style="border-top:1px solid #1a1d35;padding:16px 20px;background:#0d0f1f;">
       <div style="display:flex;gap:10px;align-items:flex-end;">
         <div style="flex:1;">
+          <!-- Agente detectado en vivo -->
+          <p x-show="pregunta.trim() && ruta" x-cloak role="status"
+             style="font-size:11px;margin:0 0 6px;color:#7880b0;">
+            <span x-text="agenteSeleccionado === 'auto' ? 'Se enviará a ' : 'Agente fijado: '"></span>
+            <strong style="color:#a78bfa;" x-text="ruta?.agente"></strong>
+            <span> · </span><span style="color:#22d3ee;" x-text="ruta?.tipo_etiqueta"></span>
+            <span x-show="agenteSeleccionado !== 'auto' && ruta?.sugerido && ruta.sugerido !== ruta.agente" style="color:#fbbf24;">
+              · esta pregunta encaja mejor con <span x-text="ruta?.sugerido"></span>
+              <button type="button" @click="agenteSeleccionado = 'auto'; detectar()" class="btn-ghost" style="font-size:10px;padding:2px 8px;margin-left:4px;">Usar automático</button>
+            </span>
+          </p>
           <textarea
             x-model="pregunta"
+            @input.debounce.350ms="detectar()"
             @keydown.enter.prevent="if(!$event.shiftKey) enviar()"
             placeholder="Escribe tu consulta... (Enter para enviar, Shift+Enter para nueva línea)"
+            aria-label="Pregunta para el agente"
             rows="2"
             :disabled="cargando"
             class="input-field"
@@ -163,7 +181,7 @@
       </div>
       <p style="font-size:10px;color:#4a5080;margin:6px 0 0;">
         El agente recibe automáticamente los últimos <span style="color:#a78bfa;" x-text="kbCount"></span> insights de la KB como contexto.
-        · Modelo: <span style="color:#22d3ee;" x-text="modeloActivo"></span>
+        · Modelo: <span style="color:#22d3ee;" x-text="modeloActivo"></span> (<span x-text="ruta?.agente || 'se elige al preguntar'"></span>)
       </p>
     </div>
   </div>
@@ -185,7 +203,9 @@
 function agente() {
   return {
     pregunta: '',
-    agenteSeleccionado: 'gem-orchestrator-core',
+    agenteSeleccionado: 'auto',
+    agentes: [],          // [{nombre, rol, modelo, ...}] desde /api/kb/agentes
+    ruta: null,           // última clasificación {agente, tipo_etiqueta, ...}
     historial: [],
     cargando: false,
     kbCount: 0,
@@ -195,13 +215,19 @@ function agente() {
       '¿Qué estrategias de tráfico menciona la base de conocimiento?',
       'Dame un resumen de las últimas tendencias de producto',
     ],
+    // Modelo REAL configurado en el motor para el agente que atenderá la pregunta
     get modeloActivo() {
-      const m = {
-        'gem-orchestrator-core': 'Llama 3.1 8B',
-        'gem-qa-validation': 'Gemini 2.5 Flash',
-        'gem-backend-core': 'Qwen 2.5 Coder 32B',
-      };
-      return m[this.agenteSeleccionado] || this.agenteSeleccionado;
+      const nombre = this.ruta?.agente || (this.agenteSeleccionado !== 'auto' ? this.agenteSeleccionado : null);
+      const a = this.agentes.find(x => x.nombre === nombre) || this.agentes[0];
+      return a ? a.modelo.split('/').pop() : '—';
+    },
+    async detectar() {
+      const q = this.pregunta.trim();
+      if (!q) { this.ruta = null; return; }
+      try {
+        const r = await fetch('/api/kb/ruta?pregunta=' + encodeURIComponent(q) + '&agente=' + encodeURIComponent(this.agenteSeleccionado));
+        if (r.ok) this.ruta = await r.json();
+      } catch (e) { /* el aviso es opcional */ }
     },
     hora() {
       return new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
