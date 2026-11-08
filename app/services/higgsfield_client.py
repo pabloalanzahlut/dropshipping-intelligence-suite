@@ -23,7 +23,12 @@ def _headers() -> dict:
     key = os.getenv("HIGGSFIELD_API_KEY")
     if not key:
         raise EnvironmentError("[HIGGSFIELD] HIGGSFIELD_API_KEY no configurada en .env")
-    return {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    # Formato de clave Higgsfield: uuid:hash — se envía como Bearer token completo
+    return {
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+        "X-API-Key": key,  # algunos endpoints aceptan header alternativo
+    }
 
 
 def generate_product_video(
