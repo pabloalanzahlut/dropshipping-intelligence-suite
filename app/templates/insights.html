@@ -9,14 +9,14 @@
 {% block content %}
 <div x-data="insights()" x-init="init()">
 
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+  <div class="flex items-start justify-between flex-wrap" style="margin-bottom:24px;gap:12px;">
     <div>
       <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
         Insights · <span style="background:linear-gradient(90deg,#fbbf24,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Base de Conocimiento</span>
       </h1>
-      <p style="font-size:12px;color:#4a5080;margin:0;">product_trends · conversion_formulas · operations_traffic</p>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Productos, fórmulas de conversión y notas de tráfico/logística extraídos de los vídeos</p>
     </div>
-    <button @click="loadInsights()" :disabled="loading" class="btn-ghost">
+    <button @click="recargar()" :disabled="loading" class="btn-ghost" aria-label="Actualizar insights">
       <svg :class="loading ? 'spin' : ''" style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
       </svg>
@@ -24,37 +24,60 @@
     </button>
   </div>
 
-  <!-- Stats bar -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+  <!-- Error -->
+  <div x-show="error" x-cloak role="alert"
+       style="background:rgba(244,63,94,0.08);border:1px solid rgba(251,113,133,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#fb7185;">
+    <span x-text="error"></span>
+  </div>
+
+  <!-- Stats bar (totales de TODA la KB, no solo de lo cargado) -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px;">
     <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
-      <p style="font-size:20px;font-weight:700;color:#22d3ee;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="all.length"></p>
+      <p style="font-size:20px;font-weight:700;color:#22d3ee;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="resumen.total ?? '—'"></p>
       <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Total</p>
     </div>
     <div style="background:#0d0f1f;border:1px solid rgba(52,211,153,0.12);border-radius:10px;padding:14px;text-align:center;">
-      <p style="font-size:20px;font-weight:700;color:#34d399;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="all.filter(i=>i.source_table==='product_trends').length"></p>
-      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Tendencias</p>
+      <p style="font-size:20px;font-weight:700;color:#34d399;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="resumen.por_tipo?.product_trends ?? '—'"></p>
+      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Productos</p>
     </div>
     <div style="background:#0d0f1f;border:1px solid rgba(251,191,36,0.12);border-radius:10px;padding:14px;text-align:center;">
-      <p style="font-size:20px;font-weight:700;color:#fbbf24;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="all.filter(i=>i.source_table==='conversion_formulas').length"></p>
+      <p style="font-size:20px;font-weight:700;color:#fbbf24;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="resumen.por_tipo?.conversion_formulas ?? '—'"></p>
       <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Conversión</p>
     </div>
     <div style="background:#0d0f1f;border:1px solid rgba(167,139,250,0.12);border-radius:10px;padding:14px;text-align:center;">
-      <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="all.filter(i=>i.source_table==='operations_traffic').length"></p>
+      <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="resumen.por_tipo?.operations_traffic ?? '—'"></p>
       <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Operaciones</p>
     </div>
   </div>
 
-  <!-- Filter tabs -->
+  <!-- Filtros -->
+  <div style="display:grid;grid-template-columns:minmax(160px,1fr) auto;gap:10px;margin-bottom:14px;align-items:end;">
+    <div>
+      <label class="form-label" for="i-buscar">Buscar</label>
+      <input id="i-buscar" x-model="buscar" @input.debounce.400ms="cargar()" type="text"
+             placeholder="Producto, nicho, vídeo o contenido..." class="input-field" />
+    </div>
+    <div>
+      <label class="form-label" for="i-canal">Canal</label>
+      <select id="i-canal" x-model="canal" @change="cargar()" class="input-field" style="min-width:180px;">
+        <option value="">Todos los canales</option>
+        <template x-for="c in (resumen.canales || [])" :key="c.canal">
+          <option :value="c.canal" x-text="c.canal + ' (' + c.n + ')'"></option>
+        </template>
+      </select>
+    </div>
+  </div>
+
   <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">
     <template x-for="f in filters" :key="f.value">
-      <button @click="activeFilter = f.value"
-              :class="activeFilter === f.value ? 'tab-btn active' : 'tab-btn'"
+      <button @click="tipo = f.value; cargar()"
+              :class="tipo === f.value ? 'tab-btn active' : 'tab-btn'"
               x-text="f.label"></button>
     </template>
   </div>
 
   <!-- Loading -->
-  <div x-show="loading" style="text-align:center;padding:60px 0;">
+  <div x-show="loading" x-cloak style="text-align:center;padding:60px 0;">
     <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px;">
       <div class="spin" style="width:24px;height:24px;border:2px solid #1a1d35;border-top-color:#22d3ee;border-radius:50%;"></div>
       <p style="font-size:12px;color:#4a5080;margin:0;">Cargando insights...</p>
@@ -63,47 +86,54 @@
 
   <!-- Insights grid -->
   <div x-show="!loading" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;">
-    <template x-for="ins in filteredInsights" :key="ins.id + ins.source_table">
+    <template x-for="ins in lista" :key="ins.source_table + '-' + ins.id">
       <div class="insight-card"
            :style="ins.source_table === 'product_trends' ? 'border-left-color:rgba(52,211,153,0.5)' :
                    ins.source_table === 'conversion_formulas' ? 'border-left-color:rgba(251,191,36,0.5)' :
                    'border-left-color:rgba(167,139,250,0.5)'">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">
           <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span :class="{
-                'badge badge-done':    ins.source_table === 'product_trends',
-                'badge badge-pending': ins.source_table === 'conversion_formulas',
-                'badge':               ins.source_table === 'operations_traffic'
-              }" :style="ins.source_table === 'operations_traffic' ? 'background:rgba(167,139,250,0.1);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);' : ''"
-              x-text="tableLabel(ins.source_table)"></span>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <span :class="ins.source_table === 'product_trends' ? 'badge badge-done' : (ins.source_table === 'conversion_formulas' ? 'badge badge-pending' : 'badge badge-info')"
+                    x-text="tableLabel(ins.source_table)"></span>
               <span style="font-size:10px;color:#4a5080;" x-text="ins.channel_name || 'Canal desconocido'"></span>
             </div>
-            <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
-               x-text="ins.video_title || '(Sin título)'"></p>
+            <!-- El título es el insight (producto / categoría / fuente de tráfico), no el vídeo -->
+            <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+               :title="ins.titulo" x-text="ins.titulo || '(sin título)'"></p>
+            <p x-show="ins.subtitulo" style="font-size:11px;color:#7880b0;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" x-text="ins.subtitulo"></p>
           </div>
           <span style="font-size:10px;color:#4a5080;white-space:nowrap;flex-shrink:0;margin-top:2px;"
                 x-text="ins.created_at?.substring(0,10) || ''"></span>
         </div>
-        <p style="font-size:11px;color:#7880b0;margin:0;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;"
+        <p style="font-size:11px;color:#a8b0d8;margin:0 0 8px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;"
            x-text="ins.content_preview || '—'"></p>
+        <p style="font-size:10px;color:#4a5080;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+           :title="ins.video_title">
+          <span>Vídeo: </span><a :href="'https://www.youtube.com/watch?v=' + ins.video_id" target="_blank" rel="noopener"
+             style="color:#4a5080;text-decoration:underline;" x-text="ins.video_title || ins.video_id"></a>
+        </p>
       </div>
     </template>
 
     <!-- Empty state -->
-    <div x-show="filteredInsights.length === 0 && !loading"
-         style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;padding:64px 0;gap:12px;">
-      <div style="width:56px;height:56px;border-radius:16px;background:#0d0f1f;border:1px solid #1a1d35;display:flex;align-items:center;justify-content:center;">
-        <svg style="width:26px;height:26px;color:#4a5080;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-      </div>
+    <div x-show="lista.length === 0 && !loading && !error"
+         class="flex flex-col items-center" style="grid-column:1/-1;padding:64px 0;gap:12px;">
       <div style="text-align:center;">
-        <p style="font-size:13px;font-weight:600;color:#7880b0;margin:0 0 4px;">Sin insights todavía</p>
-        <p style="font-size:11px;color:#4a5080;margin:0;">Inicia la ingesta en la pestaña YouTube para comenzar.</p>
+        <p style="font-size:13px;font-weight:600;color:#7880b0;margin:0 0 4px;">Sin insights</p>
+        <p style="font-size:11px;color:#4a5080;margin:0;" x-text="(buscar || tipo || canal) ? 'No hay resultados para los filtros actuales.' : 'Inicia la ingesta en la pestaña YouTube para comenzar.'"></p>
       </div>
-      <a href="/youtube" class="btn-ghost" style="text-decoration:none;">Ir a YouTube · Ingesta →</a>
+      <button x-show="buscar || tipo || canal" @click="buscar=''; tipo=''; canal=''; cargar()" class="btn-ghost">Limpiar filtros</button>
+      <a x-show="!buscar && !tipo && !canal" href="/youtube" class="btn-ghost" style="text-decoration:none;">Ir a YouTube · Ingesta →</a>
     </div>
+  </div>
+
+  <!-- Paginación -->
+  <div x-show="lista.length > 0" class="flex items-center justify-between flex-wrap" style="margin-top:14px;gap:12px;">
+    <span style="font-size:11px;color:#4a5080;" x-text="'Mostrando ' + lista.length + ' de ' + total"></span>
+    <button x-show="lista.length < total" @click="cargar(true)" :disabled="cargandoMas" class="btn-ghost" style="font-size:11px;">
+      <span x-text="cargandoMas ? 'Cargando…' : 'Cargar más'"></span>
+    </button>
   </div>
 
 </div>
@@ -111,27 +141,48 @@
 <script>
 function insights() {
   return {
-    all: [], loading: false, activeFilter: 'all',
+    lista: [], total: 0, resumen: {}, loading: false, cargandoMas: false, error: '',
+    tipo: '', buscar: '', canal: '', _req: 0,
     filters: [
-      { value: 'all', label: 'Todos' },
-      { value: 'product_trends', label: 'Tendencias' },
+      { value: '', label: 'Todos' },
+      { value: 'product_trends', label: 'Productos' },
       { value: 'conversion_formulas', label: 'Conversión' },
       { value: 'operations_traffic', label: 'Operaciones' },
     ],
-    get filteredInsights() {
-      if (this.activeFilter === 'all') return this.all;
-      return this.all.filter(i => i.source_table === this.activeFilter);
-    },
     tableLabel(t) {
-      return { product_trends: 'Tendencias', conversion_formulas: 'Conversión', operations_traffic: 'Operaciones' }[t] || t;
+      return { product_trends: 'Producto', conversion_formulas: 'Conversión', operations_traffic: 'Operaciones' }[t] || t;
     },
-    async init() { await this.loadInsights(); },
-    async loadInsights() {
-      this.loading = true;
-      try { const res = await fetch('/api/insights'); this.all = await res.json(); }
-      catch(e) {}
-      finally { this.loading = false; }
-    }
+    async init() { await this.recargar(); },
+    async recargar() { await Promise.all([this.cargar(), this.cargarResumen()]); },
+    async cargarResumen() {
+      try {
+        const r = await fetch('/api/insights/resumen');
+        if (r.ok) this.resumen = await r.json();
+      } catch (e) { /* las tarjetas muestran — si falla */ }
+    },
+    async cargar(mas = false) {
+      const token = ++this._req;
+      if (mas) this.cargandoMas = true; else this.loading = true;
+      this.error = '';
+      try {
+        const p = new URLSearchParams({ limite: 50, offset: mas ? this.lista.length : 0 });
+        if (this.tipo) p.set('tipo', this.tipo);
+        if (this.buscar) p.set('buscar', this.buscar);
+        if (this.canal) p.set('canal', this.canal);
+        const r = await fetch('/api/insights?' + p.toString());
+        if (!r.ok) throw new Error('Error ' + r.status);
+        const items = await r.json();
+        if (token !== this._req) return;
+        this.total = parseInt(r.headers.get('X-Total-Count'), 10) || items.length;
+        this.lista = mas ? this.lista.concat(items) : items;
+      } catch (e) {
+        if (token !== this._req) return;
+        if (!mas) { this.lista = []; this.total = 0; }
+        this.error = 'No se pudieron cargar los insights: ' + e.message;
+      } finally {
+        if (token === this._req) { this.loading = false; this.cargandoMas = false; }
+      }
+    },
   }
 }
 </script>
