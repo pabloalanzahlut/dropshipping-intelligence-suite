@@ -166,8 +166,7 @@ class KBAgentPanel(ttk.Frame):
                 agent_name="consultar_kb_agente",
                 skill_name="consultar_kb_agente",
                 project_name="kb_query",
-                user_request=f"{bloque}PREGUNTA DEL OPERADOR:
-{query}" if bloque else query,
+                user_request=(f"{bloque}PREGUNTA DEL OPERADOR:\n{query}" if bloque else query),
             )
             elapsed = (datetime.now() - t0).total_seconds()
             self._show_result(result, elapsed, bool(bloque))
