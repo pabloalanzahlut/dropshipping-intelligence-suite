@@ -365,6 +365,33 @@
       #topbar { padding: 10px 16px; }
     }
 
+    /* Centro de alertas */
+    .alertas-wrap { position: relative; }
+    .bell { position: relative; padding: 6px 8px; }
+    .bell-badge { position: absolute; top: -5px; right: -5px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
+                  background: #f59e0b; color: #060810; font-size: 10px; font-weight: 800; line-height: 16px; text-align: center; }
+    .bell-badge.crit { background: #f43f5e; color: #fff; }
+    .alertas-panel { position: absolute; right: 0; top: calc(100% + 10px); width: min(380px, calc(100vw - 24px)); max-height: 70vh;
+                     overflow-y: auto; background: #0d0f1f; border: 1px solid #252844; border-radius: 12px; z-index: 60;
+                     box-shadow: 0 16px 48px rgba(0,0,0,.6); }
+    .alertas-head { display: flex; align-items: baseline; gap: 8px; padding: 12px 14px; border-bottom: 1px solid #1a1d35; font-size: 13px; color: #e8ecff; }
+    .alertas-sub { font-size: 11px; color: #7880b0; margin-right: auto; }
+    .alertas-link { background: none; border: 0; padding: 2px 0; font-size: 11px; color: #22d3ee; cursor: pointer; text-decoration: none; }
+    .alertas-link:hover { text-decoration: underline; }
+    .alertas-vacio { padding: 18px 14px; margin: 0; font-size: 12px; color: #7880b0; }
+    .alertas-lista { list-style: none; margin: 0; padding: 0; }
+    .alerta a { display: block; padding: 10px 14px 10px 17px; border-left: 3px solid #3a3f68; border-bottom: 1px solid rgba(26,29,53,.7);
+                text-decoration: none; }
+    .alerta a:hover { background: #111328; }
+    .alerta.critico a { border-left-color: #f43f5e; } .alerta.aviso a { border-left-color: #f59e0b; } .alerta.info a { border-left-color: #22d3ee; }
+    .alerta.vista .alerta-titulo { color: #a8b0d8; font-weight: 500; }
+    .alerta-nivel { display: block; font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #7880b0; }
+    .alerta.critico .alerta-nivel { color: #fb7185; } .alerta.aviso .alerta-nivel { color: #fbbf24; } .alerta.info .alerta-nivel { color: #22d3ee; }
+    .alerta-titulo { display: block; font-size: 13px; font-weight: 600; color: #e8ecff; margin-top: 2px; }
+    .alerta-detalle { display: block; font-size: 11px; color: #7880b0; margin-top: 3px; line-height: 1.45; }
+    .alertas-pie { display: flex; justify-content: space-between; padding: 10px 14px; }
+    @media (max-width: 767px) { .alertas-panel { position: fixed; right: 12px; left: 12px; width: auto; top: 58px; } }
+
     /* Animated spin */
     .spin { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -548,6 +575,36 @@
         error(t) { this.mostrar('error', t, 8000); },
         info(t) { this.mostrar('info', t); },
       });
+    });
+
+    // Centro de alertas: se refresca solo cada minuto (el servidor las recalcula cada hora y al registrar datos)
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('centroAlertas', () => ({
+        items: [], sinVer: 0, criticas: 0, total: 0, abierto: false, cargando: true,
+        get etiqueta() {
+          if (!this.total) return 'Alertas: todo en orden';
+          return `Alertas: ${this.total} activas, ${this.sinVer} sin ver` + (this.criticas ? `, ${this.criticas} críticas` : '');
+        },
+        iniciar() { this.cargar(); setInterval(() => this.cargar(), 60000); },
+        async cargar(forzar = false) {
+          try {
+            const r = await fetch('/api/alertas' + (forzar ? '?refrescar=true' : ''));
+            if (!r.ok) return;
+            const d = await r.json();
+            this.items = d.items; this.sinVer = d.sin_ver; this.criticas = d.criticas; this.total = d.total_activas;
+          } catch (e) { /* sin conexión: se mantiene lo último */ }
+          this.cargando = false;
+        },
+        alternar() { this.abierto = !this.abierto; if (this.abierto) this.cargar(); },
+        async marcarTodas() {
+          await fetch('/api/alertas/vistas', { method: 'POST' });
+          this.cargar();
+        },
+        abrir(a) {
+          if (!a.vista_at) fetch('/api/alertas/vistas?alerta_id=' + a.id, { method: 'POST', keepalive: true });
+          this.abierto = false;
+        },
+      }));
     });
 
     // Atajos: g + letra navega; / enfoca el buscador; ? ayuda

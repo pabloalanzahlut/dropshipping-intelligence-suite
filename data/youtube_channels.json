@@ -77,6 +77,7 @@
     "rol": "complementaria",
     "nota": "Valor agregado en escalado y ads. No reemplaza ni modifica reglas de Adrián Sáenz.",
     "idioma": "es",
-    "max_videos_scan": 30
+    "max_videos_scan": 30,
+    "filtro_tema": true
   }
 ]
