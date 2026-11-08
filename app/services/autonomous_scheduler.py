@@ -169,6 +169,24 @@ def job_daily_report() -> None:
         logger.error(f"[DAILY_REPORT] {e}")
 
 
+def job_self_improve() -> None:
+    """
+    Analiza los resultados reales de 21 días y escribe propuestas de ajuste.
+
+    No aplica ningún cambio: deja un fichero para revisión humana. Las reglas
+    financieras y el gate determinista quedan fuera de su alcance por diseño.
+    """
+    try:
+        from app.services.self_improve import analizar_y_proponer
+        resultado = analizar_y_proponer(dias=21)
+        if resultado.get("propuestas_generadas"):
+            logger.info(f"[SELF_IMPROVE] Propuestas en {resultado['ruta']} — pendientes de revisión")
+        else:
+            logger.info(f"[SELF_IMPROVE] Sin propuestas: {resultado.get('motivo')}")
+    except Exception as e:
+        logger.error(f"[SELF_IMPROVE] {e}")
+
+
 def _update_google_sheets(date: str, hot: int, warm: int) -> None:
     """Añade fila al tab ROAS_Diario del dashboard GEM OS."""
     try:
