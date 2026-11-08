@@ -15,7 +15,8 @@ from typing import Dict, List, Optional
 
 from app.database.connection import DatabaseConnection
 from app.ui.themes.design_tokens import (
-    COLORS, TYPOGRAPHY, SPACING, CARD_GRADIENTS, KPI_ICONS
+    COLORS, TYPOGRAPHY, SPACING, CARD_GRADIENTS, KPI_ICONS,
+    DARK_BASE, NEON_COLORS, STATUS_COLORS, TEXT_COLORS,
 )
 from app.ui.components.animations import AnimatedValue, ThrottledUpdater
 
@@ -28,21 +29,21 @@ FONT_BODY = (TYPOGRAPHY.body_family, 10)
 FONT_BODY_SM = (TYPOGRAPHY.body_family, 9)
 FONT_MONO = (TYPOGRAPHY.mono_family, 8)
 
-# Paleta de colores premium
-COLOR_PRIMARY = "#6366f1"      # Indigo
-COLOR_SECONDARY = "#8b5cf6"    # Purple
-COLOR_SUCCESS = "#10b981"      # Emerald
-COLOR_WARNING = "#f59e0b"      # Amber
-COLOR_ERROR = "#ef4444"        # Red
-COLOR_INFO = "#3b82f6"         # Blue
-COLOR_BG_PRIMARY = "#0f0f0f"   # Near black
-COLOR_BG_SECONDARY = "#1a1a1a" # Deep dark
-COLOR_BG_TERTIARY = "#252525"  # Dark gray
-COLOR_BG_CARD = "#2d2d2d"      # Card background
-COLOR_BORDER = "#3d3d3d"       # Border color
-COLOR_TEXT_PRIMARY = "#ffffff" # White
-COLOR_TEXT_SECONDARY = "#b0b0b0"  # Gray
-COLOR_TEXT_TERTIARY = "#888888"   # Dim gray
+# Paleta: la misma que la web (app/templates/base.html) vía design_tokens
+COLOR_PRIMARY = NEON_COLORS["cyan"]       # acento principal
+COLOR_SECONDARY = NEON_COLORS["purple"]
+COLOR_SUCCESS = STATUS_COLORS["success"]
+COLOR_WARNING = STATUS_COLORS["warning"]
+COLOR_ERROR = STATUS_COLORS["error"]
+COLOR_INFO = NEON_COLORS["blue"]
+COLOR_BG_PRIMARY = DARK_BASE["bg_primary"]     # fondo de la app
+COLOR_BG_SECONDARY = DARK_BASE["bg_secondary"]
+COLOR_BG_TERTIARY = DARK_BASE["bg_tertiary"]
+COLOR_BG_CARD = DARK_BASE["bg_card"]
+COLOR_BORDER = DARK_BASE["bg_hover"]           # borde sutil de la web (#1a1d35)
+COLOR_TEXT_PRIMARY = TEXT_COLORS["primary"]
+COLOR_TEXT_SECONDARY = TEXT_COLORS["secondary"]
+COLOR_TEXT_TERTIARY = TEXT_COLORS["tertiary"]
 
 # Config de KPIs
 KPI_CONFIG = [
@@ -186,7 +187,7 @@ class DashboardPanelV3(tk.Frame):
             "success": COLOR_SUCCESS,
             "info": COLOR_INFO,
             "amber": COLOR_WARNING,
-            "tiktok": "#ec4899",
+            "tiktok": NEON_COLORS["pink"],
         }
         accent_color = color_map.get(variant, COLOR_PRIMARY)
         
@@ -481,10 +482,10 @@ class DashboardPanelV3(tk.Frame):
         except Exception:
             productos = transcs = copys = guiones = 0
 
-        data = [("Productos", productos, "#6366f1"),
-                ("Transcrip.", transcs, "#3b82f6"),
-                ("Copys", copys, "#10b981"),
-                ("Guiones", guiones, "#f59e0b")]
+        data = [("Productos", productos, COLOR_PRIMARY),
+                ("Transcrip.", transcs, COLOR_INFO),
+                ("Copys", copys, COLOR_SUCCESS),
+                ("Guiones", guiones, COLOR_WARNING)]
 
         max_val = max((v for _, v, _ in data), default=1) or 1
         pad_l, pad_r, pad_t, pad_b = 10, 10, 12, 28
@@ -536,7 +537,7 @@ class DashboardPanelV3(tk.Frame):
                                fill=COLOR_TEXT_TERTIARY, font=FONT_BODY_SM)
             return
 
-        colors = ["#6366f1", "#8b5cf6", "#3b82f6", "#10b981", "#f59e0b"]
+        colors = [COLOR_PRIMARY, COLOR_SECONDARY, COLOR_INFO, COLOR_SUCCESS, COLOR_WARNING]
         max_val = max(r[1] for r in rows) or 1
         pad_l, pad_r, pad_t, pad_b = 100, 40, 8, 8
         bar_area_w = w - pad_l - pad_r

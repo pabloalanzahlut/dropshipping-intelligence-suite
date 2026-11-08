@@ -10,6 +10,19 @@ from tkinter import filedialog, messagebox, ttk
 
 from app.services import transcript_store
 from app.services.youtube_channel_monitor import YouTubeChannelMonitor
+from app.ui.themes.design_tokens import DARK_BASE, NEON_COLORS, STATUS_COLORS, TEXT_COLORS
+
+
+def _estilo_texto(widget: tk.Text, tamano: int = 10) -> None:
+    """tk.Text no usa ttk: sin esto sale blanco. Mismos colores que las tarjetas de la web."""
+    widget.configure(
+        bg=DARK_BASE["bg_tertiary"], fg=TEXT_COLORS["secondary"],
+        insertbackground=NEON_COLORS["cyan"], selectbackground=NEON_COLORS["cyan"],
+        selectforeground=DARK_BASE["bg_primary"], relief=tk.FLAT, borderwidth=0,
+        highlightthickness=1, highlightbackground=DARK_BASE["bg_hover"],
+        highlightcolor=NEON_COLORS["cyan"], padx=12, pady=10,
+        font=("Segoe UI", tamano), spacing3=3,
+    )
 
 _LIMITE_TRANSCRIPCIONES = 300
 
@@ -40,7 +53,7 @@ class YouTubeMonitorPanel(ttk.Frame):
         ttk.Button(ctrl, text="＋  Agregar Canal", command=self._agregar_canal).pack(side=tk.LEFT, padx=(0, 8))
         ttk.Button(ctrl, text="↺  Recargar", command=self._recargar_todo).pack(side=tk.LEFT)
 
-        self.lbl_estado = ttk.Label(ctrl, text="●  Listo", foreground="#4CAF50")
+        self.lbl_estado = ttk.Label(ctrl, text="●  Listo", foreground=STATUS_COLORS["success"])
         self.lbl_estado.pack(side=tk.RIGHT, padx=8)
 
         ttk.Separator(self, orient=tk.HORIZONTAL).pack(fill=tk.X)
@@ -66,6 +79,7 @@ class YouTubeMonitorPanel(ttk.Frame):
         sf = ttk.LabelFrame(self, text="Última Sincronización", padding=6)
         sf.pack(fill=tk.X, padx=6, pady=(0, 6))
         self.stats_text = tk.Text(sf, height=4, state=tk.DISABLED, wrap=tk.WORD)
+        _estilo_texto(self.stats_text, 9)
         self.stats_text.pack(fill=tk.X)
 
         self._recargar_todo()
@@ -245,6 +259,7 @@ class YouTubeMonitorPanel(ttk.Frame):
 
         bottom = ttk.Frame(paned)
         self.txt_detalle = tk.Text(bottom, wrap=tk.WORD, state=tk.DISABLED, height=10)
+        _estilo_texto(self.txt_detalle, 10)
         sb2 = ttk.Scrollbar(bottom, orient=tk.VERTICAL, command=self.txt_detalle.yview)
         self.txt_detalle.configure(yscrollcommand=sb2.set)
         sb2.pack(side=tk.RIGHT, fill=tk.Y)
@@ -330,10 +345,10 @@ class YouTubeMonitorPanel(ttk.Frame):
             return
         self.clipboard_clear()
         self.clipboard_append(texto)
-        self.lbl_estado.config(text="●  Copiado al portapapeles", foreground="#4CAF50")
+        self.lbl_estado.config(text="●  Copiado al portapapeles", foreground=STATUS_COLORS["success"])
         self.after(2500, lambda: self.lbl_estado.config(
             text="●  Sincronizando…" if self.syncing else "●  Listo",
-            foreground="#FF9800" if self.syncing else "#4CAF50"))
+            foreground=STATUS_COLORS["warning"] if self.syncing else STATUS_COLORS["success"]))
 
     def _exportar_transcripcion(self):
         if not self._t_actual:
@@ -371,6 +386,7 @@ class YouTubeMonitorPanel(ttk.Frame):
         """Diálogo: descargar por URL de YouTube o pegar texto a mano."""
         dlg = tk.Toplevel(self)
         dlg.title("Agregar transcripción")
+        dlg.configure(bg=DARK_BASE["bg_primary"])
         dlg.geometry("560x470")
         dlg.transient(self.winfo_toplevel())
         pad = {"padx": 10, "pady": 3}
@@ -382,7 +398,7 @@ class YouTubeMonitorPanel(ttk.Frame):
         e_url.pack(side=tk.LEFT, fill=tk.X, expand=True)
         btn_url = ttk.Button(fila, text="Descargar")
         btn_url.pack(side=tk.LEFT, padx=(6, 0))
-        lbl = ttk.Label(dlg, text="", foreground="#888")
+        lbl = ttk.Label(dlg, text="", foreground=TEXT_COLORS["tertiary"])
         lbl.pack(anchor=tk.W, **pad)
 
         ttk.Separator(dlg).pack(fill=tk.X, pady=6)
@@ -394,6 +410,7 @@ class YouTubeMonitorPanel(ttk.Frame):
         e_can = ttk.Entry(dlg)
         e_can.pack(fill=tk.X, **pad)
         txt = tk.Text(dlg, height=8, wrap=tk.WORD)
+        _estilo_texto(txt, 10)
         txt.pack(fill=tk.BOTH, expand=True, **pad)
         btn_txt = ttk.Button(dlg, text="Guardar texto")
         btn_txt.pack(pady=6)
@@ -404,10 +421,10 @@ class YouTubeMonitorPanel(ttk.Frame):
             btn_url.config(state=tk.NORMAL)
             btn_txt.config(state=tk.NORMAL)
             if error:
-                lbl.config(text=error, foreground="#E53935")
+                lbl.config(text=error, foreground=STATUS_COLORS["error"])
                 return
             if res.get("duplicado"):
-                lbl.config(text="Esa transcripción ya estaba guardada.", foreground="#FF9800")
+                lbl.config(text="Esa transcripción ya estaba guardada.", foreground=STATUS_COLORS["warning"])
             else:
                 self._recargar_todo()
                 dlg.destroy()
@@ -415,7 +432,7 @@ class YouTubeMonitorPanel(ttk.Frame):
         def lanzar(fn):
             btn_url.config(state=tk.DISABLED)
             btn_txt.config(state=tk.DISABLED)
-            lbl.config(text="Procesando…", foreground="#888")
+            lbl.config(text="Procesando…", foreground=TEXT_COLORS["tertiary"])
 
             def worker():
                 try:
@@ -428,7 +445,7 @@ class YouTubeMonitorPanel(ttk.Frame):
         def por_url():
             url = e_url.get().strip()
             if not url:
-                lbl.config(text="Escribe una URL.", foreground="#E53935")
+                lbl.config(text="Escribe una URL.", foreground=STATUS_COLORS["error"])
                 return
             lanzar(lambda: transcript_store.ingest_url(
                 self.monitor.db_path, url, self.monitor.cleaner))
@@ -437,7 +454,7 @@ class YouTubeMonitorPanel(ttk.Frame):
             texto = txt.get("1.0", tk.END).strip()
             titulo = e_tit.get().strip()
             if not titulo:
-                lbl.config(text="Falta el título.", foreground="#E53935")
+                lbl.config(text="Falta el título.", foreground=STATUS_COLORS["error"])
                 return
             lanzar(lambda: transcript_store.ingest_text(
                 self.monitor.db_path, titulo, e_can.get().strip(), texto, self.monitor.cleaner))
@@ -488,9 +505,9 @@ class YouTubeMonitorPanel(ttk.Frame):
         self.btn_sync.config(state=tk.DISABLED if activo else tk.NORMAL)
         self.btn_cancel.config(state=tk.NORMAL if activo else tk.DISABLED)
         if activo:
-            self.lbl_estado.config(text=f"●  {texto or 'Sincronizando…'}", foreground="#FF9800")
+            self.lbl_estado.config(text=f"●  {texto or 'Sincronizando…'}", foreground=STATUS_COLORS["warning"])
         else:
-            self.lbl_estado.config(text="●  Listo", foreground="#4CAF50")
+            self.lbl_estado.config(text="●  Listo", foreground=STATUS_COLORS["success"])
 
     def _sincronizar(self):
         if self.syncing:
@@ -500,7 +517,7 @@ class YouTubeMonitorPanel(ttk.Frame):
 
         def progreso(msg: str):
             self.after(0, lambda m=msg: self.syncing and self.lbl_estado.config(
-                text=f"●  {m[:70]}", foreground="#FF9800"))
+                text=f"●  {m[:70]}", foreground=STATUS_COLORS["warning"]))
 
         def worker():
             try:
@@ -513,7 +530,7 @@ class YouTubeMonitorPanel(ttk.Frame):
 
     def _cancelar_sync(self):
         self.monitor.cancelar_sincronizacion()
-        self.lbl_estado.config(text="●  Cancelando…", foreground="#FF9800")
+        self.lbl_estado.config(text="●  Cancelando…", foreground=STATUS_COLORS["warning"])
         self.btn_cancel.config(state=tk.DISABLED)
 
     def _sync_error(self, mensaje: str):
@@ -541,6 +558,7 @@ class YouTubeMonitorPanel(ttk.Frame):
         """Diálogo extendido para agregar canal con metadata."""
         dlg = tk.Toplevel(self)
         dlg.title("Agregar Canal")
+        dlg.configure(bg=DARK_BASE["bg_primary"])
         dlg.geometry("420x300")
         dlg.resizable(False, False)
         dlg.transient(self.winfo_toplevel())

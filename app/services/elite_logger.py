@@ -95,11 +95,11 @@ class EliteLogger:
         # Asegurar directorio de logs
         ELITE_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-            # Rotar logs antiguos al iniciar (retención: 30 días)
-            try:
-                self.rotate_old_logs(days=30)
-            except Exception:
-                pass
+        # Rotar logs antiguos al iniciar (retención: 30 días)
+        try:
+            self.rotate_old_logs(days=30)
+        except Exception:
+            pass
 
         # Handler JSON (append-only)
         json_handler = logging.FileHandler(str(ELITE_JSON_LOG), encoding="utf-8", mode="a")

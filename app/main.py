@@ -34,13 +34,14 @@ class GEMOSApplication:
         # Configurar colores de ventana
         self.root.configure(bg=DARK_BASE['bg_primary'])
         
-        # Aplicar estilos Jack premium
-        apply_jack_styles(self.root)
-        
         self._current_theme_name: str = initial_theme
         self._themes = {"dark": DarkTheme(), "light": LightTheme()}
         self._current_theme = self._themes[initial_theme]
         self._current_theme.apply()
+        # Los estilos premium van DESPUÉS de apply(): BaseTheme.apply() cambia a
+        # theme_use("default") y, si no, los botones/campos quedan con el aspecto de Windows.
+        if initial_theme == "dark":
+            apply_jack_styles(self.root)
         load_dotenv()
         self.console_view = None
         self._verify_environment()
@@ -286,6 +287,8 @@ class GEMOSApplication:
         self._current_theme_name = new_theme
         self._current_theme = self._themes[new_theme]
         self._current_theme.apply()
+        if new_theme == "dark":
+            apply_jack_styles(self.root)
         
         # Actualizar los colores de fondo de los frames principales
         self.root.configure(bg=self._current_theme.bg_primary)
