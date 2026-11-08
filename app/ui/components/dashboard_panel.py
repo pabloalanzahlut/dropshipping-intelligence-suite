@@ -319,6 +319,24 @@ class DashboardPanelV3(tk.Frame):
             lineas.append("Aún no hay sincronizaciones de transcripciones.")
         if problemas:
             lineas.append(f"⚠ {problemas} canal(es) no se encuentran (404): revísalos en la pestaña YouTube.")
+        # Alertas: las mismas que la campana de la web (comparten tabla y comprobaciones)
+        try:
+            import time
+            from app.services import alerts
+            if time.time() - getattr(self, "_ult_eval_alertas", 0) > 120:
+                self._ult_eval_alertas = time.time()
+                alerts.evaluar(db, str(rutas["config"]))
+            activas = alerts.listar(db)
+            if activas["items"]:
+                marca = {"critico": "🔴", "aviso": "🟠", "info": "🔹"}
+                bloque = [f"Alertas ({activas['total_activas']}"
+                          + (f", {activas['criticas']} críticas" if activas["criticas"] else "") + "):"]
+                bloque += [f"{marca.get(a['nivel'], '•')} {a['titulo']}" for a in activas["items"][:6]]
+                lineas.insert(0, "\n".join(bloque))
+            else:
+                lineas.insert(0, "Alertas: todo en orden.")
+        except Exception as exc:       # las alertas nunca deben romper el Dashboard
+            lineas.insert(0, f"Alertas no disponibles: {str(exc)[:80]}")
         self.estado_label.config(text="\n\n".join(lineas))
 
     def _build_tables(self, parent):
