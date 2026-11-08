@@ -195,8 +195,10 @@ def _evaluar(db_path: str, config_path: str) -> Dict[str, Any]:
             else:
                 # si reaparece tras estar resuelta, vuelve a ser "no vista"
                 reabre = previa["resuelta_at"] is not None or NIVELES[a["nivel"]] > NIVELES.get(previa["nivel"], 1)
+                # al reabrirse (o subir de nivel) vuelve a ser «no vista» y «sin notificar»
                 conn.execute("UPDATE alertas SET nivel=?, titulo=?, detalle=?, enlace=?, origen=?, actualizado_at=?, "
-                             "resuelta_at=NULL" + (", vista_at=NULL, creado_at=?" if reabre else "") + " WHERE id=?",
+                             "resuelta_at=NULL" + (", vista_at=NULL, notificada_at=NULL, creado_at=?" if reabre else "")
+                             + " WHERE id=?",
                              (a["nivel"], a["titulo"], a["detalle"], a["enlace"], a["origen"], ahora)
                              + ((ahora,) if reabre else ()) + (previa["id"],))
                 nuevas += 1 if reabre else 0

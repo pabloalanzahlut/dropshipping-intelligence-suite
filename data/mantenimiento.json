@@ -1,0 +1,27 @@
+{
+  "fecha": "2026-11-08T22:21:23",
+  "errores": [],
+  "integridad": {
+    "ok": true,
+    "detalle": "ok"
+  },
+  "optimizacion": {
+    "vacuum": false,
+    "antes_kb": 2200,
+    "despues_kb": 2200,
+    "espacio_muerto_pct": 13.3
+  },
+  "temporales": {
+    "borrados": 0,
+    "liberado_kb": 0
+  },
+  "canales": {
+    "ok": 29,
+    "sin_videos": 0,
+    "no_encontrado": 0,
+    "indeterminado": 0,
+    "revisados": 29
+  },
+  "integridad_ok": true,
+  "duracion_s": 427.3
+}

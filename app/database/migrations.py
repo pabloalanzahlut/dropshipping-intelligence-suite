@@ -490,3 +490,10 @@ def mig_0019_alertas_y_resumenes(conn: sqlite3.Connection):
             creado_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+
+@migration(20, "Avisos externos: registro de cuándo se notificó cada alerta")
+def mig_0020_alertas_notificada(conn: sqlite3.Connection):
+    columnas = {r[1] for r in conn.execute("PRAGMA table_info(alertas)")}
+    if "notificada_at" not in columnas:
+        conn.execute("ALTER TABLE alertas ADD COLUMN notificada_at TEXT")
