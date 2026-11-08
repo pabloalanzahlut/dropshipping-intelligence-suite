@@ -17,8 +17,10 @@
 | F-004 | WORKFLOW_CONFIG/ACTION_VERSION | node.js actions are deprecated | Actualizar github-script a v8 | 1 |
 | F-005 | SECRETS_SECURITY | gitleaks placeholder detectado como secreto real | Allowlist en .gitleaks.toml | 1 |
 | F-006 | WORKFLOW_CONFIG/RUNNER_COMPAT | gitleaks-action incompatible ubuntu-26 | Binario estático SHA-256 pinned | 1 |
-| F-007 | SECRETS_SECURITY/INJECTION_RISK | secrets interpolados en run: | Mover a env: del step | 1 |
+| F-007 | SECRETS_SECURITY/INJECTION_RISK | secrets interpolados en run: | Mover a env: del step | 2 |
 | F-008 | DEPENDABOT/VERSION_NONEXISTENT | no matching distribution found | Verificar con pip index versions | 1 |
+| F-009 | SECRETS_SECURITY/COOKIES_TRACKED | cookies de sesión (auth_token jwt) versionadas en git | git rm --cached + .gitignore *cookies*.json | 1 |
+| F-010 | SECRETS_SECURITY/PLAYWRIGHT_DATA | grabaciones playwright de sesiones autenticadas en git | git rm --cached .playwright-mcp/ + .gitignore | 1 |
 
 ---
 
