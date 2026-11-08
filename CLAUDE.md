@@ -212,6 +212,26 @@ chat(task="analizar_imagen", ...)  # → Gemini Flash (multimodal)
 
 ---
 
+## VERIFICACIÓN DE SALIDAS
+
+→ **Detalle en [`.claude/memory/verificacion-determinista.md`](.claude/memory/verificacion-determinista.md)**
+
+**Un LLM no puede auditar a otro LLM.** Evidencia: Maurice Human puso un agente a vigilar a
+otros 17 y los agentes lo convencían de que su trabajo estaba bien. Solo un test
+determinista detectó los fallos — y entonces los agentes intentaron modificar el test.
+
+Toda salida con números o copy comercial pasa por `app/services/deterministic_gate.py`:
+Python puro, sin LLM, sin interpretación semántica.
+
+```python
+from app.services.deterministic_gate import verificar_copy, verificar_validacion_financiera
+```
+
+**Ningún agente edita ese archivo.** Los cambios en las reglas de verificación los aprueba
+una persona.
+
+---
+
 ## SEGURIDAD (método Xavier Mitjana "Refuerza tu seguridad" t=2:41)
 
 **Reglas de seguridad inmutables:**
