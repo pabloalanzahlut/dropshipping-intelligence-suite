@@ -652,6 +652,16 @@ async def agente_page(request: Request):
     return _render(request, "agente.html")
 
 
+@app.get("/productos", response_class=HTMLResponse)
+async def productos_page(request: Request):
+    return _render(request, "productos.html")
+
+
+@app.get("/negocio", response_class=HTMLResponse)
+async def negocio_page(request: Request):
+    return _render(request, "negocio.html")
+
+
 @app.get("/transcripciones", response_class=HTMLResponse)
 async def transcripciones_page(request: Request):
     return _render(request, "transcripciones.html")

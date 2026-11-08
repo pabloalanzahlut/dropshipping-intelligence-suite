@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block title %}Negocio{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Negocio</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="negocio()" x-init="init()">
+
+  <div class="flex items-start justify-between flex-wrap" style="margin-bottom:20px;gap:12px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        Negocio · <span style="background:linear-gradient(90deg,#34d399,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ROAS, caja y escalado</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Registra los números de cada día; el sistema calcula con las reglas de tus procedimientos. Nada se estima en silencio.</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <label class="form-label" for="dias" style="margin:0;">Periodo</label>
+      <select id="dias" x-model.number="dias" @change="cargar()" class="input-field" style="width:110px;">
+        <option value="7">7 días</option><option value="14">14 días</option><option value="30">30 días</option>
+      </select>
+    </div>
+  </div>
+
+  <div x-show="error" x-cloak role="alert" style="background:rgba(244,63,94,0.08);border:1px solid rgba(251,113,133,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#fb7185;" x-text="error"></div>
+
+  <!-- Señal general -->
+  <div class="flex items-center gap-3 flex-wrap" :style="bannerStyle()" style="border-radius:12px;padding:14px 18px;margin-bottom:16px;" role="status">
+    <span style="font-size:20px;" x-text="{SALUDABLE:'🟢',ADVERTENCIA:'🟡',CRITICO:'🔴',SIN_DATOS:'⚪'}[r.senal] || '⚪'"></span>
+    <div style="min-width:0;flex:1;">
+      <p style="font-size:14px;font-weight:700;color:#e8ecff;margin:0;" x-text="{SALUDABLE:'Saludable',ADVERTENCIA:'Advertencia',CRITICO:'Crítico',SIN_DATOS:'Sin datos suficientes'}[r.senal] || '—'"></p>
+      <p style="font-size:12px;color:#a8b0d8;margin:3px 0 0;" x-text="(r.acciones || [])[0] || ''"></p>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;">
+    <div class="kpi"><p>ROAS real</p><strong :style="'color:' + color(r.roas_estado?.estado)" x-text="r.roas ? r.roas + '×' : '—'"></strong><span x-text="r.roas_estado?.estado"></span></div>
+    <div class="kpi"><p>CPA real</p><strong x-text="r.cpa_real ?? '—'"></strong><span>gasto / pedidos</span></div>
+    <div class="kpi"><p>Resultado del periodo</p><strong :style="r.resultado_periodo >= 0 ? 'color:#34d399' : 'color:#fb7185'" x-text="r.resultado_periodo ?? '—'"></strong><span>ingresos − ads − coste</span></div>
+    <div class="kpi"><p>Margen neto</p><strong :style="r.margen_neto >= 0 ? 'color:#34d399' : 'color:#fb7185'" x-text="r.margen_neto ?? '—'"></strong><span x-text="r.devoluciones_estimadas ? 'devoluciones estimadas (10,1 %)' : 'con devoluciones reales'"></span></div>
+    <div class="kpi"><p>Caja disponible</p><strong x-text="r.caja_disponible ?? '—'"></strong><span>saldo + liberaciones − pagos</span></div>
+    <div class="kpi"><p>Días de caja</p><strong :style="'color:' + color(r.caja_estado?.estado)" x-text="r.dias_de_caja ?? '—'"></strong><span x-text="r.caja_estado?.estado"></span></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;align-items:start;">
+
+    <!-- Gráfico + acciones -->
+    <div class="card" style="min-width:0;">
+      <div class="section-title">Ingresos y gasto en ads por día</div>
+      <div x-show="serie.length" style="overflow-x:auto;">
+        <svg :viewBox="'0 0 ' + ancho + ' 170'" :width="ancho" height="170" role="img" aria-label="Ingresos y gasto en ads por día">
+          <template x-for="(b, i) in barras" :key="b.fecha">
+            <g>
+              <rect :x="b.x" :y="b.yi" width="14" :height="b.hi" fill="#22d3ee" rx="2"><title x-text="b.fecha + ' · ingresos ' + b.ingresos"></title></rect>
+              <rect :x="b.x + 16" :y="b.yg" width="14" :height="b.hg" fill="#fb7185" rx="2"><title x-text="b.fecha + ' · gasto ' + b.gasto_ads"></title></rect>
+              <text :x="b.x + 15" y="165" text-anchor="middle" font-size="9" fill="#4a5080" x-text="b.fecha.slice(5)"></text>
+            </g>
+          </template>
+        </svg>
+      </div>
+      <p x-show="!serie.length" style="font-size:12px;color:#4a5080;margin:0;">Sin datos todavía: registra el primer día →</p>
+      <div style="margin-top:8px;font-size:10px;color:#7880b0;"><span style="color:#22d3ee;">■</span> Ingresos &nbsp; <span style="color:#fb7185;">■</span> Gasto en ads</div>
+
+      <div style="margin-top:14px;">
+        <p style="font-size:10px;font-weight:700;color:#4a5080;letter-spacing:.5px;margin:0 0 6px;">QUÉ HACER</p>
+        <template x-for="a in (r.acciones || [])" :key="a"><p style="font-size:12px;color:#a8b0d8;margin:0 0 4px;" x-text="'• ' + a"></p></template>
+        <template x-for="h in (r.datos_que_faltan || [])" :key="h"><p style="font-size:12px;color:#fbbf24;margin:0 0 4px;" x-text="'! ' + h"></p></template>
+      </div>
+    </div>
+
+    <!-- Registrar -->
+    <div class="card" style="min-width:0;">
+      <div class="section-title">Registrar el día</div>
+      <form @submit.prevent="guardarDia()" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+        <div><label class="form-label" for="m-fecha">Fecha</label><input id="m-fecha" x-model="m.fecha" type="date" class="input-field" required></div>
+        <div><label class="form-label" for="m-prod">Producto</label>
+          <select id="m-prod" x-model="m.producto_id" class="input-field"><option value="">Toda la tienda</option><template x-for="p in productos" :key="p.id"><option :value="p.id" x-text="p.nombre"></option></template></select></div>
+        <div><label class="form-label" for="m-plat">Plataforma</label><select id="m-plat" x-model="m.plataforma" class="input-field"><option value="meta">Meta</option><option value="tiktok">TikTok</option><option value="otros">Otros</option></select></div>
+        <div><label class="form-label" for="m-gasto">Gasto en ads</label><input id="m-gasto" x-model.number="m.gasto_ads" type="number" step="0.01" min="0" class="input-field"></div>
+        <div><label class="form-label" for="m-ing">Ingresos (Shopify)</label><input id="m-ing" x-model.number="m.ingresos" type="number" step="0.01" min="0" class="input-field"></div>
+        <div><label class="form-label" for="m-ped">Pedidos</label><input id="m-ped" x-model.number="m.pedidos" type="number" min="0" class="input-field"></div>
+        <div><label class="form-label" for="m-cogs">Coste pagado al proveedor</label><input id="m-cogs" x-model.number="m.cogs_pagado" type="number" step="0.01" min="0" class="input-field"></div>
+        <div><label class="form-label" for="m-dev">Devoluciones (opc.)</label><input id="m-dev" x-model.number="m.devoluciones" type="number" step="0.01" min="0" class="input-field"></div>
+        <div><label class="form-label" for="m-vis">Visitantes (opc.)</label><input id="m-vis" x-model.number="m.visitantes" type="number" min="0" class="input-field"></div>
+        <div><label class="form-label" for="m-pres">Presupuesto diario (opc.)</label><input id="m-pres" x-model.number="m.presupuesto_diario" type="number" step="0.01" min="0" class="input-field"></div>
+        <div style="grid-column:1/-1;"><button type="submit" class="btn-primary" style="width:100%;justify-content:center;">Guardar día</button></div>
+      </form>
+
+      <div class="section-title" style="margin-top:18px;">Caja de hoy</div>
+      <form @submit.prevent="guardarCaja()" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+        <div><label class="form-label" for="c-saldo">Saldo en cuenta</label><input id="c-saldo" x-model.number="c.saldo_cuenta" type="number" step="0.01" class="input-field" required></div>
+        <div><label class="form-label" for="c-lib">Liberado por pasarela</label><input id="c-lib" x-model.number="c.liberaciones_pasarela" type="number" step="0.01" min="0" class="input-field"></div>
+        <div><label class="form-label" for="c-pend">Pagos pendientes a proveedor</label><input id="c-pend" x-model.number="c.pagos_proveedor_pendientes" type="number" step="0.01" min="0" class="input-field"></div>
+        <div style="grid-column:1/-1;"><button type="submit" class="btn-ghost" style="width:100%;justify-content:center;">Guardar caja</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Escalado -->
+  <div class="card" style="margin-top:14px;">
+    <div class="section-title">¿Escalar una campaña?</div>
+    <div class="flex gap-2 items-end flex-wrap">
+      <div><label class="form-label" for="e-prod">Producto</label>
+        <select id="e-prod" x-model="esc.id" @change="evaluar()" class="input-field" style="min-width:220px;"><option value="">Elige un producto</option><template x-for="p in productos" :key="p.id"><option :value="p.id" x-text="p.nombre + ' (' + p.estado + ')'"></option></template></select></div>
+    </div>
+    <div x-show="esc.res" x-cloak style="margin-top:12px;">
+      <p style="font-size:14px;color:#e8ecff;margin:0 0 4px;">Decisión: <strong x-text="esc.res?.decision"></strong> <span style="color:#7880b0;font-size:12px;" x-text="esc.res?.escenario ? '· ' + esc.res.escenario + ' · día ' + esc.res.dia : ''"></span></p>
+      <p style="font-size:12px;color:#a8b0d8;margin:0 0 8px;" x-text="esc.res?.accion"></p>
+      <div x-show="esc.res?.metricas?.ventas !== undefined" class="flex gap-4 flex-wrap" style="font-size:11px;color:#7880b0;">
+        <span>Ventas <strong style="color:#c8d0f0;" x-text="esc.res?.metricas?.ventas"></strong></span>
+        <span>ROAS <strong style="color:#c8d0f0;" x-text="esc.res?.metricas?.roas"></strong></span>
+        <span>CPA <strong style="color:#c8d0f0;" x-text="esc.res?.metricas?.cpa_real ?? '—'"></strong> / máx <strong style="color:#c8d0f0;" x-text="esc.res?.metricas?.cpa_max ?? '—'"></strong></span>
+        <span>CR <strong style="color:#c8d0f0;" x-text="esc.res?.metricas?.cr != null ? esc.res.metricas.cr + '%' : '—'"></strong></span>
+      </div>
+      <template x-for="a in (esc.res?.advertencias || [])" :key="a"><p style="font-size:11px;color:#fbbf24;margin:6px 0 0;" x-text="'! ' + a"></p></template>
+    </div>
+  </div>
+
+  <!-- Últimos registros -->
+  <div class="card" style="margin-top:14px;overflow-x:auto;">
+    <div class="section-title">Registros del periodo</div>
+    <table class="data-table" x-show="metricas.length">
+      <thead><tr><th>Fecha</th><th>Producto</th><th>Plat.</th><th>Gasto</th><th>Ingresos</th><th>Pedidos</th><th>Coste</th><th></th></tr></thead>
+      <tbody>
+        <template x-for="f in metricas" :key="f.id">
+          <tr><td x-text="f.fecha"></td><td x-text="f.producto || 'Tienda'"></td><td x-text="f.plataforma"></td><td x-text="f.gasto_ads"></td><td x-text="f.ingresos"></td><td x-text="f.pedidos"></td><td x-text="f.cogs_pagado"></td>
+            <td><button @click="borrar(f.id)" class="btn-ghost" style="font-size:10px;padding:3px 8px;color:#fb7185;" :aria-label="'Borrar registro del ' + f.fecha">Borrar</button></td></tr>
+        </template>
+      </tbody>
+    </table>
+    <p x-show="!metricas.length" style="font-size:12px;color:#4a5080;margin:0;">Aún no hay registros en este periodo.</p>
+  </div>
+
+  <!-- Integraciones -->
+  <div class="card" style="margin-top:14px;">
+    <div class="section-title">Integraciones</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;">
+      <template x-for="i in integraciones" :key="i.id">
+        <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;">
+          <div class="flex items-center justify-between gap-2">
+            <span style="font-size:13px;font-weight:600;color:#e8ecff;" x-text="i.nombre"></span>
+            <span :class="i.configurada ? 'badge badge-done' : 'badge badge-pending'" x-text="i.configurada ? 'Configurada' : (i.nota ? 'Manual' : 'Falta')"></span>
+          </div>
+          <p style="font-size:11px;color:#7880b0;margin:4px 0 0;" x-text="i.para"></p>
+          <p x-show="i.faltan.length" style="font-size:10px;color:#fbbf24;margin:4px 0 0;" x-text="'Define en .env: ' + i.faltan.join(', ')"></p>
+          <p x-show="i.nota" style="font-size:10px;color:#4a5080;margin:4px 0 0;" x-text="i.nota"></p>
+        </div>
+      </template>
+    </div>
+    <p style="font-size:10px;color:#4a5080;margin:10px 0 0;">Solo se indica si está configurada; nunca se muestran las claves.</p>
+  </div>
+</div>
+
+<style>
+.kpi { background: #0d0f1f; border: 1px solid #1a1d35; border-radius: 10px; padding: 14px; }
+.kpi p { font-size: 10px; color: #7880b0; margin: 0 0 4px; }
+.kpi strong { display: block; font-size: 22px; font-family: 'Space Grotesk', sans-serif; color: #e8ecff; }
+.kpi span { font-size: 10px; color: #4a5080; }
+</style>
+
+<script>
+function negocio() {
+  const hoy = new Date().toISOString().slice(0, 10);
+  return {
+    dias: 7, r: {}, serie: [], metricas: [], productos: [], integraciones: [], error: '',
+    m: { fecha: hoy, producto_id: '', plataforma: 'meta', gasto_ads: 0, ingresos: 0, pedidos: 0, cogs_pagado: 0, devoluciones: null, visitantes: null, presupuesto_diario: null },
+    c: { saldo_cuenta: null, liberaciones_pasarela: 0, pagos_proveedor_pendientes: 0 },
+    esc: { id: '', res: null },
+    ancho: 600,
+    get toast() { return Alpine.store('toast'); },
+    color(e) { return { SALUDABLE: '#34d399', RENTABLE: '#34d399', AJUSTADO: '#fbbf24', PRECAUCION: '#fbbf24', PERDIDA: '#fb7185', ALERTA: '#fb7185', CRITICO: '#fb7185', SANGRADO: '#fb7185' }[e] || '#e8ecff'; },
+    bannerStyle() {
+      const c = { SALUDABLE: '52,211,153', ADVERTENCIA: '251,191,36', CRITICO: '251,113,133' }[this.r.senal] || '120,128,176';
+      return 'background:rgba(' + c + ',0.07);border:1px solid rgba(' + c + ',0.25);';
+    },
+    get barras() {
+      const max = Math.max(1, ...this.serie.map(d => Math.max(d.ingresos, d.gasto_ads)));
+      return this.serie.map((d, i) => {
+        const hi = Math.round(d.ingresos / max * 130), hg = Math.round(d.gasto_ads / max * 130);
+        return { ...d, x: 8 + i * 40, hi, hg, yi: 150 - hi, yg: 150 - hg };
+      });
+    },
+    async mensaje(r, d) { try { const j = await r.json(); return typeof j.detail === 'string' ? j.detail : d; } catch (e) { return d; } },
+    async init() {
+      this.cargar();
+      try { const r = await fetch('/api/productos'); if (r.ok) this.productos = (await r.json()).items.filter(p => p.estado !== 'descartado'); } catch (e) {}
+      try { const r = await fetch('/api/integraciones'); if (r.ok) this.integraciones = await r.json(); } catch (e) {}
+    },
+    async cargar() {
+      try {
+        const r = await fetch('/api/negocio/resumen?dias=' + this.dias);
+        if (!r.ok) throw new Error(await this.mensaje(r, 'Error ' + r.status));
+        const d = await r.json();
+        this.r = d.resumen; this.serie = d.serie; this.metricas = d.metricas; this.ancho = Math.max(600, d.serie.length * 40 + 16);
+        this.error = '';
+      } catch (e) { this.error = 'No se pudieron cargar los números: ' + e.message; }
+    },
+    async guardarDia() {
+      const body = Object.fromEntries(Object.entries(this.m).filter(([k, v]) => v !== null && v !== ''));
+      const r = await fetch('/api/negocio/metricas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo guardar.')); return; }
+      this.toast.ok('Día guardado'); await this.cargar(); if (this.esc.id) this.evaluar();
+    },
+    async guardarCaja() {
+      const r = await fetch('/api/negocio/caja', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.c) });
+      if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo guardar la caja.')); return; }
+      this.toast.ok('Caja guardada'); await this.cargar();
+    },
+    async borrar(id) {
+      if (!confirm('¿Borrar este registro?')) return;
+      const r = await fetch('/api/negocio/metricas/' + id, { method: 'DELETE' });
+      if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo borrar.')); return; }
+      await this.cargar();
+    },
+    async evaluar() {
+      if (!this.esc.id) { this.esc.res = null; return; }
+      const r = await fetch('/api/negocio/escalado/' + this.esc.id);
+      this.esc.res = r.ok ? await r.json() : null;
+      if (!r.ok) this.toast.error(await this.mensaje(r, 'No se pudo evaluar.'));
+    },
+  };
+}
+</script>
+{% endblock %}
