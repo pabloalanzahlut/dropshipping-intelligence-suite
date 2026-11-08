@@ -1,1 +1,2 @@
 {"agent_name": "int_test", "event_type": "test", "category": "info", "summary": "Workflow OK", "details": null, "context_hash": null, "timestamp": "2026-11-08T19:18:13.978750+00:00"}
+{"agent_name": "int_test", "event_type": "test", "category": "info", "summary": "Workflow OK", "details": null, "context_hash": null, "timestamp": "2026-11-08T19:18:35.153217+00:00"}
