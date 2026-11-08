@@ -153,6 +153,11 @@ class FinancialValidator:
                 "Coste de envío no informado: el multiplicador se ha calculado solo "
                 "sobre el producto y puede estar inflado (qgK3GfY5ZC4 11:30)"
             )
+        if fx_estimado:
+            advertencias.append(
+                f"Tipo de cambio {moneda_costo}/{moneda_pvp} estimado ({fx_rate}): "
+                f"Frankfurter no respondió. Validación marcada como no definitiva"
+            )
         if margen_neto_unidad <= 0:
             advertencias.append(
                 f"Margen neto NEGATIVO (${margen_neto_unidad:.2f}/unidad) tras descontar "
