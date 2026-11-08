@@ -6,6 +6,33 @@ y el versionado [SemVer](https://semver.org/).
 
 ---
 
+## [Sin versionar] — 2026-11-08 (Conexión con Shopify y AutoDS)
+
+### Añadido
+- **Pantalla Tienda (web `/tienda` y panel «Tienda» del escritorio):** estado de las conexiones, probar
+  conexión, sincronizar Shopify, importar el export de AutoDS y estadísticas reales (pedidos, ingresos
+  netos, ticket medio, cancelaciones+devoluciones frente al 10,1 %, ROAS real, margen real con su
+  cobertura). Web y escritorio comparten la misma base SQLite y los mismos servicios.
+- **Contexto del agente IA:** el Agente IA de la web (`/api/kb/query`, `/api/kb/stream`) y el del escritorio
+  reciben un bloque `CONTEXTO TIENDA` con las cifras reales, la fecha de los datos y los `DATA_GAP`; solo lee
+  SQLite, así que preguntar no depende de que Shopify esté disponible. El agente cita `[TIENDA]` y no estima.
+- **Shopify (lectura, GraphQL):** pedidos, variantes con coste unitario y datos de la tienda, con reintentos
+  por límite de velocidad y errores en español (plan congelado, permisos, organización). Sincronización
+  horaria (`GEM_OS_AUTO_SHOPIFY_MIN`) y ejecución a petición. Los ingresos y pedidos reales de cada día se
+  escriben en `metricas_diarias` (plataforma `shopify`) sin pisar gasto, coste, devoluciones ni notas, y sin
+  contar dos veces un día donde otra plataforma ya declara ingresos (`SHOPIFY_SYNC_METRICAS=0` lo desactiva).
+- **AutoDS (importación):** CSV/XLSX de Pedidos y Productos, con reconocimiento de columnas ES/EN,
+  previsualización, claves estables (reimportar no duplica) y cruce por nº de pedido con Shopify para el
+  margen real. Su API oficial exige aprobación y pago de activación, por eso no se inventa una conexión directa.
+- Migración 21 (`tienda_pedidos`, `tienda_lineas`, `tienda_variantes`, `tienda_sync`, `autods_*`).
+
+### Corregido
+- **Shopify:** `SHOPIFY_ACCESS_TOKEN` con un valor `shpss_…` es el secreto de la app, no un token de Admin API:
+  Shopify lo rechaza con 401. Ahora se canjea junto con `SHOPIFY_CLIENT_ID` por un token de 24 h (se renueva
+  solo). `ShopifyClient` también construía la URL sin `https://` cuando la tienda venía sin esquema.
+
+---
+
 ## [Sin versionar] — 2026-11-08 (Auditoría de transcripciones)
 
 ### Corregido

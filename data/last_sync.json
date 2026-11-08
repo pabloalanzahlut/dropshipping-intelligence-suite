@@ -1,13 +1,15 @@
 {
-  "fecha_sincronizacion": "2026-11-08T19:50:29",
-  "canales_procesados": 7,
-  "videos_descargados": 19,
-  "transcripciones_procesadas": 15,
+  "fecha_sincronizacion": "2026-11-08T22:45:26",
+  "canales_procesados": 3,
+  "videos_descargados": 0,
+  "transcripciones_procesadas": 0,
   "duplicados": 0,
-  "sin_subtitulos": 1,
-  "fuera_de_tema": 4,
-  "errores": 2,
-  "tokens_ahorrados": 1429,
+  "sin_subtitulos": 0,
+  "fuera_de_tema": 0,
+  "errores": 0,
+  "tokens_ahorrados": 0,
   "cancelado": false,
-  "limitado": true
+  "limitado": true,
+  "lote_completo": false,
+  "reintentar_a": "2026-11-08T23:42:46"
 }

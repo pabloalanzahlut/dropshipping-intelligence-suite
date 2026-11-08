@@ -32,7 +32,6 @@ def entorno(**valores):
 
 
 AYER = (datetime.now(timezone.utc) - timedelta(days=1)).replace(hour=12, minute=0, second=0, microsecond=0)
-FECHA_AYER = AYER.astimezone(sc._zona_dummy if hasattr(sc, "_zona_dummy") else timezone.utc).date().isoformat()
 
 
 def money(x):
@@ -266,7 +265,6 @@ class SincronizacionTests(Base):
         self.assertEqual(fila, [(70.0, 3, 0.0)])           # 30 + (15-15) + 40; el cancelado no cuenta
 
     def test_no_pisa_campos_manuales(self):
-        self.sql  # noqa
         with sqlite3.connect(self.db) as c:
             c.execute("INSERT INTO metricas_diarias (fecha, plataforma, ingresos, pedidos, cogs_pagado, devoluciones) "
                       "VALUES (?, 'shopify', 1, 1, 7, 2)", (self.ayer,))
