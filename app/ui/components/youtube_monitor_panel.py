@@ -460,9 +460,11 @@ class YouTubeMonitorPanel(ttk.Frame):
                 f"Guardadas: {ul.get('transcripciones_procesadas', 0)}  |  "
                 f"Duplicados: {ul.get('duplicados', 0)}  |  "
                 f"Sin subtítulos: {ul.get('sin_subtitulos', 0)}  |  "
+                f"Fuera de tema: {ul.get('fuera_de_tema', 0)}  |  "
                 f"Errores: {ul.get('errores', 0)}  |  "
                 f"Tokens ahorrados: {ul.get('tokens_ahorrados', 0)}"
                 + ("  |  (cancelada)" if ul.get("cancelado") else "")
+                + ("  |  (detenida: YouTube limitó las descargas)" if ul.get("limitado") else "")
             )
         else:
             txt = "Sin sincronizaciones aún. Presiona '⟳ Sincronizar Ahora' para comenzar."
@@ -519,11 +521,13 @@ class YouTubeMonitorPanel(ttk.Frame):
         self._set_sync_ui(False)
         self._recargar_todo()
         msg = (
-            f"{'Sincronización cancelada' if resultado.get('cancelado') else 'Sincronización completada'}:\n"
+            f"{'Sincronización cancelada' if resultado.get('cancelado') else 'Sincronización completada'}"
+            f"{' (YouTube limitó las descargas: vuelve a intentarlo más tarde)' if resultado.get('limitado') else ''}:\n"
             f"· Canales revisados: {resultado['canales_procesados']}\n"
             f"· Transcripciones nuevas: {resultado['transcripciones_procesadas']}\n"
             f"· Duplicados: {resultado['duplicados']}\n"
             f"· Sin subtítulos: {resultado['sin_subtitulos']}\n"
+            f"· Fuera de tema (descartados): {resultado.get('fuera_de_tema', 0)}\n"
             f"· Errores: {resultado['errores']}\n"
             f"· Tokens ahorrados: {resultado['tokens_ahorrados']}"
         )

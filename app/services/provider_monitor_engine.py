@@ -40,6 +40,7 @@ from app.services.openrouter_client import OpenRouterTranscriptionCleaner
 from app.services.throttle_controller import ThrottleController
 from app.services.user_agent_rotation import UserAgentRotator
 from app.services.transcript_cleaner import TranscriptCleaner
+from app.services import topic_filter
 from app.core.retry_decorator import with_retry
 
 
@@ -103,6 +104,7 @@ class ProviderMonitorEngine:
         os.makedirs(TEMP_TRANSCRIPT_DIR, exist_ok=True)
         self.scan_limits: Dict[str, int] = {}
         self.channel_roles: Dict[str, str] = {}   # "primaria" | "complementaria"
+        self.channel_topic_filter: Dict[str, bool] = {}   # solo ecommerce/dropshipping/Shopify
         self.favorite_channels = self._load_channels_from_json()
         self._sync_channels_to_queue()
 
@@ -153,6 +155,7 @@ class ProviderMonitorEngine:
                     self.scan_limits[nombre] = int(
                         entry.get("max_videos_scan", DEFAULT_SCAN_LIMIT))
                     self.channel_roles[nombre] = entry.get("rol", "complementaria")
+                    self.channel_topic_filter[nombre] = bool(entry.get("filtro_tema"))
                 if channels:
                     self.log_callback(
                         f"📡 [CHANNELS] Cargados {len(channels)} canales desde "
@@ -370,6 +373,16 @@ class ProviderMonitorEngine:
                     creator, video_id, STATUS_FAILED,
                     error_msg="Transcripción vacía o no disponible")
                 return False
+
+            # 2b. Canales con filtro de tema (Adrián Sáenz): solo ecommerce/dropshipping/Shopify
+            if self.channel_topic_filter.get(creator):
+                es_tema, motivo = topic_filter.evaluar(title, raw_transcript)
+                if not es_tema:
+                    self.log_callback(f"⏩ [FUERA DE TEMA] {title} — {motivo}")
+                    self.queue_manager.update_video_status(
+                        creator, video_id, STATUS_COMPLETED,
+                        title=title, error_msg=f"fuera de tema: {motivo}")
+                    return True
 
             # 3. Pre-limpieza con TranscriptCleaner (quita timestamps, muletillas, fluff)
             #    clean_for_ia() retorna "VACÍO" si el texto no tiene valor CRO,

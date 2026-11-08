@@ -39,7 +39,7 @@
       <template x-if="sync.running"><span>⟳ <span x-text="sync.msg || 'Sincronizando…'"></span></span></template>
       <template x-if="!sync.running && sync.error"><span x-text="'Error: ' + sync.error"></span></template>
       <template x-if="!sync.running && !sync.error && sync.result">
-        <span x-text="(sync.result.cancelado ? 'Cancelada · ' : 'Completada · ') + sync.result.transcripciones_procesadas + ' nuevas, ' + sync.result.duplicados + ' duplicadas, ' + sync.result.sin_subtitulos + ' sin subtítulos, ' + sync.result.errores + ' errores'"></span>
+        <span x-text="(sync.result.limitado ? 'Detenida (YouTube limitó las descargas; reintenta más tarde) · ' : (sync.result.cancelado ? 'Cancelada · ' : 'Completada · ')) + sync.result.transcripciones_procesadas + ' nuevas, ' + sync.result.duplicados + ' duplicadas, ' + sync.result.sin_subtitulos + ' sin subtítulos, ' + (sync.result.fuera_de_tema || 0) + ' fuera de tema, ' + sync.result.errores + ' errores'"></span>
       </template>
     </p>
     <div style="display:flex;gap:8px;">

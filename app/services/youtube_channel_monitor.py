@@ -20,9 +20,13 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
 from app.database.connection import DatabaseConnection
-from app.services import transcript_store
+from app.services import topic_filter, transcript_store
 from app.services.transcript_cleaner import TranscriptCleaner
-from app.services.youtube_rss_fetcher import fetch_channel_videos, download_transcript
+from app.services.youtube_rss_fetcher import RateLimited, download_transcript, fetch_channel_videos
+
+# Pausa aleatoria entre descargas (s) y esperas ante HTTP 429 de YouTube (s)
+PAUSA_ENTRE_DESCARGAS = (6.0, 14.0)
+ESPERAS_429 = (60, 180, 420)
 
 _YOUTUBE_CHANNEL_RE = re.compile(
     r"^(?:https?://)?(?:www\.)?youtube\.com/"
@@ -52,6 +56,7 @@ class YouTubeChannelMonitor:
             config_path = str(PathManager.get_paths()["config"])
         self.config_path = config_path
         self._last_sync_path = Path(config_path).with_name("last_sync.json")
+        self._descartados_path = Path(config_path).with_name("videos_descartados.json")
         self.cleaner = TranscriptCleaner()
         self.monitor_log: List[Dict] = []
         self.ultimo_error = ""
@@ -181,6 +186,50 @@ class YouTubeChannelMonitor:
 
     # ───────────────────────────── sincronización ───────────────────────────
 
+    # ── vídeos descartados por tema (no se vuelven a descargar) ──────────────
+
+    def _leer_descartados(self) -> Dict[str, Dict]:
+        try:
+            data = json.loads(self._descartados_path.read_text(encoding="utf-8"))
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+
+    def descartar_video(self, video_id: str, titulo: str, canal: str, motivo: str) -> None:
+        """Recuerda que este vídeo no es del tema, para no descargarlo otra vez."""
+        data = self._leer_descartados()
+        data[video_id] = {"titulo": titulo, "canal": canal, "motivo": motivo,
+                          "fecha": datetime.now().isoformat(timespec="seconds")}
+        try:
+            tmp = str(self._descartados_path) + ".tmp"
+            Path(tmp).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+            os.replace(tmp, self._descartados_path)
+        except Exception as e:
+            print(f"[WARN] No se pudo guardar videos_descartados.json: {e}")
+
+    def _esperar(self, segundos: float) -> bool:
+        """Espera en tramos de 1 s; devuelve False si se canceló mientras tanto."""
+        fin = time.monotonic() + segundos
+        while time.monotonic() < fin:
+            if self._cancel.wait(1.0):
+                return False
+        return True
+
+    def _descargar(self, video_id: str, idioma: str, say: Callable[[str], None]) -> Optional[str]:
+        """Descarga la transcripción; ante un 429 espera y reintenta (60 s, 3 min, 7 min).
+        Lanza RateLimited si sigue limitado tras los reintentos."""
+        for intento in range(len(ESPERAS_429) + 1):
+            try:
+                return download_transcript(video_id, lang=idioma)
+            except RateLimited:
+                if intento == len(ESPERAS_429):
+                    raise
+                espera = ESPERAS_429[intento]
+                say(f"YouTube limita las descargas: espero {espera} s y reintento…")
+                if not self._esperar(espera):
+                    return None
+        return None
+
     def cancelar_sincronizacion(self) -> None:
         """Pide parar la sincronización en curso (termina el vídeo actual)."""
         self._cancel.set()
@@ -199,15 +248,17 @@ class YouTubeChannelMonitor:
             "fecha_sincronizacion": datetime.now().isoformat(timespec="seconds"),
             "canales_procesados": 0, "videos_descargados": 0,
             "transcripciones_procesadas": 0, "duplicados": 0, "sin_subtitulos": 0,
-            "errores": 0, "tokens_ahorrados": 0, "cancelado": False, "detalles": [],
+            "fuera_de_tema": 0, "errores": 0, "tokens_ahorrados": 0,
+            "cancelado": False, "limitado": False, "detalles": [],
         }
         guardados = transcript_store.video_ids_guardados(self.db_path)
+        guardados |= set(self._leer_descartados())   # ya vistos y descartados por tema
         activos = sorted((c for c in self.canales if c.get("activo", True)),
                          key=lambda c: c.get("prioridad", 5))
         descargas = 0
 
         for canal_info in activos:
-            if self._cancel.is_set():
+            if self._cancel.is_set() or stats["limitado"]:
                 break
             url = canal_info.get("url", "")
             nombre = canal_info.get("nombre", "Sin nombre")
@@ -226,17 +277,26 @@ class YouTubeChannelMonitor:
             for video in nuevos:
                 if self._cancel.is_set():
                     break
-                if descargas:  # pausa anti-bloqueo entre descargas
-                    time.sleep(random.uniform(1.5, 4.0))
+                if descargas and not self._esperar(random.uniform(*PAUSA_ENTRE_DESCARGAS)):
+                    break   # pausa anti-bloqueo; cancelada durante la espera
                 descargas += 1
                 titulo = video.get("title", "")
                 say(f"{nombre}: {titulo[:60]}")
                 try:
-                    texto = download_transcript(video["video_id"], lang=idioma)
+                    texto = self._descargar(video["video_id"], idioma, say)
+                    if self._cancel.is_set():
+                        break
                     if not texto:
                         stats["sin_subtitulos"] += 1
                         continue
                     stats["videos_descargados"] += 1
+                    if canal_info.get("filtro_tema"):
+                        es_tema, motivo = topic_filter.evaluar(titulo, texto)
+                        if not es_tema:
+                            self.descartar_video(video["video_id"], titulo, nombre, motivo)
+                            stats["fuera_de_tema"] += 1
+                            say(f"{nombre}: fuera de tema ({motivo}) — {titulo[:50]}")
+                            continue
                     res = self.procesar_transcripcion(
                         video["video_id"], titulo, video.get("channel") or nombre,
                         texto, idioma)
@@ -249,6 +309,11 @@ class YouTubeChannelMonitor:
                         stats["tokens_ahorrados"] += res["tokens_original"] - res["tokens_limpio"]
                         stats["detalles"].append(res)
                         guardados.add(video["video_id"])
+                except RateLimited:
+                    stats["limitado"] = True
+                    say("YouTube sigue limitando las descargas: sincronización detenida. "
+                        "Vuelve a intentarlo más tarde (lo ya guardado se conserva).")
+                    break
                 except Exception as e:
                     print(f"[ERROR] Error procesando {titulo}: {e}")
                     stats["errores"] += 1
