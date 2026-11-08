@@ -136,7 +136,7 @@ def guardar_cookies(context):
     cookies = context.cookies()
     with open(COOKIES_PATH, "w", encoding="utf-8") as f:
         json.dump(cookies, f, indent=2)
-    log.info(f"✓ {len(cookies)} cookies guardadas")
+    log.info(f"OK: {len(cookies)} cookies guardadas")
 
 
 def cargar_cookies(context):
@@ -146,7 +146,7 @@ def cargar_cookies(context):
         cookies = json.load(f)
     if cookies:
         context.add_cookies(cookies)
-        log.info(f"✓ {len(cookies)} cookies cargadas")
+        log.info(f"OK: {len(cookies)} cookies cargadas")
         return True
     return False
 
