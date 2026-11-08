@@ -238,6 +238,10 @@ function agente() {
         const d = await r.json();
         this.kbCount = d.kb_count || 0;
       } catch(e) {}
+      try {
+        const r = await fetch('/api/kb/agentes');
+        if (r.ok) this.agentes = await r.json();
+      } catch(e) {}
     },
     scrollToBottom() {
       this.$nextTick(() => {
@@ -255,7 +259,7 @@ function agente() {
 
       // Placeholder de respuesta en streaming
       const idx = this.historial.length;
-      this.historial.push({ rol: 'agente', texto: '', resultado: null, agente: this.agenteSeleccionado, hora: this.hora(), streaming: true });
+      this.historial.push({ rol: 'agente', texto: '', resultado: null, agente: this.ruta?.agente || this.agenteSeleccionado, ruta: this.ruta, hora: this.hora(), streaming: true });
       this.scrollToBottom();
 
       try {
@@ -266,6 +270,11 @@ function agente() {
         sse.onmessage = (e) => {
           try {
             const d = JSON.parse(e.data);
+            if (d.route) {                      // el servidor confirma qué agente atiende
+              this.ruta = d.route;
+              this.historial[idx].agente = d.route.agente;
+              this.historial[idx].ruta = d.route;
+            }
             if (d.token) {
               buffer += d.token;
               this.historial[idx].texto = buffer;
