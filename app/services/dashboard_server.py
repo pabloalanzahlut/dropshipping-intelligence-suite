@@ -20,6 +20,7 @@ import threading
 import time
 import uuid
 from collections import deque
+from datetime import datetime, timedelta
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncGenerator, Dict, List, Optional
@@ -172,6 +173,10 @@ async def lifespan(app: FastAPI):
 
     def _scheduled_ingest() -> None:
         # Si ya hay una ingesta en curso (p. ej. lanzada a mano), se salta este ciclo
+        if _TRANS_SYNC["running"]:
+            log.info("[SERVER] Ingesta KB omitida: hay una sincronización de transcripciones "
+                     "(comparten el límite de YouTube).")
+            return
         if not _INGEST_LOCK.acquire(blocking=False):
             log.info("[SERVER] Ingesta programada omitida: ya hay una en curso.")
             return
@@ -179,6 +184,27 @@ async def lifespan(app: FastAPI):
             engine.run_global_ingestion()
         finally:
             _INGEST_LOCK.release()
+
+    def _scheduled_transcripts() -> None:
+        """Lote automático de transcripciones. Se salta si la ingesta KB está trabajando
+        (misma IP, mismo límite de YouTube); el monitor respeta además el enfriamiento tras un 429."""
+        if _INGEST_LOCK.locked():
+            log.info("[SERVER] Sync de transcripciones omitida: ingesta KB en curso.")
+            return
+        if _reservar_sync_transcripciones("automática"):
+            _ejecutar_sync_transcripciones()
+
+    def _scheduled_backup() -> None:
+        """Copia diaria de la base de datos; conserva las 14 últimas."""
+        try:
+            from app.services import kb_maintenance
+            ruta = kb_maintenance.backup_db(DB_PATH, "auto")
+            copias = sorted(Path(ruta).parent.glob(f"{Path(DB_PATH).stem}_auto_*.db"))
+            for vieja in copias[:-14]:
+                vieja.unlink(missing_ok=True)
+            log.info(f"[SERVER] Copia de seguridad automática: {ruta}")
+        except Exception as exc:
+            log.warning(f"[SERVER] Copia de seguridad automática falló: {exc}")
 
     if _scheduler_available and _scheduler is not None and engine is not None:
         _scheduler.add_job(
@@ -190,8 +216,26 @@ async def lifespan(app: FastAPI):
             misfire_grace_time=300,
             replace_existing=True,
         )
+        # Transcripciones: lotes de 15 cada 45 min (YouTube corta a ~15-20 seguidas).
+        # GEM_OS_AUTO_TRANSCRIPTS_MIN=0 la desactiva.
+        minutos = int(os.getenv("GEM_OS_AUTO_TRANSCRIPTS_MIN", "45") or 0)
+        if minutos > 0:
+            _scheduler.add_job(
+                _scheduled_transcripts, "interval", minutes=minutos, id="transcripts_auto",
+                max_instances=1, misfire_grace_time=600, replace_existing=True,
+                next_run_time=datetime.now() + timedelta(minutes=2),
+            )
+        # Copia de seguridad diaria (03:30) y una al arrancar si la última tiene más de 24 h
+        _scheduler.add_job(_scheduled_backup, "cron", hour=3, minute=30, id="backup_auto",
+                           replace_existing=True, misfire_grace_time=3600)
+        ultimas = sorted((Path(DB_PATH).resolve().parent.parent / "backups").glob(
+            f"{Path(DB_PATH).stem}_auto_*.db"))
+        if not ultimas or time.time() - ultimas[-1].stat().st_mtime > 86400:
+            _scheduler.add_job(_scheduled_backup, "date", id="backup_inicial",
+                               run_date=datetime.now() + timedelta(seconds=30), replace_existing=True)
         _scheduler.start()
-        log.info("[SERVER] APScheduler iniciado — ingesta autónoma cada 1h.")
+        log.info("[SERVER] APScheduler iniciado — ingesta KB 1h, transcripciones "
+                 f"{minutos or 'desactivadas'} min, copia de seguridad diaria.")
 
     yield
 
@@ -1086,40 +1130,49 @@ async def api_transcripcion_borrar(transcripcion_id: int) -> Dict[str, Any]:
     return {"status": "deleted", "id": transcripcion_id}
 
 
+def _reservar_sync_transcripciones(origen: str) -> bool:
+    """Marca la sincronización como en curso. False si ya había una (o la ingesta de la KB)."""
+    with _TRANS_SYNC_LOCK:
+        if _TRANS_SYNC["running"]:
+            return False
+        _TRANS_SYNC.update(running=True, msg="Iniciando…", result=None, error=None, origen=origen)
+        return True
+
+
+def _ejecutar_sync_transcripciones() -> None:
+    """Una pasada de sincronización (bloqueante). Requiere _reservar_sync_transcripciones()."""
+    global _trans_monitor
+    try:
+        from app.services.youtube_channel_monitor import YouTubeChannelMonitor
+        monitor = YouTubeChannelMonitor(db_manager=DatabaseConnection(DB_PATH))
+        _trans_monitor = monitor
+
+        def _progress(msg: str) -> None:
+            with _TRANS_SYNC_LOCK:
+                _TRANS_SYNC["msg"] = msg
+            push_log(f"📝 {msg}", "INFO")
+
+        result = monitor.sincronizar_canales(progress=_progress)
+        result.pop("detalles", None)
+        with _TRANS_SYNC_LOCK:
+            _TRANS_SYNC["result"] = result
+            _TRANS_SYNC["terminada_a"] = time.strftime("%H:%M")
+    except Exception as exc:
+        log.exception("[SERVER] Error sincronizando transcripciones")
+        with _TRANS_SYNC_LOCK:
+            _TRANS_SYNC["error"] = str(exc)
+    finally:
+        _trans_monitor = None
+        with _TRANS_SYNC_LOCK:
+            _TRANS_SYNC["running"] = False
+
+
 @app.post("/api/transcripciones/sincronizar", status_code=202)
 async def api_transcripciones_sincronizar(background_tasks: BackgroundTasks) -> Dict[str, str]:
     """Descarga transcripciones nuevas de los canales configurados (en segundo plano)."""
-    with _TRANS_SYNC_LOCK:
-        if _TRANS_SYNC["running"]:
-            raise HTTPException(status_code=409, detail="Ya hay una sincronización en curso.")
-        _TRANS_SYNC.update(running=True, msg="Iniciando…", result=None, error=None)
-
-    def _run():
-        global _trans_monitor
-        try:
-            from app.services.youtube_channel_monitor import YouTubeChannelMonitor
-            monitor = YouTubeChannelMonitor(db_manager=DatabaseConnection(DB_PATH))
-            _trans_monitor = monitor
-
-            def _progress(msg: str) -> None:
-                with _TRANS_SYNC_LOCK:
-                    _TRANS_SYNC["msg"] = msg
-                push_log(f"📝 {msg}", "INFO")
-
-            result = monitor.sincronizar_canales(progress=_progress)
-            result.pop("detalles", None)
-            with _TRANS_SYNC_LOCK:
-                _TRANS_SYNC["result"] = result
-        except Exception as exc:
-            log.exception("[SERVER] Error sincronizando transcripciones")
-            with _TRANS_SYNC_LOCK:
-                _TRANS_SYNC["error"] = str(exc)
-        finally:
-            _trans_monitor = None
-            with _TRANS_SYNC_LOCK:
-                _TRANS_SYNC["running"] = False
-
-    background_tasks.add_task(_run)
+    if not _reservar_sync_transcripciones("manual"):
+        raise HTTPException(status_code=409, detail="Ya hay una sincronización en curso.")
+    background_tasks.add_task(_ejecutar_sync_transcripciones)
     return {"status": "started"}
 
 

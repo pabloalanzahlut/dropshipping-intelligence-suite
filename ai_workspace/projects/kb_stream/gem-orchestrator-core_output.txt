@@ -1,78 +1,71 @@
 ```json
 {
-  "respuesta": "La base de conocimiento describe 7 estrategias de tráfico, todas atribuidas al canal Marc Verdú. Combinan publicidad de pago en TikTok Ads y Meta Ads con tráfico orgánico basado en volumen de publicaciones. No incluyen métricas de presupuesto, ROAS ni coste por resultado, por lo que las estrategias se describen sin cifras de rendimiento.",
+  "respuesta": "En el CONTEXTO KB, Marc Verdú asocia TikTok Ads con estas estrategias: subir más vídeos y abrir nuevos mercados [3][4]; subir múltiples vídeos diarios y probar productos distintos [6]; cambiar el ángulo del producto o el ángulo de marketing para llegar a nichos no saturados o nuevas audiencias [8][9]; reutilizar vídeos virales en varias plataformas y escalar con publicidad de pago [15][16]; optimizar anuncios y escalar antes del Q4 [7]; usar CBO/ABO Testing [11][14][22]; y usar IA para crear vídeos y escalar ventas [21]. El contexto no detalla presupuestos, ROAS objetivo ni configuración de CBO/ABO para TikTok Ads.",
   "tipo_consulta": "operaciones",
   "datos": [
     {
-      "estrategia": "Volumen de contenido orgánico",
-      "descripcion": "Subir múltiples vídeos diarios para aumentar la visibilidad.",
-      "canal_plataforma": "TikTok, Instagram (orgánico)",
-      "canal_origen": "Marc Verdú",
-      "fuente_video": "They Started Out Skeptical and Ended Up Making $20,000 from Colombia",
-      "fecha": "[DATA_GAP: fecha]"
+      "estrategia": "Subir más vídeos y abrir nuevos mercados",
+      "detalle": "Usar publicidad de pago tras la subida de vídeos",
+      "referencia": "[3][4]",
+      "canal": "Marc Verdú"
     },
     {
-      "estrategia": "Expansión de catálogo y mercados con publicidad de pago",
-      "descripcion": "Subir más vídeos, abrir nuevos mercados y utilizar publicidad de pago.",
-      "canal_plataforma": "TikTok Ads, Meta Ads, orgánico",
-      "canal_origen": "Marc Verdú",
-      "fuente_video": "How to Sell Your First Dropshipping Product Without Paid Ads",
-      "fecha": "[DATA_GAP: fecha]"
+      "estrategia": "Volumen diario de vídeos y prueba de productos",
+      "detalle": "Subir múltiples vídeos diarios y probar diferentes productos",
+      "referencia": "[6]",
+      "canal": "Marc Verdú"
     },
     {
-      "estrategia": "Prueba de productos y escalado por resultados",
-      "descripcion": "Probar distintos productos y escalar los que muestran resultados.",
-      "canal_plataforma": "TikTok, Instagram",
-      "canal_origen": "Marc Verdú",
-      "fuente_video": "They Started Out Skeptical and Ended Up Making $20,000 from Colombia",
-      "fecha": "[DATA_GAP: fecha]"
+      "estrategia": "Cambio de ángulo para nichos no saturados",
+      "detalle": "Cambiar ángulos y el ángulo del producto para llegar a nuevas audiencias",
+      "referencia": "[8][9]",
+      "canal": "Marc Verdú"
     },
     {
-      "estrategia": "Optimización de anuncios y escalado antes del Q4",
-      "descripcion": "Optimizar los anuncios y escalar la inversión antes del cuarto trimestre.",
-      "canal_plataforma": "TikTok/Meta Ads",
-      "canal_origen": "Marc Verdú",
-      "fuente_video": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
-      "fecha": "[DATA_GAP: fecha]"
+      "estrategia": "Reutilización de vídeos virales y escalado con ads",
+      "detalle": "Reutilizar vídeos virales en distintas plataformas y escalar con publicidad de pago",
+      "referencia": "[15][16]",
+      "canal": "Marc Verdú"
     },
     {
-      "estrategia": "Cambio de ángulo del producto para nichos no saturados",
-      "descripcion": "Modificar el enfoque del producto para llegar a audiencias nuevas. Ejemplo citado: pasar de 'corrector de juanetes' a 'plantilla que corrige la pisada'.",
-      "canal_plataforma": "TikTok Ads, Meta Ads",
-      "canal_origen": "Marc Verdú",
-      "fuente_video": "The Secret to Making $10,000/Month With Dropshipping That No One Uses",
-      "fecha": "[DATA_GAP: fecha]"
+      "estrategia": "Optimización y escalado de anuncios",
+      "detalle": "Optimización de anuncios y escalado antes del Q4",
+      "referencia": "[7]",
+      "canal": "Marc Verdú"
     },
     {
-      "estrategia": "Viralización de contenido",
-      "descripcion": "Difusión orgánica de un vídeo viral en TikTok e Instagram. La KB asocia este caso a 90 millones de visitas, sin detallar cómo se midieron.",
-      "canal_plataforma": "TikTok, Instagram",
-      "canal_origen": "Marc Verdú",
-      "fuente_video": "They Couldn't Afford Rent and Now They Make $100,000 with Dropshipping",
-      "fecha": "[DATA_GAP: fecha]"
+      "estrategia": "CBO/ABO Testing",
+      "detalle": "Mencionado sin explicación de configuración",
+      "referencia": "[11][14][22]",
+      "canal": "Marc Verdú",
+      "data_gap": "[DATA_GAP: configuración, presupuesto y criterios de decisión de CBO/ABO]"
     },
     {
-      "estrategia": "Testing de campañas CBO/ABO",
-      "descripcion": "Se menciona el testing con CBO/ABO sin desarrollar su aplicación.",
-      "canal_plataforma": "TikTok/Meta Ads",
-      "canal_origen": "Marc Verdú",
-      "fuente_video": "How to Build a Dropshipping Store in 5 Minutes with Claude",
-      "fecha": "[DATA_GAP: fecha]",
-      "detalle_pendiente": "[DATA_GAP: definición operativa de CBO/ABO, presupuesto y criterios de decisión]"
+      "estrategia": "IA para crear vídeos y escalar ventas",
+      "detalle": "Uso de IA para producir vídeos y escalar ventas",
+      "referencia": "[21]",
+      "canal": "Marc Verdú"
     }
   ],
   "fuentes": [
-    "How to Sell Your First Dropshipping Product Without Paid Ads · Marc Verdú · [DATA_GAP: fecha]",
-    "They Started Out Skeptical and Ended Up Making $20,000 from Colombia · Marc Verdú · [DATA_GAP: fecha]",
-    "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER · Marc Verdú · [DATA_GAP: fecha]",
-    "The Secret to Making $10,000/Month With Dropshipping That No One Uses · Marc Verdú · [DATA_GAP: fecha]",
-    "They Couldn't Afford Rent and Now They Make $100,000 with Dropshipping · Marc Verdú · [DATA_GAP: fecha]",
-    "How to Build a Dropshipping Store in 5 Minutes with Claude · Marc Verdú · [DATA_GAP: fecha]"
+    "[3] How to Sell Your First Dropshipping Product Without Paid Ads · Marc Verdú · https://www.youtube.com/watch?v=tGPFM_UN2N0",
+    "[4] How to Sell Your First Dropshipping Product Without Paid Ads · Marc Verdú · https://www.youtube.com/watch?v=tGPFM_UN2N0",
+    "[6] They Started Out Skeptical and Ended Up Making $20,000 from Colombia · Marc Verdú · https://www.youtube.com/watch?v=8lzoWVqgvhI",
+    "[7] TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER · Marc Verdú · https://www.youtube.com/watch?v=01rYgelVNz0",
+    "[8] The Secret to Making $10,000/Month With Dropshipping That No One Uses · Marc Verdú · https://www.youtube.com/watch?v=8eo_7E1fiSA",
+    "[9] The Secret to Making $10,000/Month With Dropshipping That No One Uses · Marc Verdú · https://www.youtube.com/watch?v=8eo_7E1fiSA",
+    "[11] How to Build a Dropshipping Store in 5 Minutes with Claude · Marc Verdú · https://www.youtube.com/watch?v=9UGrhUq2IBc",
+    "[14] I Bought 3 Dropshipping Products in China to Find Out if They're Selling Junk... · Marc Verdú · https://www.youtube.com/watch?v=26rRZSy8zI4",
+    "[15] Leaking the Dropshipping Strategy That Made Us $60,494 in 53 Days · Marc Verdú · https://www.youtube.com/watch?v=ugSNaw6gb98",
+    "[16] Leaking the Dropshipping Strategy That Made Us $60,494 in 53 Days · Marc Verdú · https://www.youtube.com/watch?v=ugSNaw6gb98",
+    "[21] TOP 5 WINNING DROPSHIPPING PRODUCTS OCTOBER · Marc Verdú · https://www.youtube.com/watch?v=60bXbijGM6U",
+    "[22] TOP 5 WINNING DROPSHIPPING PRODUCTS OCTOBER · Marc Verdú · https://www.youtube.com/watch?v=60bXbijGM6U"
   ],
-  "observaciones": [
-    "No hay contenido del canal primario Adrián Sáenz en el contexto inyectado. [DATA_GAP: estrategias de tráfico de Adrián Sáenz, incluidas reglas de coste $5-15 y ROAS mínimo 2]. No se puede verificar si las estrategias de Marc Verdú son coherentes con esas reglas.",
-    "Los registros de operations_traffic aparecen duplicados (por ejemplo, 'Optimización de anuncios y escalado antes del Q4' y 'Cambiar ángulos'). Se han consolidado en una sola entrada por estrategia.",
-    "Ninguna entrada incluye presupuesto, ROAS, CPA ni resultados medidos. Son referencias cualitativas de un único canal y no garantizan resultados."
+  "notas": [
+    "Las entradas [3]/[4], [8]/[9], [15]/[16] y [22] aparecen duplicadas en el contexto; se cuentan una vez por estrategia.",
+    "La entrada [5] de Marc Verdú menciona TikTok sin indicar TikTok Ads y se excluye de esta respuesta.",
+    "Adrián Sáenz [1] también menciona TikTok Ads en su vídeo «6 Formas De Ganar Dinero Con Claude Siendo Estudiante», pero el contexto no describe su estrategia concreta. [DATA_GAP: estrategia TikTok Ads de Adrián Sáenz]",
+    "Los datos citados son referencias de vídeos, no garantías de resultados."
   ],
   "confianza": "Media",
   "fecha_consulta": "[DATA_GAP: fecha_consulta]"
