@@ -18,7 +18,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from app.services import business_metrics, channel_store, product_catalog
+from app.services import business_metrics, channel_store, mantenimiento, product_catalog
 
 NIVELES = {"info": 1, "aviso": 2, "critico": 3}
 _LOCK = threading.Lock()
@@ -139,6 +139,18 @@ def _sistema(db_path: str, config_path: str) -> List[Dict[str, str]]:
         if h > 36:
             out.append(_a("backup_antiguo", "aviso", f"La última copia de seguridad tiene {int(h)} horas",
                           "Debería hacerse cada noche: ¿está el servidor encendido por la noche?", "/registros", "sistema"))
+    # Mantenimiento semanal (integridad de la BD, canales, temporales)
+    mant = mantenimiento.ultimo(config_path)
+    if mant is not None and not mant.get("integridad_ok", True):
+        out.append(_a("bd_integridad", "critico", "La base de datos no pasa la comprobación de integridad",
+                      "Restaura la última copia de backups/ y no sigas escribiendo hasta entonces: "
+                      + str((mant.get("integridad") or {}).get("detalle", ""))[:160], "/registros", "sistema"))
+    h = _horas_desde(mant["fecha"]) if mant else None
+    if mant is None or (h is not None and h > 24 * 10):
+        out.append(_a("mantenimiento_pendiente", "info", "El mantenimiento semanal aún no se ha ejecutado"
+                      if mant is None else f"Hace {int(h // 24)} días que no se ejecuta el mantenimiento",
+                      "Se lanza solo los domingos a las 04:00; también puedes lanzarlo desde Registros.",
+                      "/registros", "sistema"))
     # IA
     estado = {i["id"]: i for i in business_metrics.estado_integraciones()}
     if not estado["openrouter"]["configurada"]:

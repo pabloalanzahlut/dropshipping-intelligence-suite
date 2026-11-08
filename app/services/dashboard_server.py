@@ -37,7 +37,7 @@ from pydantic import BaseModel
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
 from app.services import (agent_router, alerts, business_metrics, channel_store, daily_brief,
-                          exports, log_viewer, product_catalog, transcript_store, web_auth)
+                          exports, log_viewer, mantenimiento, product_catalog, transcript_store, web_auth)
 
 log = logging.getLogger(__name__)
 log_viewer.configurar_log_servidor(PathManager.get_paths()["logs"] / "servidor.log")
@@ -227,7 +227,20 @@ async def lifespan(app: FastAPI):
         except Exception as exc:
             log.warning(f"[SERVER] Resumen diario falló: {exc}")
 
+    def _scheduled_mantenimiento() -> None:
+        """Domingo 04:00 (tras la copia de las 03:30): integridad, optimización, temporales, canales."""
+        try:
+            r = mantenimiento.ejecutar(DB_PATH, CHANNELS_JSON_PATH)
+            log.info(f"[SERVER] Mantenimiento semanal: integridad_ok={r.get('integridad_ok')} "
+                     f"errores={len(r.get('errores', []))} ({r.get('duracion_s')} s)")
+            alerts.evaluar(DB_PATH, CHANNELS_JSON_PATH)
+        except Exception as exc:
+            log.warning(f"[SERVER] Mantenimiento semanal falló: {exc}")
+
     if _scheduler_available and _scheduler is not None and engine is not None:
+        _scheduler.add_job(_scheduled_mantenimiento, "cron", day_of_week="sun", hour=4, minute=0,
+                           id="mantenimiento_semanal", replace_existing=True, misfire_grace_time=24 * 3600,
+                           coalesce=True)
         _scheduler.add_job(_scheduled_alertas, "interval", minutes=60, id="alertas_auto", max_instances=1,
                            misfire_grace_time=600, replace_existing=True,
                            next_run_time=datetime.now() + timedelta(seconds=45))
@@ -1523,6 +1536,29 @@ async def api_alertas(todas: bool = False, refrescar: bool = False) -> Dict[str,
 async def api_alertas_vistas(alerta_id: Optional[int] = None) -> Dict[str, Any]:
     """Marca como vista una alerta (o todas). Sigue activa mientras el problema exista."""
     return {"marcadas": alerts.marcar_vista(DB_PATH, alerta_id)}
+
+
+@app.get("/api/mantenimiento")
+async def api_mantenimiento() -> Dict[str, Any]:
+    """Resultado de la última pasada de mantenimiento y si hay una en curso."""
+    return {"ultimo": mantenimiento.ultimo(CHANNELS_JSON_PATH), "en_curso": mantenimiento._LOCK.locked()}
+
+
+@app.post("/api/mantenimiento/ejecutar")
+async def api_mantenimiento_ejecutar() -> Dict[str, Any]:
+    """Lanza el mantenimiento en segundo plano (verificar los canales tarda ~1 min)."""
+    if mantenimiento._LOCK.locked():
+        raise HTTPException(status_code=409, detail="Ya hay un mantenimiento en curso.")
+
+    def _tarea() -> None:
+        try:
+            mantenimiento.ejecutar(DB_PATH, CHANNELS_JSON_PATH)
+            alerts.evaluar(DB_PATH, CHANNELS_JSON_PATH)
+        except Exception as exc:
+            log.warning(f"[SERVER] Mantenimiento manual falló: {exc}")
+
+    asyncio.get_event_loop().run_in_executor(None, _tarea)
+    return {"iniciado": True}
 
 
 @app.get("/api/resumen-diario")
