@@ -200,6 +200,12 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/clonar-seccion` | HTML de la competencia → Liquid con variables de Shopify |
 | `/destilar-skill` | Reescribe una skill desde ejecuciones reales, no desde la hipótesis inicial |
 | `/consolidar-manual` | Toda la KB → manual operativo paso a paso con fuentes y timestamps |
+| `/configurar-tienda` | Checklist completo Shopify: dominio, pagos, políticas, envíos, AutoDS, píxeles |
+| `/trafico-organico` | Setup cuenta TikTok/Reels + estrategia de contenido orgánico sin invertir en ads |
+| `/google-ads` | Campañas Google Ads: búsqueda, Shopping, PMax — keywords, pujas, optimización ROAS |
+| `/tiktok-ads` | TikTok Ads pagados: pixel, Business Manager, campañas de ventas, retargeting |
+| `/amazon-dropshipping` | Dropshipping en Amazon: proveedor, listings, envíos, devoluciones, AutoDS |
+| `/tiktok-shop` | Vender en TikTok Shop sin stock: cuenta, productos virales, afiliados, LIVE |
 
 ---
 
