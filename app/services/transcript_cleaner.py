@@ -22,14 +22,20 @@ from datetime import datetime
 class TranscriptCleaner:
     """Limpiador agresivo de transcripciones para optimizar costos de IA."""
 
+    # SOLO disfluencias sin significado propio. Palabras con significado ('no',
+    # 'bueno', 'mira', 'tipo', 'esto', 'verdad'...) NO van aquí: borrarlas cambia
+    # el sentido ("no funciona" -> "funciona") y falsea reglas y cifras.
     FILLER_WORDS_DEFAULT = [
-        'ehh', 'umm', 'uh', 'uhm', 'um', 'err', 'erm',
-        'ok', 'okay', 'bueno', 'mira', 'entonces', 'además',
-        'viste', 'entiendes', 'sabes', 'verdad', 'no',
-        'pues', 'vale', 'anda', 'ey', 'oye', 'este', 'esto',
-        'digamos', 'o sea', 'como que', 'tipo', 'prácticamente',
-        'básicamente', 'literalmente', 'obviamente', 'claramente',
+        'eh', 'ehh', 'ehhh', 'ehm', 'em', 'emm',
+        'umm', 'um', 'uh', 'uhh', 'uhm', 'err', 'erm',
+        'mmm', 'mm', 'hmm', 'hmmm', 'o sea',
     ]
+
+    # Etiquetas de sonido de los subtítulos automáticos: [Música], [Aplausos]...
+    SOUND_TAG_PATTERN = (
+        r'\[\s*(?:m[úu]sica|music|aplausos|applause|risas|laughter|'
+        r'silencio|ruido|inaudible)[^\]]*\]|♪+'
+    )
 
     TIMESTAMP_PATTERNS = [
         r'\d{1,2}:\d{2}:\d{2}\.\d{3}\s*-->\s*\d{1,2}:\d{2}:\d{2}\.\d{3}',
@@ -53,11 +59,10 @@ class TranscriptCleaner:
         r'(?:c[oó]digo\s+(?:de\s+)?descuento|cup[oó]n\s+exclusivo)',
         r'(?:enlace\s+(?:en\s+)?la\s+(?:descripci[oó]n|biograf[íi]a|comentarios))',
         r'(?:link\s+en\s+descripci[oó]n|link\s+in\s+bio|más\s+info\s+en\s+link)',
-        r'(?:compra\s+ahora|consigue\s+el\s+tuyo|adquiere\s+ya)',
-        r'(?:oferta\s+(?:limitada|exclusiva|imperdible)|precio\s+especial)',
+        # No se borran 'oferta limitada', 'precio especial', 'compra ahora' ni
+        # 'mi curso': los mentores los citan como ejemplos de copy/tácticas y
+        # quitarlos destruye contenido útil. Solo se quita el boilerplate del canal.
         r'(?:s[ío]gueme\s+en\s+(?:insta|tiktok|twitter|telegram))',
-        r'(?:mi\s+(?:curso|masterclass|programa|ebook|gui[íi]a))',
-        r'(?:mentor[ií]as?\s+(?:gratuitas?|pagas?|privadas?))',
         r'(?:únete\s+a\s+mi\s+(?:comunidad|grupo|newsletter|lista))',
         r'(?:no\s+te\s+lo\s+pierdas|te\s+va\s+encantar|esto\s+es\s+incre[íi]ble)',
         r'(?:quédate\s+hasta\s+el\s+final|no\s+te\s+vayas|espera\s+al\s+final)',
@@ -101,17 +106,27 @@ class TranscriptCleaner:
         Returns:
             Texto sin muletillas
         """
-        # Eliminar muletillas individuales (word boundaries)
+        # Eliminar muletillas (límites de palabra, sin distinguir mayúsculas).
+        # Se consume también la coma que las acompaña ("eh, bueno" -> "bueno").
         result = text
-        for word in self.filler_words:
-            # Caso insensitivo, respetando límites de palabra
-            pattern = r'\b' + re.escape(word) + r'\b\s*'
+        for word in sorted(self.filler_words, key=len, reverse=True):
+            pattern = r'(?<!\w)' + re.escape(word) + r'(?!\w)[,;]?[ \t]*'
             result = re.sub(pattern, '', result, flags=re.IGNORECASE)
-        
-        # Eliminar repeticiones consecutivas de la misma palabra
-        result = re.sub(r'\b(\w+)(\s+\1)+\b', r'\1', result, flags=re.IGNORECASE)
-        
+
+        # Repeticiones consecutivas de la misma palabra ("de de la"): solo
+        # palabras de letras; los números ("10 10") se respetan.
+        result = re.sub(r'\b([^\W\d_]{2,})(\s+\1)+\b', r'\1', result, flags=re.IGNORECASE)
+
+        # Puntuación huérfana que dejan las muletillas
+        result = re.sub(r'\s+([,.;:!?])', r'\1', result)
+        result = re.sub(r'([,;])\s*([,;])+', r'\1', result)
+        result = re.sub(r'(^|[.!?]\s+|\n)[,;]\s*', r'\1', result)
+
         return result
+
+    def remove_sound_tags(self, text: str) -> str:
+        """Quita etiquetas de sonido de subtítulos ([Música], [Aplausos], ♪)."""
+        return re.sub(self.SOUND_TAG_PATTERN, ' ', text, flags=re.IGNORECASE)
     
     def detect_sections(self, text: str) -> str:
         """
@@ -225,7 +240,8 @@ class TranscriptCleaner:
         resultado = self.remove_vtt_timestamps(resultado)
         pasos.append("Timestamps eliminados")
 
-        # 3. Eliminar muletillas
+        # 3. Etiquetas de sonido y muletillas
+        resultado = self.remove_sound_tags(resultado)
         resultado = self.remove_filler_words(resultado)
         pasos.append("Muletillas eliminadas")
 
@@ -260,6 +276,7 @@ class TranscriptCleaner:
 
         if log_stats:
             self.cleaning_log.append(salida)
+            del self.cleaning_log[:-500]  # no crecer sin límite en procesos largos
         return salida
 
     def clean_for_ia(self, text: str) -> str:
@@ -323,7 +340,7 @@ class TranscriptCleaner:
             'tokens_original_total': tokens_original_total,
             'tokens_limpio_total': tokens_limpio_total,
             'ahorro_total_tokens': tokens_original_total - tokens_limpio_total,
-            'ahorro_total_estimado_usd': round((tokens_original_total - tokens_limpio_total) * 0.000001, 4),  # Aprox. $0.001 por 1M tokens
+            'ahorro_total_estimado_usd': round((tokens_original_total - tokens_limpio_total) * 0.000001, 4),  # Referencia: ~1 USD por 1M tokens
         }
 
 
