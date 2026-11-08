@@ -26,13 +26,16 @@ from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import uvicorn
 import jinja2
-from fastapi import BackgroundTasks, FastAPI, File, HTTPException, Request, UploadFile
+from urllib.parse import quote
+
+from fastapi import BackgroundTasks, FastAPI, File, HTTPException, Query, Request, Response, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
+from app.services import transcript_store
 
 log = logging.getLogger(__name__)
 
@@ -73,6 +76,15 @@ def set_pipeline_state(**kwargs) -> None:
     """Actualiza el estado del pipeline en tiempo real."""
     with _PIPELINE_LOCK:
         _PIPELINE_STATE.update(kwargs)
+
+
+# Una sola ingesta de KB a la vez (botón web, scheduler horario o escritorio)
+_INGEST_LOCK = threading.Lock()
+
+# Estado de la sincronización de transcripciones (YouTubeChannelMonitor)
+_TRANS_SYNC: Dict[str, Any] = {"running": False, "msg": "", "result": None, "error": None}
+_TRANS_SYNC_LOCK = threading.Lock()
+_trans_monitor = None  # monitor en curso (para cancelar)
 
 
 # Inyectar push_log en el engine para que emita eventos sin importar circular
@@ -158,9 +170,19 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+    def _scheduled_ingest() -> None:
+        # Si ya hay una ingesta en curso (p. ej. lanzada a mano), se salta este ciclo
+        if not _INGEST_LOCK.acquire(blocking=False):
+            log.info("[SERVER] Ingesta programada omitida: ya hay una en curso.")
+            return
+        try:
+            engine.run_global_ingestion()
+        finally:
+            _INGEST_LOCK.release()
+
     if _scheduler_available and _scheduler is not None and engine is not None:
         _scheduler.add_job(
-            engine.run_global_ingestion,
+            _scheduled_ingest,
             "interval",
             hours=1,
             id="auto_ingest",
@@ -291,9 +313,11 @@ def _load_channels_json() -> List[Dict[str, Any]]:
 
 
 def _save_channels_json(channels: List[Dict[str, Any]]) -> None:
-    Path(CHANNELS_JSON_PATH).write_text(
-        json.dumps(channels, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    """Escritura atómica: archivo temporal + reemplazo (no deja el JSON a medias)."""
+    path = Path(CHANNELS_JSON_PATH)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(channels, ensure_ascii=False, indent=2), encoding="utf-8")
+    os.replace(tmp, path)
 
 
 def _get_kb_count() -> int:
@@ -315,7 +339,9 @@ def _get_total_videos() -> int:
         db = _get_db()
         with db.get_connection() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT COUNT(*) FROM video_sources")
+            # Vídeos con conocimiento extraído por IA (no las transcripciones sueltas)
+            cur.execute("SELECT COUNT(*) FROM video_sources WHERE platform != ?",
+                        (transcript_store.TRANSCRIPT_PLATFORM,))
             return cur.fetchone()[0]
     except sqlite3.Error:
         return 0
@@ -613,17 +639,24 @@ async def trigger_process(background_tasks: BackgroundTasks) -> Dict[str, str]:
     if engine is None:
         raise HTTPException(status_code=503, detail="Motor de ingesta no disponible.")
 
+    # Evita dos ingestas en paralelo (doble clic o choque con el scheduler)
+    if not _INGEST_LOCK.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="Ya hay una ingesta en curso.")
+
     def _run_with_logs():
-        set_pipeline_state(active=True, started_at=time.strftime("%H:%M:%S"),
-                           processed=0, total=0, current_channel=None, current_video=None)
-        push_log("🚀 Ingesta masiva iniciada", "INFO")
         try:
-            engine.run_global_ingestion()
-        except Exception as exc:
-            push_log(f"❌ Error en ingesta: {exc}", "ERROR")
+            set_pipeline_state(active=True, started_at=time.strftime("%H:%M:%S"),
+                               processed=0, total=0, current_channel=None, current_video=None)
+            push_log("🚀 Ingesta masiva iniciada", "INFO")
+            try:
+                engine.run_global_ingestion()
+                push_log("✅ Ingesta finalizada", "INFO")
+            except Exception as exc:
+                push_log(f"❌ Error en ingesta: {exc}", "ERROR")
+            finally:
+                set_pipeline_state(active=False, current_channel=None, current_video=None)
         finally:
-            set_pipeline_state(active=False, current_channel=None, current_video=None)
-            push_log("✅ Ingesta finalizada", "INFO")
+            _INGEST_LOCK.release()
 
     background_tasks.add_task(_run_with_logs)
     return {"status": "started", "message": "Ingesta masiva lanzada en segundo plano."}
