@@ -75,3 +75,10 @@ exports/
 
 # Imagenes de producto generadas (salida, no fuente)
 data/imagenes_producto/
+
+# Credenciales — NUNCA commitear (método Xavier Mitjana: Refuerza tu seguridad)
+ai_workspace/config/google_credentials.json
+ai_workspace/config/*credentials*.json
+ai_workspace/config/*secret*.json
+**/service_account*.json
+**/*_credentials.json
