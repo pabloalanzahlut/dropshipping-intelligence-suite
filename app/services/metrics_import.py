@@ -227,8 +227,8 @@ def _parsear_meta(cab, orig, cuerpo, coma_decimal, campanas) -> Dict[str, Any]:
     if rango:
         avisos.append(f"{rango} filas abarcan un rango de fechas (no son diarias) y se han saltado.")
     if not por_dia:
-        raise ValueError("No hay ninguna fila diaria válida. Exporta con el desglose por día." if rango or descartadas
-                         else "Ninguna fila coincide con las campañas elegidas.")
+        raise ValueError("Ninguna fila coincide con las campañas elegidas." if campanas is not None and camp
+                         else "No hay ninguna fila diaria válida. Exporta con el desglose por día.")
     if descartadas:
         avisos.append(f"{descartadas} filas sin fecha válida (totales o filas vacías) se han ignorado.")
     if futuras:
