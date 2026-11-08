@@ -263,7 +263,7 @@ def scrape_posts(page, max_scroll: int = 10) -> list[dict]:
             log.info(f"Sin más contenido tras {i+1} scrolls")
             break
 
-    log.info(f"✓ {len(posts)} posts relevantes extraídos")
+    log.info(f"OK: {len(posts)} posts relevantes extraídos")
     return posts
 
 
