@@ -251,6 +251,12 @@ class KBRouter:
                         (video_id, platform, title, channel_name, content_hash)
                     VALUES (?, 'youtube', ?, ?, ?)
                 """, (video_id, title, creator, content_hash))
+                # Si la fuente la creó el guardado de transcripciones, ya pasó por la IA
+                cursor.execute(
+                    "UPDATE video_sources SET platform = 'youtube' "
+                    "WHERE video_id = ? AND platform = 'youtube_transcript'",
+                    (video_id,),
+                )
 
                 # 2. Segmentación semántica por bloques KDP Style
                 sections = clean_markdown.split("### ")

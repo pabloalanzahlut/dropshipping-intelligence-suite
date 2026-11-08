@@ -12,7 +12,12 @@ class KBCacheValidator:
         """Verifica de forma fulminante si el ID del video ya está indexado en la KB."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        cursor.execute("SELECT 1 FROM video_sources WHERE video_id = ?", (video_id,))
+        # Las filas 'youtube_transcript' las crea el guardado de transcripciones
+        # (transcript_store); NO significan que la IA ya extrajo conocimiento.
+        cursor.execute(
+            "SELECT 1 FROM video_sources WHERE video_id = ? AND platform != 'youtube_transcript'",
+            (video_id,),
+        )
         exists = cursor.fetchone() is not None
         conn.close()
         return exists
