@@ -358,7 +358,8 @@ def evaluar_escalado(db_path: str, producto: Dict[str, Any]) -> Dict[str, Any]:
 
 _INTEGRACIONES = [
     ("openrouter", "OpenRouter (IA)", ["OPENROUTER_API_KEY"], "Agente, copys, guiones y extracción de la KB"),
-    ("shopify", "Shopify", ["SHOPIFY_STORE_URL", "SHOPIFY_ACCESS_TOKEN"], "Borradores de producto y webhooks"),
+    ("shopify", "Shopify", ["SHOPIFY_STORE_URL", "SHOPIFY_ACCESS_TOKEN"],
+     "Ventas y costes reales (pantalla Tienda), contexto del agente y borradores de producto"),
     ("make", "Make.com · TikTok", ["MAKE_WEBHOOK_TIKTOK"], "Publicación automática de guiones"),
     ("make_carrito", "Make.com · carrito abandonado", ["MAKE_WEBHOOK_ABANDONED_CART"], "Recuperación de carritos"),
     ("make_alertas", "Make.com · avisos de alertas", ["MAKE_WEBHOOK_ALERTAS"], "Alertas por email, Telegram o WhatsApp"),
@@ -382,8 +383,17 @@ def estado_integraciones() -> List[Dict[str, Any]]:
     out = []
     for clave, nombre, variables, para in _INTEGRACIONES:
         faltan = [v for v in variables if not (os.getenv(v) or "").strip()]
+        if clave == "shopify":
+            # La API de lectura necesita Client ID + secreto (o un token shpat_): con un «shpss_» en
+            # SHOPIFY_ACCESS_TOKEN la variable existe pero Shopify lo rechaza, así que no basta con que exista.
+            from app.services.shopify_client import estado_credenciales
+            est = estado_credenciales()
+            faltan = est["faltan"] or ([] if est["configurada"] else ["SHOPIFY_STORE_URL"])
         out.append({"id": clave, "nombre": nombre, "para": para, "configurada": not faltan,
                     "faltan": faltan, "nota": ""})
+    out.append({"id": "autods", "nombre": "AutoDS", "para": "Coste real de proveedor y envío por pedido",
+                "configurada": False, "faltan": [],
+                "nota": "Su API exige aprobación y pago: sube el export de AutoDS (CSV/Excel) en Tienda."})
     out.append({"id": "meta_ads", "nombre": "Meta Ads / TikTok Ads", "para": "Gasto y ROAS de campañas",
                 "configurada": False, "faltan": [], "nota": "Sin integración: registra los datos a mano en Negocio."})
     return out
