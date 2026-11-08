@@ -135,7 +135,7 @@ class CsvTests(unittest.TestCase):
         data = exports.a_csv([{"k": "a", "t": "A"}], [{"a": "=HYPERLINK(1)"}, {"a": "+1"}, {"a": "normal"}, {"a": None}, {"a": True}])
         self.assertTrue(data.startswith(b"\xef\xbb\xbf"))
         filas = data.decode("utf-8-sig").split("\r\n")
-        self.assertEqual(filas[1:6], ["'=HYPERLINK(1)", "'+1", "normal", "", "sí"])
+        self.assertEqual(filas[1:6], ["'=HYPERLINK(1)", "'+1", "normal", '""', "sí"])
 
     def test_dataset_con_busqueda(self):
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as d:
