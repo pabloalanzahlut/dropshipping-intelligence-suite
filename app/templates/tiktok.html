@@ -29,13 +29,13 @@
 
       <form @submit.prevent="generar()" style="display:flex;flex-direction:column;gap:14px;">
         <div>
-          <label class="form-label">Nombre del Producto</label>
-          <input x-model="form.nombre_producto" type="text" class="input-field"
+          <label class="form-label" for="f-nombre_producto">Nombre del Producto</label>
+          <input id="f-nombre_producto" x-model="form.nombre_producto" type="text" class="input-field"
                  placeholder="ej: Masajeador Percutivo" required>
         </div>
         <div>
-          <label class="form-label">Categoría</label>
-          <select x-model="form.categoria" class="input-field">
+          <label class="form-label" for="f-categoria">Categoría</label>
+          <select id="f-categoria" x-model="form.categoria" class="input-field">
             <option value="hogar">🏠 Hogar</option>
             <option value="moda">👗 Moda</option>
             <option value="electronica">📱 Electrónica</option>
@@ -47,10 +47,11 @@
 
         <!-- Hook selector -->
         <div>
-          <label class="form-label">Patrón de Hook</label>
-          <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <span class="form-label" id="lbl-hook">Patrón de Hook</span>
+          <div class="g-resp" role="group" aria-labelledby="lbl-hook" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <template x-for="p in hookPatterns" :key="p.value">
               <button type="button"
+                      :aria-pressed="form.patron_hook === p.value"
                       @click="form.patron_hook = p.value"
                       :class="form.patron_hook === p.value ? 'hook-btn active' : 'hook-btn'"
                       style="width:100%;">
@@ -63,11 +64,11 @@
 
         <!-- Duration slider -->
         <div>
-          <label class="form-label">
+          <label class="form-label" for="f-duracion_segundos">
             Duración objetivo
             <span style="color:#22d3ee;font-weight:600;" x-text="' — ' + form.duracion_segundos + 's'"></span>
           </label>
-          <input x-model.number="form.duracion_segundos" type="range" min="15" max="30" step="5"
+          <input id="f-duracion_segundos" x-model.number="form.duracion_segundos" type="range" min="15" max="30" step="5"
                  style="width:100%;accent-color:#06b6d4;margin-bottom:4px;">
           <div style="display:flex;justify-content:space-between;font-size:10px;color:#4a5080;">
             <span>15s</span>
