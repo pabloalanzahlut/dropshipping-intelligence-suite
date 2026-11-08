@@ -233,9 +233,14 @@ def setup_schedule() -> None:
         _run_job, "daily_report", job_daily_report, _lock_report
     )
 
+    # Análisis de auto-mejora: 03:00 UTC, cuando no hay nada más corriendo
+    schedule.every().day.at("03:00").do(
+        _run_job, "self_improve", job_self_improve, _lock_report
+    )
+
     logger.info(
         f"[SCHEDULER] Schedule configurado: "
-        f"monitor={sync_hours}h | classify=6h | report=08:00 UTC"
+        f"monitor={sync_hours}h | classify=6h | report=08:00 | self_improve=03:00 UTC"
     )
 
 
