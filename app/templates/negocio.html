@@ -50,16 +50,18 @@
     <!-- Gráfico + acciones -->
     <div class="card" style="min-width:0;">
       <div class="section-title">Ingresos y gasto en ads por día</div>
-      <div x-show="serie.length" style="overflow-x:auto;">
-        <svg :viewBox="'0 0 ' + ancho + ' 170'" :width="ancho" height="170" role="img" aria-label="Ingresos y gasto en ads por día">
-          <template x-for="(b, i) in barras" :key="b.fecha">
-            <g>
-              <rect :x="b.x" :y="b.yi" width="14" :height="b.hi" fill="#22d3ee" rx="2"><title x-text="b.fecha + ' · ingresos ' + b.ingresos"></title></rect>
-              <rect :x="b.x + 16" :y="b.yg" width="14" :height="b.hg" fill="#fb7185" rx="2"><title x-text="b.fecha + ' · gasto ' + b.gasto_ads"></title></rect>
-              <text :x="b.x + 15" y="165" text-anchor="middle" font-size="9" fill="#4a5080" x-text="b.fecha.slice(5)"></text>
-            </g>
+      <div x-show="serie.length" style="overflow-x:auto;" role="img" aria-label="Ingresos y gasto en ads por día">
+        <div style="display:flex;align-items:flex-end;gap:14px;height:170px;padding:0 4px;min-width:min-content;">
+          <template x-for="b in barras" :key="b.fecha">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="display:flex;align-items:flex-end;gap:3px;height:140px;">
+                <div :style="'width:14px;border-radius:3px 3px 0 0;background:#22d3ee;height:' + b.hi + 'px'" :title="b.fecha + ' · ingresos ' + b.ingresos"></div>
+                <div :style="'width:14px;border-radius:3px 3px 0 0;background:#fb7185;height:' + b.hg + 'px'" :title="b.fecha + ' · gasto ' + b.gasto_ads"></div>
+              </div>
+              <span style="font-size:9px;color:#4a5080;" x-text="b.fecha.slice(5)"></span>
+            </div>
           </template>
-        </svg>
+        </div>
       </div>
       <p x-show="!serie.length" style="font-size:12px;color:#4a5080;margin:0;">Sin datos todavía: registra el primer día →</p>
       <div style="margin-top:8px;font-size:10px;color:#7880b0;"><span style="color:#22d3ee;">■</span> Ingresos &nbsp; <span style="color:#fb7185;">■</span> Gasto en ads</div>

@@ -3,26 +3,13 @@
   "fuente": "sqlite",
   "nota": "Generado automáticamente desde SQLite. No editar manualmente.",
   "ultima_actualizacion": "2026-11-08",
-  "total_entradas": 270,
+  "total_entradas": 157,
   "por_tipo": {
-    "productos": 90,
-    "conversion": 90,
-    "operaciones": 90
+    "productos": 47,
+    "conversion": 50,
+    "operaciones": 60
   },
   "entradas": [
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 92,
-      "video_id": "tGPFM_UN2N0",
-      "video_title": "How to Sell Your First Dropshipping Product Without Paid Ads",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Pelota interactiva para gatos",
-      "nicho": "Dueños de gatos",
-      "wow_factor": "Pelota que se mueve sola para mantener a los gatos entretenidos y activos",
-      "margen_estimado": 3.0
-    },
     {
       "tipo": "producto",
       "tabla": "product_trends",
@@ -35,19 +22,6 @@
       "nicho": "Dueños de mascotas, específicamente gatos",
       "wow_factor": "Pelota que se mueve sola para mantener a los gatos entretenidos y activos",
       "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 90,
-      "video_id": "8lzoWVqgvhI",
-      "video_title": "They Started Out Skeptical and Ended Up Making $20,000 from Colombia",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Retroconsola",
-      "nicho": "Entretenimiento y nostalgia",
-      "wow_factor": "Combina nostalgia con tecnología moderna",
-      "margen_estimado": 50.0
     },
     {
       "tipo": "producto",
@@ -65,19 +39,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 88,
-      "video_id": "01rYgelVNz0",
-      "video_title": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Soporte para cabeza de niños en coche",
-      "nicho": "Padres con niños pequeños",
-      "wow_factor": "Soluciona el problema de los niños que se duermen en el coche y se despiertan de mal humor",
-      "margen_estimado": 1.6
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 87,
       "video_id": "01rYgelVNz0",
       "video_title": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
@@ -87,19 +48,6 @@
       "nicho": "Padres con niños pequeños",
       "wow_factor": "Soluciona el problema de incomodidad y seguridad en viajes largos",
       "margen_estimado": 1.6
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 86,
-      "video_id": "8eo_7E1fiSA",
-      "video_title": "The Secret to Making $10,000/Month With Dropshipping That No One Uses",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Funda de teléfono para ducha",
-      "nicho": "Personas mayores que viven solas",
-      "wow_factor": "Permite tener el teléfono a mano en la ducha para emergencias",
-      "margen_estimado": 3.0
     },
     {
       "tipo": "producto",
@@ -130,19 +78,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 83,
-      "video_id": "9UGrhUq2IBc",
-      "video_title": "How to Build a Dropshipping Store in 5 Minutes with Claude",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Soporte para cabeza de niños en el auto",
-      "nicho": "Padres con hijos pequeños que hacen trayectos en auto",
-      "wow_factor": "Previene que los niños se despierten o se hagan daño durante el sueño en el auto",
-      "margen_estimado": 1.92
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 82,
       "video_id": "9UGrhUq2IBc",
       "video_title": "How to Build a Dropshipping Store in 5 Minutes with Claude",
@@ -164,19 +99,6 @@
       "nombre": "Producto Extraído por IA",
       "nicho": "Dropshipping",
       "wow_factor": "Ver transcripción",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 80,
-      "video_id": "vxGYFSixHeo",
-      "video_title": "How to Do Dropshipping in Colombia Without Paying for Advertising",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Peluche que respira",
-      "nicho": "Juguetes para niños",
-      "wow_factor": "Peluche con respiración artificial para calmar la ansiedad en niños",
       "margen_estimado": 3.0
     },
     {
@@ -221,19 +143,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 76,
-      "video_id": "26rRZSy8zI4",
-      "video_title": "I Bought 3 Dropshipping Products in China to Find Out if They’re Selling Junk...",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Burro que respira",
-      "nicho": "Juguetes y peluches",
-      "wow_factor": "Control de calidad para evitar problemas con clientes",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 75,
       "video_id": "26rRZSy8zI4",
       "video_title": "I Bought 3 Dropshipping Products in China to Find Out if They’re Selling Junk...",
@@ -243,19 +152,6 @@
       "nicho": "Juguetes y peluches",
       "wow_factor": "Control de calidad para evitar problemas con clientes",
       "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 74,
-      "video_id": "ugSNaw6gb98",
-      "video_title": "Leaking the Dropshipping Strategy That Made Us $60,494 in 53 Days",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Llaveros de stock de pareja",
-      "nicho": "Regalos para parejas",
-      "wow_factor": "Producto emocional que conecta con parejas, fácil de vender en TikTok Shop y orgánico.",
-      "margen_estimado": 50.0
     },
     {
       "tipo": "producto",
@@ -299,19 +195,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 70,
-      "video_id": "I6G_EUdDvu0",
-      "video_title": "Free AI Dropshipping Course: From 0 to Your First Orders in 7 Days",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Masajeador de cuello por vibración y rotación",
-      "nicho": "Personas con dolor de cuello, bruxismo o tensión mandibular",
-      "wow_factor": "Alivia el dolor de cuello y mandíbula con vibración y rotación",
-      "margen_estimado": 2.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 69,
       "video_id": "I6G_EUdDvu0",
       "video_title": "Free AI Dropshipping Course: From 0 to Your First Orders in 7 Days",
@@ -346,19 +229,6 @@
       "nombre": "Producto Extraído por IA",
       "nicho": "Dropshipping",
       "wow_factor": "Ver transcripción",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 66,
-      "video_id": "gX07B9Ktmdc",
-      "video_title": "He Wasn't Good at Recording, and Now He Makes +€70,000 with AI Dropshipping",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Proyector",
-      "nicho": "Electrónica de consumo",
-      "wow_factor": "Innovación en proyección de imágenes",
       "margen_estimado": 3.0
     },
     {
@@ -416,19 +286,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 61,
-      "video_id": "gyRGTS-a-WY",
-      "video_title": "He Considers Himself Lazy and Has Made +$220,000 with Dropshipping",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Relojes de moda",
-      "nicho": "Moda y accesorios",
-      "wow_factor": "Margen de ganancia alto y fácil de vender en redes sociales",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 60,
       "video_id": "gyRGTS-a-WY",
       "video_title": "He Considers Himself Lazy and Has Made +$220,000 with Dropshipping",
@@ -463,19 +320,6 @@
       "nombre": "Peluches que respiran (burro, zorro, Grinch)",
       "nicho": "Juguetes novedosos",
       "wow_factor": "Productos virales con funcionalidad única (respiran)",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 57,
-      "video_id": "tIApr3ooLEs",
-      "video_title": "This Changes How You Find Dropshipping Products Forever",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Collar de serpiente",
-      "nicho": "Joyería cristiana",
-      "wow_factor": "Viralizado con 398,000 likes en TikTok",
       "margen_estimado": 3.0
     },
     {
@@ -520,19 +364,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 53,
-      "video_id": "MpBmX_bBgg8",
-      "video_title": "How to Boost Sales with Shopify Dropshipping in Q4",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Pasamontañas de Navidad",
-      "nicho": "Regalos de Navidad",
-      "wow_factor": "Adaptación de productos no navideños como regalos de Navidad",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 52,
       "video_id": "MpBmX_bBgg8",
       "video_title": "How to Boost Sales with Shopify Dropshipping in Q4",
@@ -554,19 +385,6 @@
       "nombre": "Producto Extraído por IA",
       "nicho": "Dropshipping",
       "wow_factor": "Ver transcripción",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 50,
-      "video_id": "ywD_808Bi4o",
-      "video_title": "They Started Out Losing Money and Now Make Over $700,000 with Dropshipping",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Gorras",
-      "nicho": "Moda urbana",
-      "wow_factor": "Producto único en el mercado colombiano, destacado por creativos propios",
       "margen_estimado": 3.0
     },
     {
@@ -624,19 +442,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 45,
-      "video_id": "gNticX19mMg",
-      "video_title": "He Was Scammed by Another Course, and Now He’s Making Over $40,000 with Me Through Dropshipping",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Reloj de rin de auto",
-      "nicho": "Accesorios para automóviles",
-      "wow_factor": "Producto único que gira y llama la atención",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 44,
       "video_id": "gNticX19mMg",
       "video_title": "He Was Scammed by Another Course, and Now He’s Making Over $40,000 with Me Through Dropshipping",
@@ -689,19 +494,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 40,
-      "video_id": "Db6NU2u0jjc",
-      "video_title": "Cómo crear anuncios con IA que venden (dropshipping 2026)",
-      "canal": "JaviEcom",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Pulsera antitabaco con magnetismo",
-      "nicho": "Salud y bienestar",
-      "wow_factor": "Reduce la dependencia al tabaco mediante magnetismo",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 39,
       "video_id": "Db6NU2u0jjc",
       "video_title": "Cómo crear anuncios con IA que venden (dropshipping 2026)",
@@ -710,19 +502,6 @@
       "nombre": "Pulsera antitabaco con magnetismo",
       "nicho": "Salud y bienestar",
       "wow_factor": "Reduce la dependencia al tabaco mediante magnetismo",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 38,
-      "video_id": "p1pOsZ4axgU",
-      "video_title": "Los 3 Productos que Más Van a Vender este Q4 2026",
-      "canal": "JaviEcom",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Gafas antirrayos azules",
-      "nicho": "Salud ocular, personas mayores",
-      "wow_factor": "Protección contra la luz azul con diferentes aumentos",
       "margen_estimado": 3.0
     },
     {
@@ -741,19 +520,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 36,
-      "video_id": "rqMrq2MGdpw",
-      "video_title": "$29,356 En 30 Días Haciendo Dropshipping Con Claude (Solo Cópiame)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Crema antienvejecimiento",
-      "nicho": "Cuidado de la piel",
-      "wow_factor": "Ofrece un pack de 1 + 1 gratis, con un ticket alto de $79",
-      "margen_estimado": 2.8
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 35,
       "video_id": "rqMrq2MGdpw",
       "video_title": "$29,356 En 30 Días Haciendo Dropshipping Con Claude (Solo Cópiame)",
@@ -767,32 +533,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 34,
-      "video_id": "HaNTewfQu7c",
-      "video_title": "6 Negocios Aburridos Pero Ultra Rentables",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Clipping de contenido corto",
-      "nicho": "Creadores de contenido y editores",
-      "wow_factor": "Ganancia rápida por cada 1,000 visitas",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 33,
-      "video_id": "DRE8lqZoIn0",
-      "video_title": "La Forma Más Fácil De Empezar Dropshipping En 2026",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Aerovital",
-      "nicho": "Deportistas",
-      "wow_factor": "Entrenamiento con menos oxígeno para mejorar la capacidad pulmonar",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 32,
       "video_id": "DRE8lqZoIn0",
       "video_title": "La Forma Más Fácil De Empezar Dropshipping En 2026",
@@ -801,84 +541,6 @@
       "nombre": "Aerovital",
       "nicho": "Deportistas",
       "wow_factor": "Entrenador respiratorio que mejora la capacidad pulmonar y resistencia",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 31,
-      "video_id": "i1eHoDmcL0E",
-      "video_title": "Cómo Ganar Dinero Según Jesús y La Biblia | José Carlos González-Hurtado",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Producto Extraído por IA",
-      "nicho": "Dropshipping",
-      "wow_factor": "Ver transcripción",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 30,
-      "video_id": "UHVR0MqJYfM",
-      "video_title": "Cómo Crear Páginas Web Increíbles Utilizando Claude",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Páginas web para empresas de paneles solares",
-      "nicho": "Empresas de instalación y venta de paneles solares",
-      "wow_factor": "Páginas web profesionales con inteligencia artificial integrada y funcionalidades avanzadas",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 29,
-      "video_id": "UHVR0MqJYfM",
-      "video_title": "Cómo Crear Páginas Web Increíbles Utilizando Claude",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Páginas web para empresas de paneles solares",
-      "nicho": "Empresas de instalación y venta de paneles solares",
-      "wow_factor": "Páginas web profesionales con inteligencia artificial integrada",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 28,
-      "video_id": "pvdYrfTykzg",
-      "video_title": "Ex-Banquero Suizo: \"Estoy Cambiando Mi Forma De Invertir Por Culpa De La IA\"",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Banca privada y asesoramiento financiero",
-      "nicho": "Clientes de alto patrimonio (high net worth individuals)",
-      "wow_factor": "Acceso a productos y servicios financieros exclusivos, gestión patrimonial internacional",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 27,
-      "video_id": "qNtBZxHJh-o",
-      "video_title": "5 Formas Probadas De Ganar Dinero Con IA (Sin Experiencia)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Pelota para trabajar el grip",
-      "nicho": "Salud y bienestar",
-      "wow_factor": "Producto innovador para mejorar el agarre, útil tanto para gimnasio como para músicos",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 26,
-      "video_id": "xzJxHlXRVNc",
-      "video_title": "La Gente Se Está Haciendo Millonaria Con Claude | Así Lo Hacen",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Diagnóstico inicial de inteligencia artificial para empresas",
-      "nicho": "Pequeñas, medianas y grandes empresas",
-      "wow_factor": "Adaptable a cualquier tamaño de empresa y ofrece soluciones tecnológicas avanzadas",
       "margen_estimado": 3.0
     },
     {
@@ -897,19 +559,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 24,
-      "video_id": "eaNzx2v1sk4",
-      "video_title": "Cómo Funciona El Rentable y Oscuro Negocio De Ser Hacker",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Producto Extraído por IA",
-      "nicho": "Dropshipping",
-      "wow_factor": "Ver transcripción",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 23,
       "video_id": "qgK3GfY5ZC4",
       "video_title": "La Única Guía De Dropshipping Que Necesitas Para Ganar Dinero",
@@ -918,58 +567,6 @@
       "nombre": "Producto Extraído por IA",
       "nicho": "Salud, Belleza, Cuidado Personal",
       "wow_factor": "Soluciona problemas específicos como mejorar el sueño o detectar cámaras ocultas",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 22,
-      "video_id": "_7Jbmf8UULE",
-      "video_title": "5 Skills De Claude Para Ganar Dinero (Explicación Paso a Paso)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Micro SaaS (Generador de códigos QR)",
-      "nicho": "Pequeñas empresas y restaurantes",
-      "wow_factor": "Convierte enlaces en códigos QR personalizables y objetos imprimibles en 3D",
-      "margen_estimado": 4.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 21,
-      "video_id": "_7Jbmf8UULE",
-      "video_title": "5 Skills De Claude Para Ganar Dinero (Explicación Paso a Paso)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Micro SaaS (Generador de códigos QR)",
-      "nicho": "Pequeñas empresas y restaurantes",
-      "wow_factor": "Convierte enlaces en códigos QR personalizables y objetos imprimibles en 3D",
-      "margen_estimado": 4.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 20,
-      "video_id": "0h3L33kDmIM",
-      "video_title": "Guía Para Ganar $4,000/mes Siendo Entrenador Online",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Formación para convertirse en entrenador online",
-      "nicho": "Personas interesadas en fitness y entrenamiento personal",
-      "wow_factor": "Enseñanza paso a paso con detalles específicos para ganar dinero como entrenador online",
-      "margen_estimado": 35.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 19,
-      "video_id": "wWC8SoeQ_Fk",
-      "video_title": "Cómo optimizar tu tienda online para generar cientos de miles de euros este black friday",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Ramos de flores",
-      "nicho": "Regalos y eventos especiales",
-      "wow_factor": "Hasta 70% de descuento en Black Friday, con opciones de personalización y envío rápido",
       "margen_estimado": 3.0
     },
     {
@@ -988,84 +585,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 17,
-      "video_id": "gfvOBMxeIR8",
-      "video_title": "He Probado 14 Negocios IA, Estos 3 Te Harán Rico",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Dropshipping con IA",
-      "nicho": "E-commerce",
-      "wow_factor": "Automatización completa de la tienda online, desde la creación hasta la selección de productos y anuncios.",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 16,
-      "video_id": "gfvOBMxeIR8",
-      "video_title": "He Probado 14 Negocios IA, Estos 3 Te Harán Rico",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Dropshipping con IA",
-      "nicho": "E-commerce",
-      "wow_factor": "Automatización completa de la tienda online y selección de productos mediante IA",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 15,
-      "video_id": "1IiTges2IUY",
-      "video_title": "He Creado Una Marca De Ropa Con 0€ En 24 Horas",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Camiseta Hustlers",
-      "nicho": "Emprendedores",
-      "wow_factor": "Diseño streetwear con toque old money, inspirado en fundadores famosos",
-      "margen_estimado": 1.87
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 14,
-      "video_id": "1IiTges2IUY",
-      "video_title": "He Creado Una Marca De Ropa Con 0€ En 24 Horas",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-06",
-      "nombre": "Camiseta Hustlers",
-      "nicho": "Emprendedores",
-      "wow_factor": "Diseño streetwear con toque old money, inspirado en fundadores famosos",
-      "margen_estimado": 1.85
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 13,
-      "video_id": "d5KV-iAYDXU",
-      "video_title": "He Creado Un Juego Que Paga Por Jugar",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-05",
-      "nombre": "Bull Run Investor Arcade",
-      "nicho": "Juegos móviles de inversión",
-      "wow_factor": "Juego 3D con modo multijugador y temática de inversión",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 12,
-      "video_id": "1hkTJ8wg9bY",
-      "video_title": "Experto En Marketing Digital Revela Cómo Crecer En Redes Sociales | Jordi Segués",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-05",
-      "nombre": "Producto Extraído por IA",
-      "nicho": "Marketing y ventas",
-      "wow_factor": "La marca personal es lo que vende, es lo que hace que la gente confíe en ti.",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 11,
       "video_id": "fUnHXOfbVcI",
       "video_title": "Si ganas mucho dinero haciendo dropshipping, mira este vídeo",
@@ -1074,45 +593,6 @@
       "nombre": "Zapatos BF (Barefoot)",
       "nicho": "Calzado saludable y conectado con la naturaleza",
       "wow_factor": "Ayudan a conectar con la tierra y mejorar la salud de los pies",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 10,
-      "video_id": "2gk1RXw0gSM",
-      "video_title": "7 Máquinas Que Puedes Comprar Para Ganar Dinero",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-05",
-      "nombre": "Raspberry Pi",
-      "nicho": "Tecnología y criptomonedas",
-      "wow_factor": "Miniordenador económico que puede generar ingresos compartiendo IP",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 9,
-      "video_id": "fJzUnSEnKNs",
-      "video_title": "La Gente Se Está Haciendo Millonaria Con Higgsfield (Así Lo Hacen)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-05",
-      "nombre": "Vídeos generados con inteligencia artificial",
-      "nicho": "Agencias de producción audiovisual y empresas que necesitan contenido visual",
-      "wow_factor": "Creación de anuncios profesionales con bajo costo y alta calidad",
-      "margen_estimado": 75.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 8,
-      "video_id": "sdcb5llAj5Y",
-      "video_title": "Millonario Revela El Simple Método Que Le Ha Hecho Rico Partiendo Desde Cero | Antonio Faya",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-05",
-      "nombre": "Incubadora de huevos",
-      "nicho": "Agricultura y crianza de animales",
-      "wow_factor": "Permite eclosionar pollitos en casa, ideal para aficionados a la crianza de aves.",
       "margen_estimado": 3.0
     },
     {
@@ -1131,19 +611,6 @@
     {
       "tipo": "producto",
       "tabla": "product_trends",
-      "id": 6,
-      "video_id": "uI4CKhT1cvo",
-      "video_title": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-05",
-      "nombre": "Patinete eléctrico",
-      "nicho": "Movilidad urbana",
-      "wow_factor": "Solución de transporte regulada, con seguro y matrícula, amplio público objetivo",
-      "margen_estimado": 20.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
       "id": 5,
       "video_id": "_cL6dYjz5H0",
       "video_title": "Trata el dropshipping como un videojuego y hazte rico",
@@ -1153,32 +620,6 @@
       "nicho": "Seguridad en bicicletas y patinetes eléctricos",
       "wow_factor": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
       "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 4,
-      "video_id": "LycpBgBiWKw",
-      "video_title": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-05",
-      "nombre": "Software educativo basado en IA",
-      "nicho": "Educación online y formación en habilidades digitales",
-      "wow_factor": "Aprendizaje gamificado y personalizado para ganar dinero online",
-      "margen_estimado": 3.0
-    },
-    {
-      "tipo": "producto",
-      "tabla": "product_trends",
-      "id": 3,
-      "video_id": "RR0806XzmOg",
-      "video_title": "7 Días Haciendo Compra-Venta En Latinoamérica",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "2026-11-05",
-      "nombre": "Adaptador universal",
-      "nicho": "Viajeros internacionales",
-      "wow_factor": "Funciona en cualquier país del mundo",
-      "margen_estimado": 4.0
     },
     {
       "tipo": "conversion",
@@ -1235,19 +676,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 88,
-      "video_id": "01rYgelVNz0",
-      "video_title": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify  \n\n- Uso de videos creados con inteligencia artificial para promocionar productos.  \n- Enfoque en beneficios como ahorro de tiempo y dinero.  \n- Copy enfocado en re",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 87,
       "video_id": "01rYgelVNz0",
       "video_title": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
@@ -1256,19 +684,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify  \n\n- Se ofrece una lista de productos ganadores y enlaces de AliExpress a cambio de registrarse en Shopify.  \n- Se promociona el uso de videos creados con IA para m",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 86,
-      "video_id": "8eo_7E1fiSA",
-      "video_title": "The Secret to Making $10,000/Month With Dropshipping That No One Uses",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Trend Track, Cloud  \n\n- Herramienta Trend Track para encontrar ángulos ganadores y productos no saturados.  \n- Uso de Cloud para obtener información sobre ángulos y enfoque",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -1295,19 +710,6 @@
       "categoria": "anuncio",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: anuncio\nFramework: No especificado\nApps: No especificado\n\n- El vídeo de las tapitas viralizó en TikTok y luego en Instagram, alcanzando 90 millones de visitas.\n- Se menciona que el vídeo fue revisado y ajustado para mejora",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 83,
-      "video_id": "9UGrhUq2IBc",
-      "video_title": "How to Build a Dropshipping Store in 5 Minutes with Claude",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "PAS (Problema, Agitación, Solución)",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: PAS (Problema, Agitación, Solución)  \nApps: Shopify, Cloud  \n\n- Se utiliza Cloud para automatizar la creación de la tienda y sincronizarla con Shopify.  \n- La descripción del producto se genera au",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -1391,19 +793,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 76,
-      "video_id": "26rRZSy8zI4",
-      "video_title": "I Bought 3 Dropshipping Products in China to Find Out if They’re Selling Junk...",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landing_page",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: No especificado  \nFramework: No especificado  \nApps: No especificado  \n\n- Se recomienda enviar siempre la mejor calidad del producto para evitar problemas con los clientes y las pasarelas de pago.  \n- Se menciona la import",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 75,
       "video_id": "26rRZSy8zI4",
       "video_title": "I Bought 3 Dropshipping Products in China to Find Out if They’re Selling Junk...",
@@ -1417,19 +806,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 74,
-      "video_id": "ugSNaw6gb98",
-      "video_title": "Leaking the Dropshipping Strategy That Made Us $60,494 in 53 Days",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: TikTok Shop, Shopify  \n\n- Se utilizaron los mismos vídeos virales de TikTok Shop, cambiando el CTA (Call to Action) para adaptarlos a otras plataformas como Instagram y Facebook.  \n- El CTA en TikTok Sho",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 73,
       "video_id": "ugSNaw6gb98",
       "video_title": "Leaking the Dropshipping Strategy That Made Us $60,494 in 53 Days",
@@ -1438,19 +814,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: TikTok Shop, Shopify  \n\n- Se utilizaron los mismos vídeos virales de TikTok Shop para otras plataformas, cambiando el CTA (Call to Action).  \n- El CTA se modificó para adaptarse a Instagram, Facebook y Y",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 72,
-      "video_id": "BZRn0PX40Cg",
-      "video_title": "No One Would Hire Him and Now He Makes $340,000 with Dropshipping with ADS",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: No especificado  \n\n- No se mencionan detalles específicos sobre estructuras de conversión, copywriting o herramientas utilizadas.  \n\n",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -1547,19 +910,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 64,
-      "video_id": "60bXbijGM6U",
-      "video_title": "TOP 5 WINNING DROPSHIPPING PRODUCTS OCTOBER",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, IA para creación de videos  \n\n- Uso de videos creados con IA para mostrar los productos.  \n- Creación de tiendas en Shopify para vender los productos.  \n- Enfoque ",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 63,
       "video_id": "60bXbijGM6U",
       "video_title": "TOP 5 WINNING DROPSHIPPING PRODUCTS OCTOBER",
@@ -1612,19 +962,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 59,
-      "video_id": "pNfRiPZky_w",
-      "video_title": "What I WOULD Do If I Only Had 30 Minutes a Day for Dropshipping",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, TikTok, Instagram, AliExpress  \n\n- Crea una tienda en Shopify con productos encontrados en TikTok y AliExpress.  \n- Usa inteligencia artificial para generar videos",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 58,
       "video_id": "pNfRiPZky_w",
       "video_title": "What I WOULD Do If I Only Had 30 Minutes a Day for Dropshipping",
@@ -1633,19 +970,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Cloud, TikTok  \n\n- Crear una tienda en Shopify con productos seleccionados.  \n- Usar inteligencia artificial (Cloud) para generar vídeos promocionales sin necesida",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 57,
-      "video_id": "tIApr3ooLEs",
-      "video_title": "This Changes How You Find Dropshipping Products Forever",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Mews.ai, VPNs (Surfshark, CyberGhost, NordVPN)  \n\n- Uso de WhatsApp conectado a Mews.ai para recibir productos ganadores automáticamente.  \n- Configuración de cuen",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -1729,19 +1053,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 50,
-      "video_id": "ywD_808Bi4o",
-      "video_title": "They Started Out Losing Money and Now Make Over $700,000 with Dropshipping",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify  \n\n- Crearon una tienda en Shopify y utilizaron Shopify Payments.  \n- Aplicaron estrategias aprendidas de videos gratuitos y mentorías para mejorar sus creativos y ",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 49,
       "video_id": "ywD_808Bi4o",
       "video_title": "They Started Out Losing Money and Now Make Over $700,000 with Dropshipping",
@@ -1750,19 +1061,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify  \n\n- Crearon tiendas en Shopify para vender productos tanto en Colombia como en otros países.  \n- Utilizaron creativos propios para destacar en el mercado, lo que l",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 48,
-      "video_id": "KBsLZg7tANw",
-      "video_title": "Stop Overthinking and Start Dropshipping with This Step-by-Step Guide",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage | anuncio | email | ficha",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page | anuncio | email | ficha  \nFramework: No especificado  \nApps: Shopify, SendDrop, Hixfield, Appimart  \n\n- Se recomienda crear tiendas en Shopify en 10 minutos usando plantillas premium.  \n- Se menciona el uso ",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -1794,19 +1092,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 45,
-      "video_id": "gNticX19mMg",
-      "video_title": "He Was Scammed by Another Course, and Now He’s Making Over $40,000 with Me Through Dropshipping",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Dropy  \n\n- Utilizó Dropy para gestionar los pedidos y la logística de entrega.  \n- Trabajó con un equipo de dos personas: una para manejar los anuncios y otra para los pedi",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 44,
       "video_id": "gNticX19mMg",
       "video_title": "He Was Scammed by Another Course, and Now He’s Making Over $40,000 with Me Through Dropshipping",
@@ -1828,19 +1113,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page\nFramework: No especificado\nApps: Shopify\n\n",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 42,
-      "video_id": "5iRa2nYlq_c",
-      "video_title": "Cómo Imprimir 100k€/Mes en Q4 con Shopify y Publicidad de Pago (Nichos + Errores)",
-      "canal": "JaviEcom",
-      "fecha_indexacion": "",
-      "categoria": "landingpage | anuncio | email",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page | anuncio | email  \nFramework: No especificado  \nApps: Cloud, Klaviyo  \n\n- Utilizar plantillas de pago en Shopify, especialmente Cloud, para personalizar el código y optimizar el diseño.  \n- Las fichas de prod",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -1885,19 +1157,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 38,
-      "video_id": "p1pOsZ4axgU",
-      "video_title": "Los 3 Productos que Más Van a Vender este Q4 2026",
-      "canal": "JaviEcom",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Minea, Dropi Pro  \n\n- Uso de la biblioteca de anuncios de Meta para analizar anuncios activos y desactivados.  \n- Se recomienda usar ángulos de venta ya probados por la com",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 37,
       "video_id": "p1pOsZ4axgU",
       "video_title": "Los 3 Productos que Más Van a Vender este Q4 2026",
@@ -1906,19 +1165,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Minea, Dropi Pro  \n\n- Uso de la biblioteca de anuncios de Meta para identificar productos y ángulos de venta exitosos.  \n- Se recomienda utilizar anuncios UGC (User Generat",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 36,
-      "video_id": "rqMrq2MGdpw",
-      "video_title": "$29,356 En 30 Días Haciendo Dropshipping Con Claude (Solo Cópiame)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Magnific, ChatGPT, Shopify  \n\n- Se utilizó Magnific para mejorar las imágenes del producto y crear anuncios visualmente atractivos.  \n- ChatGPT se empleó para generar promp",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -1937,32 +1183,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 34,
-      "video_id": "HaNTewfQu7c",
-      "video_title": "6 Negocios Aburridos Pero Ultra Rentables",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landing_page",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: No especificado  \nFramework: No especificado  \nApps: Woop  \n\n- Woop es la plataforma principal para conectar con creadores de contenido y editar clips.  \n- Normas específicas por creador: algunos pagan solo si el vídeo alc",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 33,
-      "video_id": "DRE8lqZoIn0",
-      "video_title": "La Forma Más Fácil De Empezar Dropshipping En 2026",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Cloud, Chat GPT  \n\n- Cloud se utiliza para crear la tienda Shopify de manera automatizada, incluyendo el diseño y la estructura.  \n- Chat GPT se emplea para generar imágene",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 32,
       "video_id": "DRE8lqZoIn0",
       "video_title": "La Forma Más Fácil De Empezar Dropshipping En 2026",
@@ -1971,84 +1191,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Cloud, Chat GPT  \n\n",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 31,
-      "video_id": "i1eHoDmcL0E",
-      "video_title": "Cómo Ganar Dinero Según Jesús y La Biblia | José Carlos González-Hurtado",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landing_page",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy\nCategoría: No especificado  \nFramework: No especificado  \nApps: No especificado  \n\n",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 30,
-      "video_id": "UHVR0MqJYfM",
-      "video_title": "Cómo Crear Páginas Web Increíbles Utilizando Claude",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy  \nCategoría: landing_page  \nFramework: No especificado  \nApps: Cloud, Hostinger, OpenAI, Google API  \n\n- Uso de Cloud para crear páginas web profesionales con inteligencia artificial.  \n- Integración de imágenes de stock o generadas por IA (OpenAI) para mejorar la",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 29,
-      "video_id": "UHVR0MqJYfM",
-      "video_title": "Cómo Crear Páginas Web Increíbles Utilizando Claude",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Cloud, Hostinger, OpenAI, Google API  \n\n- Uso de Cloud para crear páginas web profesionales sin necesidad de programación.  \n- Integración de chatbots de IA utilizando la A",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 28,
-      "video_id": "pvdYrfTykzg",
-      "video_title": "Ex-Banquero Suizo: \"Estoy Cambiando Mi Forma De Invertir Por Culpa De La IA\"",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "Asesoramiento personalizado, educación financiera (libros, newsletter)",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy  \nCategoría: Asesoramiento personalizado, educación financiera (libros, newsletter)  \nFramework: No especificado  \nApps: Swissquote (plataforma de inversión)  \n\n",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 27,
-      "video_id": "qNtBZxHJh-o",
-      "video_title": "5 Formas Probadas De Ganar Dinero Con IA (Sin Experiencia)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: BilloStore, Cloud Cowork, Cloud Code, Chat GPT Images 2, Create UGC  \n\n- Creación de tiendas One Product Store utilizando herramientas como BilloStore y Cloud Code.  \n- Uso",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 26,
-      "video_id": "xzJxHlXRVNc",
-      "video_title": "La Gente Se Está Haciendo Millonaria Con Claude | Así Lo Hacen",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: Cloud Code, Visual Studio Code, Open Router  \n\n- Se utiliza Cloud Code para ejecutar kits de herramientas que automatizan procesos como auditorías, análisis de e-commerce y edición de vídeos.  \n- Los kit",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -2067,19 +1209,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 24,
-      "video_id": "eaNzx2v1sk4",
-      "video_title": "Cómo Funciona El Rentable y Oscuro Negocio De Ser Hacker",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landing_page",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy\nCategoría: No especificado  \nFramework: No especificado  \nApps: No especificado  \n\n",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 23,
       "video_id": "qgK3GfY5ZC4",
       "video_title": "La Única Guía De Dropshipping Que Necesitas Para Ganar Dinero",
@@ -2088,58 +1217,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Auto DS, Cloud  \n\n- Uso de Auto DS como proveedor con más de 8 millones de productos.  \n- Integración de Cloud con Auto DS para análisis automatizado de productos.  \n- Clou",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 22,
-      "video_id": "_7Jbmf8UULE",
-      "video_title": "5 Skills De Claude Para Ganar Dinero (Explicación Paso a Paso)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page\nFramework: No especificado\nApps: Cloud, Hostinger, Google AdSense, Amazon Afiliados, Gemini, Open AI\n\n- Creación de páginas web y softwares mediante Cloud y habilidades descargables.\n- Monetización mediante Go",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 21,
-      "video_id": "_7Jbmf8UULE",
-      "video_title": "5 Skills De Claude Para Ganar Dinero (Explicación Paso a Paso)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page\nFramework: No especificado\nApps: Cloud, Hostinger, Google AdSense, Amazon Afiliados, Gemini, Open AI\n\n- Las páginas web generadas están optimizadas para anuncios de Google AdSense.\n- Utiliza inteligencia artif",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 20,
-      "video_id": "0h3L33kDmIM",
-      "video_title": "Guía Para Ganar $4,000/mes Siendo Entrenador Online",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "Landingpage | anuncio | email | ficha",
-      "framework": "AIDA, PAS (menciona estructuras como AIDA y PAS)",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchps, landing pages, apps)\nCategoría: Landing_page | anuncio | email | ficha  \nFramework: AIDA, PAS (menciona estructuras como AIDA y PAS)  \nApps: ChatGPT, Canva, ManyChat, Loom, Google Drive, Harvith  \n\n",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 19,
-      "video_id": "wWC8SoeQ_Fk",
-      "video_title": "Cómo optimizar tu tienda online para generar cientos de miles de euros este black friday",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Clavillo (email marketing)  \n\n- Uso de landing pages específicas para Black Friday con acceso anticipado mediante contraseña.  \n- Pop-ups para captar leads con ofe",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -2158,84 +1235,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 17,
-      "video_id": "gfvOBMxeIR8",
-      "video_title": "He Probado 14 Negocios IA, Estos 3 Te Harán Rico",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, TikTok Shop, herramientas de IA para diseño y creación de contenido  \n\n- Las tiendas online se pueden crear utilizando herramientas de IA que automatizan el proces",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 16,
-      "video_id": "gfvOBMxeIR8",
-      "video_title": "He Probado 14 Negocios IA, Estos 3 Te Harán Rico",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Cloud  \n\n- Herramientas como Shopify y Cloud permiten crear tiendas online automatizadas y encontrar productos ganadores.  \n- Se pueden utilizar skills para mejora",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 15,
-      "video_id": "1IiTges2IUY",
-      "video_title": "He Creado Una Marca De Ropa Con 0€ En 24 Horas",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Canva, ChatGPT, Cloud Code  \n\n- Tienda online creada en Shopify con diseño automatizado mediante Cloud Code.  \n- Mockups generados con ChatGPT para mejorar la pres",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 14,
-      "video_id": "1IiTges2IUY",
-      "video_title": "He Creado Una Marca De Ropa Con 0€ En 24 Horas",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Canva, ChatGPT, Cloud Code  \n\n- Tienda online creada en Shopify con diseño automatizado por Cloud Code.  \n- Uso de ChatGPT para generar diseños y mockups.  \n- Mood",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 13,
-      "video_id": "d5KV-iAYDXU",
-      "video_title": "He Creado Un Juego Que Paga Por Jugar",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "anuncio",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: anuncio  \nFramework: No especificado  \nApps: Cloud Code, Telegram  \n\n- Se utilizaron \"Rewarded Ads\" (anuncios recompensados) en lugar de anuncios tradicionales.  \n- Los anuncios ofrecen incentivos como doble monedas o vida",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 12,
-      "video_id": "1hkTJ8wg9bY",
-      "video_title": "Experto En Marketing Digital Revela Cómo Crecer En Redes Sociales | Jordi Segués",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage | anuncio | email | ficha",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)  \nCategoría: landing_page | anuncio | email | ficha  \nFramework: AIDA  \nApps: No especificado  \n\n- Para captar la atención en redes sociales, es crucial parar el scroll en el primer segundo.  \n- El contenido debe combinar educación, ",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 11,
       "video_id": "fUnHXOfbVcI",
       "video_title": "Si ganas mucho dinero haciendo dropshipping, mira este vídeo",
@@ -2244,45 +1243,6 @@
       "categoria": "landingpage",
       "framework": "Resolución de problemas (pains)",
       "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: Resolución de problemas (pains)  \nApps: Shopify, Claveillo (email marketing)  \n\n- Creación de múltiples landing pages enfocadas en resolver los \"pains\" específicos del cliente (ej: problemas de sa",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 10,
-      "video_id": "2gk1RXw0gSM",
-      "video_title": "7 Máquinas Que Puedes Comprar Para Ganar Dinero",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landing_page",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: No especificado  \nFramework: No especificado  \nApps: Hostinger, Cloud  \n\n- Hostinger se utiliza para contratar VPS y crear software con inteligencia artificial.  \n- Cloud permite crear software mediante prompts, facilitand",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 9,
-      "video_id": "fJzUnSEnKNs",
-      "video_title": "La Gente Se Está Haciendo Millonaria Con Higgsfield (Así Lo Hacen)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Higgsfield, Cloud, Apify  \n\n- Estrategia de venta: Ofrecer un vídeo gratuito a negocios locales y luego vender un pack de 10 vídeos por $220.  \n- Marketing Studio en Higgsf",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 8,
-      "video_id": "sdcb5llAj5Y",
-      "video_title": "Millonario Revela El Simple Método Que Le Ha Hecho Rico Partiendo Desde Cero | Antonio Faya",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: No especificado  \n\n- Estrategia de venta en Amazon basada en psicología de venta, utilizando el concepto de \"vaca púrpura\" para destacar productos.  \n- Optimización de listados con imágenes principales v",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -2301,19 +1261,6 @@
     {
       "tipo": "conversion",
       "tabla": "conversion_formulas",
-      "id": 6,
-      "video_id": "uI4CKhT1cvo",
-      "video_title": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage | anuncio | email | ficha",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page | anuncio | email | ficha  \nFramework: No especificado  \nApps: No especificado  \n\n- La web factura alrededor de 200,000€ al mes, con coberturas de financiación integradas.  \n- El marketing se enfoca en campañas orgánicas y pagadas, con un R",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
       "id": 5,
       "video_id": "_cL6dYjz5H0",
       "video_title": "Trata el dropshipping como un videojuego y hazte rico",
@@ -2322,32 +1269,6 @@
       "categoria": "landingpage",
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Cloud, OpenAI  \n\n- Conectar Shopify con Cloud para automatizar la selección y carga de productos.  \n- Usar OpenAI para mejorar imágenes del producto y generar contenido visual profesional.  \n- C",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 4,
-      "video_id": "LycpBgBiWKw",
-      "video_title": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy  \nCategoría: landing_page  \nFramework: No especificado  \nApps: Umami, HeyGen, Hixfill  \n\n",
-      "triggers": "Gatillos detectados en pauta"
-    },
-    {
-      "tipo": "conversion",
-      "tabla": "conversion_formulas",
-      "id": 3,
-      "video_id": "RR0806XzmOg",
-      "video_title": "7 Días Haciendo Compra-Venta En Latinoamérica",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "categoria": "landingpage",
-      "framework": "AIDA",
-      "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: Facebook Marketplace, MercadoLibre  \n\n- Se utiliza Facebook Marketplace como plataforma principal para publicar y vender productos.  \n- No se mencionan estrategias específicas de copywriting o frameworks",
       "triggers": "Gatillos detectados en pauta"
     },
     {
@@ -2405,19 +1326,6 @@
     {
       "tipo": "operaciones",
       "tabla": "operations_traffic",
-      "id": 88,
-      "video_id": "01rYgelVNz0",
-      "video_title": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "Optimización de anuncios y escalado antes del Q4",
-      "logistica": "Envíos desde AliExpress con tiempos variables",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
       "id": 87,
       "video_id": "01rYgelVNz0",
       "video_title": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
@@ -2465,19 +1373,6 @@
       "fuente_trafico": "TikTok, Instagram",
       "estrategia_escalado": "Viralización de contenido",
       "logistica": "No especificado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 83,
-      "video_id": "9UGrhUq2IBc",
-      "video_title": "How to Build a Dropshipping Store in 5 Minutes with Claude",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "CBO/ABO Testing",
-      "logistica": "Proveedor de AliExpress",
       "peso_kg": 0.0
     },
     {
@@ -2556,19 +1451,6 @@
       "fuente_trafico": "TikTok, Instagram Reels",
       "estrategia_escalado": "Viralización en redes sociales",
       "logistica": "AliExpress inicialmente, luego agente privado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 76,
-      "video_id": "26rRZSy8zI4",
-      "video_title": "I Bought 3 Dropshipping Products in China to Find Out if They’re Selling Junk...",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "CBO/ABO Testing",
-      "logistica": "Proveedor privado en China que realiza control de calidad",
       "peso_kg": 0.0
     },
     {
@@ -2660,19 +1542,6 @@
       "fuente_trafico": "Orgánico (TikTok, Instagram, Facebook Reels, YouTube Shorts)",
       "estrategia_escalado": "Testeo de múltiples ángulos y hooks en vídeos cortos (6-20 segundos).",
       "logistica": "Cendrop (envíos sin branding chino, devoluciones gestionadas).",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 68,
-      "video_id": "eXSoz78o6a4",
-      "video_title": "I Tried Dropshipping with Only $2 and AI Videos... and This Happened",
-      "canal": "Marc Verdú",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Orgánico (redes sociales)",
-      "estrategia_escalado": "CBO/ABO Testing",
-      "logistica": "No especificado",
       "peso_kg": 0.0
     },
     {
@@ -3029,19 +1898,6 @@
     {
       "tipo": "operaciones",
       "tabla": "operations_traffic",
-      "id": 40,
-      "video_id": "Db6NU2u0jjc",
-      "video_title": "Cómo crear anuncios con IA que venden (dropshipping 2026)",
-      "canal": "JaviEcom",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "CBO/ABO Testing",
-      "logistica": "Proveedor verificado con stock suficiente",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
       "id": 39,
       "video_id": "Db6NU2u0jjc",
       "video_title": "Cómo crear anuncios con IA que venden (dropshipping 2026)",
@@ -3050,19 +1906,6 @@
       "fuente_trafico": "TikTok/Meta Ads",
       "estrategia_escalado": "CBO/ABO Testing",
       "logistica": "No especificado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 38,
-      "video_id": "p1pOsZ4axgU",
-      "video_title": "Los 3 Productos que Más Van a Vender este Q4 2026",
-      "canal": "JaviEcom",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Meta Ads",
-      "estrategia_escalado": "Testeo de anuncios con bajo presupuesto y escalado basado en resultados",
-      "logistica": "Dropi Pro ofrece envíos a Ceuta, Islas Canarias y Melilla",
       "peso_kg": 0.0
     },
     {
@@ -3107,32 +1950,6 @@
     {
       "tipo": "operaciones",
       "tabla": "operations_traffic",
-      "id": 34,
-      "video_id": "HaNTewfQu7c",
-      "video_title": "6 Negocios Aburridos Pero Ultra Rentables",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok, Instagram, YouTube",
-      "estrategia_escalado": "Depende del creador de contenido y su presupuesto",
-      "logistica": "No especificado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 33,
-      "video_id": "DRE8lqZoIn0",
-      "video_title": "La Forma Más Fácil De Empezar Dropshipping En 2026",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "CBO/ABO Testing",
-      "logistica": "Proveedor de dropshipping",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
       "id": 32,
       "video_id": "DRE8lqZoIn0",
       "video_title": "La Forma Más Fácil De Empezar Dropshipping En 2026",
@@ -3141,84 +1958,6 @@
       "fuente_trafico": "TikTok/Meta Ads",
       "estrategia_escalado": "CBO/ABO Testing",
       "logistica": "Proveedor envía directamente al cliente",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 31,
-      "video_id": "i1eHoDmcL0E",
-      "video_title": "Cómo Ganar Dinero Según Jesús y La Biblia | José Carlos González-Hurtado",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "CBO/ABO Testing",
-      "logistica": "No especificado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 30,
-      "video_id": "UHVR0MqJYfM",
-      "video_title": "Cómo Crear Páginas Web Increíbles Utilizando Claude",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Llamadas frías y estrategias de venta directa",
-      "estrategia_escalado": "Especialización en un nicho específico (paneles solares) y creación de páginas web de ejemplo para mostrar a clientes potenciales",
-      "logistica": "Hosting proporcionado por Hostinger, permite crear hasta 50 páginas web",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 29,
-      "video_id": "UHVR0MqJYfM",
-      "video_title": "Cómo Crear Páginas Web Increíbles Utilizando Claude",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Llamadas frías",
-      "estrategia_escalado": "Especialización en un nicho específico (paneles solares)",
-      "logistica": "Hosting proporcionado por Hostinger",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 28,
-      "video_id": "pvdYrfTykzg",
-      "video_title": "Ex-Banquero Suizo: \"Estoy Cambiando Mi Forma De Invertir Por Culpa De La IA\"",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Orgánico (web, redes sociales), newsletter",
-      "estrategia_escalado": "Contenido educativo (webinars, libros, consejos diarios)",
-      "logistica": "No especificado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 27,
-      "video_id": "qNtBZxHJh-o",
-      "video_title": "5 Formas Probadas De Ganar Dinero Con IA (Sin Experiencia)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Tráfico orgánico y tráfico de pago (publicidad)",
-      "estrategia_escalado": "Estrategia de escalado basada en la validación de productos mediante dropshipping antes de invertir en stock propio.",
-      "logistica": "Proveedor AutoDS para envíos directos al cliente.",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 26,
-      "video_id": "xzJxHlXRVNc",
-      "video_title": "La Gente Se Está Haciendo Millonaria Con Claude | Así Lo Hacen",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "Implementación de soluciones tecnológicas en empresas pequeñas y medianas",
-      "logistica": "No especificado",
       "peso_kg": 0.0
     },
     {
@@ -3237,19 +1976,6 @@
     {
       "tipo": "operaciones",
       "tabla": "operations_traffic",
-      "id": 24,
-      "video_id": "eaNzx2v1sk4",
-      "video_title": "Cómo Funciona El Rentable y Oscuro Negocio De Ser Hacker",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "CBO/ABO Testing",
-      "logistica": "No especificado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
       "id": 23,
       "video_id": "qgK3GfY5ZC4",
       "video_title": "La Única Guía De Dropshipping Que Necesitas Para Ganar Dinero",
@@ -3258,45 +1984,6 @@
       "fuente_trafico": "TikTok/Meta Ads",
       "estrategia_escalado": "Mejora de propuestas de valor de productos existentes",
       "logistica": "Proveedor Auto DS con envíos rápidos",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 22,
-      "video_id": "_7Jbmf8UULE",
-      "video_title": "5 Skills De Claude Para Ganar Dinero (Explicación Paso a Paso)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Meta Ads, Google Ads, orgánico",
-      "estrategia_escalado": "Llamadas directas a empresas para vender páginas web",
-      "logistica": "Hosting proporcionado por Hostinger, dominio gratuito con planes de 12 meses o más",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 21,
-      "video_id": "_7Jbmf8UULE",
-      "video_title": "5 Skills De Claude Para Ganar Dinero (Explicación Paso a Paso)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Meta Ads, Google Ads, orgánico",
-      "estrategia_escalado": "Llamadas directas a empresas para vender páginas web",
-      "logistica": "Hosting proporcionado por Hostinger",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 20,
-      "video_id": "0h3L33kDmIM",
-      "video_title": "Guía Para Ganar $4,000/mes Siendo Entrenador Online",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok Ads, Meta Ads, orgánico",
-      "estrategia_escalado": "Estrategia de escalado basada en clientes recurrentes y anuncios",
-      "logistica": "Notas de envío o proveedor (no especificado)",
       "peso_kg": 0.0
     },
     {
@@ -3328,84 +2015,6 @@
     {
       "tipo": "operaciones",
       "tabla": "operations_traffic",
-      "id": 17,
-      "video_id": "gfvOBMxeIR8",
-      "video_title": "He Probado 14 Negocios IA, Estos 3 Te Harán Rico",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok Ads, Meta Ads, orgánico",
-      "estrategia_escalado": "Identificación de productos ganadores y creación de contenido viral.",
-      "logistica": "Proveedores conectados directamente con la tienda online.",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 16,
-      "video_id": "gfvOBMxeIR8",
-      "video_title": "He Probado 14 Negocios IA, Estos 3 Te Harán Rico",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok Ads, Meta Ads",
-      "estrategia_escalado": "Identificación de productos ganadores y creación de contenido viral",
-      "logistica": "Proveedores conectados directamente con la tienda online",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 15,
-      "video_id": "1IiTges2IUY",
-      "video_title": "He Creado Una Marca De Ropa Con 0€ En 24 Horas",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Meta Ads, Tráfico orgánico",
-      "estrategia_escalado": "Validación inicial con Print on Demand, luego escalar a stock propio",
-      "logistica": "Print on Demand con proveedor externo",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 14,
-      "video_id": "1IiTges2IUY",
-      "video_title": "He Creado Una Marca De Ropa Con 0€ En 24 Horas",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Meta Ads, Tráfico Orgánico",
-      "estrategia_escalado": "Validación inicial con Print on Demand, luego escalar a stock propio",
-      "logistica": "Print on Demand",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 13,
-      "video_id": "d5KV-iAYDXU",
-      "video_title": "He Creado Un Juego Que Paga Por Jugar",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Instagram, Telegram",
-      "estrategia_escalado": "Publicación en redes sociales y promoción limitada",
-      "logistica": "Alojado en una VPS (Virtual Private Server)",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 12,
-      "video_id": "1hkTJ8wg9bY",
-      "video_title": "Experto En Marketing Digital Revela Cómo Crecer En Redes Sociales | Jordi Segués",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Orgánico y anuncios pagados",
-      "estrategia_escalado": "Dominar el contenido orgánico antes de invertir en anuncios.",
-      "logistica": "No especificado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
       "id": 11,
       "video_id": "fUnHXOfbVcI",
       "video_title": "Si ganas mucho dinero haciendo dropshipping, mira este vídeo",
@@ -3414,45 +2023,6 @@
       "fuente_trafico": "Meta Ads, Google Ads, orgánico",
       "estrategia_escalado": "Audiencias frías (80%) y retargeting (15-20%)",
       "logistica": "Envíos desde casa inicialmente, luego delegación a un 3PL (Third-Party Logistics)",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 10,
-      "video_id": "2gk1RXw0gSM",
-      "video_title": "7 Máquinas Que Puedes Comprar Para Ganar Dinero",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "Compra de múltiples máquinas (ej. impresoras 3D, máquinas expendedoras)",
-      "logistica": "Envío de productos personalizados (impresoras 3D)",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 9,
-      "video_id": "fJzUnSEnKNs",
-      "video_title": "La Gente Se Está Haciendo Millonaria Con Higgsfield (Así Lo Hacen)",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok/Meta Ads",
-      "estrategia_escalado": "Visitar negocios locales en persona para aumentar la tasa de conversión",
-      "logistica": "No especificado",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 8,
-      "video_id": "sdcb5llAj5Y",
-      "video_title": "Millonario Revela El Simple Método Que Le Ha Hecho Rico Partiendo Desde Cero | Antonio Faya",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Amazon Ads",
-      "estrategia_escalado": "Estrategia de palabras clave long tail para diversificar el presupuesto y reducir costos por clic.",
-      "logistica": "Amazon FBA (Fulfillment by Amazon) para almacenamiento y envío.",
       "peso_kg": 0.0
     },
     {
@@ -3471,19 +2041,6 @@
     {
       "tipo": "operaciones",
       "tabla": "operations_traffic",
-      "id": 6,
-      "video_id": "uI4CKhT1cvo",
-      "video_title": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Orgánico y Paid Media",
-      "estrategia_escalado": "Expansión mediante franquicias y operaciones en México",
-      "logistica": "Proveedores locales y gestión centralizada",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
       "id": 5,
       "video_id": "_cL6dYjz5H0",
       "video_title": "Trata el dropshipping como un videojuego y hazte rico",
@@ -3492,32 +2049,6 @@
       "fuente_trafico": "Meta Ads (Facebook e Instagram)",
       "estrategia_escalado": "Aumentar el presupuesto de anuncios un 10-20% cada 2-3 días",
       "logistica": "Envío gratuito recomendado, ajustando el precio del producto para cubrir costos",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 4,
-      "video_id": "LycpBgBiWKw",
-      "video_title": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "TikTok, Instagram, YouTube Shorts, Twitter, SEO",
-      "estrategia_escalado": "Automatización de contenido vertical y AB testing",
-      "logistica": "Hosting distribuido en dos servidores",
-      "peso_kg": 0.0
-    },
-    {
-      "tipo": "operaciones",
-      "tabla": "operations_traffic",
-      "id": 3,
-      "video_id": "RR0806XzmOg",
-      "video_title": "7 Días Haciendo Compra-Venta En Latinoamérica",
-      "canal": "Adrián Sáenz",
-      "fecha_indexacion": "",
-      "fuente_trafico": "Facebook Marketplace",
-      "estrategia_escalado": "Compra de productos en mercadillos y proveedores locales para revender con margen",
-      "logistica": "Compra directa en mercadillos y proveedores en Medellín",
       "peso_kg": 0.0
     }
   ]

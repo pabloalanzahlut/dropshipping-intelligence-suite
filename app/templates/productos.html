@@ -216,7 +216,9 @@
 function productos() {
   return {
     items: [], resumen: {}, pasos: [], estados: [], refutaciones: {}, buscar: '', error: '',
-    det: null, tab: 'datos', f: {}, ref: {}, dem: {}, creativoOk: false, aviso: '', moviendo: false,
+    det: null, tab: 'datos', f: {}, dem: {}, creativoOk: false, aviso: '', moviendo: false,
+    // las 8 refutaciones existen desde el principio (si no, el formulario falla al pintarse)
+    ref: Object.fromEntries([1,2,3,4,5,6,7,8].map(n => [n, { resultado: '', dato: '' }])),
     nuevo: { abierto: false, nombre: '', costo_origen: null, costo_envio: null, pvp: null, categoria: '' },
     tabs: [{ v: 'datos', t: 'Datos y costes' }, { v: 'refutacion', t: 'Refutación' }, { v: 'demanda', t: 'Demanda y creativo' }, { v: 'escalado', t: 'Escalado' }, { v: 'historial', t: 'Historial' }],
     NOMBRES: { candidato: 'Candidato', clasificado: 'Clasificado', refutado: 'Refutado', validado: 'Validado', creativo: 'Creativo', tienda: 'Tienda', escalado: 'Escalado', descartado: 'Descartados' },

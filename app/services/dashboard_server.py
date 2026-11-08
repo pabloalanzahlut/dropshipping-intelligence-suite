@@ -36,7 +36,7 @@ from pydantic import BaseModel
 
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
-from app.services import agent_router, business_metrics, channel_store, product_catalog, transcript_store
+from app.services import agent_router, business_metrics, channel_store, exports, product_catalog, transcript_store
 
 log = logging.getLogger(__name__)
 
@@ -650,6 +650,11 @@ async def insights_page(request: Request):
 @app.get("/agente", response_class=HTMLResponse)
 async def agente_page(request: Request):
     return _render(request, "agente.html")
+
+
+@app.get("/historial", response_class=HTMLResponse)
+async def historial_page(request: Request):
+    return _render(request, "historial.html")
 
 
 @app.get("/productos", response_class=HTMLResponse)
@@ -1462,6 +1467,54 @@ async def api_negocio_escalado(producto_id: int) -> Dict[str, Any]:
 async def api_integraciones() -> List[Dict[str, Any]]:
     """Qué integraciones están configuradas (sí/no; nunca se devuelven los valores)."""
     return business_metrics.estado_integraciones()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# API — HISTORIAL Y EXPORTACIÓN CSV
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _dataset(tipo: str, buscar: str, limite: int, offset: int) -> Dict[str, Any]:
+    """Filas en el formato común {columnas, filas, total} para cualquier tipo de historial."""
+    if tipo in exports.DATASETS:
+        return exports.consultar(DB_PATH, tipo, buscar, limite, offset)
+    if tipo == "insights":
+        res = _query_insights(buscar=buscar, limite=min(limite, 200), offset=offset, preview_chars=400)
+        cols = [("source_table", "Tipo"), ("titulo", "Insight"), ("subtitulo", "Nicho / marco"),
+                ("content_preview", "Contenido"), ("channel_name", "Canal"), ("video_title", "Vídeo"), ("created_at", "Fecha")]
+        return {"tipo": tipo, "columnas": [{"k": k, "t": t} for k, t in cols], "filas": res["items"], "total": res["total"]}
+    if tipo == "canales":
+        todos = channel_store.listar(CHANNELS_JSON_PATH, DB_PATH)
+        if buscar.strip():
+            q = buscar.strip().lower()
+            todos = [c for c in todos if q in (c["nombre"] + " " + c["url"]).lower()]
+        cols = [("nombre", "Canal"), ("url", "URL"), ("activo", "Activo"), ("prioridad", "Prioridad"),
+                ("idioma", "Idioma"), ("filtro_tema", "Solo ecommerce"), ("transcripciones", "Transcripciones"),
+                ("ultimo_estado", "Última verificación")]
+        return {"tipo": tipo, "columnas": [{"k": k, "t": t} for k, t in cols],
+                "filas": todos[offset:offset + limite], "total": len(todos)}
+    raise HTTPException(status_code=404, detail="Tipo de historial desconocido.")
+
+
+@app.get("/api/historial/{tipo}")
+async def api_historial(tipo: str, buscar: str = Query("", max_length=100),
+                        limite: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0)) -> Dict[str, Any]:
+    return _dataset(tipo, buscar, limite, offset)
+
+
+@app.get("/api/exportar/{tipo}.csv")
+async def api_exportar_csv(tipo: str, buscar: str = Query("", max_length=100)) -> Response:
+    """Descarga el historial como CSV (UTF-8 con BOM, listo para Excel)."""
+    datos = _dataset(tipo, buscar, exports.MAX_FILAS_CSV if tipo != "insights" else 200, 0)
+    if tipo == "insights":      # insights va paginado de 200 en 200
+        filas, offset = list(datos["filas"]), 200
+        while len(filas) < datos["total"] and offset < exports.MAX_FILAS_CSV:
+            filas += _query_insights(buscar=buscar, limite=200, offset=offset, preview_chars=400)["items"]
+            offset += 200
+        datos["filas"] = filas
+    nombre = f"gemos_{tipo}_{time.strftime('%Y%m%d')}.csv"
+    return Response(content=exports.a_csv(datos["columnas"], datos["filas"]),
+                    media_type="text/csv; charset=utf-8",
+                    headers={"Content-Disposition": f"attachment; filename={nombre}"})
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
