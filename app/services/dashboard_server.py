@@ -764,102 +764,167 @@ async def api_insights() -> List[Dict[str, Any]]:
 # API — TRANSCRIPCIONES
 # ═══════════════════════════════════════════════════════════════════════════════
 
+class IngestarIn(BaseModel):
+    """Ingesta manual: o bien `url` de YouTube, o bien `titulo` + `texto`."""
+    url: str = ""
+    titulo: str = ""
+    canal: str = ""
+    texto: str = ""
+    idioma: str = "es"
+
+
+def _cleaner():
+    from app.services.transcript_cleaner import TranscriptCleaner
+    return TranscriptCleaner()
+
+
 @app.get("/api/transcripciones")
 async def api_transcripciones(
-    limite: int = 50,
-    buscar: str = "",
+    response: Response,
+    limite: int = Query(50, ge=1, le=transcript_store.MAX_LIMIT),
+    offset: int = Query(0, ge=0),
+    buscar: str = Query("", max_length=200),
     solo_procesadas: Optional[bool] = None,
-    canal: str = "",
+    canal: str = Query("", max_length=200),
 ) -> List[Dict[str, Any]]:
-    """Lista transcripciones con filtros opcionales de búsqueda, canal y estado."""
+    """Lista transcripciones (búsqueda en título, canal, texto limpio y original).
+    El total sin paginar va en la cabecera X-Total-Count."""
     try:
-        import sqlite3 as _sq
-        with _sq.connect(DB_PATH) as conn:
-            conn.row_factory = _sq.Row
-            conditions = []
-            params: list = []
-            if buscar:
-                conditions.append(
-                    "(t.titulo LIKE ? OR t.canal LIKE ? OR t.transcripcion_limpia LIKE ?)"
-                )
-                like = f"%{buscar}%"
-                params += [like, like, like]
-            if solo_procesadas is not None:
-                conditions.append("t.procesada = ?")
-                params.append(1 if solo_procesadas else 0)
-            if canal:
-                conditions.append("t.canal LIKE ?")
-                params.append(f"%{canal}%")
-            where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
-            params.append(limite)
-            rows = conn.execute(f"""
-                SELECT t.id, t.video_id, t.titulo, t.canal, t.fecha,
-                       t.tokens_original, t.tokens_limpios, t.procesada,
-                       t.creada_at,
-                       CASE WHEN t.transcripcion_limpia IS NOT NULL
-                            THEN substr(t.transcripcion_limpia, 1, 300)
-                            ELSE substr(t.transcripcion_texto, 1, 300)
-                       END AS preview
-                FROM transcripciones_youtube t
-                {where}
-                ORDER BY t.id DESC LIMIT ?
-            """, params).fetchall()
-            return [dict(r) for r in rows]
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-
-
-@app.get("/api/transcripciones/{transcripcion_id}")
-async def api_transcripcion_detalle(transcripcion_id: int) -> Dict[str, Any]:
-    """Retorna una transcripción completa (texto limpio o crudo) por su ID."""
-    try:
-        import sqlite3 as _sq
-        with _sq.connect(DB_PATH) as conn:
-            conn.row_factory = _sq.Row
-            row = conn.execute(
-                """SELECT t.id, t.video_id, t.titulo, t.canal, t.fecha,
-                          t.transcripcion_texto, t.transcripcion_limpia,
-                          t.hash_md5, t.tokens_original, t.tokens_limpios,
-                          t.procesada, t.creada_at, t.actualizada_at,
-                          v.platform, v.processed_at
-                   FROM transcripciones_youtube t
-                   LEFT JOIN video_sources v ON t.video_id = v.video_id
-                   WHERE t.id = ?""",
-                (transcripcion_id,)
-            ).fetchone()
-        if row is None:
-            raise HTTPException(status_code=404, detail="Transcripción no encontrada.")
-        return dict(row)
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        res = transcript_store.list_transcripts(
+            DB_PATH, buscar=buscar, solo_procesadas=solo_procesadas,
+            canal=canal, limite=limite, offset=offset)
+    except sqlite3.Error as exc:
+        raise HTTPException(status_code=500, detail=f"Error de base de datos: {exc}")
+    response.headers["X-Total-Count"] = str(res["total"])
+    return res["items"]
 
 
 @app.get("/api/transcripciones/stats/resumen")
 async def api_transcripciones_stats() -> Dict[str, Any]:
     """Resumen estadístico de la tabla de transcripciones."""
     try:
-        import sqlite3 as _sq
-        with _sq.connect(DB_PATH) as conn:
-            cur = conn.cursor()
-            cur.execute("SELECT COUNT(*) FROM transcripciones_youtube")
-            total = cur.fetchone()[0]
-            cur.execute("SELECT COUNT(*) FROM transcripciones_youtube WHERE procesada = 1")
-            procesadas = cur.fetchone()[0]
-            cur.execute("SELECT COUNT(DISTINCT canal) FROM transcripciones_youtube")
-            canales = cur.fetchone()[0]
-            cur.execute("SELECT SUM(tokens_limpios) FROM transcripciones_youtube")
-            tokens = cur.fetchone()[0] or 0
-        return {
-            "total": total,
-            "procesadas": procesadas,
-            "pendientes": total - procesadas,
-            "canales_unicos": canales,
-            "tokens_totales": tokens,
-        }
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        return transcript_store.stats(DB_PATH)
+    except sqlite3.Error as exc:
+        raise HTTPException(status_code=500, detail=f"Error de base de datos: {exc}")
+
+
+@app.post("/api/transcripciones/ingestar", status_code=201)
+async def api_transcripcion_ingestar(body: IngestarIn, response: Response) -> Dict[str, Any]:
+    """Guarda una transcripción nueva: descargándola de una URL de YouTube o a
+    partir de texto pegado."""
+    loop = asyncio.get_running_loop()
+    try:
+        if body.url.strip():
+            res = await loop.run_in_executor(
+                None, lambda: transcript_store.ingest_url(
+                    DB_PATH, body.url, _cleaner(), body.idioma))
+        elif body.texto.strip():
+            if not body.titulo.strip():
+                raise ValueError("Falta el título.")
+            res = await loop.run_in_executor(
+                None, lambda: transcript_store.ingest_text(
+                    DB_PATH, body.titulo, body.canal, body.texto, _cleaner(), body.idioma))
+        else:
+            raise ValueError("Indica una URL de YouTube o pega el texto con su título.")
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    except sqlite3.Error as exc:
+        raise HTTPException(status_code=500, detail=f"Error de base de datos: {exc}")
+    if res.get("duplicado"):
+        response.status_code = 200
+    return res
+
+
+@app.get("/api/transcripciones/{transcripcion_id}")
+async def api_transcripcion_detalle(transcripcion_id: int) -> Dict[str, Any]:
+    """Retorna una transcripción completa (texto limpio y original) por su ID."""
+    try:
+        row = transcript_store.get_transcript(DB_PATH, transcripcion_id)
+    except sqlite3.Error as exc:
+        raise HTTPException(status_code=500, detail=f"Error de base de datos: {exc}")
+    if row is None:
+        raise HTTPException(status_code=404, detail="Transcripción no encontrada.")
+    return row
+
+
+@app.get("/api/transcripciones/{transcripcion_id}/exportar")
+async def api_transcripcion_exportar(
+    transcripcion_id: int,
+    version: str = Query("limpia", pattern="^(limpia|original)$"),
+) -> Response:
+    """Descarga la transcripción como archivo Markdown."""
+    row = transcript_store.get_transcript(DB_PATH, transcripcion_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Transcripción no encontrada.")
+    nombre = transcript_store.safe_filename(row.get("titulo"))
+    return Response(
+        content=transcript_store.to_markdown(row, limpia=(version == "limpia")),
+        media_type="text/markdown; charset=utf-8",
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(nombre)}"},
+    )
+
+
+@app.delete("/api/transcripciones/{transcripcion_id}")
+async def api_transcripcion_borrar(transcripcion_id: int) -> Dict[str, Any]:
+    try:
+        ok = transcript_store.delete_transcript(DB_PATH, transcripcion_id)
+    except sqlite3.Error as exc:
+        raise HTTPException(status_code=500, detail=f"Error de base de datos: {exc}")
+    if not ok:
+        raise HTTPException(status_code=404, detail="Transcripción no encontrada.")
+    return {"status": "deleted", "id": transcripcion_id}
+
+
+@app.post("/api/transcripciones/sincronizar", status_code=202)
+async def api_transcripciones_sincronizar(background_tasks: BackgroundTasks) -> Dict[str, str]:
+    """Descarga transcripciones nuevas de los canales configurados (en segundo plano)."""
+    with _TRANS_SYNC_LOCK:
+        if _TRANS_SYNC["running"]:
+            raise HTTPException(status_code=409, detail="Ya hay una sincronización en curso.")
+        _TRANS_SYNC.update(running=True, msg="Iniciando…", result=None, error=None)
+
+    def _run():
+        global _trans_monitor
+        try:
+            from app.services.youtube_channel_monitor import YouTubeChannelMonitor
+            monitor = YouTubeChannelMonitor(db_manager=DatabaseConnection(DB_PATH))
+            _trans_monitor = monitor
+
+            def _progress(msg: str) -> None:
+                with _TRANS_SYNC_LOCK:
+                    _TRANS_SYNC["msg"] = msg
+                push_log(f"📝 {msg}", "INFO")
+
+            result = monitor.sincronizar_canales(progress=_progress)
+            result.pop("detalles", None)
+            with _TRANS_SYNC_LOCK:
+                _TRANS_SYNC["result"] = result
+        except Exception as exc:
+            log.exception("[SERVER] Error sincronizando transcripciones")
+            with _TRANS_SYNC_LOCK:
+                _TRANS_SYNC["error"] = str(exc)
+        finally:
+            _trans_monitor = None
+            with _TRANS_SYNC_LOCK:
+                _TRANS_SYNC["running"] = False
+
+    background_tasks.add_task(_run)
+    return {"status": "started"}
+
+
+@app.get("/api/transcripciones/sincronizar/estado")
+async def api_transcripciones_sync_estado() -> Dict[str, Any]:
+    with _TRANS_SYNC_LOCK:
+        return dict(_TRANS_SYNC)
+
+
+@app.post("/api/transcripciones/sincronizar/cancelar")
+async def api_transcripciones_sync_cancelar() -> Dict[str, str]:
+    monitor = _trans_monitor
+    if monitor is None:
+        raise HTTPException(status_code=409, detail="No hay sincronización en curso.")
+    monitor.cancelar_sincronizacion()
+    return {"status": "cancelling"}
 
 
 # ─── KB context helper ────────────────────────────────────────────────────────
