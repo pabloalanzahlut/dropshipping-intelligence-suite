@@ -366,40 +366,103 @@ def _get_latest_insights(limit: int = 5) -> List[Dict[str, Any]]:
         return []
 
 
-def _get_kb_insights_combined(limit: int = 50) -> List[Dict[str, Any]]:
-    """Combina las 3 tablas KB con metadatos del video para GET /api/insights."""
-    rows: List[Dict[str, Any]] = []
-    query_map = [
-        ("product_trends", "wow_factor"),
-        ("conversion_formulas", "raw_structure"),
-        ("operations_traffic", "scaling_strategy"),
-    ]
+_INSIGHTS_UNION = """
+    SELECT id, 'product_trends' AS source_table, video_id,
+           product_name AS titulo, niche AS subtitulo, wow_factor AS contenido,
+           validated_at AS created_at
+    FROM product_trends
+    UNION ALL
+    SELECT id, 'conversion_formulas', video_id,
+           category, framework_name, raw_structure, NULL
+    FROM conversion_formulas
+    UNION ALL
+    SELECT id, 'operations_traffic', video_id,
+           traffic_source, NULL, COALESCE(NULLIF(scaling_strategy, ''), logistics_notes), NULL
+    FROM operations_traffic
+"""
+_INSIGHT_TIPOS = ("product_trends", "conversion_formulas", "operations_traffic")
+
+
+def _like_escape(term: str) -> str:
+    return "%" + term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+
+
+def _limpiar_preview(texto: Any, max_chars: int) -> str:
+    """Quita el encabezado numerado ("2. Estructuras de ...") que el extractor deja al inicio."""
+    t = str(texto or "").strip()
+    t = re.sub(r"^\s*\d\.\s+[^\n]*\n", "", t, count=1)
+    return re.sub(r"\s+", " ", t).strip()[:max_chars]
+
+
+def _query_insights(tipo: str = "", buscar: str = "", canal: str = "",
+                    limite: int = 50, offset: int = 0,
+                    preview_chars: int = 220) -> Dict[str, Any]:
+    """Insights de las 3 tablas KB con filtros y paginación. Devuelve {items, total}."""
+    where, params = [], []
+    if tipo in _INSIGHT_TIPOS:
+        where.append("u.source_table = ?")
+        params.append(tipo)
+    if buscar.strip():
+        like = _like_escape(buscar.strip())
+        where.append("(u.titulo LIKE ? ESCAPE '\\' OR u.contenido LIKE ? ESCAPE '\\' "
+                     "OR v.title LIKE ? ESCAPE '\\' OR v.channel_name LIKE ? ESCAPE '\\')")
+        params += [like, like, like, like]
+    if canal.strip():
+        where.append("v.channel_name = ?")
+        params.append(canal.strip())
+    clause = ("WHERE " + " AND ".join(where)) if where else ""
+    base = (f"FROM ({_INSIGHTS_UNION}) u "
+            f"LEFT JOIN video_sources v ON v.video_id = u.video_id {clause}")
     try:
-        db = _get_db()
-        with db.get_connection() as conn:
+        with sqlite3.connect(DB_PATH, timeout=30) as conn:
             conn.row_factory = sqlite3.Row
-            cur = conn.cursor()
-            for table, content_col in query_map:
-                try:
-                    cur.execute(f"""
-                        SELECT t.id, '{table}' AS source_table,
-                               v.title AS video_title, v.channel_name,
-                               t.{content_col} AS content_preview,
-                               t.validated_at AS created_at
-                        FROM {table} t
-                        LEFT JOIN video_sources v ON t.video_id = v.video_id
-                        ORDER BY t.id DESC LIMIT ?
-                    """, (limit,))
-                    for row in cur.fetchall():
-                        r = dict(row)
-                        if r.get("content_preview"):
-                            r["content_preview"] = str(r["content_preview"])[:200]
-                        rows.append(r)
-                except sqlite3.OperationalError:
-                    continue
-    except sqlite3.Error:
-        pass
-    rows.sort(key=lambda x: x.get("created_at") or "", reverse=True)
+            total = conn.execute(f"SELECT COUNT(*) {base}", params).fetchone()[0]
+            rows = conn.execute(
+                f"""SELECT u.id, u.source_table, u.video_id, u.titulo, u.subtitulo,
+                           u.contenido, u.created_at, v.title AS video_title,
+                           v.channel_name AS channel_name
+                    {base}
+                    ORDER BY COALESCE(u.created_at, '') DESC, u.id DESC
+                    LIMIT ? OFFSET ?""",
+                params + [max(1, min(int(limite), 200)), max(0, int(offset))],
+            ).fetchall()
+    except sqlite3.Error as exc:
+        log.warning(f"[INSIGHTS] {exc}")
+        return {"items": [], "total": 0}
+    items = []
+    for r in rows:
+        d = dict(r)
+        d["content_preview"] = _limpiar_preview(d.pop("contenido"), preview_chars)
+        items.append(d)
+    return {"items": items, "total": total}
+
+
+def _insights_resumen() -> Dict[str, Any]:
+    """Totales por tipo y por canal (los contadores de la página Insights)."""
+    try:
+        with sqlite3.connect(DB_PATH, timeout=30) as conn:
+            por_tipo = {t: 0 for t in _INSIGHT_TIPOS}
+            for tipo, n in conn.execute(
+                    f"SELECT source_table, COUNT(*) FROM ({_INSIGHTS_UNION}) GROUP BY source_table"):
+                por_tipo[tipo] = n
+            canales = [
+                {"canal": c, "n": n} for c, n in conn.execute(
+                    f"""SELECT v.channel_name, COUNT(*) FROM ({_INSIGHTS_UNION}) u
+                        JOIN video_sources v ON v.video_id = u.video_id
+                        GROUP BY v.channel_name ORDER BY COUNT(*) DESC""")
+            ]
+    except sqlite3.Error as exc:
+        log.warning(f"[INSIGHTS] resumen: {exc}")
+        return {"total": 0, "por_tipo": {}, "canales": []}
+    return {"total": sum(por_tipo.values()), "por_tipo": por_tipo, "canales": canales}
+
+
+def _get_kb_insights_combined(limit: int = 50) -> List[Dict[str, Any]]:
+    """Muestra equilibrada de las 3 tablas (para el contexto del agente KB)."""
+    por_tabla = max(1, -(-limit // 3))
+    rows: List[Dict[str, Any]] = []
+    for tipo in _INSIGHT_TIPOS:
+        rows += _query_insights(tipo=tipo, limite=por_tabla, preview_chars=400)["items"]
     return rows[:limit]
 
 
@@ -762,8 +825,24 @@ async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "aut
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/api/insights")
-async def api_insights() -> List[Dict[str, Any]]:
-    return _get_kb_insights_combined(50)
+async def api_insights(
+    response: Response,
+    tipo: str = Query("", pattern="^(|product_trends|conversion_formulas|operations_traffic)$"),
+    buscar: str = Query("", max_length=200),
+    canal: str = Query("", max_length=200),
+    limite: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+) -> List[Dict[str, Any]]:
+    """Insights de la KB con filtros por tipo, texto y canal. Total en X-Total-Count."""
+    res = _query_insights(tipo=tipo, buscar=buscar, canal=canal, limite=limite, offset=offset)
+    response.headers["X-Total-Count"] = str(res["total"])
+    return res["items"]
+
+
+@app.get("/api/insights/resumen")
+async def api_insights_resumen() -> Dict[str, Any]:
+    """Totales por tipo y por canal de toda la KB."""
+    return _insights_resumen()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -954,10 +1033,11 @@ def _build_kb_context(limit: int = 30) -> str:
     lines = []
     for r in rows:
         tabla = r.get("source_table", "")
-        titulo = r.get("video_title") or "(sin título)"
+        titulo = r.get("titulo") or "(sin título)"
+        video = r.get("video_title") or "(sin título)"
         canal = r.get("channel_name") or "?"
         preview = (r.get("content_preview") or "").strip()
-        lines.append(f"[{tabla}] {titulo} | {canal}\n{preview}")
+        lines.append(f"[{tabla}] {titulo} — vídeo «{video}» | canal: {canal}\n{preview}")
     return "\n\n".join(lines)
 
 
