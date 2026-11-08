@@ -97,3 +97,4 @@ No declares un multiplicador sin que el gate lo confirme.
 Si falta un dato crítico → `DATA_GAP_REQUEST` (preguntar al usuario, no asumir).
 
 **Referencia:** `ai_workspace/skills/clasificar_productos/procedimiento.md`
+**Reglas financieras:** `.claude/memory/reglas-financieras.md`
