@@ -160,12 +160,11 @@ class GEMOSApplication:
         self._panel_loaded = [False] * len(specs)
         for i, (name, factory) in enumerate(specs):
             f = ttk.Frame(self._pc)
-            f.grid(row=i, column=0, sticky="nsew")  # Each panel in separate row
+            # Todos los paneles comparten la celda (0,0): solo uno visible a la vez
+            f.grid(row=0, column=0, sticky="nsew")
             f.grid_remove()  # Hide initially
             ttk.Label(f, text="Cargando...", foreground="#888").pack(pady=20)
             self._panels.append(f)
-            # Ensure grid row is configured with proper weight
-            self._pc.rowconfigure(i, weight=1 if i == 0 else 0)
         self._panel_loaded[0] = True
         try:
             p = specs[0][1]()
