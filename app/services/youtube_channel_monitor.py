@@ -130,46 +130,23 @@ class YouTubeChannelMonitor:
     def agregar_canal(self, url: str, nombre: str,
                       tags: str = "", idioma: str = "es",
                       prioridad: int = 5, max_videos_scan: int = 30) -> bool:
-        """Agrega un canal al JSON y a canales_favoritos. Si falla, el motivo queda
-        en self.ultimo_error."""
+        """Agrega un canal (JSON + BD, con filtro de tema activado). Si falla, el motivo
+        queda en self.ultimo_error."""
+        from app.services import channel_store
         self.ultimo_error = ""
-        url = (url or "").strip()
-        nombre = (nombre or "").strip()
-        if not _YOUTUBE_CHANNEL_RE.match(url):
-            self.ultimo_error = "URL de canal no válida (ej: https://www.youtube.com/@canal)"
-            return False
-        if not nombre:
-            self.ultimo_error = "Falta el nombre del canal"
-            return False
-        if any(_norm_url(c.get("url", "")) == _norm_url(url) for c in self.canales):
+        try:
+            channel_store.agregar(self.config_path, self.db_path, url, nombre, tags,
+                                  idioma, prioridad, max_videos_scan)
+        except FileExistsError:
             self.ultimo_error = "Ese canal ya está registrado"
             return False
-
-        handle = url.rstrip("/").split("/")[-1].lower()
-        nuevo = {
-            "url": url, "nombre": nombre, "activo": True,
-            "tags": [t.strip() for t in tags.split(",") if t.strip()],
-            "prioridad": prioridad, "idioma": idioma,
-            "max_videos_scan": max_videos_scan,
-        }
-        # JSON: releer del disco para no pisar cambios hechos por la web
-        en_disco = self._leer_json()
-        en_disco.append(nuevo)
-        if not self._guardar_canales(en_disco):
-            self.ultimo_error = "No se pudo escribir el archivo de canales"
+        except ValueError as exc:
+            self.ultimo_error = str(exc)
             return False
-        self.canales.append(nuevo)
-        try:
-            with self.db_manager.get_connection() as conn:
-                conn.execute(
-                    """INSERT OR IGNORE INTO canales_favoritos
-                       (handle, nombre, url, idioma, especialidad, tags, prioridad)
-                       VALUES (?,?,?,?,?,?,?)""",
-                    (handle, nombre, url, idioma, "general", tags, prioridad),
-                )
-                conn.commit()
-        except Exception as e:
-            print(f"[WARN] No se pudo insertar en canales_favoritos: {e}")
+        except Exception as exc:
+            self.ultimo_error = f"No se pudo guardar el canal: {exc}"
+            return False
+        self.canales = self._cargar_canales()
         return True
 
     # ─────────────────────────── transcripciones ────────────────────────────
