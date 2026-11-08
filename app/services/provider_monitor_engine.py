@@ -20,9 +20,11 @@ import json
 import os
 import random
 import re
+import sqlite3
 import subprocess
 import sys
 import time
+from contextlib import closing
 from typing import Callable, Dict, List, Optional, Any
 
 from app.config.path_manager import PathManager
@@ -52,6 +54,10 @@ TEMP_TRANSCRIPT_DIR = str(_GEM_PATHS['data'] / "temp_transcripts")
 # YouTube los lista del más nuevo al más viejo, así que el corte deja fuera
 # el histórico ya ingerido en vez de reenumerarlo en cada ejecución.
 DEFAULT_SCAN_LIMIT = 30
+
+# Transcripciones ya guardadas que se pasan a la IA por ciclo. No tocan YouTube (sin límites ni
+# esperas), pero cada una cuesta una llamada a la IA: el tope reparte ese gasto entre ciclos.
+MAX_GUARDADAS_POR_CICLO = 10
 
 
 def _safe_print(msg: str) -> None:
@@ -286,6 +292,51 @@ class ProviderMonitorEngine:
             if linea and (not salida or salida[-1] != linea):
                 salida.append(linea)
         return " ".join(salida)
+
+    def _transcripcion_guardada(self, video_id: str) -> str:
+        """Texto original que ya guardó la sincronización de transcripciones ('' si no hay).
+        Evita volver a pedir a YouTube lo que ya se descargó."""
+        try:
+            with closing(sqlite3.connect(self.db_manager.db_path, timeout=30)) as conn:
+                fila = conn.execute(
+                    "SELECT transcripcion_texto FROM transcripciones_youtube WHERE video_id = ?",
+                    (video_id,)).fetchone()
+            return (fila[0] or "") if fila else ""
+        except sqlite3.Error:
+            return ""
+
+    def _ingestar_transcripciones_guardadas(self, maximo: int = MAX_GUARDADAS_POR_CICLO) -> int:
+        """Pasa a la KB las transcripciones guardadas que la IA todavía no ha analizado.
+
+        Solo consume la IA, nunca YouTube. Salta las que ya se resolvieron (incluidas las de
+        fuera de tema o sin valor) y se detiene tras 3 fallos seguidos de la IA (circuit breaker)."""
+        try:
+            with closing(sqlite3.connect(self.db_manager.db_path, timeout=30)) as conn:
+                filas = conn.execute(
+                    """SELECT t.video_id, t.titulo, t.canal FROM transcripciones_youtube t
+                       WHERE NOT EXISTS (SELECT 1 FROM video_sources v
+                                         WHERE v.video_id = t.video_id AND v.platform != 'youtube_transcript')
+                       ORDER BY t.creada_at DESC""").fetchall()
+        except sqlite3.Error as exc:
+            self.log_callback(f"⚠️ No se pudieron leer las transcripciones guardadas: {exc}")
+            return 0
+        pendientes = [f for f in filas
+                      if self.queue_manager.video_status(f[2], f[0]) != STATUS_COMPLETED]
+        if not pendientes:
+            return 0
+        self.log_callback(f"📂 {len(pendientes)} transcripciones guardadas sin analizar "
+                          f"(se procesan hasta {maximo} en este ciclo, sin descargar nada)")
+        procesadas = fallos_seguidos = 0
+        for video_id, titulo, canal in pendientes[:maximo]:
+            if self._process_single_video({"video_id": video_id, "title": titulo or ""}, canal or ""):
+                procesadas += 1
+                fallos_seguidos = 0
+            else:
+                fallos_seguidos += 1
+                if fallos_seguidos >= 3:
+                    self.log_callback("🛑 3 fallos seguidos de la IA: dejo el resto para el próximo ciclo.")
+                    break
+        return procesadas
 
     @with_retry(max_retries=3, base_delay=1.0)
     def download_transcript(self, video_id: str) -> str:
