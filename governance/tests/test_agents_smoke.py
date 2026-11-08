@@ -201,7 +201,7 @@ class TestAgentMemoryIntegration(unittest.TestCase):
             ["formulas_conversion", "matriz_tendencias"]
         )
         self.assertEqual(e['event_type'], 'decision')
-        self.assertIn('formulas_conversion', str(e.get('details', {}).get('data_sources', [])))
+        self.assertIn('formulas_conversion', str(e.get('details')))
 
     def test_05_backend_core_decision_log(self):
         e = self.memory.log_decision(

@@ -2,3 +2,5 @@
 {"agent_name": "int_test", "event_type": "test", "category": "info", "summary": "Workflow OK", "details": null, "context_hash": null, "timestamp": "2026-11-08T19:18:35.153217+00:00"}
 {"agent_name": "int_test", "event_type": "test", "category": "info", "summary": "Workflow OK", "details": null, "context_hash": null, "timestamp": "2026-11-08T19:23:16.754823+00:00"}
 {"agent_name": "int_test", "event_type": "test", "category": "info", "summary": "Workflow OK", "details": null, "context_hash": null, "timestamp": "2026-11-08T19:23:39.881848+00:00"}
+{"agent_name": "int_test", "event_type": "test", "category": "info", "summary": "Workflow OK", "details": null, "context_hash": null, "timestamp": "2026-11-08T19:23:58.473491+00:00"}
+{"agent_name": "int_test", "event_type": "test", "category": "info", "summary": "Workflow OK", "details": null, "context_hash": null, "timestamp": "2026-11-08T19:24:16.944480+00:00"}

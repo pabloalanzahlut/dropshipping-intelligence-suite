@@ -1,6 +1,6 @@
 """
 test_openrouter_backoff.py — Tests unitarios para llamadas OpenRouter con backoff.
-Cubre: generar_con_openrouter (CopywritingEngine) y generar_guion_con_ia (TikTokScriptGenerator).
+Cubre: generar_con_openrouter (CopywritingEngine) y generar_con_openrouter (TikTokScriptGenerator).
 """
 import json
 import time
@@ -50,6 +50,7 @@ class TestCopywritingEngineOpenRouter(unittest.TestCase):
         engine.db_manager = MagicMock()
         engine.copywriting_log = []
         engine._hybrid_pool = None
+        engine._get_hybrid_pool = lambda: None   # aislar del pool real (usaría la clave de .env)
         return engine
 
     @patch("requests.post")
@@ -65,8 +66,8 @@ class TestCopywritingEngineOpenRouter(unittest.TestCase):
             pvp=15.0,
             peso_kg=0.3,
         )
-        self.assertIn("copy_texto", result)
-        self.assertIn("Título", result["copy_texto"])
+        self.assertIn("descripcion", result)
+        self.assertIn("Título", result["descripcion"])
         mock_post.assert_called_once()
 
     @patch("requests.post")
@@ -82,10 +83,11 @@ class TestCopywritingEngineOpenRouter(unittest.TestCase):
             pvp=15.0,
             peso_kg=0.3,
         )
-        self.assertIn("copy_texto", result)
+        self.assertIn("descripcion", result)
         # El texto de fallback existe (template local siempre genera algo)
-        self.assertIsNotNone(result["copy_texto"])
+        self.assertIsNotNone(result["descripcion"])
 
+    @patch.dict("os.environ", {}, clear=True)   # sin clave en el entorno (si no, el motor la toma de .env)
     @patch("requests.post")
     def test_no_key_uses_template(self, mock_post):
         """Sin API key no llama a OpenRouter y devuelve template."""
@@ -100,7 +102,7 @@ class TestCopywritingEngineOpenRouter(unittest.TestCase):
             peso_kg=0.3,
         )
         mock_post.assert_not_called()
-        self.assertIn("copy_texto", result)
+        self.assertIn("descripcion", result)
 
 
 # ── TikTokScriptGenerator ─────────────────────────────────────────────────────
@@ -112,6 +114,7 @@ class TestTikTokScriptGeneratorOpenRouter(unittest.TestCase):
         from app.services.tiktok_script_generator import TikTokScriptGenerator
         gen = TikTokScriptGenerator.__new__(TikTokScriptGenerator)
         gen._hybrid_pool = None
+        gen._get_hybrid_pool = lambda: None      # aislar del pool real (usaría la clave de .env)
         gen.db_manager = MagicMock()
         return gen
 
@@ -122,7 +125,7 @@ class TestTikTokScriptGeneratorOpenRouter(unittest.TestCase):
         mock_post.return_value = _openrouter_ok_response("HOOK: Frase\nDEMO: Acción\nCTA: Compra")
 
         gen = self._make_generator()
-        result = gen.generar_guion_con_ia(
+        result = gen.generar_con_openrouter(
             nombre_producto="Gadget X",
             categoria="fitness",
             patron_hook="problema",
@@ -136,7 +139,7 @@ class TestTikTokScriptGeneratorOpenRouter(unittest.TestCase):
     def test_no_key_skips_openrouter(self, mock_post):
         """Sin OPENROUTER_API_KEY devuelve template sin llamar a la API."""
         gen = self._make_generator()
-        result = gen.generar_guion_con_ia(
+        result = gen.generar_con_openrouter(
             nombre_producto="Gadget X",
             categoria="fitness",
             patron_hook="problema",
@@ -152,7 +155,7 @@ class TestTikTokScriptGeneratorOpenRouter(unittest.TestCase):
         mock_post.side_effect = requests.ConnectionError("network error")
 
         gen = self._make_generator()
-        result = gen.generar_guion_con_ia(
+        result = gen.generar_con_openrouter(
             nombre_producto="Gadget X",
             categoria="fitness",
             patron_hook="problema",

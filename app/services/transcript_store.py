@@ -68,6 +68,34 @@ def hash_text(text: str) -> str:
     return hashlib.md5(text.encode("utf-8")).hexdigest()
 
 
+_PALABRAS_IDIOMA = {
+    "es": {"que", "de", "la", "el", "en", "y", "los", "las", "es", "un", "una", "por", "con", "para",
+           "se", "no", "lo", "como", "pero", "más", "esto", "este", "tu", "te", "me", "muy"},
+    "en": {"the", "and", "to", "of", "a", "in", "that", "is", "it", "you", "for", "on", "with", "this",
+           "are", "was", "have", "your", "but", "not", "they", "we", "so", "just"},
+    "pt": {"que", "de", "o", "a", "e", "do", "da", "em", "um", "uma", "para", "com", "não", "os", "as",
+           "você", "mais", "como", "mas", "ao", "pelo", "isso", "está"},
+    "it": {"che", "di", "il", "la", "e", "un", "una", "per", "non", "con", "sono", "del", "della", "le",
+           "questo", "come", "ma", "più", "anche", "si", "lo", "gli"},
+}
+
+
+def detectar_idioma(texto: str, por_defecto: str = "es") -> str:
+    """Idioma real del texto (es/en/pt/it) por frecuencia de palabras comunes. Si no hay
+    señal clara, devuelve el idioma pedido (no se inventa)."""
+    palabras = re.findall(r"[a-záéíóúñàèìòùçãõâêô]+", (texto or "")[:20000].lower())
+    if len(palabras) < 30:
+        return por_defecto
+    total = len(palabras)
+    puntos = {lg: sum(1 for p in palabras if p in conj) / total for lg, conj in _PALABRAS_IDIOMA.items()}
+    mejor = max(puntos, key=puntos.get)
+    segundo = sorted(puntos.values())[-2]
+    # el español y el portugués comparten muchas palabras: exigir margen para cambiar de idioma
+    if puntos[mejor] < 0.12 or puntos[mejor] - segundo < 0.03:
+        return por_defecto
+    return mejor
+
+
 # ── lectura ──────────────────────────────────────────────────────────────────
 
 def list_transcripts(
@@ -189,6 +217,7 @@ def save_transcript(
                     "hash_md5": digest, "mensaje": "Transcripción ya guardada"}
 
         cleaned = cleaner.clean(raw, log_stats=False)
+        idioma = detectar_idioma(raw, idioma)      # el idioma real, no el pedido
         conn.execute(
             """INSERT OR IGNORE INTO video_sources
                    (video_id, platform, title, channel_name, content_hash)

@@ -154,7 +154,7 @@ class RulesValidator:
         como palabra completa o su plural/género ("único" sí, "unicornio" no)."""
         tl = self._sin_tildes(texto)
         return [a for a in self.CRITICAL_ADJETIVOS_PROHIBIDOS
-                if re.search(r'' + re.escape(self._sin_tildes(a)) + r'(?:s|es|a|as|os)?', tl)]
+                if re.search(r'\b' + re.escape(self._sin_tildes(a)) + r'(?:s|es|a|as|os)?\b', tl)]
 
     def _detect_hallucinations(self, data: Dict) -> Tuple[bool, str]:
         if not isinstance(data, dict):

@@ -16,7 +16,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **Fase 1: Testeo Rápido** | ABO (Por Conjunto) | Intereses Segmentados / Amplio | \$5.00 a \$10.00 USD por AdSet (Mínimo 5 AdSets) | CTR > 2.00% y CPC < \$0.40 USD |
 | **Fase 2: Escalado Vertical** | ABO (Duplicación) | Públicos Ganadores Idénticos | Duplicar presupuesto original x2 o x3 en conjuntos limpios | Mantener CPA por debajo del objetivo |
-| **Fase 3: Escalado Horizontal**| CBO (Por Campaña) | Públicos Similares (Lookalikes) y Broad | \$100.00 a \$300.00 USD por campaña | ROAS > 2.0 (Garantiza margen bruto > 70%) |
+| **Fase 3: Escalado Horizontal**| CBO (Por Campaña) | Públicos Similares (Lookalikes) y Broad | \$100.00 a \$300.00 USD por campaña | ROAS > 2.0 (medido real, no el que declara Meta) |
 
 ## 🧬 Reglas Algorítmicas de Optimización (Inyección XML Segura)
 

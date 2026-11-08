@@ -482,3 +482,7 @@ class CopywrightingEngine:
     
 
 
+
+
+# Alias con la ortografía correcta (el nombre histórico lleva una errata)
+CopywritingEngine = CopywrightingEngine
