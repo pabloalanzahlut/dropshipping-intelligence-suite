@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+{% block title %}Tienda{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Tienda</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="tienda()" x-init="init()">
+
+  <div class="flex items-start justify-between flex-wrap" style="margin-bottom:20px;gap:12px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        Tienda · <span style="background:linear-gradient(90deg,#34d399,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Shopify y AutoDS</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Cifras reales de tu tienda. El agente IA las recibe como contexto; lo que no se conoce se marca como dato que falta, nunca se estima.</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <label class="form-label" for="dias" style="margin:0;">Periodo</label>
+      <select id="dias" x-model.number="dias" @change="cargar()" class="input-field" style="width:110px;">
+        <option value="7">7 días</option><option value="14">14 días</option><option value="30">30 días</option><option value="60">60 días</option><option value="90">90 días</option>
+      </select>
+    </div>
+  </div>
+
+  <div x-show="error" x-cloak role="alert" style="background:rgba(244,63,94,0.08);border:1px solid rgba(251,113,133,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#fb7185;" x-text="error"></div>
+
+  <!-- Conexiones -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;align-items:start;margin-bottom:14px;">
+
+    <!-- Shopify -->
+    <div class="card" style="min-width:0;">
+      <div class="flex items-center justify-between gap-2" style="margin-bottom:10px;">
+        <div class="section-title" style="margin:0;">Shopify · API de lectura</div>
+        <span :class="shopify.sincronizando || sync.corriendo ? 'badge badge-info' : (shopify.configurada ? (shopify.ultima_ok ? 'badge badge-done' : 'badge badge-pending') : 'badge badge-fail')"
+              x-text="shopify.sincronizando || sync.corriendo ? 'Sincronizando…' : (shopify.configurada ? (shopify.ultima_ok ? 'Conectada' : 'Sin sincronizar') : 'Falta configurar')"></span>
+      </div>
+
+      <template x-if="!shopify.configurada">
+        <div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.22);border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+          <p style="font-size:12px;color:#fbbf24;margin:0 0 6px;" x-text="shopify.aviso || 'Faltan credenciales de Shopify.'"></p>
+          <p x-show="(shopify.faltan || []).length" style="font-size:11px;color:#a8b0d8;margin:0;" x-text="'Define en .env: ' + (shopify.faltan || []).join(', ')"></p>
+          <p style="font-size:11px;color:#7880b0;margin:8px 0 0;line-height:1.6;">
+            Dev Dashboard de Shopify → tu app → <strong style="color:#a8b0d8;">Configuración</strong>: copia el <em>Client ID</em> a <code>SHOPIFY_CLIENT_ID</code> (el secreto ya lo tienes).
+            En <strong style="color:#a8b0d8;">Versiones</strong> activa los scopes <code>read_orders</code>, <code>read_products</code> y <code>read_inventory</code>
+            (opcional <code>read_all_orders</code> para más de 60 días), publica la versión e instala la app en la tienda.
+          </p>
+        </div>
+      </template>
+
+      <div style="font-size:12px;color:#a8b0d8;line-height:1.9;">
+        <div>Tienda: <strong style="color:#e8ecff;" x-text="shopify.tienda || '—'"></strong></div>
+        <div>Acceso: <span x-text="{client_credentials:'Client ID + secreto (token de 24 h, se renueva solo)', token:'Token de Admin API'}[shopify.modo] || '—'"></span></div>
+        <div>Última sincronización: <span x-text="shopify.ultima_ok ? hace(shopify.ultima_ok.terminado_at) + ' · ' + shopify.ultima_ok.pedidos + ' pedidos, ' + shopify.ultima_ok.variantes + ' variantes' : 'nunca'"></span></div>
+        <div x-show="shopify.ultima && shopify.ultima.estado === 'error'" style="color:#fb7185;" x-text="'Último intento fallido: ' + (shopify.ultima?.detalle?.error || '')"></div>
+        <div x-show="shopify.obsoleta" style="color:#fbbf24;">Los datos tienen más de 24 h: pulsa «Sincronizar ahora».</div>
+      </div>
+
+      <div class="flex gap-2 flex-wrap" style="margin-top:12px;">
+        <button class="btn-ghost" @click="probar()" :disabled="probando || !shopify.configurada" x-text="probando ? 'Probando…' : 'Probar conexión'"></button>
+        <button class="btn-primary" @click="sincronizar(60)" :disabled="sync.corriendo || !shopify.configurada" x-text="sync.corriendo ? 'Sincronizando…' : 'Sincronizar ahora (60 días)'"></button>
+        <button class="btn-ghost" @click="sincronizar(14)" :disabled="sync.corriendo || !shopify.configurada">Solo 14 días</button>
+      </div>
+
+      <div x-show="prueba" x-cloak style="margin-top:10px;font-size:12px;" role="status">
+        <p :style="prueba?.ok ? 'color:#34d399;margin:0 0 4px;' : 'color:#fb7185;margin:0 0 4px;'" x-text="prueba?.mensaje"></p>
+        <p x-show="prueba?.tienda" style="color:#a8b0d8;margin:0 0 4px;" x-text="prueba?.tienda ? prueba.tienda.nombre + ' · plan ' + (prueba.tienda.plan || '—') + ' · ' + prueba.tienda.moneda + ' · ' + (prueba.tienda.zona_horaria || '') : ''"></p>
+        <p x-show="(prueba?.scopes || []).length" style="color:#7880b0;font-size:11px;margin:0;" x-text="'Permisos: ' + (prueba?.scopes || []).join(', ')"></p>
+      </div>
+
+      <div x-show="sync.mensaje || sync.error || sync.resultado" x-cloak style="margin-top:10px;font-size:12px;" role="status">
+        <p x-show="sync.corriendo" style="color:#22d3ee;margin:0;" x-text="sync.mensaje"></p>
+        <p x-show="sync.error" style="color:#fb7185;margin:0;" x-text="sync.error"></p>
+        <template x-if="sync.resultado && !sync.corriendo">
+          <div>
+            <p style="color:#34d399;margin:0 0 4px;" x-text="'Hecho: ' + sync.resultado.pedidos + ' pedidos y ' + sync.resultado.variantes + ' variantes (' + sync.resultado.dias + ' días). Ingresos escritos en Negocio: ' + (sync.resultado.metricas_diarias?.escritos ?? 0) + ' días.'"></p>
+            <template x-for="a in (sync.resultado.avisos || [])" :key="a"><p style="color:#fbbf24;margin:0 0 3px;" x-text="'! ' + a"></p></template>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- AutoDS -->
+    <div class="card" style="min-width:0;">
+      <div class="flex items-center justify-between gap-2" style="margin-bottom:10px;">
+        <div class="section-title" style="margin:0;">AutoDS · importación</div>
+        <span :class="autodsEst.pedidos ? 'badge badge-done' : 'badge badge-pending'" x-text="autodsEst.pedidos ? 'Datos importados' : 'Sin importar'"></span>
+      </div>
+      <p style="font-size:11px;color:#7880b0;line-height:1.6;margin:0 0 10px;">
+        La API oficial de AutoDS exige solicitud, aprobación y una tarifa de activación, y sin esas credenciales no hay conexión directa.
+        Mientras tanto: en AutoDS exporta <strong style="color:#a8b0d8;">Pedidos</strong> (o Productos) a CSV/Excel y súbelo aquí. Aporta el <strong style="color:#a8b0d8;">coste real de proveedor y envío</strong>, que Shopify no conoce.
+      </p>
+      <div style="font-size:12px;color:#a8b0d8;line-height:1.9;margin-bottom:10px;">
+        <div>Importado: <strong style="color:#e8ecff;" x-text="(autodsEst.pedidos || 0) + ' líneas de pedido · ' + (autodsEst.productos || 0) + ' productos'"></strong></div>
+        <div x-show="(autodsEst.importaciones || []).length">Última: <span x-text="(autodsEst.importaciones[0]?.archivo || '') + ' · ' + hace(autodsEst.importaciones[0]?.importado_at)"></span></div>
+      </div>
+
+      <form @submit.prevent="previsualizar()" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
+        <div style="grid-column:1/-1;"><label class="form-label" for="ad-file">Archivo de AutoDS (CSV o Excel)</label>
+          <input id="ad-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" class="input-field" @change="archivo = $event.target.files[0]; vista = null" required></div>
+        <div><label class="form-label" for="ad-tipo">Tipo</label>
+          <select id="ad-tipo" x-model="imp.tipo" class="input-field"><option value="auto">Detectar</option><option value="pedidos">Pedidos</option><option value="productos">Productos</option></select></div>
+        <div><label class="form-label" for="ad-fecha">Fechas con barras</label>
+          <select id="ad-fecha" x-model="imp.formato_fecha" class="input-field"><option value="auto">DD/MM/AAAA</option><option value="mdy">MM/DD/AAAA</option></select></div>
+        <div style="grid-column:1/-1;"><label style="display:flex;gap:8px;align-items:center;font-size:12px;color:#a8b0d8;cursor:pointer;">
+          <input type="checkbox" x-model="imp.coste_por_unidad"> El coste del export es <strong>por unidad</strong> (si no, se toma como total de la línea)</label></div>
+        <div style="grid-column:1/-1;"><button type="submit" class="btn-ghost" style="width:100%;justify-content:center;" :disabled="!archivo || cargando" x-text="cargando ? 'Leyendo…' : 'Previsualizar (no guarda nada)'"></button></div>
+      </form>
+
+      <div x-show="vista" x-cloak style="margin-top:12px;border-top:1px solid #1a1d35;padding-top:12px;">
+        <p style="font-size:12px;color:#e8ecff;margin:0 0 6px;" x-text="vista ? vista.filas + ' filas de ' + vista.tipo + ' · ' + vista.nuevas + ' nuevas, ' + vista.actualizadas + ' ya existentes' : ''"></p>
+        <p x-show="vista?.archivo_ya_importado" style="font-size:11px;color:#fbbf24;margin:0 0 6px;" x-text="'Este archivo ya se importó el ' + (vista?.archivo_ya_importado || '').slice(0, 10) + ': no cambiará nada.'"></p>
+        <p style="font-size:10px;font-weight:700;color:#4a5080;letter-spacing:.5px;margin:8px 0 4px;">COLUMNAS RECONOCIDAS</p>
+        <div class="flex gap-2 flex-wrap">
+          <template x-for="(cab, campo) in (vista?.columnas || {})" :key="campo"><span class="badge badge-info" x-text="campo + ' ← ' + cab"></span></template>
+        </div>
+        <p x-show="(vista?.sin_mapear || []).length" style="font-size:11px;color:#7880b0;margin:8px 0 0;" x-text="'Sin usar: ' + (vista?.sin_mapear || []).join(', ')"></p>
+        <p style="font-size:10px;font-weight:700;color:#4a5080;letter-spacing:.5px;margin:10px 0 4px;">COMPRUEBA UNA FILA QUE CONOZCAS</p>
+        <p style="font-size:11px;color:#a8b0d8;margin:0;line-height:1.7;" x-text="ejemplo()"></p>
+        <template x-for="a in (vista?.avisos || [])" :key="a"><p style="font-size:11px;color:#fbbf24;margin:6px 0 0;" x-text="'! ' + a"></p></template>
+        <button class="btn-primary" style="width:100%;justify-content:center;margin-top:12px;" @click="importar()" :disabled="importando || vista?.archivo_ya_importado" x-text="importando ? 'Importando…' : 'Importar ' + (vista?.nuevas ?? 0) + ' filas nuevas'"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div x-show="r" x-cloak>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px;">
+      <div class="kpi"><p>Pedidos</p><strong x-text="r.pedidos"></strong><span x-text="r.cancelados + ' cancelados · ' + r.unidades + ' uds'"></span></div>
+      <div class="kpi"><p>Ingresos netos</p><strong x-text="eur(r.ingresos_netos)"></strong><span x-text="'bruto ' + eur(r.ingresos_brutos) + ' − reembolsos ' + eur(r.reembolsado)"></span></div>
+      <div class="kpi"><p>Ticket medio</p><strong x-text="eur(r.ticket_medio)"></strong><span>ingresos netos / pedido</span></div>
+      <div class="kpi"><p>Cancelaciones + devoluciones</p>
+        <strong :style="'color:' + (r.cancelaciones_y_devoluciones.estado === 'POR_ENCIMA' ? '#fb7185' : '#34d399')" x-text="pct(r.cancelaciones_y_devoluciones.pct_real)"></strong>
+        <span x-text="'referencia ' + pct(r.cancelaciones_y_devoluciones.pct_referencia)"></span></div>
+      <div class="kpi"><p>ROAS real</p><strong :style="'color:' + color(r.roas_estado?.estado)" x-text="r.roas_real ? r.roas_real + '×' : '—'"></strong>
+        <span x-text="r.gasto_ads > 0 ? 'ingresos Shopify / ' + eur(r.gasto_ads) + ' en ads' : 'sin gasto en ads registrado'"></span></div>
+      <div class="kpi"><p>Margen real</p><strong :style="r.margen_real ? (r.margen_real.margen >= 0 ? 'color:#34d399' : 'color:#fb7185') : ''" x-text="r.margen_real ? eur(r.margen_real.margen) : '—'"></strong>
+        <span x-text="r.margen_real ? pct(r.margen_real.margen_pct) + ' · ' + r.margen_real.pedidos_con_coste + ' de ' + r.pedidos + ' pedidos con coste' : 'sin coste conocido'"></span></div>
+      <div class="kpi"><p>Beneficio tras ads</p><strong x-text="r.beneficio_tras_ads != null ? eur(r.beneficio_tras_ads) : '—'"></strong>
+        <span x-text="r.beneficio_tras_ads != null ? 'margen real − gasto en ads' : 'necesita coste en ≥ 95 % de los pedidos'"></span></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;align-items:start;">
+      <div class="card" style="min-width:0;">
+        <div class="section-title">Ingresos netos por día</div>
+        <div style="overflow-x:auto;" role="img" aria-label="Ingresos netos por día">
+          <div style="display:flex;align-items:flex-end;gap:6px;height:150px;padding:0 4px;min-width:min-content;">
+            <template x-for="b in barras" :key="b.fecha">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="display:flex;align-items:flex-end;height:120px;">
+                  <div :style="'width:12px;border-radius:3px 3px 0 0;background:#22d3ee;height:' + b.h + 'px'" :title="b.fecha + ' · ' + eur(b.ingresos) + ' · ' + b.pedidos + ' pedidos'"></div>
+                </div>
+                <span style="font-size:9px;color:#4a5080;" x-text="b.fecha.slice(5)"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+        <p x-show="!r.pedidos" style="font-size:12px;color:#4a5080;margin:10px 0 0;">Todavía no hay pedidos en este periodo.</p>
+
+        <div x-show="(r.datos_que_faltan || []).length" style="margin-top:14px;">
+          <p style="font-size:10px;font-weight:700;color:#4a5080;letter-spacing:.5px;margin:0 0 6px;">DATOS QUE FALTAN</p>
+          <template x-for="h in (r.datos_que_faltan || [])" :key="h"><p style="font-size:12px;color:#fbbf24;margin:0 0 4px;" x-text="'! ' + h"></p></template>
+        </div>
+      </div>
+
+      <div class="card" style="min-width:0;overflow-x:auto;">
+        <div class="section-title">Productos que más facturan</div>
+        <table class="data-table" x-show="r.top_productos.length">
+          <thead><tr><th>Producto</th><th>Uds</th><th>Ingresos</th><th>Margen</th></tr></thead>
+          <tbody>
+            <template x-for="p in r.top_productos" :key="p.producto">
+              <tr><td x-text="p.producto"></td><td x-text="p.unidades"></td><td x-text="eur(p.ingresos)"></td>
+                  <td x-text="p.margen_pct != null ? pct(p.margen_pct) + (p.cobertura_coste < 1 ? ' (parcial)' : '') : '—'"></td></tr>
+            </template>
+          </tbody>
+        </table>
+        <p x-show="!r.top_productos.length" style="font-size:12px;color:#4a5080;margin:0;">Sin ventas en el periodo.</p>
+        <p style="font-size:11px;color:#7880b0;margin:10px 0 0;" x-text="r.productos_activos + ' productos activos · ' + r.activos_sin_ventas + ' sin ventas en el periodo'"></p>
+        <p x-show="r.paises.length" style="font-size:11px;color:#7880b0;margin:4px 0 0;" x-text="'Países: ' + r.paises.map(p => p.pais + ' (' + p.pedidos + ')').join(', ')"></p>
+
+        <template x-if="a && a.pedidos">
+          <div style="margin-top:14px;border-top:1px solid #1a1d35;padding-top:12px;">
+            <div class="section-title" style="margin-bottom:8px;">AutoDS (importado)</div>
+            <p style="font-size:12px;color:#a8b0d8;margin:0 0 4px;" x-text="a.pedidos + ' líneas · coste proveedor ' + eur(a.coste_proveedor) + (a.coste_envio != null ? ' · envío ' + eur(a.coste_envio) : '')"></p>
+            <p style="font-size:11px;color:#7880b0;margin:0;" x-text="'Estados: ' + a.estados.map(e => e.estado + ' ' + e.n).join(', ') + (a.con_tracking_pct != null ? ' · con tracking ' + pct(a.con_tracking_pct) : '')"></p>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contexto del agente -->
+  <div class="card" style="margin-top:14px;">
+    <div class="flex items-center justify-between gap-2 flex-wrap" style="margin-bottom:8px;">
+      <div class="section-title" style="margin:0;">Lo que ve el agente IA</div>
+      <a href="/agente" class="btn-ghost" style="text-decoration:none;">Abrir el agente</a>
+    </div>
+    <p style="font-size:11px;color:#7880b0;margin:0 0 8px;line-height:1.6;">Este bloque se antepone a cada pregunta del Agente IA (web y escritorio) como «CONTEXTO TIENDA». Sale solo de lo sincronizado e importado: preguntar al agente nunca llama a Shopify.</p>
+    <pre style="white-space:pre-wrap;word-break:break-word;background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;font-size:11px;line-height:1.7;color:#a8b0d8;margin:0;max-height:300px;overflow:auto;" x-text="ctx || '—'"></pre>
+  </div>
+</div>
+
+<style>
+.kpi { background: #0d0f1f; border: 1px solid #1a1d35; border-radius: 10px; padding: 14px; }
+.kpi p { font-size: 10px; color: #7880b0; margin: 0 0 4px; }
+.kpi strong { display: block; font-size: 22px; font-family: 'Space Grotesk', sans-serif; color: #e8ecff; }
+.kpi span { font-size: 10px; color: #4a5080; }
+code { background: #111328; border: 1px solid #252844; border-radius: 4px; padding: 0 4px; font-size: 11px; color: #c8d0f0; }
+</style>
+
+<script>
+function tienda() {
+  return {
+    dias: 30, r: null, a: null, ctx: '', error: '',
+    shopify: { configurada: false, faltan: [] }, autodsEst: {}, sync: {},
+    prueba: null, probando: false, archivo: null, vista: null, cargando: false, importando: false,
+    imp: { tipo: 'auto', coste_por_unidad: false, formato_fecha: 'auto' },
+    _timer: null,
+    get toast() { return Alpine.store('toast'); },
+    get moneda() { return (this.r && this.r.moneda) || ''; },
+    eur(n) { return n == null ? '—' : Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (this.moneda ? ' ' + this.moneda : ''); },
+    pct(x) { return x == null ? '—' : (x * 100).toFixed(1).replace('.', ',') + ' %'; },
+    color(e) { return { RENTABLE: '#34d399', AJUSTADO: '#fbbf24', PERDIDA: '#fb7185', SANGRADO: '#fb7185' }[e] || '#e8ecff'; },
+    hace(iso) {
+      if (!iso) return '—';
+      const t = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z');
+      const h = (Date.now() - t.getTime()) / 3600000;
+      return h < 1 ? 'hace ' + Math.max(1, Math.round(h * 60)) + ' min' : h < 48 ? 'hace ' + Math.round(h) + ' h' : t.toLocaleDateString('es-ES');
+    },
+    get barras() {
+      const s = (this.r && this.r.serie) || [];
+      const max = Math.max(1, ...s.map(d => d.ingresos));
+      return s.map(d => ({ ...d, h: Math.round(d.ingresos / max * 115) }));
+    },
+    ejemplo() {
+      const e = this.vista && this.vista.ejemplo; if (!e) return '';
+      if (this.vista.tipo === 'productos') return (e.titulo || e.sku) + ' · coste ' + e.coste + ' · precio ' + (e.precio_venta ?? '—') + ' · stock ' + (e.stock ?? '—');
+      return 'Pedido ' + (e.pedido_tienda || '(sin nº)') + ' · ' + e.fecha + ' · ' + e.cantidad + ' ud · ' + (e.titulo || e.sku) +
+        ' · coste de producto TOTAL ' + e.coste_proveedor + ' · envío ' + (e.coste_envio ?? '—') + ' · venta ' + (e.precio_venta ?? '—');
+    },
+    async mensaje(r, d) { try { const j = await r.json(); return typeof j.detail === 'string' ? j.detail : d; } catch (e) { return d; } },
+    async init() { await this.estado(); await this.cargar(); },
+    async estado() {
+      try {
+        const r = await fetch('/api/tienda/estado');
+        if (!r.ok) throw new Error(await this.mensaje(r, 'Error ' + r.status));
+        const d = await r.json();
+        this.shopify = d.shopify; this.autodsEst = d.autods; this.sync = d.sync || {};
+        if (this.sync.corriendo && !this._timer) this._timer = setInterval(() => this.vigilar(), 2000);
+      } catch (e) { this.error = 'No se pudo leer el estado de la tienda: ' + e.message; }
+    },
+    async vigilar() {
+      await this.estado();
+      if (!this.sync.corriendo) {
+        clearInterval(this._timer); this._timer = null;
+        if (this.sync.error) this.toast.error(this.sync.error); else if (this.sync.resultado) this.toast.ok('Shopify sincronizado');
+        await this.cargar();
+      }
+    },
+    async cargar() {
+      try {
+        const [res, ctx] = await Promise.all([fetch('/api/tienda/resumen?dias=' + this.dias), fetch('/api/tienda/contexto?dias=' + this.dias)]);
+        if (!res.ok) throw new Error(await this.mensaje(res, 'Error ' + res.status));
+        const d = await res.json(); this.r = d.tienda; this.a = d.autods;
+        if (ctx.ok) this.ctx = (await ctx.json()).texto;
+        this.error = '';
+      } catch (e) { this.error = 'No se pudieron cargar las estadísticas: ' + e.message; }
+    },
+    async probar() {
+      this.probando = true; this.prueba = null;
+      try { const r = await fetch('/api/tienda/probar', { method: 'POST' }); this.prueba = await r.json(); }
+      catch (e) { this.prueba = { ok: false, mensaje: 'No se pudo hacer la prueba: ' + e.message }; }
+      this.probando = false;
+    },
+    async sincronizar(dias) {
+      const r = await fetch('/api/tienda/sincronizar?dias=' + dias, { method: 'POST' });
+      if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo iniciar la sincronización.')); return; }
+      this.sync = { corriendo: true, mensaje: 'Iniciando…' };
+      if (!this._timer) this._timer = setInterval(() => this.vigilar(), 2000);
+    },
+    formulario() {
+      const f = new FormData();
+      f.append('archivo', this.archivo); f.append('tipo', this.imp.tipo);
+      f.append('coste_por_unidad', this.imp.coste_por_unidad ? 'true' : 'false'); f.append('formato_fecha', this.imp.formato_fecha);
+      return f;
+    },
+    async previsualizar() {
+      if (!this.archivo) return;
+      this.cargando = true; this.vista = null;
+      try {
+        const r = await fetch('/api/tienda/autods/previsualizar', { method: 'POST', body: this.formulario() });
+        if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo leer el archivo.')); }
+        else this.vista = await r.json();
+      } catch (e) { this.toast.error('No se pudo leer el archivo: ' + e.message); }
+      this.cargando = false;
+    },
+    async importar() {
+      this.importando = true;
+      try {
+        const r = await fetch('/api/tienda/autods/importar', { method: 'POST', body: this.formulario() });
+        if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo importar.')); }
+        else {
+          const d = await r.json();
+          this.toast.ok(d.duplicado ? d.mensaje : 'Importadas ' + d.nuevas + ' filas nuevas (' + d.actualizadas + ' actualizadas)');
+          this.vista = null; this.archivo = null; document.getElementById('ad-file').value = '';
+          await this.estado(); await this.cargar();
+        }
+      } catch (e) { this.toast.error('No se pudo importar: ' + e.message); }
+      this.importando = false;
+    },
+  };
+}
+</script>
+{% endblock %}
