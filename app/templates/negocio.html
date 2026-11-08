@@ -101,6 +101,100 @@
     </div>
   </div>
 
+  <!-- Importar CSV de Meta / Shopify -->
+  <section class="card" style="margin-top:14px;" aria-labelledby="imp-titulo">
+    <h2 id="imp-titulo" class="section-title">Importar métricas desde CSV</h2>
+    <p style="font-size:12px;color:#7880b0;margin:0 0 12px;line-height:1.55;">
+      <strong style="color:#a8b0d8;">Meta Ads Manager</strong> aporta el gasto (exporta con desglose por <em>Día</em>);
+      <strong style="color:#a8b0d8;">Shopify Analytics</strong> aporta los ingresos y pedidos reales. Importa los dos y el ROAS sale de
+      ingresos reales ÷ gasto, no del que declara Meta. Primero verás una vista previa: no se guarda nada hasta que confirmes.
+    </p>
+
+    <div class="g-resp" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;align-items:end;">
+      <div @dragover.prevent="imp.arrastrando = true" @dragleave="imp.arrastrando = false" @drop.prevent="soltar($event)"
+           :style="'border:1px dashed ' + (imp.arrastrando ? '#22d3ee' : '#252844') + ';border-radius:10px;padding:10px 12px;background:#08091a;'">
+        <label class="form-label" for="imp-file">Archivo CSV (Meta o Shopify)</label>
+        <input id="imp-file" x-ref="csv" type="file" accept=".csv,text/csv" @change="elegirArchivo($event)" style="font-size:12px;color:#a8b0d8;width:100%;">
+      </div>
+      <div><label class="form-label" for="imp-prod">Producto</label>
+        <select id="imp-prod" x-model="imp.producto_id" @change="previsualizar()" class="input-field">
+          <option value="">Toda la tienda</option>
+          <template x-for="p in productos" :key="p.id"><option :value="p.id" x-text="p.nombre"></option></template>
+        </select></div>
+      <div><label class="form-label" for="imp-plat">Origen</label>
+        <select id="imp-plat" x-model="imp.plataforma" @change="previsualizar()" class="input-field">
+          <option value="auto">Detectar solo</option><option value="meta">Meta Ads</option><option value="shopify">Shopify</option>
+        </select></div>
+    </div>
+
+    <p x-show="imp.cargando" x-cloak role="status" style="font-size:12px;color:#7880b0;margin:12px 0 0;">Leyendo el archivo…</p>
+    <p x-show="imp.error" x-cloak role="alert" style="font-size:12px;color:#fb7185;margin:12px 0 0;" x-text="imp.error"></p>
+
+    <div x-show="imp.prev" x-cloak style="margin-top:14px;">
+      <div class="flex gap-2 flex-wrap items-center" style="margin-bottom:10px;">
+        <span class="badge badge-info" x-text="imp.prev?.plataforma === 'meta' ? 'Meta Ads' : 'Shopify'"></span>
+        <span style="font-size:12px;color:#a8b0d8;">
+          <strong x-text="imp.prev?.dias.length"></strong> días ·
+          <strong x-text="imp.prev?.nuevos"></strong> nuevos · <strong x-text="imp.prev?.actualizados"></strong> se actualizan
+          <template x-if="imp.prev?.plataforma === 'meta'"><span> · gasto total <strong x-text="imp.prev?.totales?.gasto_ads"></strong></span></template>
+          <template x-if="imp.prev?.plataforma === 'shopify'"><span> · ingresos <strong x-text="imp.prev?.totales?.ingresos"></strong> · <strong x-text="imp.prev?.totales?.pedidos"></strong> pedidos</span></template>
+          <template x-if="imp.prev?.moneda"><span> · importes en <strong x-text="imp.prev?.moneda"></strong> (no se convierte la divisa)</span></template>
+        </span>
+      </div>
+
+      <!-- Campañas (solo Meta) -->
+      <fieldset x-show="imp.prev?.plataforma === 'meta' && imp.prev?.campanas.length > 1" x-cloak style="border:1px solid #1a1d35;border-radius:10px;padding:10px 12px;margin:0 0 12px;">
+        <legend style="font-size:11px;color:#7880b0;padding:0 6px;">Campañas a importar (elige las de este producto)</legend>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px;">
+          <template x-for="c in (imp.prev?.campanas || [])" :key="c.nombre">
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#c8d0f0;cursor:pointer;">
+              <input type="checkbox" :checked="imp.sel.includes(c.nombre)" @change="alternarCampana(c.nombre)" style="accent-color:#22d3ee;">
+              <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" :title="c.nombre" x-text="c.nombre"></span>
+              <span style="margin-left:auto;color:#7880b0;" x-text="c.gasto"></span>
+            </label>
+          </template>
+        </div>
+      </fieldset>
+
+      <!-- Opciones -->
+      <div class="flex gap-4 flex-wrap" style="margin-bottom:12px;">
+        <label x-show="imp.prev?.plataforma === 'meta' && imp.prev?.tiene_declarado_meta" x-cloak style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#a8b0d8;cursor:pointer;max-width:460px;">
+          <input type="checkbox" x-model="imp.usarMeta" @change="previsualizar()" style="accent-color:#22d3ee;margin-top:2px;">
+          <span>Importar también las compras y el valor <em>declarados por Meta</em> (no son los reales; úsalo solo si no importas Shopify).</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#a8b0d8;cursor:pointer;max-width:460px;">
+          <input type="checkbox" x-model="imp.estimar" @change="previsualizar()" style="accent-color:#22d3ee;margin-top:2px;">
+          <span>Estimar el coste pagado al proveedor = pedidos × coste landed del producto (necesita elegir un producto con costes; nunca pisa lo que hayas tecleado).</span>
+        </label>
+      </div>
+
+      <div style="overflow-x:auto;max-height:260px;overflow-y:auto;border:1px solid #1a1d35;border-radius:10px;">
+        <table class="data-table">
+          <thead><tr><th>Fecha</th><th>Estado</th><th>Gasto</th><th>Ingresos</th><th>Pedidos</th><th>Visitas</th><th>Coste est.</th></tr></thead>
+          <tbody>
+            <template x-for="d in (imp.prev?.dias || [])" :key="d.fecha">
+              <tr><td x-text="d.fecha"></td>
+                <td><span :class="d.estado === 'nuevo' ? 'badge badge-done' : 'badge badge-pending'" x-text="d.estado === 'nuevo' ? 'Nuevo' : 'Actualiza'"></span></td>
+                <td x-text="d.gasto_ads ?? '—'"></td><td x-text="d.ingresos ?? '—'"></td><td x-text="d.pedidos ?? '—'"></td>
+                <td x-text="d.visitantes ?? '—'"></td><td x-text="d.cogs_pagado ?? '—'"></td></tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+      <template x-for="(a, i) in (imp.prev?.avisos || [])" :key="i">
+        <p style="font-size:11px;color:#fbbf24;margin:8px 0 0;line-height:1.5;" x-text="'! ' + a"></p>
+      </template>
+
+      <div class="flex gap-2 flex-wrap" style="margin-top:14px;">
+        <button type="button" class="btn-primary" :disabled="imp.guardando || !imp.prev?.dias.length" @click="importar()">
+          <span x-text="imp.guardando ? 'Importando…' : 'Importar ' + (imp.prev?.dias.length || 0) + ' días'"></span>
+        </button>
+        <button type="button" class="btn-ghost" @click="cancelarImp()">Cancelar</button>
+      </div>
+    </div>
+  </section>
+
   <!-- Escalado -->
   <div class="card" style="margin-top:14px;">
     <div class="section-title">¿Escalar una campaña?</div>
@@ -171,6 +265,8 @@ function negocio() {
     m: { fecha: hoy, producto_id: '', plataforma: 'meta', gasto_ads: 0, ingresos: 0, pedidos: 0, cogs_pagado: 0, devoluciones: null, visitantes: null, presupuesto_diario: null },
     c: { saldo_cuenta: null, liberaciones_pasarela: 0, pagos_proveedor_pendientes: 0 },
     esc: { id: '', res: null },
+    imp: { archivo: null, prev: null, error: '', cargando: false, guardando: false, arrastrando: false,
+           plataforma: 'auto', producto_id: '', usarMeta: false, estimar: false, sel: [] },
     ancho: 600,
     get toast() { return Alpine.store('toast'); },
     color(e) { return { SALUDABLE: '#34d399', RENTABLE: '#34d399', AJUSTADO: '#fbbf24', PRECAUCION: '#fbbf24', PERDIDA: '#fb7185', ALERTA: '#fb7185', CRITICO: '#fb7185', SANGRADO: '#fb7185' }[e] || '#e8ecff'; },
@@ -216,6 +312,65 @@ function negocio() {
       const r = await fetch('/api/negocio/metricas/' + id, { method: 'DELETE' });
       if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo borrar.')); return; }
       await this.cargar();
+    },
+    // ── Importar CSV ──
+    formImp(confirmar) {
+      const f = new FormData(), i = this.imp;
+      f.append('file', i.archivo);
+      f.append('confirmar', confirmar ? 'true' : 'false');
+      f.append('plataforma', i.plataforma);
+      f.append('producto_id', i.producto_id || '');
+      f.append('usar_ingresos_meta', i.usarMeta ? 'true' : 'false');
+      f.append('estimar_cogs', i.estimar ? 'true' : 'false');
+      const todas = i.prev && i.prev.campanas ? i.prev.campanas.map(c => c.nombre) : [];
+      if (todas.length && i.sel.length !== todas.length) f.append('campanas', JSON.stringify(i.sel));
+      return f;
+    },
+    async elegirArchivo(ev) {
+      const a = ev.target.files && ev.target.files[0];
+      if (!a) return;
+      this.imp.archivo = a; this.imp.prev = null; this.imp.sel = []; this.imp.usarMeta = false;
+      await this.previsualizar(true);
+    },
+    soltar(ev) {
+      this.imp.arrastrando = false;
+      const a = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+      if (!a) return;
+      const dt = new DataTransfer(); dt.items.add(a); this.$refs.csv.files = dt.files;
+      this.elegirArchivo({ target: this.$refs.csv });
+    },
+    async previsualizar(primera = false) {
+      if (!this.imp.archivo) return;
+      this.imp.cargando = true; this.imp.error = '';
+      try {
+        const r = await fetch('/api/negocio/importar', { method: 'POST', body: this.formImp(false) });
+        if (!r.ok) throw new Error(await this.mensaje(r, 'No se pudo leer el archivo.'));
+        const d = await r.json();
+        if (primera || !this.imp.prev) this.imp.sel = (d.campanas || []).map(c => c.nombre);
+        this.imp.prev = d;
+      } catch (e) { this.imp.prev = null; this.imp.error = e.message; }
+      this.imp.cargando = false;
+    },
+    alternarCampana(n) {
+      const i = this.imp.sel.indexOf(n);
+      if (i >= 0) this.imp.sel.splice(i, 1); else this.imp.sel.push(n);
+      if (!this.imp.sel.length) { this.imp.error = 'Elige al menos una campaña.'; return; }
+      this.imp.error = ''; this.previsualizar();
+    },
+    cancelarImp() {
+      this.imp.archivo = null; this.imp.prev = null; this.imp.error = ''; this.imp.sel = [];
+      if (this.$refs.csv) this.$refs.csv.value = '';
+    },
+    async importar() {
+      this.imp.guardando = true;
+      try {
+        const r = await fetch('/api/negocio/importar', { method: 'POST', body: this.formImp(true) });
+        if (!r.ok) throw new Error(await this.mensaje(r, 'No se pudo importar.'));
+        const d = await r.json();
+        this.toast.ok('Importados ' + d.dias + ' días (' + d.nuevos + ' nuevos, ' + d.actualizados + ' actualizados).');
+        this.cancelarImp(); await this.cargar();
+      } catch (e) { this.imp.error = e.message; this.toast.error(e.message); }
+      this.imp.guardando = false;
     },
     async evaluar() {
       if (!this.esc.id) { this.esc.res = null; return; }
