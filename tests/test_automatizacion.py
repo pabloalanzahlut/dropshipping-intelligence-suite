@@ -92,7 +92,6 @@ class AlertasTests(Base):
         self.assertEqual(self.claves()["caja_critica"]["vista_at"], None)     # vuelve como «no vista»
 
     def test_producto_que_toca_cortar(self):
-        base = Base.setUp  # noqa: F841 (mismo fixture)
         p = pc.crear(self.db, {"nombre": "Pelota", "costo_origen": 5, "costo_envio": 2, "pvp": 15})
         with sqlite3.connect(self.db) as conn:
             conn.execute("UPDATE productos SET estado = 'tienda' WHERE id = ?", (p["id"],))
@@ -141,7 +140,8 @@ class ResumenTests(Base):
         self.assertIn("no hay métricas registradas", texto)
         self.assertIn("Caja: sin registrar", texto)
         self.assertIn("catálogo está vacío", texto)
-        self.assertEqual(r["prioridades"][0]["nivel"], "info")
+        self.assertNotIn("critico", {p["nivel"] for p in r["prioridades"]})     # nada urgente inventado
+        self.assertTrue(any("primer producto" in p["texto"] for p in r["prioridades"]))
 
     def test_con_datos_calcula_ayer_y_prioriza_lo_critico(self):
         ayer = (date.today() - timedelta(days=1)).isoformat()
