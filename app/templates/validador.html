@@ -57,6 +57,17 @@
           </div>
         </div>
         <div>
+          <label class="form-label" for="v-envio">
+            Envío del proveedor (USD)
+            <span style="color:#4a5080;font-weight:400;"> — el multiplicador se mide sobre producto + envío</span>
+          </label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#4a5080;font-size:13px;">$</span>
+            <input id="v-envio" x-model.number="form.costo_envio" type="number" step="0.01" min="0"
+                   class="input-field" style="padding-left:22px;" placeholder="2.00">
+          </div>
+        </div>
+        <div>
           <label class="form-label">
             PVP Sugerido (USD)
             <span style="color:#4a5080;font-weight:400;"> — opcional, usa x3 si vacío</span>
@@ -122,8 +133,8 @@
         <!-- Metric grid -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
           <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
-            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Costo Origen</p>
-            <p style="font-size:16px;font-weight:700;color:#e8ecff;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="'$' + (result?.costo_origen?.toFixed(2) || '—')"></p>
+            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Coste landed (producto + envío)</p>
+            <p style="font-size:16px;font-weight:700;color:#e8ecff;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="'$' + (result?.costo_landed?.toFixed(2) || '—')"></p>
           </div>
           <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
             <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">PVP calculado</p>
@@ -140,6 +151,32 @@
             <p style="font-size:16px;font-weight:700;color:#a8b0d8;margin:0;font-family:'Space Grotesk',sans-serif;"
                x-text="result?.margen_bruto !== undefined ? result.margen_bruto.toFixed(1) + '%' : '—'"></p>
           </div>
+          <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
+            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Margen neto / unidad</p>
+            <p style="font-size:16px;font-weight:700;margin:0;font-family:'Space Grotesk',sans-serif;"
+               :style="result?.margen_neto_unidad > 0 ? 'color:#34d399' : 'color:#fb7185'"
+               x-text="result?.margen_neto_unidad !== undefined ? '$' + result.margen_neto_unidad.toFixed(2) + ' (' + result.margen_neto_pct.toFixed(1) + '%)' : '—'"></p>
+          </div>
+          <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
+            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Fees 4,0 % + cancelaciones 10,1 %</p>
+            <p style="font-size:16px;font-weight:700;color:#a8b0d8;margin:0;font-family:'Space Grotesk',sans-serif;"
+               x-text="result?.detalles ? '$' + (result.detalles.coste_fees_shopify_divisa + result.detalles.coste_cancelaciones).toFixed(2) : '—'"></p>
+          </div>
+          <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;grid-column:1/-1;">
+            <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">PVP mínimo (x2) · PVP objetivo (x3)</p>
+            <p style="font-size:14px;font-weight:700;color:#e8ecff;margin:0;font-family:'Space Grotesk',sans-serif;"
+               x-text="result?.detalles ? '$' + result.detalles.pvp_minimo_x2.toFixed(2) + '  ·  $' + result.detalles.pvp_objetivo_x3.toFixed(2) : '—'"></p>
+          </div>
+        </div>
+
+        <!-- Advertencias -->
+        <div x-show="result?.advertencias?.length" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+          <template x-for="(w, i) in (result?.advertencias || [])" :key="i">
+            <div style="display:flex;gap:8px;padding:8px 10px;background:rgba(245,158,11,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:7px;">
+              <span style="color:#fbbf24;font-size:12px;font-weight:700;">!</span>
+              <span style="font-size:11px;color:#c8a64a;line-height:1.5;" x-text="w"></span>
+            </div>
+          </template>
         </div>
 
         <!-- Rule checks — solo lo que el curso dice -->
@@ -172,12 +209,12 @@
 <script>
 function validador() {
   return {
-    form: { sku: '', costo_origen: null, pvp_sugerido: null },
+    form: { sku: '', costo_origen: null, costo_envio: null, pvp_sugerido: null },
     result: null, error: '', loading: false,
     async validar() {
       this.loading = true; this.result = null; this.error = '';
       try {
-        const payload = { sku: this.form.sku, costo_origen: this.form.costo_origen };
+        const payload = { sku: this.form.sku, costo_origen: this.form.costo_origen, costo_envio: this.form.costo_envio || 0 };
         if (this.form.pvp_sugerido) payload.pvp_sugerido = this.form.pvp_sugerido;
         const res = await fetch('/api/validar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al validar.'; }

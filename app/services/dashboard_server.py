@@ -252,6 +252,7 @@ class ChannelIn(BaseModel):
 class ValidarIn(BaseModel):
     sku: str
     costo_origen: float
+    costo_envio: float = 0.0      # el multiplicador se mide sobre coste landed = producto + envío
     peso_kg: float = 0.0
     pvp_sugerido: Optional[float] = None
 
