@@ -1,29 +1,53 @@
 """
 FinancialValidator - Motor de Validación Financiera
-Implementa las reglas del curso de Adrián Sáenz (Q4Ykcwh5Osc):
-- Mínimo 2x: PVP >= costo_origen * 2  → RECHAZAR si no cumple  (24:40)
-- Objetivo 3x: PVP >= costo_origen * 3 → ADVERTIR si no cumple  (24:40)
-- Coste de origen $5-15               → ADVERTIR fuera de rango (17:50)
-- ROAS mínimo 2                       → ADVERTIR (métrica de campaña) (09:40)
+
+Fuente primaria: Adrián Sáenz. Solo se aplican reglas que sus contenidos dicen
+explícitamente, cada una con su referencia. No se inventa ninguna.
+
+Curso base (Q4Ykcwh5Osc):
+- Mínimo 2x: PVP >= coste_landed * 2  → RECHAZAR si no cumple  (24:40)
+- Objetivo 3x: PVP >= coste_landed * 3 → ADVERTIR si no cumple (24:40)
+- Coste de origen $5-15                → ADVERTIR fuera de rango (17:50)
+- ROAS mínimo 2                        → ADVERTIR (métrica de campaña) (09:40)
+
+Guía productos ganadores (qgK3GfY5ZC4 11:30):
+- El multiplicador se calcula sobre COSTE LANDED = producto + envío.
+  Ficha real del vídeo: $5 producto + $2 envío = $7 landed → PVP $30.
+  Calcular sobre el producto solo infla el multiplicador y aprueba
+  productos que en realidad no llegan al mínimo.
+
+P&L real de 30 días (rqMrq2MGdpw):
+- Fees Shopify + cambio de divisa: 4,0% de la facturación (3.109 € / 77.748 €)
+- Cancelaciones y devoluciones:   10,1% de la facturación (7.887 € / 77.748 €)
+  Estos dos costes no aparecen en el curso base pero sí en su P&L real, y
+  suman 14,1% que de otro modo se pierde sin quedar registrado.
 
 El curso NO fija umbral de margen (%), NO fija límite de peso en kg.
 Esos criterios NO se inventan ni se añaden.
 """
 
 import hashlib
+import logging
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 from app.database.connection import DatabaseConnection
 
+logger = logging.getLogger(__name__)
+
 
 class FinancialValidator:
     """Validador financiero con auditoría completa de productos."""
-    
+
     # Reglas del curso Adrián Sáenz (Q4Ykcwh5Osc) — solo lo que el curso dice.
     MULTIPLICADOR_MINIMO  = 2.0   # 24:40 — rechaza si no cumple
     MULTIPLICADOR_OBJETIVO = 3.0  # 24:40 — advierte si no cumple
     COSTE_MIN = 5.0               # 17:50 — advierte fuera de rango
     COSTE_MAX = 15.0              # 17:50
+
+    # Costes operativos reales del P&L de 30 días (rqMrq2MGdpw).
+    # Se descuentan del PVP para obtener el margen neto real por unidad.
+    FEES_SHOPIFY_DIVISA_PCT = 0.040   # 4,0% — pasarela + cambio de divisa
+    CANCELACIONES_PCT       = 0.101   # 10,1% — cancelaciones y devoluciones
 
     # Alias retrocompatibles (no cambian la lógica; evitan romper código existente).
     REGLA_3X_MULTIPLICADOR = MULTIPLICADOR_OBJETIVO
