@@ -1,396 +1,326 @@
-# Skill: Resolver Problemas GitHub (Auto-Alimentado)
+# Skill: GitHub Expert Agent — Resolución Automática con Memoria
 
 **ID:** `resolver_github`
-**Versión:** 1.0.0
-**Propósito:** Diagnosticar y resolver cualquier problema de GitHub (CI/CD, PRs, Dependabot, secretos, workflows, permisos) con memoria persistente de soluciones. Cada problema resuelto se ingresa automáticamente en la KB interna para acelerar futuras resoluciones.
+**Versión:** 2.0.0
+**Propósito:** Agente experto en GitHub con 30+ años de experiencia simulada. Hace relevamiento completo del repositorio, detecta todos los problemas, los almacena en KB y los resuelve automáticamente. Segunda vez que aparece el mismo patrón → resolución en < 2 min sin intervención.
 
-**Trigger:** `/resolver-github` o cuando se detecta un problema de GitHub
-**Input:** Descripción del problema + logs/screenshots opcionales
-**Output primario:** Solución aplicada + incidencia documentada en KB
-**Output secundario:** `ai_workspace/knowledge_base/github_kb.md` actualizado
-
-> **Método Xavier:** Cada resolución exitosa alimenta la KB con la firma del error,
-> la causa raíz y el fix comprobado. La segunda vez que aparezca el mismo problema,
-> se resuelve sin intervención manual.
+**Trigger:** `/resolver-github`
+**Input:** Ninguno requerido (hace relevamiento automático) | Opcional: descripción específica
+**Output:** Todos los problemas resueltos + KB actualizada + informe de estado
 
 ---
 
-## Arquitectura del Skill
+## FASE 0 — RELEVAMIENTO AUTOMÁTICO (siempre al iniciar)
+
+Antes de cualquier acción, el agente hace un scan completo del repositorio:
 
 ```
-Usuario reporta problema GitHub
-        ↓
-[FASE 0] Consultar KB ← ¿Ya vimos este patrón?
-        ├─ SÍ → Aplicar fix conocido directamente (< 2 min)
-        └─ NO → Continuar diagnóstico
-        ↓
-[FASE 1] Clasificar problema (tipo + severidad)
-        ↓
-[FASE 2] Investigar causa raíz (logs, API REST, git)
-        ↓
-[FASE 3] Aplicar solución
-        ↓
-[FASE 4] Verificar (CI verde / PR mergeado / issue cerrado)
-        ↓
-[FASE 5] INGERIR EN KB ← Siempre, exitoso o no
-        ↓
-Informe al operador
+1. Leer KB existente: ai_workspace/knowledge_base/github_kb.md
+2. Verificar CI/CD: últimas 20 runs → identificar patrones de fallo
+3. Verificar PRs abiertos: Dependabot + otros
+4. Verificar workflows: versiones, compatibilidad ubuntu-latest
+5. Verificar secretos: gitleaks scan local si es posible
+6. Verificar historial de commits: archivos sensibles
+7. Generar lista priorizada de problemas
 ```
 
----
-
-## FASE 0 — Consulta KB (Auto-resolución)
-
-Antes de cualquier diagnóstico, buscar en `ai_workspace/knowledge_base/github_kb.md` por:
-
-1. **Firma del error** — primeras 60 chars del mensaje de error normalizado
-2. **Tipo de problema** — de la clasificación de FASE 1
-3. **Contexto** — workflow/job/step/herramienta involucrada
-
-**Si hay match con confianza ≥ Alta:**
-```
-GITHUB_KB_HIT: [tipo] → Aplicando fix conocido: {descripcion_fix}
-Fuente: {incidencia_id} | Fecha: {fecha} | Éxito previo: {n} veces
-```
-→ Aplicar directamente, saltando FASES 1-3
-→ Pasar igualmente por FASE 4 (verificar) y FASE 5 (incrementar contador)
-
----
-
-## FASE 1 — Clasificación del Problema
-
-### Árbol de tipos
-
-```
-GITHUB_PROBLEM
-├── CI_FAILURE          — Workflow rojo, job fallido
-│   ├── BUILD           — Error de compilación / instalación
-│   ├── TEST            — Tests fallidos
-│   ├── LINT            — Linting / formato
-│   ├── SECRETS_SCAN    — gitleaks / secret detection
-│   └── PERMISSIONS     — Falta de permisos del token GITHUB_TOKEN
-├── DEPENDABOT
-│   ├── MERGE_CONFLICT  — PR de Dependabot en conflicto
-│   ├── CI_RED          — CI falla en rama Dependabot
-│   ├── DIRTY_PR        — PR no mergeable por estado del branch
-│   └── VERSION_NONEXISTENT — Dependabot apunta a versión inexistente en PyPI/npm
-├── PR_MANAGEMENT
-│   ├── MERGE_BLOCKED   — Branch protection no cumplida
-│   ├── REVIEW_REQUIRED — Falta review requerido
-│   ├── OUT_OF_DATE     — Rama desactualizada respecto a base
-│   └── CONFLICT        — Conflicto de merge
-├── WORKFLOW_CONFIG
-│   ├── SYNTAX_ERROR    — YAML inválido
-│   ├── ACTION_VERSION  — Action usa Node deprecated (v6→v8)
-│   ├── PATH_FILTER     — paths-filter mal configurado
-│   └── RUNNER_COMPAT   — Incompatibilidad de runner (ubuntu-24 vs 26)
-├── SECRETS_SECURITY
-│   ├── ENV_TRACKED     — .env versionado accidentalmente
-│   ├── KEY_EXPOSED     — Clave real en código/historial
-│   ├── INJECTION_RISK  — ${{ secrets.X }} en run: (anti-patrón)
-│   └── BINARY_BUNDLE   — Clave dentro de ejecutable distribuido
-└── REPO_HEALTH
-    ├── LABEL_MISSING   — Labels de triage no configurados
-    ├── BRANCH_STALE    — Ramas abandonadas
-    └── HOOK_FAILURE    — Pre-commit / post-commit hook fallido
-```
-
-### Severidad
-
-| Nivel | Criterio | Tiempo máximo de respuesta |
-|-------|----------|---------------------------|
-| CRÍTICO | Secreto expuesto / clave en historial | Inmediato — revocar antes de fix |
-| ALTO | CI roto en master / PR bloqueado | < 15 min |
-| MEDIO | Dependabot acumulado / workflow lento | < 1 hora |
-| BAJO | Labels / documentación / style | Próxima sesión |
-
----
-
-## FASE 2 — Investigación (Herramientas disponibles)
-
-### Sin gh CLI (usar API REST vía PowerShell/curl)
+### Consulta REST API — Relevamiento
 
 ```powershell
-# Listar PRs abiertos
-Invoke-RestMethod -Uri "https://api.github.com/repos/{owner}/{repo}/pulls?state=open" `
-  -Headers @{Authorization="token $env:GH_PAT"; "User-Agent"="GEM-OS"}
+$REPO = "pabloalanzahlut/dropshipping-intelligence-suite"
+$TOKEN = $env:GITHUB_TOKEN  # o usar gh auth token
 
-# Estado de CI de un commit
-Invoke-RestMethod -Uri "https://api.github.com/repos/{owner}/{repo}/commits/{sha}/check-runs" `
-  -Headers @{Authorization="token $env:GH_PAT"; "User-Agent"="GEM-OS"}
+# Últimas runs fallidas
+Invoke-RestMethod "https://api.github.com/repos/$REPO/actions/runs?status=failure&per_page=10" `
+  -Headers @{Authorization="Bearer $TOKEN"; "X-GitHub-Api-Version"="2022-11-28"} |
+  Select-Object -ExpandProperty workflow_runs |
+  Select-Object name, conclusion, created_at, head_sha
 
-# Logs de un workflow run
-Invoke-RestMethod -Uri "https://api.github.com/repos/{owner}/{repo}/actions/runs/{run_id}/logs" `
-  -Headers @{Authorization="token $env:GH_PAT"; "User-Agent"="GEM-OS"} `
-  -OutFile "$env:TEMP\logs.zip"
-```
+# PRs abiertos
+Invoke-RestMethod "https://api.github.com/repos/$REPO/pulls?state=open&per_page=20" `
+  -Headers @{Authorization="Bearer $TOKEN"; "X-GitHub-Api-Version"="2022-11-28"} |
+  Select-Object title, number, user, labels
 
-### Con gh CLI (si disponible)
-
-```bash
-gh pr list --state open
-gh run list --limit 10
-gh run view {run_id} --log
-gh api repos/{owner}/{repo}/pulls/{number}/files
-```
-
-### Diagnóstico local
-
-```bash
-# Ver qué archivos están en staging (antes de commit)
-git status --short
-git diff --staged --name-only
-
-# Verificar secretos localmente con gitleaks
-gitleaks git . --config .gitleaks.toml --redact --verbose
-
-# Ver historial de un archivo específico
-git log --oneline --follow -- path/to/file
-
-# Qué contiene el .env que NO debe estar versionado
-git ls-files | grep -E '(^|/)\.env($|\.)'
+# Alertas de seguridad (Dependabot)
+Invoke-RestMethod "https://api.github.com/repos/$REPO/dependabot/alerts?state=open&per_page=20" `
+  -Headers @{Authorization="Bearer $TOKEN"; "X-GitHub-Api-Version"="2022-11-28"} |
+  Select-Object number, state, security_advisory
 ```
 
 ---
 
-## FASE 3 — Catálogo de Fixes Conocidos
+## FASE 1 — CONSULTAR KB (< 2 min si el patrón existe)
 
-### F-001: CI roto por grep false-positive en workflow
+```
+1. Leer ai_workspace/knowledge_base/github_kb.md
+2. Buscar firma del error en la tabla de Fixes Reutilizables
+3. Si encontrado → ir directamente a FASE 4 con el fix conocido
+4. Si no encontrado → continuar a FASE 2
+```
 
-**Síntoma:** Step de validación falla porque grep encuentra el patrón dentro del propio workflow
-**Causa:** El workflow busca una clave/patrón y la encuentra en su propia definición
+**Criterios de match (en orden de prioridad):**
+- Fingerprint exacto de gitleaks (si es leak)
+- RuleID + File pattern (si es CI)
+- Mensaje de error normalizado (eliminar hashes, fechas, versiones variables)
+- Tipo de problema + workflow afectado
+
+---
+
+## FASE 2 — CLASIFICAR PROBLEMA
+
+| Tipo | Firma | Fix habitual |
+|------|-------|--------------|
+| `SECRETS_SCAN` | gitleaks exit 1, leaks found: N | Allowlist o filter-repo |
+| `DEPENDABOT_PR` | PR de dependabot abierto/dirty | Merge o bump manual |
+| `CI_FAILURE` | steps fallando en workflow | Ver step específico |
+| `WORKFLOW_CONFIG` | action deprecated, node version | Actualizar versión action |
+| `RUNNER_COMPAT` | ubuntu-latest + tool incompatible | Binario estático o fix |
+| `SECRETS_TRACKED` | archivo con credenciales en git | git rm --cached + .gitignore |
+| `HISTORY_LEAK` | secret en historial de git | git filter-repo + force push |
+| `INJECTION_RISK` | ${{ secrets.X }} en run: | Mover a env: del step |
+
+**Severidad:**
+- CRÍTICO: secretos reales en repo/historial → resolver en < 1h
+- ALTO: CI bloqueado → resolver en < 4h
+- MEDIO: PRs acumulados, deprecaciones → resolver en < 24h
+- BAJO: cosmético, buenas prácticas → resolver en próximo ciclo
+
+---
+
+## FASE 3 — INVESTIGAR CAUSA RAÍZ
+
+### Para CI_FAILURE / SECRETS_SCAN:
+```powershell
+# Obtener job ID del run fallido
+$run = Invoke-RestMethod "https://api.github.com/repos/$REPO/actions/runs?status=failure&per_page=1" `
+  -Headers @{Authorization="Bearer $TOKEN"; "X-GitHub-Api-Version"="2022-11-28"}
+$runId = $run.workflow_runs[0].id
+
+# Obtener jobs del run
+$jobs = Invoke-RestMethod "https://api.github.com/repos/$REPO/actions/runs/$runId/jobs" `
+  -Headers @{Authorization="Bearer $TOKEN"; "X-GitHub-Api-Version"="2022-11-28"}
+$jobId = $jobs.jobs[0].id
+
+# Obtener logs del job (URL pre-firmada, descargar y leer)
+$logUrl = Invoke-RestMethod "https://api.github.com/repos/$REPO/actions/jobs/$jobId/logs" `
+  -Headers @{Authorization="Bearer $TOKEN"; "X-GitHub-Api-Version"="2022-11-28"; Accept="application/vnd.github+json"}
+```
+
+### Para SECRETS_SCAN — extraer fingerpint exacto:
+Del log de gitleaks, capturar:
+- `RuleID`: el tipo de secreto detectado
+- `File`: archivo afectado
+- `Commit`: hash del commit que lo introdujo
+- `Line`: línea exacta
+- `Fingerprint`: ID único `{commit}:{file}:{rule}:{line}`
+
+---
+
+## FASE 4 — CATÁLOGO DE FIXES
+
+### F-001 | grep false-positive en CI
+**Problema:** step de scan busca patrones y encuentra su propio código
 **Fix:**
+```bash
+# Reemplazar grep por gitleaks en validate-pipeline.yml
+# Ver F-006 para instalación de gitleaks
+```
+
+### F-002 | Dependabot PR dirty / no mergeable
+**Fix:**
+```powershell
+# Cerrar PR y aplicar bump manual
+$prNumber = 4  # número del PR
+Invoke-RestMethod "https://api.github.com/repos/$REPO/pulls/$prNumber" `
+  -Method PATCH -Body '{"state":"closed"}' `
+  -Headers @{Authorization="Bearer $TOKEN"; "Content-Type"="application/json"}
+# Luego editar requirements.txt con la versión correcta
+```
+
+### F-003 | Workflow ejecuta en rama equivocada
+**Fix:**
+```bash
+git checkout master
+git merge origin/dependabot/pip/paquete
+git push origin master
+```
+
+### F-004 | actions/github-script versión deprecated (Node 16)
+**Fix en workflow YAML:**
 ```yaml
-# ANTES (problemático)
-- run: grep -r "sk-or-v1-" . && exit 1
-
-# DESPUÉS (correcto) — usar gitleaks o excluir el propio workflow
-- run: |
-    gitleaks git . --config .gitleaks.toml --redact --exit-code 1
+# Antes:
+uses: actions/github-script@v7
+# Después:
+uses: actions/github-script@v8
 ```
-**Tiempo:** 5 min | **Riesgo:** Bajo
 
----
-
-### F-002: Dependabot PR con rama "dirty" (405 en merge API)
-
-**Síntoma:** `Invoke-RestMethod` a `/merge` devuelve 405 — "Pull Request is not mergeable"
-**Causa:** La rama del PR está desactualizada o tiene conflicto
-**Fix (secuencia):**
-```bash
-# 1. Intentar update-branch vía API
-POST /repos/{owner}/{repo}/pulls/{number}/update-branch
-
-# 2. Si falla → cerrar el PR (Dependabot recreará)
-PATCH /repos/{owner}/{repo}/pulls/{number}  body: {"state":"closed"}
-
-# 3. Aplicar el bump manualmente en requirements.txt
-# 4. Push → el nuevo PR de Dependabot se cierra automáticamente
-```
-**Tiempo:** 10 min | **Riesgo:** Bajo
-
----
-
-### F-003: `pull_request` trigger ejecuta workflow del branch, no de master
-
-**Síntoma:** Se arregla el workflow en master pero el PR sigue fallando
-**Causa:** El evento `pull_request` ejecuta `.github/workflows/*.yml` del HEAD del PR, no de master
-**Fix:**
-```bash
-# Mergear master en la rama del PR para que traiga el workflow corregido
-git fetch origin master
-git checkout {branch-del-pr}
-git merge origin/master
-git push origin {branch-del-pr}
-# Ahora el PR tiene el workflow correcto y el CI se re-ejecuta
-```
-**Tiempo:** 5 min | **Riesgo:** Bajo
-
----
-
-### F-004: actions/github-script usa Node 16/18 deprecated
-
-**Síntoma:** Warning "Node.js 16 actions are deprecated" o fallo en runner nuevo
-**Fix:**
-```yaml
-# Actualizar versión
-uses: actions/github-script@v8   # Node 20+, compatible ubuntu-26
-# No usar @v9 aún salvo que sea necesario — v8 es el balance estabilidad/modernidad
-```
-**Tiempo:** 2 min | **Riesgo:** Muy bajo
-
----
-
-### F-005: gitleaks en CI — fallo por placeholder de clave en docs
-
-**Síntoma:** gitleaks detecta `sk-or-v1-TU_CLAVE_AQUI` en README como secreto real
-**Fix:** Agregar allowlist en `.gitleaks.toml`:
+### F-005 | gitleaks detecta placeholder como secreto real
+**Fix en .gitleaks.toml:**
 ```toml
 [[allowlists]]
-description = "Placeholders documentados"
+description = "Placeholders en docs y .env.example"
 regexTarget = "secret"
 regexes = [
   '''^sk-or-v1-(?:tu_clave|TU_API_KEY_AQUI|X{8,})$''',
 ]
 ```
-**Tiempo:** 3 min | **Riesgo:** Muy bajo
 
----
-
-### F-006: gitleaks incompatible con runner (ubuntu-26 / arm64)
-
-**Síntoma:** gitleaks-action falla porque requiere Node / versión de runner no soportada
-**Fix:** Usar binario estático con SHA-256 pinned:
+### F-006 | gitleaks-action incompatible ubuntu-26
+**Fix en validate-pipeline.yml:**
 ```yaml
 - name: Install gitleaks
   run: |
-    case "$(uname -m)" in
-      x86_64)  arch=x64;   sha="551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb" ;;
-      aarch64) arch=arm64; sha="e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080" ;;
-    esac
-    tarball="gitleaks_8.30.1_linux_${arch}.tar.gz"
-    curl -sSfL --retry 3 -o "$RUNNER_TEMP/$tarball" \
-      "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/${tarball}"
-    echo "${sha}  $RUNNER_TEMP/$tarball" | sha256sum -c -
-    tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" gitleaks
-    echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+    ARCH=$(uname -m); [ "$ARCH" = "x86_64" ] && ARCH="x64" || ARCH="arm64"
+    if [ "$ARCH" = "x64" ]; then
+      SHA="551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+    else
+      SHA="e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080"
+    fi
+    curl -sL "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_${ARCH}.tar.gz" -o gl.tar.gz
+    echo "$SHA  gl.tar.gz" | sha256sum -c --strict -
+    tar -xzf gl.tar.gz gitleaks
+    chmod +x gitleaks && sudo mv gitleaks /usr/local/bin/
+
+- name: Scan secrets with gitleaks (full history)
+  run: gitleaks git . --config .gitleaks.toml --redact --verbose --no-banner --exit-code 1
 ```
-**Tiempo:** 10 min | **Riesgo:** Bajo
 
----
-
-### F-007: secrets interpolados directamente en `run:` (injection risk)
-
-**Síntoma:** `${{ secrets.TOKEN }}` aparece en bloque `run:` de un workflow
-**Causa:** Anti-patrón — el valor del secreto puede ser inyectado si se controla el input
+### F-007 | ${{ secrets.X }} interpolado en run: (injection risk)
 **Fix:**
 ```yaml
-# ANTES (vulnerable)
-- run: curl -H "Authorization: ${{ secrets.TOKEN }}" https://api.example.com
-
-# DESPUÉS (seguro)
-- run: curl -H "Authorization: $MY_TOKEN" https://api.example.com
+- name: Check secrets configured
   env:
-    MY_TOKEN: ${{ secrets.TOKEN }}
+    _SECRET_VAR: ${{ secrets.MY_SECRET }}
+  run: |
+    if [ -z "$_SECRET_VAR" ]; then echo "⚠️ no configurado"; fi
 ```
-**Tiempo:** 5 min por step | **Riesgo:** Bajo (fix preventivo)
 
----
-
-### F-008: Versión de dependencia inexistente en PyPI
-
-**Síntoma:** `pip install yt-dlp==2024.10.23` falla con "No matching distribution found"
+### F-008 | Versión de paquete inexistente en PyPI
 **Fix:**
 ```bash
-# Verificar versiones disponibles
-pip index versions yt-dlp 2>/dev/null | head -3
-# Usar la última estable o la más cercana disponible
-# Actualizar requirements.txt con versión verificada
+pip index versions <paquete>  # listar versiones disponibles
+# Actualizar requirements.txt con versión real
 ```
-**Tiempo:** 3 min | **Riesgo:** Bajo
+
+### F-009 | Cookies de sesión versionadas en git (archivo actual)
+**Fix:**
+```bash
+git rm --cached <archivo_cookies>
+echo "*cookies*.json" >> .gitignore
+echo "**/cookies*.json" >> .gitignore
+git commit -m "security: remove session cookies from tracking"
+```
+
+### F-010 | Playwright MCP recordings en git
+**Fix:**
+```bash
+git rm -r --cached .playwright-mcp/
+echo ".playwright-mcp/" >> .gitignore
+git commit -m "security: remove playwright recordings from tracking"
+```
+
+### F-011 | Secret en HISTORIAL de git (CRÍTICO)
+**Fix — purgar del historial:**
+```bash
+# Instalar git-filter-repo si no está
+pip install git-filter-repo
+
+# Eliminar archivo del historial completo
+git filter-repo --path <archivo_con_secret> --invert-paths --force
+
+# Re-añadir remote (filter-repo lo elimina)
+git remote add origin https://github.com/<owner>/<repo>.git
+
+# Force push (necesario porque reescribe historia)
+git push --force origin master
+```
+**⚠️ Avisar al operador:** force-push invalida los clones locales de colaboradores.
+**⚠️ Revocar el secret comprometido** aunque se elimine del historial.
+
+### F-012 | Allowlist de commits históricos en gitleaks
+**Fix alternativo a filter-repo (cuando no se puede force-push):**
+```toml
+# Añadir a .gitleaks.toml:
+[[allowlists]]
+description = "Commits históricos con credenciales ya removidas"
+commits = [
+  "hash_completo_del_commit",
+]
+```
+**Preferir F-011 (filter-repo)** cuando sea posible — elimina el dato real.
+**Usar F-012** solo cuando filter-repo no es viable (repo con muchos forks, CI-only, etc.).
 
 ---
 
-## FASE 4 — Verificación
+## FASE 5 — DOCUMENTAR EN KB (siempre al resolver)
 
-Criterios de éxito por tipo:
-
-| Tipo | Criterio de éxito |
-|------|------------------|
-| CI_FAILURE | Run verde en GitHub Actions (status: completed / conclusion: success) |
-| DEPENDABOT | PR mergeado o cerrado + no reaparece en lista |
-| PR_MANAGEMENT | PR en estado "merged" o "closed" según corresponda |
-| WORKFLOW_CONFIG | Workflow ejecuta todos los steps sin error |
-| SECRETS_SECURITY | gitleaks scan: "no leaks found" + .env no en `git ls-files` |
-| REPO_HEALTH | Labels presentes / ramas limpias |
-
-**No reportar éxito hasta verificar con una llamada real a la API o ver el CI verde.**
-
----
-
-## FASE 5 — Ingestión en KB (Auto-alimentación)
-
-**Obligatorio tras cada resolución, exitosa o fallida.**
-
-### Estructura del registro
+Formato obligatorio para nueva incidencia en `ai_workspace/knowledge_base/github_kb.md`:
 
 ```markdown
 ## INC-{YYYYMMDD}-{NNN} | {TIPO} | {SEVERIDAD}
 
 **Fecha:** {fecha}
-**Repositorio:** {owner}/{repo}
-**Firma del error:** {primeras 80 chars del mensaje normalizado}
-**Causa raíz:** {explicación técnica en 1-2 frases}
-**Fix aplicado:** {referencia a F-XXX o descripción nueva}
-**Resultado:** ✅ RESUELTO | ❌ FALLIDO | ⚠️ WORKAROUND
-**Tiempo total:** {minutos}
-**Veces visto:** {n} (incrementar si era KB_HIT)
-**Tags:** [{tipo}, {herramienta}, {runner_si_aplica}]
-**Notas:** {cualquier detalle que acelere la próxima resolución}
+**Repositorio:** {owner/repo}
+**Firma del error:** `{mensaje normalizado sin hashes ni fechas variables}`
+**Causa raíz:** {explicación técnica}
+**Fix aplicado:** F-{NNN} — {descripción del fix}
+**Resultado:** ✅ RESUELTO | ⚠️ WORKAROUND | ❌ BLOQUEADO
+**Tiempo total:** {N} min
+**Veces visto:** {N}
+**Tags:** [{TIPO}, {subtipo}, {herramienta}]
+**Notas:** {contexto adicional, comandos exactos usados, advertencias}
 ```
 
-### Destino
-
-Agregar al final de `ai_workspace/knowledge_base/github_kb.md` (crear si no existe).
-
-### Deduplicación
-
-- Si la **firma del error** ya existe en la KB → NO crear nuevo registro, incrementar `Veces visto` del existente y actualizar `Notas` si hay información nueva.
-- Normalización de firma: lowercase + eliminar números de línea/commit/sha + trim
+**Actualizar también** la tabla de Fixes Reutilizables:
+- Si es fix nuevo → añadir fila F-{NNN}
+- Si es fix conocido → incrementar `Veces visto`
 
 ---
 
-## Reglas de Comportamiento del Agente
-
-1. **NUNCA** reportar éxito sin haber verificado (FASE 4)
-2. **SIEMPRE** ingerir en KB aunque el fix falle — el fracaso también es conocimiento
-3. **Si hay secreto expuesto** → FASE 3 F-007 o equivalente + avisar al operador para revocar clave ANTES de continuar con cualquier otro fix
-4. **Si no hay PAT disponible** → pedir al operador antes de intentar acciones sobre la API de GitHub
-5. **Preferir API REST** sobre `gh` CLI (el CLI puede no estar instalado en el runner)
-6. **No cerrar PRs de Dependabot** sin intentar primero el merge o update-branch — cerrar hace que Dependabot ignore esa versión
-
----
-
-## Output esperado al operador
+## FASE 6 — VERIFICACIÓN POST-FIX
 
 ```
-GITHUB_RESOLVER — {TIPO} | Severidad: {nivel}
+1. Trigger manual del workflow en GitHub Actions (workflow_dispatch)
+2. Esperar resultado (máx 5 min para Validate GEM OS Pipeline)
+3. Si VERDE ✅ → documentar resolución en KB + cerrar ciclo
+4. Si ROJO ❌ → volver a FASE 2 con nueva información
+5. Si NUEVO error diferente → abrir nuevo ciclo desde FASE 0
+```
 
-📋 Problema detectado:
-   {descripción clara en 1-2 frases}
-
-🔍 Causa raíz:
-   {causa técnica verificada}
-
-🔧 Fix aplicado:
-   {qué se hizo exactamente}
-
-✅ Verificación:
-   {evidencia — URL de run, status de PR, output de gitleaks}
-
-📚 KB actualizada:
-   INC-{id} registrado en github_kb.md
-   {si era KB_HIT: "Resuelto en X min con fix conocido (F-XXX)"}
-
-⚠️ Avisos pendientes (si aplica):
-   {PAT a revocar / secreto en dist/ / anti-patrón encontrado}
+**Trigger manual via REST:**
+```powershell
+Invoke-RestMethod "https://api.github.com/repos/$REPO/actions/workflows/validate-pipeline.yml/dispatches" `
+  -Method POST -Body '{"ref":"master"}' `
+  -Headers @{Authorization="Bearer $TOKEN"; "Content-Type"="application/json"; "X-GitHub-Api-Version"="2022-11-28"}
 ```
 
 ---
 
-## Integración con el Pipeline GEM OS
+## REGLAS DEL AGENTE
 
-```
-/resolver-github
-        ↓
-resolver_github (este skill)
-        ↓
-[FASE 5] → github_kb.md
-        ↓
-/consultar-kb → AgentExecutor puede consultar incidencias GitHub
-                (tabla operations_traffic ← "operations" incluye CI/CD)
-```
+1. **Nunca asumir** — siempre verificar con logs reales antes de aplicar fix
+2. **Nunca forzar sin confirmar** — force-push y filter-repo requieren confirmación del operador
+3. **Siempre documentar** — cada problema resuelto va a la KB, sin excepción
+4. **Priorizar seguridad** — secrets CRÍTICO > CI bloqueado ALTO > PRs MEDIO
+5. **Mínimo 2 veces visto** para considerar patrón "conocido" y resolver automáticamente
+6. **Revocar siempre** — si un secret estuvo expuesto, avisar al operador para revocarlo
+7. **No escalar sin intentar** — consultar KB antes de pedir intervención humana
 
-Los registros de GitHub también pueden ingresarse en `operations_traffic` de SQLite
-usando el campo `logistics_notes` para la descripción del fix, permitiendo consultas
-cruzadas desde el agente interno.
+---
+
+## ESTADO ACTUAL DEL REPOSITORIO (actualizado 2026-11-08)
+
+| Problema | Estado | Fix |
+|----------|--------|-----|
+| `google_credentials.json` en historial | ✅ RESUELTO | filter-repo (F-011) |
+| `skool_cookies.json` JWT en historial | 🔴 PENDIENTE | filter-repo (F-011) — commit `4cc65c15` |
+| gitleaks CI scanner | ✅ Operativo | F-006 (binario estático v8.30.1) |
+| F-007 en auto-sync.yml | ✅ RESUELTO | env: isolation |
+| .gitignore para cookies/playwright | ✅ Completo | F-009 + F-010 |
+
+**Acción pendiente del operador:**
+```bash
+git filter-repo --path ai_workspace/scripts/skool_cookies.json --invert-paths --force
+git remote add origin https://github.com/pabloalanzahlut/dropshipping-intelligence-suite.git
+git push --force origin master
+```
