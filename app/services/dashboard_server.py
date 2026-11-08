@@ -468,6 +468,102 @@ def _get_kb_insights_combined(limit: int = 50) -> List[Dict[str, Any]]:
     return rows[:limit]
 
 
+_STOPWORDS_BUSQUEDA = {
+    "que", "cual", "cuales", "como", "cuando", "donde", "quien", "para", "por", "con", "sin", "sobre",
+    "entre", "desde", "hasta", "esta", "este", "esto", "estos", "estas", "tiene", "tienen", "hay",
+    "ser", "son", "una", "uno", "unos", "unas", "los", "las", "del", "mas", "menos", "muy", "mejor",
+    "mejores", "dame", "dime", "dices", "menciona", "mencionan", "base", "conocimiento", "kb",
+    "registradas", "registrados", "sobre", "segun", "cada", "todo", "todos", "algun", "alguna",
+    "puedo", "debo", "quiero", "necesito", "ultimas", "ultimos", "resumen",
+}
+
+# Qué tipo de insight conviene priorizar según el tipo de pregunta (agent_router)
+_TIPO_PREFERIDO = {
+    "producto": "product_trends", "estrategia": "conversion_formulas",
+    "operaciones": "operations_traffic", "metricas": None, "lecciones": None,
+    "validacion": None, "tecnico": None, "general": None,
+}
+
+
+def _terminos_busqueda(pregunta: str) -> List[str]:
+    """Palabras útiles de la pregunta (sin tildes, sin palabras vacías, de 4+ letras)."""
+    texto = agent_router._normalizar(pregunta)
+    vistos: List[str] = []
+    for p in re.findall(r"[a-z0-9]{4,}", texto):
+        if p not in _STOPWORDS_BUSQUEDA and p not in vistos:
+            vistos.append(p)
+    return vistos[:10]
+
+
+def _insights_relevantes(pregunta: str, tipo_pregunta: str = "general",
+                         limite: int = 24) -> List[Dict[str, Any]]:
+    """Los insights de la KB que más se parecen a la pregunta (no los 30 últimos).
+
+    Se buscan las palabras de la pregunta en título, nicho, contenido, vídeo y canal; cada
+    coincidencia suma puntos (título y nicho pesan más). Si no hay palabras útiles o nada
+    coincide, se devuelve una muestra equilibrada de las 3 tablas."""
+    terminos = _terminos_busqueda(pregunta)
+    if not terminos:
+        return _get_kb_insights_combined(limite)
+    candidatos: Dict[Any, Dict[str, Any]] = {}
+    for t in terminos:
+        res = _query_insights(buscar=t, limite=120, preview_chars=420)
+        for it in res["items"]:
+            candidatos.setdefault((it["source_table"], it["id"]), it)
+    if not candidatos:
+        return _get_kb_insights_combined(limite)
+
+    preferido = _TIPO_PREFERIDO.get(tipo_pregunta)
+
+    def puntos(it: Dict[str, Any]) -> float:
+        campos = (
+            (3.0, agent_router._normalizar(it.get("titulo") or "")),
+            (2.0, agent_router._normalizar(it.get("subtitulo") or "")),
+            (1.0, agent_router._normalizar(it.get("content_preview") or "")),
+            (1.0, agent_router._normalizar(it.get("video_title") or "")),
+            (0.5, agent_router._normalizar(it.get("channel_name") or "")),
+        )
+        total = sum(peso for peso, texto in campos for t in terminos if t in texto)
+        return total + (1.5 if preferido and it["source_table"] == preferido else 0.0)
+
+    ordenados = sorted(candidatos.values(), key=puntos, reverse=True)
+    return ordenados[:limite]
+
+
+def _contexto_kb_para(pregunta: str, tipo_pregunta: str = "general", limite: int = 24):
+    """(texto de contexto numerado, lista de fuentes) para inyectar al agente."""
+    filas = _insights_relevantes(pregunta, tipo_pregunta, limite)
+    if not filas:
+        return ("(Base de conocimiento vacía — realiza ingesta de videos YouTube primero.)", [])
+    fuentes, lineas = [], []
+    for n, r in enumerate(filas, 1):
+        url = f"https://www.youtube.com/watch?v={r['video_id']}" if r.get("video_id") else ""
+        fuentes.append({
+            "n": n, "tipo": r.get("source_table"), "titulo": r.get("titulo") or "(sin título)",
+            "video_title": r.get("video_title") or "", "canal": r.get("channel_name") or "?", "url": url,
+        })
+        lineas.append(
+            f"[{n}] ({r.get('source_table')}) {r.get('titulo') or '(sin título)'} — "
+            f"vídeo «{r.get('video_title') or '?'}» | canal: {r.get('channel_name') or '?'} | {url}\n"
+            f"{(r.get('content_preview') or '').strip()}"
+        )
+    return "\n\n".join(lineas), fuentes
+
+
+def _fuentes_citadas(respuesta: str, fuentes: List[Dict[str, Any]], minimo: int = 4) -> List[Dict[str, Any]]:
+    """Fuentes que el agente citó con [n]; si no citó ninguna, las más relevantes."""
+    citadas = {int(n) for n in re.findall(r"\[(\d{1,2})\]", respuesta or "")}
+    elegidas = [f for f in fuentes if f["n"] in citadas]
+    return elegidas or fuentes[:minimo]
+
+
+_INSTRUCCION_FUENTES = (
+    "Responde SOLO con lo que aparece en el CONTEXTO KB. Cita cada dato con su número entre "
+    "corchetes, por ejemplo [3], y menciona el canal de origen. Si el contexto no tiene la "
+    "respuesta, dilo en vez de inventar."
+)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # PESTAÑAS WEB (Fase 3 — Jinja2 Templates)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -809,15 +905,18 @@ async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "aut
             ruta = agent_router.elegir_agente(pregunta, agente)
             yield f"data: {json.dumps({'route': ruta}, ensure_ascii=False)}\n\n"
             executor = AgentExecutor()
-            kb_context = _build_kb_context(30)
+            loop = asyncio.get_running_loop()
+            # Los insights MÁS RELEVANTES para esta pregunta (no los 30 últimos)
+            kb_context, fuentes = await loop.run_in_executor(
+                None, lambda: _contexto_kb_para(pregunta, ruta["tipo"]))
             pregunta_enriquecida = (
-                f"CONTEXTO KB (últimos insights del sistema):\n"
+                f"CONTEXTO KB (insights más relevantes, numerados):\n"
                 f"---\n{kb_context}\n---\n\n"
+                f"{_INSTRUCCION_FUENTES}\n"
                 f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}\n"
                 f"PREGUNTA DEL OPERADOR:\n{pregunta}"
             )
             # Ejecutar en hilo (es síncrono) y emitir por chunks
-            loop = asyncio.get_running_loop()
             resultado = await loop.run_in_executor(
                 None,
                 lambda: executor.execute_agent_task(
@@ -836,7 +935,7 @@ async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "aut
                 chunk = resultado[i:i + chunk_size]
                 yield f"data: {json.dumps({'token': chunk}, ensure_ascii=False)}\n\n"
                 await asyncio.sleep(0.015)
-            yield f"data: {json.dumps({'done': True, 'raw': resultado, 'route': ruta}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'done': True, 'raw': resultado, 'route': ruta, 'fuentes': _fuentes_citadas(resultado, fuentes)}, ensure_ascii=False)}\n\n"
         except Exception as exc:
             yield f"data: {json.dumps({'error': str(exc)})}\n\n"
 
@@ -1113,10 +1212,11 @@ async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
         from app.agents_engine.executor import AgentExecutor
         ruta = agent_router.elegir_agente(data.pregunta, data.agente)
         executor = AgentExecutor()
-        kb_context = _build_kb_context(30)
+        kb_context, fuentes = _contexto_kb_para(data.pregunta, ruta["tipo"])
         pregunta_enriquecida = (
-            f"CONTEXTO KB (últimos insights del sistema):\n"
+            f"CONTEXTO KB (insights más relevantes, numerados):\n"
             f"---\n{kb_context}\n---\n\n"
+            f"{_INSTRUCCION_FUENTES}\n"
             f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}\n"
             f"PREGUNTA DEL OPERADOR:\n{data.pregunta}"
         )
@@ -1130,7 +1230,8 @@ async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
             parsed = json.loads(_strip_md_fences(resultado))
         except (json.JSONDecodeError, TypeError):
             parsed = {"respuesta": resultado}
-        return {"status": "ok", "agente": ruta["agente"], "ruta": ruta, "resultado": parsed}
+        return {"status": "ok", "agente": ruta["agente"], "ruta": ruta, "resultado": parsed,
+                "fuentes": _fuentes_citadas(resultado, fuentes)}
     except RuntimeError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
     except Exception as exc:
