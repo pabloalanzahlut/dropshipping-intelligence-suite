@@ -9,52 +9,49 @@
 {% block content %}
 <div x-data="youtube()" x-init="init()">
 
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+  <div class="flex items-start justify-between flex-wrap" style="margin-bottom:24px;gap:12px;">
     <div>
       <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
-        YouTube · <span style="background:linear-gradient(90deg,#fb7185,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Monitor de Ingesta</span>
+        YouTube · <span style="background:linear-gradient(90deg,#fb7185,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Canales e ingesta</span>
       </h1>
-      <p style="font-size:12px;color:#4a5080;margin:0;">yt-dlp · Throttle máx. 10 videos/hora · Canales de mentores</p>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Gestiona tus canales. La ingesta con IA (aquí) y las transcripciones sin IA comparten el límite de YouTube.</p>
     </div>
     <button @click="triggerIngest()" :disabled="ingesting" class="btn-primary">
-      <svg x-show="!ingesting" style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg x-show="!ingesting" style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
       </svg>
-      <svg x-show="ingesting" x-cloak class="spin" style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24">
-        <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-      </svg>
-      <span x-text="ingesting ? 'Iniciando...' : 'Iniciar Ingesta'"></span>
+      <span x-text="ingesting ? 'Iniciando...' : 'Iniciar ingesta KB'"></span>
     </button>
   </div>
 
-  <!-- Status message -->
-  <div x-show="ingestMsg" x-cloak style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;">
-    <p style="font-size:12px;color:#34d399;margin:0;" x-text="ingestMsg"></p>
-  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;align-items:start;">
 
-  <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;">
-
-    <!-- Channels list -->
-    <div class="card card-glow-cyan">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <!-- Lista de canales -->
+    <div class="card card-glow-cyan" style="grid-column:span 2;min-width:0;">
+      <div class="flex items-center justify-between flex-wrap" style="margin-bottom:14px;gap:10px;">
         <div class="section-title" style="margin-bottom:0;">
-          <svg style="width:14px;height:14px;color:#22d3ee;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-          </svg>
-          Canales Registrados
-          <span style="margin-left:4px;font-size:10px;background:rgba(34,211,238,0.1);color:#22d3ee;border:1px solid rgba(34,211,238,0.2);padding:2px 8px;border-radius:20px;font-weight:600;" x-text="channels.length"></span>
+          Canales
+          <span style="margin-left:4px;font-size:10px;background:rgba(34,211,238,0.1);color:#22d3ee;border:1px solid rgba(34,211,238,0.2);padding:2px 8px;border-radius:20px;font-weight:600;"
+                x-text="filtrados.length + ' de ' + channels.length"></span>
         </div>
-        <button @click="loadChannels()" class="btn-ghost" style="padding:5px 10px;font-size:11px;">
-          <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          Recargar
-        </button>
+        <div class="flex gap-2 flex-wrap">
+          <button @click="verificarTodos()" :disabled="verificando" class="btn-ghost" style="font-size:11px;padding:5px 10px;">
+            <span x-text="verificando ? 'Verificando… ' + progreso : 'Verificar todos'"></span>
+          </button>
+          <button @click="loadChannels()" class="btn-ghost" style="font-size:11px;padding:5px 10px;" aria-label="Recargar canales">Recargar</button>
+        </div>
       </div>
 
-      <!-- Pipeline status bar -->
-      <div x-show="pipeline.active" x-cloak style="display:flex;align-items:center;gap:10px;background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.15);border-radius:8px;padding:10px 13px;margin-bottom:8px;">
+      <div class="flex gap-2 flex-wrap" style="margin-bottom:12px;">
+        <input x-model="buscar" type="text" class="input-field" placeholder="Buscar canal…" aria-label="Buscar canal" style="flex:1;min-width:160px;">
+        <template x-for="f in filtros" :key="f.v">
+          <button @click="filtro = f.v" :class="filtro === f.v ? 'tab-btn active' : 'tab-btn'" x-text="f.t + ' (' + contar(f.v) + ')'"></button>
+        </template>
+      </div>
+
+      <!-- Barra de la ingesta KB en curso -->
+      <div x-show="pipeline.active" x-cloak class="flex items-center gap-2"
+           style="background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.15);border-radius:8px;padding:10px 13px;margin-bottom:10px;">
         <div style="width:7px;height:7px;border-radius:50%;background:#22d3ee;animation:pulse-dot 1s infinite;flex-shrink:0;"></div>
         <div style="min-width:0;">
           <p style="font-size:11px;font-weight:600;color:#22d3ee;margin:0;" x-text="'Procesando: ' + (pipeline.current_channel || '...')"></p>
@@ -63,70 +60,79 @@
       </div>
 
       <div style="display:flex;flex-direction:column;gap:6px;">
-        <template x-for="ch in channels" :key="ch.url">
-          <div :style="isActive(ch) ? 'display:flex;align-items:center;justify-content:space-between;background:#08091a;border:1px solid rgba(34,211,238,0.3);border-radius:8px;padding:11px 13px;' : 'display:flex;align-items:center;justify-content:space-between;background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:11px 13px;'">
+        <template x-for="ch in filtrados" :key="ch.url">
+          <div class="canal-fila" :class="{ 'inactivo': !ch.activo, 'en-curso': isActive(ch) }">
             <div style="min-width:0;flex:1;">
-              <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="ch.nombre"></p>
-              <p style="font-size:10px;color:#4a5080;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" x-text="ch.url"></p>
+              <div class="flex items-center gap-2 flex-wrap">
+                <p style="font-size:13px;font-weight:600;color:#e8ecff;margin:0;" x-text="ch.nombre"></p>
+                <span x-show="ch.rol" class="badge badge-info" x-text="ch.rol"></span>
+                <span x-show="ch.ultimo_estado === 'ok'" class="badge badge-done" :title="'Verificado ' + (ch.ultimo_check || '')">OK</span>
+                <span x-show="ch.ultimo_estado === 'no_encontrado'" class="badge badge-fail" :title="'Verificado ' + (ch.ultimo_check || '')">No encontrado (404)</span>
+                <span x-show="!ch.ultimo_estado" class="badge" style="background:#111328;color:#4a5080;border:1px solid #1a1d35;">Sin verificar</span>
+              </div>
+              <p style="font-size:10px;color:#4a5080;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                <a :href="ch.url" target="_blank" rel="noopener" style="color:#4a5080;text-decoration:underline;" x-text="ch.url"></a>
+                · <span x-text="ch.transcripciones + ' transcripciones'"></span>
+              </p>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-left:12px;flex-shrink:0;">
-              <span x-show="isActive(ch)" style="font-size:9px;color:#22d3ee;animation:pulse-dot 1s infinite;">⬤ procesando</span>
-              <span x-show="ch.filtro_tema" class="badge badge-info" title="Solo se registran sus vídeos de ecommerce, dropshipping y Shopify">Solo ecommerce</span>
-              <span :class="ch.activo ? 'badge badge-done' : 'badge badge-fail'"
-                    x-text="ch.activo ? 'Activo' : 'Inactivo'"></span>
+            <div class="flex items-center gap-2 flex-wrap" style="justify-content:flex-end;">
+              <label class="ctl" title="Si está activo, solo se guardan vídeos de ecommerce, dropshipping y Shopify">
+                <input type="checkbox" :checked="ch.filtro_tema" @change="guardar(ch, { filtro_tema: $event.target.checked })">
+                <span>Solo ecommerce</span>
+              </label>
+              <label class="ctl">
+                <span>Prio</span>
+                <select :value="ch.prioridad" @change="guardar(ch, { prioridad: parseInt($event.target.value) })" aria-label="Prioridad">
+                  <template x-for="n in 10" :key="n"><option :value="n" :selected="n === ch.prioridad" x-text="n"></option></template>
+                </select>
+              </label>
+              <label class="ctl">
+                <input type="checkbox" :checked="ch.activo" @change="guardar(ch, { activo: $event.target.checked })">
+                <span x-text="ch.activo ? 'Activo' : 'Inactivo'"></span>
+              </label>
+              <button @click="verificar(ch)" class="btn-ghost" style="font-size:10px;padding:4px 9px;">Verificar</button>
+              <button @click="eliminar(ch)" class="btn-ghost" style="font-size:10px;padding:4px 9px;color:#fb7185;" :aria-label="'Eliminar ' + ch.nombre">Eliminar</button>
             </div>
           </div>
         </template>
-        <div x-show="channels.length === 0" style="text-align:center;padding:40px 0;">
-          <p style="font-size:12px;color:#4a5080;margin:0;">No hay canales registrados aún.</p>
-          <p style="font-size:11px;color:#3a3f68;margin:4px 0 0;">Añade canales usando el formulario →</p>
+        <div x-show="filtrados.length === 0" x-cloak style="text-align:center;padding:40px 0;">
+          <p style="font-size:12px;color:#4a5080;margin:0;" x-text="channels.length ? 'Ningún canal coincide con el filtro.' : 'No hay canales registrados aún.'"></p>
         </div>
       </div>
     </div>
 
-    <!-- Add channel form -->
-    <div class="card" style="align-self:start;">
-      <div class="section-title">
-        <svg style="width:14px;height:14px;color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Añadir Canal Mentor
-      </div>
-
+    <!-- Añadir canal -->
+    <div class="card" style="min-width:0;">
+      <div class="section-title">Añadir canal</div>
       <form @submit.prevent="addChannel()" style="display:flex;flex-direction:column;gap:13px;">
         <div>
-          <label class="form-label">Nombre del Canal</label>
-          <input x-model="newCh.nombre" type="text" class="input-field" placeholder="ej: Adrián Sáenz" required>
+          <label class="form-label" for="c-nombre">Nombre del canal</label>
+          <input id="c-nombre" x-model="newCh.nombre" type="text" class="input-field" placeholder="ej: Adrián Sáenz" required>
         </div>
         <div>
-          <label class="form-label">URL del Canal YouTube</label>
-          <input x-model="newCh.url" type="url" class="input-field" placeholder="https://youtube.com/@canal" required>
+          <label class="form-label" for="c-url">URL del canal de YouTube</label>
+          <input id="c-url" x-model="newCh.url" type="url" class="input-field" placeholder="https://www.youtube.com/@canal" required>
         </div>
+        <div class="flex gap-3 flex-wrap">
+          <div>
+            <label class="form-label" for="c-idioma">Idioma</label>
+            <select id="c-idioma" x-model="newCh.idioma" class="input-field" style="width:90px;">
+              <option value="es">es</option><option value="en">en</option><option value="pt">pt</option><option value="it">it</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="c-prio">Prioridad</label>
+            <input id="c-prio" x-model.number="newCh.prioridad" type="number" min="1" max="10" class="input-field" style="width:80px;">
+          </div>
+        </div>
+        <label class="ctl" style="align-self:flex-start;">
+          <input type="checkbox" x-model="newCh.filtro_tema">
+          <span>Solo vídeos de ecommerce / dropshipping / Shopify</span>
+        </label>
         <button type="submit" :disabled="adding" class="btn-primary" style="width:100%;justify-content:center;">
-          <svg x-show="adding" class="spin" style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24">
-            <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-          </svg>
-          <svg x-show="!adding" style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          <span x-text="adding ? 'Añadiendo...' : 'Añadir Canal'"></span>
+          <span x-text="adding ? 'Añadiendo...' : 'Añadir canal'"></span>
         </button>
-        <div x-show="addError" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:7px;padding:8px 10px;">
-          <p style="font-size:11px;color:#fb7185;margin:0;" x-text="addError"></p>
-        </div>
-        <div x-show="addOk" x-cloak style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:7px;padding:8px 10px;">
-          <p style="font-size:11px;color:#34d399;margin:0;" x-text="addOk"></p>
-        </div>
       </form>
-
-      <!-- Info box -->
-      <div style="margin-top:16px;padding:12px;background:#08091a;border:1px solid #1a1d35;border-radius:8px;">
-        <p style="font-size:10px;color:#4a5080;margin:0;line-height:1.6;">
-          <strong style="color:#7880b0;">Throttle activo:</strong> máx. 10 videos/hora para respetar rate limits de YouTube.<br>
-          Los transcripts se extraen con yt-dlp y se almacenan en la KB.
-        </p>
-      </div>
     </div>
 
   </div>
@@ -134,58 +140,136 @@
 
 <style>
 @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.canal-fila { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  background: #08091a; border: 1px solid #1a1d35; border-radius: 8px; padding: 11px 13px; }
+.canal-fila.inactivo { opacity: .55; }
+.canal-fila.en-curso { border-color: rgba(34,211,238,0.3); }
+.ctl { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #7880b0; cursor: pointer; }
+.ctl select { background: #0d0f1f; color: #a8b0d8; border: 1px solid #252844; border-radius: 6px; font-size: 11px; padding: 2px 4px; }
+.ctl input[type="checkbox"] { accent-color: #22d3ee; }
 </style>
 <script>
 function youtube() {
   return {
-    channels: [], ingesting: false, ingestMsg: '',
-    newCh: { nombre: '', url: '' }, adding: false, addError: '', addOk: '',
+    channels: [], ingesting: false, buscar: '', filtro: 'todos', verificando: false, progreso: '',
+    newCh: { nombre: '', url: '', idioma: 'es', prioridad: 5, filtro_tema: true }, adding: false,
     pipeline: { active: false, current_channel: null, current_video: null },
+    filtros: [{ v: 'todos', t: 'Todos' }, { v: 'activos', t: 'Activos' }, { v: 'inactivos', t: 'Inactivos' }, { v: 'problemas', t: 'Con problemas' }],
     _pipelineTimer: null,
+
+    get toast() { return Alpine.store('toast'); },
+
+    pasa(ch, f) {
+      if (f === 'activos') return ch.activo;
+      if (f === 'inactivos') return !ch.activo;
+      if (f === 'problemas') return ch.ultimo_estado === 'no_encontrado';
+      return true;
+    },
+    contar(f) { return this.channels.filter(c => this.pasa(c, f)).length; },
+    get filtrados() {
+      const q = this.buscar.trim().toLowerCase();
+      return this.channels.filter(c => this.pasa(c, this.filtro) &&
+        (!q || (c.nombre + ' ' + c.url).toLowerCase().includes(q)));
+    },
 
     async init() {
       await this.loadChannels();
-      this._pipelineTimer = setInterval(() => this.fetchPipeline(), 2000);
+      this._pipelineTimer = setInterval(() => this.fetchPipeline(), 2500);
+    },
+
+    async mensaje(res, defecto) {
+      try { const j = await res.json(); return typeof j.detail === 'string' ? j.detail : defecto; }
+      catch (e) { return defecto; }
     },
 
     async loadChannels() {
-      try { const res = await fetch('/api/channels'); this.channels = await res.json(); } catch(e) {}
+      try {
+        const res = await fetch('/api/channels');
+        if (!res.ok) throw new Error(await this.mensaje(res, 'Error ' + res.status));
+        this.channels = await res.json();
+      } catch (e) { this.toast.error('No se pudieron cargar los canales: ' + e.message); }
     },
 
     async fetchPipeline() {
-      try {
-        const res = await fetch('/api/pipeline/status');
-        this.pipeline = await res.json();
-      } catch(e) {}
+      try { const res = await fetch('/api/pipeline/status'); this.pipeline = await res.json(); } catch (e) {}
     },
 
     isActive(ch) {
       if (!this.pipeline.active || !this.pipeline.current_channel) return false;
-      const name = (ch.nombre || '').toLowerCase();
-      const url  = (ch.url   || '').toLowerCase();
-      const cur  = this.pipeline.current_channel.toLowerCase();
+      const name = (ch.nombre || '').toLowerCase(), url = (ch.url || '').toLowerCase();
+      const cur = this.pipeline.current_channel.toLowerCase();
       return name.includes(cur) || url.includes(cur) || cur.includes(name);
     },
 
     async triggerIngest() {
-      this.ingesting = true; this.ingestMsg = '';
+      this.ingesting = true;
       try {
         const res = await fetch('/api/process', { method: 'POST' });
-        const data = await res.json();
-        this.ingestMsg = data.message || 'Ingesta iniciada.';
-      } catch(e) { this.ingestMsg = 'Error al iniciar ingesta.'; }
+        if (!res.ok) { this.toast.error(await this.mensaje(res, 'No se pudo iniciar la ingesta.')); return; }
+        this.toast.ok((await res.json()).message || 'Ingesta iniciada.');
+      } catch (e) { this.toast.error('Error al iniciar la ingesta.'); }
       finally { this.ingesting = false; }
     },
 
     async addChannel() {
-      this.adding = true; this.addError = ''; this.addOk = '';
+      this.adding = true;
       try {
-        const res = await fetch('/api/channels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.newCh) });
-        if (!res.ok) { const err = await res.json(); this.addError = err.detail || 'Error al añadir canal.'; }
-        else { this.addOk = 'Canal añadido correctamente.'; this.newCh = { nombre: '', url: '' }; await this.loadChannels(); }
-      } catch(e) { this.addError = 'Error de conexión.'; }
+        const res = await fetch('/api/channels', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: this.newCh.url, nombre: this.newCh.nombre, idioma: this.newCh.idioma, prioridad: this.newCh.prioridad }) });
+        if (!res.ok) { this.toast.error(await this.mensaje(res, 'Error al añadir el canal.')); return; }
+        const nuevo = await res.json();
+        // el alta usa el filtro por defecto del servidor; si se desmarcó, se corrige
+        if (!this.newCh.filtro_tema) await this.guardar(nuevo, { filtro_tema: false }, true);
+        this.toast.ok('Canal añadido: ' + nuevo.nombre);
+        this.newCh = { nombre: '', url: '', idioma: 'es', prioridad: 5, filtro_tema: true };
+        await this.loadChannels();
+      } catch (e) { this.toast.error('Error de conexión.'); }
       finally { this.adding = false; }
-    }
+    },
+
+    async guardar(ch, cambios, silencioso = false) {
+      try {
+        const res = await fetch('/api/channels', { method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: ch.url, ...cambios }) });
+        if (!res.ok) { this.toast.error(await this.mensaje(res, 'No se pudo guardar el cambio.')); await this.loadChannels(); return; }
+        Object.assign(ch, await res.json());
+        if (!silencioso) this.toast.ok(ch.nombre + ': guardado');
+      } catch (e) { this.toast.error('Error de conexión.'); await this.loadChannels(); }
+    },
+
+    async eliminar(ch) {
+      if (!confirm('¿Quitar «' + ch.nombre + '» de la lista?\n\nSus transcripciones y su KB se conservan.')) return;
+      try {
+        const res = await fetch('/api/channels?url=' + encodeURIComponent(ch.url), { method: 'DELETE' });
+        if (!res.ok) { this.toast.error(await this.mensaje(res, 'No se pudo eliminar.')); return; }
+        this.toast.ok('Canal eliminado: ' + ch.nombre);
+        await this.loadChannels();
+      } catch (e) { this.toast.error('Error de conexión.'); }
+    },
+
+    async verificar(ch, silencioso = false) {
+      try {
+        const res = await fetch('/api/channels/verificar', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: ch.url }) });
+        if (!res.ok) throw new Error('Error ' + res.status);
+        const r = await res.json();
+        ch.ultimo_estado = r.estado; ch.ultimo_check = r.ultimo_check;
+        if (!silencioso) {
+          if (r.estado === 'ok') this.toast.ok(ch.nombre + ': el canal existe');
+          else this.toast.error(ch.nombre + ': no se encuentra (¿URL incorrecta?)');
+        }
+      } catch (e) { if (!silencioso) this.toast.error('No se pudo verificar ' + ch.nombre); }
+    },
+
+    async verificarTodos() {
+      this.verificando = true;
+      const lista = this.channels.filter(c => c.activo);
+      let i = 0;
+      for (const ch of lista) { this.progreso = (++i) + '/' + lista.length; await this.verificar(ch, true); }
+      this.verificando = false; this.progreso = '';
+      const malos = this.channels.filter(c => c.ultimo_estado === 'no_encontrado').length;
+      malos ? this.toast.error(malos + ' canal(es) no se encuentran. Revisa el filtro «Con problemas».') : this.toast.ok('Todos los canales activos responden.');
+    },
   }
 }
 </script>

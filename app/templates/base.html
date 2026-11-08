@@ -55,6 +55,18 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     [x-cloak] { display: none !important; }
+    /* Avisos (toasts) */
+    #toasts { position: fixed; right: 16px; bottom: 16px; z-index: 80; display: flex; flex-direction: column; gap: 8px; max-width: min(380px, calc(100vw - 32px)); }
+    .toast { background: #0d0f1f; border: 1px solid #252844; border-left-width: 3px; border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #c8d0f0; box-shadow: 0 8px 28px rgba(0,0,0,.5); display: flex; gap: 10px; align-items: flex-start; }
+    .toast.ok { border-left-color: #34d399; } .toast.error { border-left-color: #fb7185; } .toast.info { border-left-color: #22d3ee; }
+    .toast button { background: none; border: 0; color: #4a5080; cursor: pointer; margin-left: auto; font-size: 14px; line-height: 1; }
+    /* Ayuda de atajos */
+    #atajos { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.7); }
+    #atajos[hidden] { display: none; }
+    #atajos .panel { background: #0d0f1f; border: 1px solid #252844; border-radius: 14px; padding: 20px 24px; width: min(460px, calc(100vw - 32px)); }
+    #atajos kbd { background: #111328; border: 1px solid #252844; border-radius: 5px; padding: 1px 6px; font-size: 11px; color: #a8b0d8; }
+    :focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+
 
     html, body { height: 100%; margin: 0; padding: 0; }
     body {
@@ -381,86 +393,42 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Core</div>
-
-      <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z"/>
+    <nav class="sidebar-nav" aria-label="Navegación principal">
+      {% set NAV = [
+        ("Core", [
+          ("/", "Dashboard", "M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z"),
+          ("/productos", "Productos", "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"),
+          ("/validador", "Validador Financiero", "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"),
+          ("/negocio", "Negocio · ROAS y caja", "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"),
+        ]),
+        ("Ingesta y contenido", [
+          ("/youtube", "YouTube · Ingesta", "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z"),
+          ("/transcripciones", "Transcripciones", "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"),
+          ("/copys", "Copys AIDA", "M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"),
+          ("/tiktok", "TikTok Scripts", "M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4"),
+          ("/imagenes", "Imágenes Producto", "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"),
+        ]),
+        ("Inteligencia", [
+          ("/insights", "Insights KB", "M13 10V3L4 14h7v7l9-11h-7z"),
+          ("/agente", "Agente IA · KB", "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"),
+        ]),
+        ("Sistema", [
+          ("/historial", "Historial y exportar", "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"),
+          ("/registros", "Registros", "M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"),
+        ]),
+      ] %}
+      {% for seccion, items in NAV %}
+      <div class="nav-section-label">{{ seccion }}</div>
+      {% for href, titulo, icono in items %}
+      <a href="{{ href }}" class="nav-link {% if request.url.path == href %}active{% endif %}"
+         {% if request.url.path == href %}aria-current="page"{% endif %}>
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ icono }}"/>
         </svg>
-        Dashboard
+        {{ titulo }}
       </a>
-
-      <a href="/validador" class="nav-link {% if request.url.path == '/validador' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-        </svg>
-        Validador Financiero
-      </a>
-
-      <div class="nav-section-label" style="margin-top:8px;">Ingesta & Contenido</div>
-
-      <a href="/youtube" class="nav-link {% if request.url.path == '/youtube' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        YouTube · Ingesta
-      </a>
-
-      <a href="/copys" class="nav-link {% if request.url.path == '/copys' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-        </svg>
-        Copys AIDA
-      </a>
-
-      <a href="/tiktok" class="nav-link {% if request.url.path == '/tiktok' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4"/>
-        </svg>
-        TikTok Scripts
-      </a>
-
-      <a href="/imagenes" class="nav-link {% if request.url.path == '/imagenes' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>
-        Imágenes Producto
-      </a>
-
-      <a href="/transcripciones" class="nav-link {% if request.url.path == '/transcripciones' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        Transcripciones
-      </a>
-
-      <div class="nav-section-label" style="margin-top:8px;">Inteligencia</div>
-
-      <a href="/insights" class="nav-link {% if request.url.path == '/insights' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        Insights KB
-      </a>
-
-      <a href="/agente" class="nav-link {% if request.url.path == '/agente' %}active{% endif %}">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-        </svg>
-        Agente IA · KB
-      </a>
+      {% endfor %}
+      {% endfor %}
     </nav>
 
     <!-- Footer -->
@@ -506,6 +474,69 @@
     </main>
 
   </div>
+
+
+  <!-- Avisos -->
+  <div id="toasts" x-data aria-live="polite" role="status">
+    <template x-for="t in $store.toast.items" :key="t.id">
+      <div class="toast" :class="t.tipo"><span x-text="t.texto"></span><button @click="$store.toast.quitar(t.id)" aria-label="Cerrar aviso">×</button></div>
+    </template>
+  </div>
+
+  <!-- Atajos de teclado -->
+  <div id="atajos" hidden role="dialog" aria-modal="true" aria-label="Atajos de teclado">
+    <div class="panel">
+      <h2 style="font-size:15px;font-weight:700;color:#e8ecff;margin:0 0 12px;">Atajos de teclado</h2>
+      <p style="font-size:12px;color:#7880b0;line-height:2;margin:0;">
+        <kbd>g</kbd> luego <kbd>d</kbd> Dashboard · <kbd>p</kbd> Productos · <kbd>v</kbd> Validador · <kbd>n</kbd> Negocio<br>
+        <kbd>g</kbd> luego <kbd>y</kbd> YouTube · <kbd>t</kbd> Transcripciones · <kbd>c</kbd> Copys · <kbd>k</kbd> TikTok<br>
+        <kbd>g</kbd> luego <kbd>i</kbd> Insights · <kbd>a</kbd> Agente · <kbd>h</kbd> Historial · <kbd>r</kbd> Registros<br>
+        <kbd>/</kbd> enfoca el buscador · <kbd>?</kbd> esta ayuda · <kbd>Esc</kbd> cierra
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Avisos: Alpine.store('toast').ok('…') / .error('…') / .info('…')
+    document.addEventListener('alpine:init', () => {
+      Alpine.store('toast', {
+        items: [], _n: 0,
+        mostrar(tipo, texto, ms = 4500) {
+          const id = ++this._n;
+          this.items.push({ id, tipo, texto });
+          if (ms) setTimeout(() => this.quitar(id), ms);
+        },
+        quitar(id) { this.items = this.items.filter(t => t.id !== id); },
+        ok(t) { this.mostrar('ok', t); },
+        error(t) { this.mostrar('error', t, 8000); },
+        info(t) { this.mostrar('info', t); },
+      });
+    });
+
+    // Atajos: g + letra navega; / enfoca el buscador; ? ayuda
+    (function () {
+      const rutas = { d: '/', p: '/productos', v: '/validador', n: '/negocio', y: '/youtube',
+                      t: '/transcripciones', c: '/copys', k: '/tiktok', i: '/insights',
+                      a: '/agente', h: '/historial', r: '/registros' };
+      let g = false, temp = null;
+      const ayuda = () => document.getElementById('atajos');
+      document.addEventListener('keydown', (e) => {
+        const el = e.target, tag = (el.tagName || '').toLowerCase();
+        if (e.key === 'Escape') { ayuda().hidden = true; return; }
+        if (e.ctrlKey || e.metaKey || e.altKey || tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable) return;
+        if (e.key === '?') { ayuda().hidden = !ayuda().hidden; e.preventDefault(); return; }
+        if (e.key === '/') {
+          const b = document.querySelector('input[type="text"], input[type="search"]');
+          if (b) { b.focus(); e.preventDefault(); }
+          return;
+        }
+        if (g && rutas[e.key]) { window.location.href = rutas[e.key]; return; }
+        g = e.key === 'g';
+        clearTimeout(temp); if (g) temp = setTimeout(() => { g = false; }, 1200);
+      });
+      ayuda().addEventListener('click', (e) => { if (e.target === ayuda()) ayuda().hidden = true; });
+    })();
+  </script>
 
   <script>
     // Live clock
