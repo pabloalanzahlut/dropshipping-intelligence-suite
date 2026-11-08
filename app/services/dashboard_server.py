@@ -29,7 +29,7 @@ import uvicorn
 import jinja2
 from urllib.parse import quote
 
-from fastapi import BackgroundTasks, FastAPI, File, HTTPException, Query, Request, Response, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Query, Request, Response, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -1501,6 +1501,48 @@ async def api_negocio_caja(body: CajaIn) -> Dict[str, Any]:
         return business_metrics.registrar_caja(DB_PATH, body.model_dump())
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.post("/api/negocio/importar")
+async def api_negocio_importar(
+    file: UploadFile = File(...),
+    confirmar: bool = Form(False),
+    plataforma: str = Form("auto"),
+    producto_id: str = Form(""),
+    usar_ingresos_meta: bool = Form(False),
+    estimar_cogs: bool = Form(False),
+    campanas: str = Form(""),
+) -> Dict[str, Any]:
+    """Importa el CSV de Meta Ads Manager o de Shopify a métricas diarias.
+    Sin `confirmar` solo previsualiza (no escribe nada); con `confirmar` guarda en una transacción."""
+    datos = await file.read(metrics_import.MAX_BYTES + 1)
+    if len(datos) > metrics_import.MAX_BYTES:
+        raise HTTPException(status_code=413, detail="El archivo pasa de 5 MB: exporta un periodo más corto.")
+    try:
+        pid = int(producto_id) if producto_id.strip() else None
+        filtro = json.loads(campanas) if campanas.strip() else None
+        if filtro is not None and not (isinstance(filtro, list) and all(isinstance(c, str) for c in filtro)):
+            raise ValueError("La lista de campañas no es válida.")
+        if plataforma not in ("auto", "meta", "shopify"):
+            raise ValueError("Plataforma no válida.")
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc) or "Parámetros no válidos.")
+
+    def _trabajo() -> Dict[str, Any]:
+        parsed = metrics_import.parsear(datos, plataforma, filtro)
+        if confirmar:
+            return metrics_import.aplicar(DB_PATH, parsed, pid, usar_ingresos_meta, estimar_cogs)
+        return metrics_import.previsualizar(DB_PATH, parsed, pid, usar_ingresos_meta, estimar_cogs)
+
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _trabajo)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    if confirmar:
+        _ALERTAS_EVAL["ts"] = 0.0       # los números nuevos pueden crear o resolver alertas
+        log.info(f"[SERVER] Importación CSV {res['plataforma']}: {res['nuevos']} nuevos, "
+                 f"{res['actualizados']} actualizados (correlation_id={res['correlation_id']}).")
+    return res
 
 
 @app.get("/api/negocio/escalado/{producto_id}")
