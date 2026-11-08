@@ -1,0 +1,13 @@
+{
+  "fecha_sincronizacion": "2026-11-08T19:50:29",
+  "canales_procesados": 7,
+  "videos_descargados": 19,
+  "transcripciones_procesadas": 15,
+  "duplicados": 0,
+  "sin_subtitulos": 1,
+  "fuera_de_tema": 4,
+  "errores": 2,
+  "tokens_ahorrados": 1429,
+  "cancelado": false,
+  "limitado": true
+}
