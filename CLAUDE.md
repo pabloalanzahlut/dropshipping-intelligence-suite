@@ -172,6 +172,33 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 
 ---
 
+## ARQUITECTURA MULTI-IA (método Claseflix: una IA para cada tarea)
+
+No usar una sola IA para todo. Cada herramienta tiene su especialidad:
+
+| IA | Especialidad | Tareas en GEM OS | Configuración |
+|----|-------------|------------------|---------------|
+| **Claude Sonnet** | Razonamiento, copy de calidad | Validar regla 3x, clasificar HOT/WARM/COLD, copy final | `ANTHROPIC_API_KEY` / OpenRouter |
+| **DeepSeek V3** | Volumen de texto barato (21× más barato) | Fichas Shopify masivas, borradores de scripts, copy A/B | OpenRouter `OPENROUTER_API_KEY` |
+| **Gemini Flash** | Multimodal — imagen → texto | Analizar fotos de proveedor → extraer specs automáticos | OpenRouter (misma clave) |
+| **Higgsfield AI** | Generación de video realista | Videos TikTok Ads sin filmar (imagen + prompt → video) | `HIGGSFIELD_API_KEY` |
+| **DeepSeek R1** | Razonamiento complejo | Investigar nicho, analizar competencia | OpenRouter |
+
+### Router automático: `app/services/llm_router.py`
+```python
+from app.services.llm_router import chat
+
+chat(task="validar_financiero", ...)  # → Claude Sonnet
+chat(task="generar_ficha_shopify", ...)  # → DeepSeek V3 (barato)
+chat(task="analizar_imagen", ...)  # → Gemini Flash (multimodal)
+```
+
+### Clientes especializados:
+- `app/services/gemini_vision.py` → Análisis de imágenes de producto
+- `app/services/higgsfield_client.py` → Generación de videos TikTok
+
+---
+
 ## BASE DE DATOS
 
 - SQLite: `app/database/dropshipping_suite.db`
