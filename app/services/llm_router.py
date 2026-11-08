@@ -36,16 +36,29 @@ MODEL_ROUTING = {
 }
 
 TASK_MODEL_MAP = {
-    "validar_financiero":   MODEL_ROUTING["default_critical"],
-    "clasificar_producto":  MODEL_ROUTING["default_critical"],
-    "regla_3x":             MODEL_ROUTING["default_critical"],
-    "revisar_specs":        MODEL_ROUTING["default_critical"],
+    # ── Críticas: precisión máxima → Claude Sonnet ──────────────────────────
+    "validar_financiero":    MODEL_ROUTING["default_critical"],
+    "clasificar_producto":   MODEL_ROUTING["default_critical"],
+    "regla_3x":              MODEL_ROUTING["default_critical"],
+    "revisar_specs":         MODEL_ROUTING["default_critical"],
+    # ── Volumen: texto rápido y barato → DeepSeek V3 ────────────────────────
     "limpiar_transcripcion": MODEL_ROUTING["default_volume"],
     "generar_ficha_shopify": MODEL_ROUTING["default_volume"],
     "generar_script_tiktok": MODEL_ROUTING["default_volume"],
-    "aida_copy":            MODEL_ROUTING["default_volume"],
-    "traducir_listing":     MODEL_ROUTING["translate"],
-    "analizar_tendencia":   MODEL_ROUTING["default_volume"],
+    "aida_copy":             MODEL_ROUTING["default_volume"],
+    "analizar_tendencia":    MODEL_ROUTING["default_volume"],
+    "hook_matrix":           MODEL_ROUTING["default_volume"],
+    "redactar_anuncio_meta": MODEL_ROUTING["default_volume"],
+    # ── Multimodal: imagen → texto → Gemini Flash ───────────────────────────
+    "analizar_imagen":       MODEL_ROUTING["translate"],   # gemini-flash-1.5 multimodal
+    "extraer_specs_imagen":  MODEL_ROUTING["translate"],
+    "detectar_categoria":    MODEL_ROUTING["translate"],
+    # ── Traducción / multilenguaje ───────────────────────────────────────────
+    "traducir_listing":      MODEL_ROUTING["translate"],
+    "traducir_copy":         MODEL_ROUTING["translate"],
+    # ── Razonamiento complejo ────────────────────────────────────────────────
+    "investigar_nicho":      MODEL_ROUTING["reasoning"],
+    "analizar_competencia":  MODEL_ROUTING["reasoning"],
 }
 
 
