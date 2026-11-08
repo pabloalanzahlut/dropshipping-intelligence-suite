@@ -68,7 +68,9 @@ class FinancialValidator:
         costo_origen: float,
         peso_kg: float = 0.0,
         pvp_sugerido: Optional[float] = None,
-        costo_envio: float = 0.0
+        costo_envio: float = 0.0,
+        moneda_costo: str = "USD",
+        moneda_pvp: str = "USD"
     ) -> Dict:
         """
         Valida un producto contra las reglas de negocio inmutables.
@@ -76,12 +78,17 @@ class FinancialValidator:
         El multiplicador se calcula sobre el coste LANDED (producto + envío),
         no sobre el coste de producto solo (qgK3GfY5ZC4 11:30).
 
+        Si el coste y el PVP vienen en divisas distintas, convierte al tipo
+        del día: un tipo fijo falsea el multiplicador (KXKzgeHOr7A hack 3).
+
         Args:
             sku: SKU del producto
-            costo_origen: Costo del producto en el proveedor (USD)
+            costo_origen: Costo del producto en el proveedor
             peso_kg: Peso neto del producto
             pvp_sugerido: PVP sugerido (opcional; si no se proporciona, se calcula)
-            costo_envio: Coste de envío del proveedor al cliente (USD)
+            costo_envio: Coste de envío del proveedor al cliente
+            moneda_costo: Divisa de costo_origen y costo_envio (AliExpress/CJ suelen ser USD)
+            moneda_pvp: Divisa del PVP (tienda europea suele ser EUR)
 
         Returns:
             Dict con la validación completa, el desglose de costes operativos
@@ -90,6 +97,15 @@ class FinancialValidator:
 
         # 1. Coste landed: el multiplicador se mide contra esto, no contra el producto solo
         costo_landed = costo_origen + costo_envio
+
+        # 2. Divisas distintas: convertir el coste a la divisa del PVP al tipo del día
+        fx_estimado = False
+        fx_rate = 1.0
+        if moneda_costo.upper() != moneda_pvp.upper():
+            from app.services.fx_rates import get_rate, is_rate_live
+            fx_rate = get_rate(moneda_costo, moneda_pvp)
+            costo_landed = costo_landed * fx_rate
+            fx_estimado = not is_rate_live(moneda_costo, moneda_pvp)
 
         # 2. Sin PVP dado, usar el objetivo del curso (x3) sobre el landed
         pvp_calculado = pvp_sugerido if pvp_sugerido else costo_landed * self.MULTIPLICADOR_OBJETIVO
