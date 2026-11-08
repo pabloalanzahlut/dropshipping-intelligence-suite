@@ -86,7 +86,6 @@ ai_workspace/config/*secret*.json
 # Cookies de sesión — NUNCA commitear (contienen auth_tokens activos)
 *cookies*.json
 **/cookies*.json
-ai_workspace/scripts/*.json
 
 # Playwright MCP — grabaciones de sesiones autenticadas
 .playwright-mcp/
