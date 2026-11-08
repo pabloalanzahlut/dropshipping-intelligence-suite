@@ -270,7 +270,7 @@ def ingest_url(db_path: str, url: str, cleaner: Any, idioma: str = "es") -> Dict
     Raises:
         ValueError: URL inválida o vídeo sin subtítulos disponibles.
     """
-    from app.services.youtube_rss_fetcher import _run_ytdlp, download_transcript
+    from app.services.youtube_rss_fetcher import RateLimited, _run_ytdlp, download_transcript
 
     video_id = parse_video_id(url)
     if not video_id:
@@ -290,7 +290,10 @@ def ingest_url(db_path: str, url: str, cleaner: Any, idioma: str = "es") -> Dict
         timeout=60,
     ) or ""
     titulo, _, canal = (meta.strip().splitlines()[0] if meta.strip() else "").partition("\t")
-    texto = download_transcript(video_id, lang=idioma)
+    try:
+        texto = download_transcript(video_id, lang=idioma)
+    except RateLimited:
+        raise ValueError("YouTube está limitando las descargas (429). Espera unos minutos e inténtalo de nuevo.")
     if not texto:
         raise ValueError("Este vídeo no tiene subtítulos disponibles.")
     return save_transcript(db_path, video_id, titulo or video_id, canal or "YouTube",

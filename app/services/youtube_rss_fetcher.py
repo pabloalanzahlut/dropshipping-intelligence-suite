@@ -28,6 +28,10 @@ _UA = {"User-Agent": "Mozilla/5.0"}
 _CHANNEL_ID_RE = re.compile(r"UC[\w-]{22}")
 
 
+class RateLimited(Exception):
+    """YouTube respondió 429 (Too Many Requests): hay que esperar antes de seguir."""
+
+
 def _ytdlp_cmd() -> List[str]:
     """Comando base de yt-dlp: ejecutable en PATH o, si no, el módulo de Python."""
     exe = shutil.which("yt-dlp")
@@ -38,8 +42,10 @@ def _ytdlp_cmd() -> List[str]:
     return ["yt-dlp"]
 
 
-def _run_ytdlp(args: List[str], timeout: int = 60) -> Optional[str]:
-    """Ejecuta yt-dlp y devuelve stdout decodificado en UTF-8 (None si falla)."""
+def _run_ytdlp(args: List[str], timeout: int = 60,
+               raise_on_rate_limit: bool = False) -> Optional[str]:
+    """Ejecuta yt-dlp y devuelve stdout decodificado en UTF-8 (None si falla).
+    Con raise_on_rate_limit=True lanza RateLimited si YouTube responde 429."""
     env = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
     try:
         res = subprocess.run(
@@ -49,7 +55,10 @@ def _run_ytdlp(args: List[str], timeout: int = 60) -> Optional[str]:
         print(f"[YT-DLP] {exc}")
         return None
     if res.returncode != 0:
-        err = res.stderr.decode("utf-8", errors="replace").strip().splitlines()
+        err_txt = res.stderr.decode("utf-8", errors="replace")
+        if raise_on_rate_limit and ("HTTP Error 429" in err_txt or "Too Many Requests" in err_txt):
+            raise RateLimited("YouTube limita las descargas (HTTP 429)")
+        err = err_txt.strip().splitlines()
         print(f"[YT-DLP] código {res.returncode}: {err[-1] if err else ''}")
         return None
     return res.stdout.decode("utf-8", errors="replace")
@@ -170,6 +179,9 @@ def download_transcript(video_id: str, lang: str = "es") -> Optional[str]:
     """
     Descarga la transcripción con yt-dlp (gratuito): subtítulos manuales y
     automáticos del idioma pedido y, si no hay, en inglés.
+
+    Raises:
+        RateLimited: YouTube devolvió 429; el llamador debe esperar y reintentar.
     """
     url = f"https://www.youtube.com/watch?v={video_id}"
     langs = [lang] if lang == "en" else [lang, "en"]
@@ -182,7 +194,7 @@ def download_transcript(video_id: str, lang: str = "es") -> Optional[str]:
                  "--sub-langs", f"{lg}.*,{lg}", "--sub-format", "vtt",
                  "--no-warnings", "--quiet",
                  "--output", str(Path(tmpdir) / video_id), url],
-                timeout=90,
+                timeout=90, raise_on_rate_limit=True,
             )
             vtt = _pick_vtt(list(Path(tmpdir).glob("*.vtt")), lg)
             if vtt:
