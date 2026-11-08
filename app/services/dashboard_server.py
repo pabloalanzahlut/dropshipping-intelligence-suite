@@ -38,7 +38,7 @@ from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
 from app.services import (agent_router, alerts, business_metrics, channel_store, daily_brief,
                           exports, log_viewer, mantenimiento, metrics_import, notifier,
-                          product_catalog, transcript_store, web_auth)
+                          product_catalog, store_context, tienda_store, transcript_store, web_auth)
 
 log = logging.getLogger(__name__)
 log_viewer.configurar_log_servidor(PathManager.get_paths()["logs"] / "servidor.log")
@@ -270,6 +270,14 @@ async def lifespan(app: FastAPI):
                 max_instances=1, misfire_grace_time=600, replace_existing=True,
                 next_run_time=datetime.now() + timedelta(minutes=2),
             )
+        # Shopify → SQLite cada hora (no hace nada si Shopify no está configurado). GEM_OS_AUTO_SHOPIFY_MIN=0 la desactiva.
+        min_shopify = int(os.getenv("GEM_OS_AUTO_SHOPIFY_MIN", "60") or 0)
+        if min_shopify > 0:
+            _scheduler.add_job(
+                lambda: tienda_store.sync_si_configurada(DB_PATH), "interval", minutes=min_shopify,
+                id="shopify_sync", max_instances=1, misfire_grace_time=600, replace_existing=True,
+                next_run_time=datetime.now() + timedelta(minutes=3),
+            )
         # Copia de seguridad diaria (03:30) y una al arrancar si la última tiene más de 24 h
         _scheduler.add_job(_scheduled_backup, "cron", hour=3, minute=30, id="backup_auto",
                            replace_existing=True, misfire_grace_time=3600)
@@ -307,6 +315,14 @@ try:
     log.info("[SERVER] Webhooks Shopify montados en /webhooks")
 except Exception as _wh_err:
     log.warning(f"[SERVER] Webhooks no disponibles: {_wh_err}")
+
+# Tienda: Shopify (API) + AutoDS (importación) → estadísticas y contexto del agente
+try:
+    from app.routes.tienda import tienda_router
+    app.include_router(tienda_router)
+    log.info("[SERVER] API de la tienda montada en /api/tienda")
+except Exception as _tienda_err:
+    log.warning(f"[SERVER] API de la tienda no disponible: {_tienda_err}")
 
 # ── Jinja2 Templates ─────────────────────────────────────────────────────────
 _jinja_env: Optional[jinja2.Environment] = (
@@ -715,6 +731,11 @@ async def negocio_page(request: Request):
     return _render(request, "negocio.html")
 
 
+@app.get("/tienda", response_class=HTMLResponse)
+async def tienda_page(request: Request):
+    return _render(request, "tienda.html")
+
+
 @app.get("/transcripciones", response_class=HTMLResponse)
 async def transcripciones_page(request: Request):
     return _render(request, "transcripciones.html")
@@ -1015,7 +1036,10 @@ async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "aut
             # Los insights MÁS RELEVANTES para esta pregunta (no los 30 últimos)
             kb_context, fuentes = await loop.run_in_executor(
                 None, lambda: _contexto_kb_para(pregunta, ruta["tipo"]))
+            # Cifras reales de la tienda (Shopify + AutoDS), solo desde SQLite: no depende de la red
+            bloque_tienda = await loop.run_in_executor(None, lambda: store_context.bloque_para_prompt(DB_PATH))
             pregunta_enriquecida = (
+                f"{bloque_tienda}"
                 f"CONTEXTO KB (insights más relevantes, numerados):\n"
                 f"---\n{kb_context}\n---\n\n"
                 f"{_INSTRUCCION_FUENTES}\n"
@@ -1329,6 +1353,7 @@ async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
         executor = AgentExecutor()
         kb_context, fuentes = _contexto_kb_para(data.pregunta, ruta["tipo"])
         pregunta_enriquecida = (
+            f"{store_context.bloque_para_prompt(DB_PATH)}"
             f"CONTEXTO KB (insights más relevantes, numerados):\n"
             f"---\n{kb_context}\n---\n\n"
             f"{_INSTRUCCION_FUENTES}\n"
