@@ -32,7 +32,13 @@ y el versionado [SemVer](https://semver.org/).
   pegar URL o texto, borrar) y botón **Cancelar** en la sincronización.
 - Web: ingesta por URL/texto, borrado, exportación `.md`, sincronización de canales con
   progreso y cancelación, paginación («Cargar más»).
-- `tests/test_transcripciones.py` (21 pruebas, sin red).
+- **Filtro de tema** (`app/services/topic_filter.py`, clave `"filtro_tema": true` en
+  `youtube_channels.json`): de Adrián Sáenz solo se registran vídeos de ecommerce, dropshipping y
+  Shopify; los canales complementarios no se filtran. Se aplica en transcripciones y en la
+  ingesta KB; los descartados se recuerdan en `data/videos_descartados.json`.
+- Espera y reintento ante HTTP 429 de YouTube (60 s, 3 min, 7 min) y pausas de 6–14 s entre
+  descargas; si sigue limitado, la sincronización se detiene sin perder lo guardado.
+- `tests/test_transcripciones.py` (29 pruebas, sin red).
 
 ### Cambiado
 - `website/gem-os/index.html`: de página de venta a página interna de uso personal (sin
