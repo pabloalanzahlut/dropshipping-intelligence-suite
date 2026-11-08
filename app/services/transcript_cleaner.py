@@ -213,6 +213,7 @@ class TranscriptCleaner:
         # Conjunciones y signos huérfanos que deja la frase eliminada ("... y .")
         result = re.sub(r'\s+(?:y|e|o|pero)\s*(?=[.!?])', '', result, flags=re.IGNORECASE)
         result = re.sub(r'([.!?])[ \t]+[.!?]+(?=\s|$)', r'\1', result)
+        result = re.sub(r'(?<!\.)\.\.(?!\.)', '.', result)  # ".." -> "." (no toca "...")
         # Limpiar espacios y líneas residuales
         result = re.sub(r' {2,}', ' ', result)
         result = re.sub(r'\n{3,}', '\n\n', result)
