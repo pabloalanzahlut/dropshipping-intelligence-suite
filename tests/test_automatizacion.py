@@ -192,8 +192,8 @@ class TranscripcionesGuardadasTests(Base):
 
     def guardar(self, vid, canal="Canal", texto="texto original"):
         with sqlite3.connect(self.db) as conn:
-            conn.execute("INSERT INTO transcripciones_youtube (video_id, titulo, canal, transcripcion_texto, hash_md5) "
-                         "VALUES (?,?,?,?,?)", (vid, f"Título {vid}", canal, texto, vid))
+            conn.execute("INSERT INTO transcripciones_youtube (video_id, titulo, canal, fecha, transcripcion_texto, hash_md5) "
+                         "VALUES (?,?,?,?,?,?)", (vid, f"Título {vid}", canal, "2026-11-08", texto, vid))
 
     def test_devuelve_el_texto_guardado(self):
         self.guardar("abc", texto="hola mundo")
