@@ -179,6 +179,118 @@ class ApiTests(unittest.TestCase):
             self.ds._INGEST_LOCK.release()
 
 
+class TopicFilterTests(unittest.TestCase):
+    def test_titulo_con_tema_se_acepta(self):
+        from app.services import topic_filter
+        self.assertTrue(topic_filter.evaluar("Trata el dropshipping como un videojuego", "texto sin nada")[0])
+
+    def test_video_de_otro_tema_se_rechaza(self):
+        from app.services import topic_filter
+        texto = "hablamos de inteligencia artificial y de mentalidad " * 400 + " shopify "
+        self.assertFalse(topic_filter.evaluar("Cómo reprogramar tu mente", texto)[0])
+
+    def test_video_que_trata_el_tema_en_el_texto_se_acepta(self):
+        from app.services import topic_filter
+        texto = ("primero montas tu tienda en Shopify y luego pruebas el dropshipping con ecommerce " * 10
+                 + "relleno " * 300)
+        self.assertTrue(topic_filter.evaluar("Seis formas de ganar dinero", texto)[0])
+
+    def test_ignora_tildes_y_mayusculas(self):
+        from app.services import topic_filter
+        self.assertEqual(topic_filter.contar_menciones("Tienda ONLINE, E-Commerce y comercio electrónico"), 3)
+
+
+class RateLimitTests(unittest.TestCase):
+    def test_429_lanza_ratelimited_solo_si_se_pide(self):
+        import subprocess
+        from unittest.mock import patch
+        from app.services import youtube_rss_fetcher as f
+        fake = subprocess.CompletedProcess([], 1, stdout=b"", stderr=b"ERROR: HTTP Error 429: Too Many Requests")
+        with patch.object(f.subprocess, "run", return_value=fake):
+            with self.assertRaises(f.RateLimited):
+                f._run_ytdlp(["x"], raise_on_rate_limit=True)
+            self.assertIsNone(f._run_ytdlp(["x"]))
+
+
+class MonitorTests(unittest.TestCase):
+    """Sincronización con descargas simuladas: filtro de tema, descartados y 429."""
+
+    def setUp(self):
+        import json
+        self.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+        self.db = os.path.join(self.tmp.name, "t.db")
+        self.dbm = DatabaseConnection(self.db)
+        self.cfg = os.path.join(self.tmp.name, "youtube_channels.json")
+        json.dump([
+            {"url": "https://www.youtube.com/@primario", "nombre": "Primario", "activo": True,
+             "idioma": "es", "prioridad": 1, "filtro_tema": True},
+            {"url": "https://www.youtube.com/@dropshipper", "nombre": "Solo Dropshipping", "activo": True,
+             "idioma": "es", "prioridad": 2},
+        ], open(self.cfg, "w", encoding="utf-8"))
+        import app.services.youtube_channel_monitor as mod
+        self.mod = mod
+        self._pausa, self._esperas = mod.PAUSA_ENTRE_DESCARGAS, mod.ESPERAS_429
+        mod.PAUSA_ENTRE_DESCARGAS, mod.ESPERAS_429 = (0.0, 0.0), (0, 0)
+        self.m = mod.YouTubeChannelMonitor(db_manager=self.dbm, config_path=self.cfg)
+
+    def tearDown(self):
+        self.mod.PAUSA_ENTRE_DESCARGAS, self.mod.ESPERAS_429 = self._pausa, self._esperas
+        self.tmp.cleanup()
+
+    def _videos(self, url, max_videos=15):
+        if "primario" in url:
+            return [{"video_id": "aaaaaaaaaaa", "title": "Numerología y dinero", "channel": "Primario"},
+                    {"video_id": "bbbbbbbbbbb", "title": "Mi tienda Shopify paso a paso", "channel": "Primario"}]
+        return [{"video_id": "ccccccccccc", "title": "Habla de IA", "channel": "Solo Dropshipping"}]
+
+    def _texto(self, video_id, lang="es"):
+        return (f"contenido {video_id} sobre ventas y anuncios de producto con margen y precio. " * 8)
+
+    def test_filtra_solo_el_canal_marcado_y_no_repite_descartados(self):
+        from unittest.mock import patch
+        with patch.object(self.mod, "fetch_channel_videos", self._videos),              patch.object(self.mod, "download_transcript", self._texto):
+            r1 = self.m.sincronizar_canales()
+            self.assertEqual(r1["fuera_de_tema"], 1)            # "Numerología" descartado
+            self.assertEqual(r1["transcripciones_procesadas"], 2)  # Shopify + canal sin filtro
+            guardados = transcript_store.video_ids_guardados(self.db)
+            self.assertEqual(guardados, {"bbbbbbbbbbb", "ccccccccccc"})
+            llamadas = []
+            with patch.object(self.mod, "download_transcript", lambda v, lang="es": llamadas.append(v)):
+                self.m.sincronizar_canales()
+            self.assertEqual(llamadas, [])                      # nada que volver a bajar
+
+    def test_ante_429_reintenta_y_luego_se_detiene_sin_perder_lo_guardado(self):
+        from unittest.mock import patch
+        from app.services.youtube_rss_fetcher import RateLimited
+        intentos = []
+
+        def siempre_429(video_id, lang="es"):
+            intentos.append(video_id)
+            raise RateLimited("429")
+
+        with patch.object(self.mod, "fetch_channel_videos", self._videos),              patch.object(self.mod, "download_transcript", siempre_429):
+            r = self.m.sincronizar_canales()
+        self.assertTrue(r["limitado"])
+        self.assertEqual(len(intentos), 3)                      # 1 intento + 2 reintentos
+        self.assertEqual(transcript_store.stats(self.db)["total"], 0)
+
+    def test_429_pasajero_se_recupera(self):
+        from unittest.mock import patch
+        from app.services.youtube_rss_fetcher import RateLimited
+        estado = {"n": 0}
+
+        def una_vez_429(video_id, lang="es"):
+            estado["n"] += 1
+            if estado["n"] == 1:
+                raise RateLimited("429")
+            return self._texto(video_id)
+
+        with patch.object(self.mod, "fetch_channel_videos", self._videos),              patch.object(self.mod, "download_transcript", una_vez_429):
+            r = self.m.sincronizar_canales()
+        self.assertFalse(r["limitado"])
+        self.assertGreaterEqual(r["transcripciones_procesadas"], 2)
+
+
 class EscritorioTests(unittest.TestCase):
     def test_rgba_se_convierte_a_hex_valido_para_tk(self):
         from app.ui.components.financial_validator_panel_v2 import _rgba_to_hex
