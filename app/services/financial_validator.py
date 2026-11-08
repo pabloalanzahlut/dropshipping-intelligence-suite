@@ -228,7 +228,8 @@ class FinancialValidator:
                 sku=producto.get('sku'),
                 costo_origen=producto.get('costo_origen'),
                 peso_kg=producto.get('peso_kg', 0.0),
-                pvp_sugerido=producto.get('pvp')
+                pvp_sugerido=producto.get('pvp'),
+                costo_envio=producto.get('costo_envio', 0.0)
             )
             validaciones.append(validacion)
             
