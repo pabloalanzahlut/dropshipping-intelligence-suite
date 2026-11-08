@@ -186,7 +186,7 @@
        class="flex items-start justify-center" style="position:fixed;inset:0;z-index:50;padding:40px 16px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);" @click.self="nuevo.abierto = false">
     <form @submit.prevent="crear()" style="background:#0d0f1f;border:1px solid #252844;border-radius:16px;width:100%;max-width:520px;padding:22px;">
       <h2 style="font-size:16px;font-weight:700;color:#e8ecff;margin:0 0 14px;">Nuevo producto</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div style="grid-column:1/-1;"><label class="form-label" for="n-nombre">Nombre</label><input id="n-nombre" x-model="nuevo.nombre" class="input-field" required></div>
         <div><label class="form-label" for="n-co">Coste de origen</label><input id="n-co" x-model.number="nuevo.costo_origen" type="number" step="0.01" min="0" class="input-field"></div>
         <div><label class="form-label" for="n-env">Envío</label><input id="n-env" x-model.number="nuevo.costo_envio" type="number" step="0.01" min="0" class="input-field"></div>

@@ -16,7 +16,7 @@
     <p style="font-size:12px;color:#4a5080;margin:0;">4 patrones de hooks virales · Estructura 4 columnas · 15–30 s</p>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+  <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
 
     <!-- Form -->
     <div class="card" style="border-color:rgba(251,113,133,0.12);">
@@ -48,7 +48,7 @@
         <!-- Hook selector -->
         <div>
           <label class="form-label">Patrón de Hook</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <template x-for="p in hookPatterns" :key="p.value">
               <button type="button"
                       @click="form.patron_hook = p.value"

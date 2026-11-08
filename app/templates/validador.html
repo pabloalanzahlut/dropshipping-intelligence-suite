@@ -32,7 +32,7 @@
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+  <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
 
     <!-- Input form -->
     <div class="card card-glow-cyan">
@@ -131,7 +131,7 @@
         </div>
 
         <!-- Metric grid -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+        <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
           <div style="background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;">
             <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Coste landed (producto + envío)</p>
             <p style="font-size:16px;font-weight:700;color:#e8ecff;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="'$' + (result?.costo_landed?.toFixed(2) || '—')"></p>

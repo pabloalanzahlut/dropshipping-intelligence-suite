@@ -365,6 +365,14 @@
       #topbar { padding: 10px 16px; }
     }
 
+    /* Rejillas fijas: una columna en móvil; tablas anchas con desplazamiento propio (sin desbordar la página) */
+    @media (max-width: 767px) {
+      .g-resp { grid-template-columns: 1fr !important; }
+      .data-table { display: block; overflow-x: auto; white-space: nowrap; }
+      #page-content { overflow-x: hidden; }
+    }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
     /* Centro de alertas */
     .alertas-wrap { position: relative; }
     .bell { position: relative; padding: 6px 8px; }
