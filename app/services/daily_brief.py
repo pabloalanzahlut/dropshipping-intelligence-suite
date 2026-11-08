@@ -115,9 +115,13 @@ def _prioridades(db_path: str, config_path: str) -> List[Dict[str, str]]:
     siguiente = {"candidato": "clasificarlo (HOT/WARM/COLD)", "clasificado": "refutarlo (8 intentos de matar la tesis)",
                  "refutado": "validar el financiero sobre coste landed", "validado": "probar demanda y crear el creativo",
                  "creativo": "montar la tienda con la oferta multiunidad"}
-    for p in product_catalog.listar(db_path):
+    catalogo = product_catalog.listar(db_path)
+    for p in catalogo:
         if p["estado"] in siguiente:
             out.append({"nivel": "info", "texto": f"{p['nombre']}: toca {siguiente[p['estado']]}.", "enlace": "/productos"})
+    if not catalogo:
+        out.append({"nivel": "info", "texto": "Añade tu primer producto candidato: el recorrido empieza en Productos.",
+                    "enlace": "/productos"})
     if not out:
         out.append({"nivel": "info", "texto": "Sin urgencias. Registra las métricas de hoy cuando cierre el día.", "enlace": "/negocio"})
     return out[:8]
