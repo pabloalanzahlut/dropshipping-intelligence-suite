@@ -82,3 +82,15 @@ ai_workspace/config/*credentials*.json
 ai_workspace/config/*secret*.json
 **/service_account*.json
 **/*_credentials.json
+
+# Cookies de sesión — NUNCA commitear (contienen auth_tokens activos)
+*cookies*.json
+**/cookies*.json
+ai_workspace/scripts/*.json
+
+# Playwright MCP — grabaciones de sesiones autenticadas
+.playwright-mcp/
+
+# Screenshots de sesiones autenticadas
+skool_page.png
+*_page.png
