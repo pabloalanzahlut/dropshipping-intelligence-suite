@@ -37,7 +37,8 @@ from pydantic import BaseModel
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
 from app.services import (agent_router, alerts, business_metrics, channel_store, daily_brief,
-                          exports, log_viewer, mantenimiento, product_catalog, transcript_store, web_auth)
+                          exports, log_viewer, mantenimiento, metrics_import, notifier,
+                          product_catalog, transcript_store, web_auth)
 
 log = logging.getLogger(__name__)
 log_viewer.configurar_log_servidor(PathManager.get_paths()["logs"] / "servidor.log")
@@ -211,12 +212,17 @@ async def lifespan(app: FastAPI):
             log.warning(f"[SERVER] Copia de seguridad automática falló: {exc}")
 
     def _scheduled_alertas() -> None:
-        """Revisión automática: caja, ROAS, canales, sincronización, copias, IA."""
+        """Revisión automática (caja, ROAS, canales, sincronización, copias, IA) y aviso fuera de la app."""
         try:
             r = alerts.evaluar(DB_PATH, CHANNELS_JSON_PATH)
             log.info(f"[SERVER] Alertas revisadas: {r['vigentes']} vigentes, {r['nuevas']} nuevas.")
         except Exception as exc:
             log.warning(f"[SERVER] Revisión de alertas falló: {exc}")
+            return
+        try:
+            notifier.enviar_pendientes(DB_PATH)
+        except Exception as exc:
+            log.warning(f"[SERVER] Avisos externos fallaron: {exc}")
 
     def _scheduled_resumen() -> None:
         """Resumen del día (08:00)."""
@@ -241,7 +247,7 @@ async def lifespan(app: FastAPI):
         _scheduler.add_job(_scheduled_mantenimiento, "cron", day_of_week="sun", hour=4, minute=0,
                            id="mantenimiento_semanal", replace_existing=True, misfire_grace_time=24 * 3600,
                            coalesce=True)
-        _scheduler.add_job(_scheduled_alertas, "interval", minutes=60, id="alertas_auto", max_instances=1,
+        _scheduler.add_job(_scheduled_alertas, "interval", minutes=15, id="alertas_auto", max_instances=1,
                            misfire_grace_time=600, replace_existing=True,
                            next_run_time=datetime.now() + timedelta(seconds=45))
         _scheduler.add_job(_scheduled_resumen, "cron", hour=8, minute=0, id="resumen_diario",
@@ -1536,6 +1542,18 @@ async def api_alertas(todas: bool = False, refrescar: bool = False) -> Dict[str,
 async def api_alertas_vistas(alerta_id: Optional[int] = None) -> Dict[str, Any]:
     """Marca como vista una alerta (o todas). Sigue activa mientras el problema exista."""
     return {"marcadas": alerts.marcar_vista(DB_PATH, alerta_id)}
+
+
+@app.get("/api/avisos")
+async def api_avisos() -> Dict[str, Any]:
+    """Estado de los canales de aviso fuera de la app (nunca devuelve la URL del webhook)."""
+    return notifier.configuracion()
+
+
+@app.post("/api/avisos/prueba")
+async def api_avisos_prueba() -> Dict[str, Any]:
+    """Envía un aviso de prueba por los canales activos."""
+    return await asyncio.get_event_loop().run_in_executor(None, notifier.enviar_prueba)
 
 
 @app.get("/api/mantenimiento")

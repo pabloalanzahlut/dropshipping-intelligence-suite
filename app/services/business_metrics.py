@@ -361,6 +361,7 @@ _INTEGRACIONES = [
     ("shopify", "Shopify", ["SHOPIFY_STORE_URL", "SHOPIFY_ACCESS_TOKEN"], "Borradores de producto y webhooks"),
     ("make", "Make.com · TikTok", ["MAKE_WEBHOOK_TIKTOK"], "Publicación automática de guiones"),
     ("make_carrito", "Make.com · carrito abandonado", ["MAKE_WEBHOOK_ABANDONED_CART"], "Recuperación de carritos"),
+    ("make_alertas", "Make.com · avisos de alertas", ["MAKE_WEBHOOK_ALERTAS"], "Alertas por email, Telegram o WhatsApp"),
     ("klaviyo", "Klaviyo", ["KLAVIYO_API_KEY"], "Emails y listas"),
     ("sheets", "Google Sheets", ["GOOGLE_SHEETS_SPREADSHEET_ID"], "Dashboard de métricas"),
     ("removebg", "remove.bg", ["REMOVEBG_API_KEY"], "Fondo de imágenes de producto"),
