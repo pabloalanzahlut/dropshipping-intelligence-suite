@@ -210,6 +210,9 @@ class TranscriptCleaner:
         for pattern in self.COMMERCIAL_FLUFF_PATTERNS:
             result = re.sub(pattern, '', result,
                             flags=re.IGNORECASE | re.MULTILINE)
+        # Conjunciones y signos huérfanos que deja la frase eliminada ("... y .")
+        result = re.sub(r'\s+(?:y|e|o|pero)\s*(?=[.!?])', '', result, flags=re.IGNORECASE)
+        result = re.sub(r'(?<![\w.])\s*[.!?]+(?=\s|$)', '', result)
         # Limpiar espacios y líneas residuales
         result = re.sub(r' {2,}', ' ', result)
         result = re.sub(r'\n{3,}', '\n\n', result)
