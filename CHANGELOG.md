@@ -54,6 +54,12 @@ y el versionado [SemVer](https://semver.org/).
 - Escritorio con la paleta de la web (`design_tokens.py`); los estilos premium ya no los
   pisa `BaseTheme.apply()`.
 
+### Corregido (aprobado por el usuario)
+- `validator_rules.py::_check_business_rules` exigía en `agent.md` «Margen 70%» y «Peso 1.2 kg»
+  (reglas que el curso no fija y que ya no están en `agent.md`): el pre-flight fallaba siempre y
+  bloqueaba a todos los agentes, incluida la página Agente IA. Ahora exige las reglas reales:
+  mínimo 2×, objetivo 3×, ROAS, AIDA y superlativos.
+
 ### Corregido (2ª ronda)
 - Dashboard web: el panel «Últimos Insights» salía vacío (claves duplicadas en Alpine) y todas
   las páginas lanzaban `Cannot read properties of undefined (reading 'after')`.

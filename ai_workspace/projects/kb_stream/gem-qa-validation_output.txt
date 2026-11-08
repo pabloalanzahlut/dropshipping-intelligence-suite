@@ -1,79 +1,70 @@
 ```json
 {
-  "respuesta": "No cumple la regla del multiplicador mínimo de 3x. Con costo de producto de $6 y envío de $2 (costo total $8), el precio de venta de $15 equivale a 1.875x sobre el costo total y a 2.5x sobre el costo de producto. Para cumplir 3x sobre el costo total, el precio mínimo es $24. Si la regla se aplica solo al costo del producto, el precio mínimo es $18.",
+  "respuesta": "No cumple la regla del multiplicador mínimo de 3x sobre costes. Con coste de producto de 6 USD y envío de 2 USD, el coste total es 8 USD. Con precio de venta de 15 USD, el multiplicador resultante es 1.875x, por debajo del mínimo de 3x.",
   "tipo_consulta": "metrica",
   "datos": [
     {
-      "concepto": "Costo de producto",
+      "concepto": "Coste de producto",
       "valor_usd": 6,
-      "fuente": "Dato aportado por el operador"
+      "fuente": "Dato indicado por el operador"
     },
     {
-      "concepto": "Costo de envío",
+      "concepto": "Coste de envío",
       "valor_usd": 2,
-      "fuente": "Dato aportado por el operador"
+      "fuente": "Dato indicado por el operador"
     },
     {
-      "concepto": "Costo total (producto + envío)",
+      "concepto": "Coste total (producto + envío)",
       "valor_usd": 8,
       "calculo": "6 + 2"
     },
     {
-      "concepto": "Precio de venta propuesto",
+      "concepto": "Precio de venta",
       "valor_usd": 15,
-      "fuente": "Dato aportado por el operador"
+      "fuente": "Dato indicado por el operador"
     },
     {
-      "concepto": "Multiplicador sobre costo total",
+      "concepto": "Multiplicador resultante",
       "valor": 1.875,
       "calculo": "15 / 8",
-      "cumple_3x": false
+      "umbral_minimo": 3,
+      "cumple": false
     },
     {
-      "concepto": "Multiplicador sobre costo de producto",
-      "valor": 2.5,
-      "calculo": "15 / 6",
-      "cumple_3x": false
-    },
-    {
-      "concepto": "Precio mínimo para 3x sobre costo total",
+      "concepto": "Precio mínimo requerido para 3x",
       "valor_usd": 24,
       "calculo": "8 × 3"
     },
     {
-      "concepto": "Precio mínimo para 3x sobre costo de producto",
-      "valor_usd": 18,
-      "calculo": "6 × 3"
+      "concepto": "Coste total máximo admisible con precio de 15 USD",
+      "valor_usd": 5,
+      "calculo": "15 / 3",
+      "nota": "Este límite es inferior al coste de producto por sí solo (6 USD). Con este precio de venta, la regla 3x no es alcanzable con el coste actual."
     },
     {
-      "concepto": "Rango de coste de producto (regla financiera primaria)",
+      "concepto": "Rango de coste de producto de referencia",
       "valor": "5-15 USD",
       "cumple": true,
-      "fuente": "Jerarquía de fuentes: Adrián Sáenz (fuente primaria)"
-    },
-    {
-      "concepto": "ROAS mínimo",
-      "valor": 2,
-      "evaluable": false,
-      "motivo": "[DATA_GAP: gasto publicitario por venta / CPA previsto]"
+      "fuente": "Regla financiera de Adrián Sáenz citada en la jerarquía de fuentes. El coste de 6 USD está dentro del rango."
     }
   ],
   "fuentes": [
-    "Gobernanza global: Regla del 3x en costos (Agente Cazador de Tendencias / Product Hunter)",
-    "Jerarquía de fuentes: regla financiera de Adrián Sáenz (coste $5-15, ROAS mínimo 2)"
+    "Regla del 3x en costos: Manual GEM OS, restricción del agente Cazador de Tendencias (Product Hunter)",
+    "Rango de coste 5-15 USD y ROAS mínimo 2: jerarquía de fuentes, prioridad PRIMARIA (Adrián Sáenz). No se encontraron entradas de este canal en el contexto KB inyectado."
   ],
-  "confianza": "Alta",
-  "notas": [
-    "No se encontró ningún insight de Adrián Sáenz en el contexto KB inyectado. Las reglas usadas proceden de la gobernanza global y de la jerarquía de fuentes, no de los insights KB.",
-    "Los insights KB del contexto proceden de Marc Verdú (canal complementario). No se citan porque no aportan datos financieros para esta validación.",
-    "Se asume que $6, $2 y $15 están expresados en USD, según el enunciado.",
-    "La validación no incluye costos de pasarela de pago, impuestos ni comisiones de plataforma, porque no fueron proporcionados ([DATA_GAP: comisiones_plataforma]).",
-    "Los valores financieros son cálculos sobre datos del operador y no garantizan resultados de venta."
-  ],
+  "confianza": "Media",
   "fecha_consulta": "[DATA_GAP: fecha_consulta]",
+  "data_gaps": [
+    "[DATA_GAP: base_del_multiplicador] No está confirmado si el 3x se aplica sobre coste de producto o sobre coste total incluido envío. El cálculo anterior usa coste total (producto + envío), que es el criterio más conservador.",
+    "[DATA_GAP: comisiones_pasarela] No se han indicado comisiones de pasarela de pago (Stripe/PayPal), que reducirían el margen real.",
+    "[DATA_GAP: impuestos_y_devoluciones] No se han indicado impuestos, tasas de devolución ni coste de publicidad.",
+    "[DATA_GAP: ROAS_objetivo_calculado] El umbral de ROAS mínimo de 2 no puede evaluarse sin coste de adquisición por venta."
+  ],
   "bitacora": {
-    "decision": "FORMAT_VALIDO / REGLA_3X_NO_CUMPLIDA",
-    "accion_recomendada": "Ajustar el precio a un mínimo de $24 (base costo total) o $18 (base costo de producto), o reducir costos de origen, antes de avanzar a pauta."
-  }
+    "decision": "NO_CUMPLE",
+    "motivo": "Multiplicador 1.875x inferior al mínimo de 3x sobre coste total (8 USD).",
+    "accion_sugerida": "Revisar coste de producto y envío, o buscar un precio de venta de al menos 24 USD. El contexto KB actual no contiene datos de Adrián Sáenz sobre esta regla, por lo que la verificación del umbral se basa en el manual de gobernanza."
+  },
+  "aviso": "Estos cálculos son referencias de cálculo sobre los datos indicados. No constituyen garantía de rentabilidad."
 }
 ```

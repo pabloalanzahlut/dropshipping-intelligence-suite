@@ -4,3 +4,6 @@
 {"agent_name": "smoke_agent", "event_type": "test", "category": "info", "summary": "Registro smoke test", "details": null, "context_hash": null, "timestamp": "2026-10-31T19:19:28.097234+00:00"}
 {"agent_name": "smoke_agent", "event_type": "decision", "category": "business", "summary": "Decisión: Aprobar", "details": "{\"reasoning\": \"Cumple reglas\", \"data_sources\": [\"datos_test\"]}", "context_hash": null, "timestamp": "2026-10-31T19:19:28.102234+00:00"}
 {"agent_name": "smoke_agent", "event_type": "success", "category": "business", "summary": "Éxito: Smoke completado", "details": "{\"score\": 100}", "context_hash": null, "timestamp": "2026-10-31T19:19:28.107233+00:00"}
+{"agent_name": "smoke_agent", "event_type": "test", "category": "info", "summary": "Registro smoke test", "details": null, "context_hash": null, "timestamp": "2026-11-08T19:18:08.682501+00:00"}
+{"agent_name": "smoke_agent", "event_type": "decision", "category": "business", "summary": "Decisión: Aprobar", "details": "{\"reasoning\": \"Cumple reglas\", \"data_sources\": [\"datos_test\"]}", "context_hash": null, "timestamp": "2026-11-08T19:18:08.687523+00:00"}
+{"agent_name": "smoke_agent", "event_type": "success", "category": "business", "summary": "Éxito: Smoke completado", "details": "{\"score\": 100}", "context_hash": null, "timestamp": "2026-11-08T19:18:08.693917+00:00"}

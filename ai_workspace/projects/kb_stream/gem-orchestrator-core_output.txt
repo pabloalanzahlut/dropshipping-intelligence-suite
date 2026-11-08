@@ -1,75 +1,80 @@
 ```json
 {
-  "respuesta": "La Knowledge Base contiene 6 entradas de la tabla product_trends. Ninguna incluye un margen calculado: no hay datos de costo en origen, precio de venta ni margen multiplicador. El margen de cada entrada es [DATA_GAP: margen_estimado]. Las entradas son títulos y descripciones de videos, no fichas de producto verificadas. Varias descripciones corresponden a servicios, cursos o formación (eclosionadora de pollitos, creación de páginas web, transporte regulado, aprendizaje gamificado), por lo que no son productos físicos aptos para la Regla del 3x sin datos de proveedor.",
-  "tipo_consulta": "producto",
+  "respuesta": "La base de conocimiento describe 7 estrategias de tráfico, todas atribuidas al canal Marc Verdú. Combinan publicidad de pago en TikTok Ads y Meta Ads con tráfico orgánico basado en volumen de publicaciones. No incluyen métricas de presupuesto, ROAS ni coste por resultado, por lo que las estrategias se describen sin cifras de rendimiento.",
+  "tipo_consulta": "operaciones",
   "datos": [
     {
-      "titulo_video": "Millonario Revela El Simple Método Que Le Ha Hecho Rico Partiendo Desde Cero",
-      "canal": "Antonio Faya",
-      "descripcion_kb": "Permite eclosionar pollitos en casa, ideal para aficionados a la crianza de aves.",
-      "tipo_item": "Producto físico (aparente)",
-      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "estrategia": "Volumen de contenido orgánico",
+      "descripcion": "Subir múltiples vídeos diarios para aumentar la visibilidad.",
+      "canal_plataforma": "TikTok, Instagram (orgánico)",
+      "canal_origen": "Marc Verdú",
+      "fuente_video": "They Started Out Skeptical and Ended Up Making $20,000 from Colombia",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "titulo_video": "6 Formas De Ganar Dinero Con Claude Siendo Estudiante",
-      "canal": "Adrián Sáenz",
-      "descripcion_kb": "Creación rápida y profesional de páginas web con plantillas personalizadas",
-      "tipo_item": "Servicio digital",
-      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "estrategia": "Expansión de catálogo y mercados con publicidad de pago",
+      "descripcion": "Subir más vídeos, abrir nuevos mercados y utilizar publicidad de pago.",
+      "canal_plataforma": "TikTok Ads, Meta Ads, orgánico",
+      "canal_origen": "Marc Verdú",
+      "fuente_video": "How to Sell Your First Dropshipping Product Without Paid Ads",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "titulo_video": "El Mejor Negocio Para Empezar Partiendo Desde Cero",
-      "canal": "Adrián Sáenz",
-      "descripcion_kb": "Solución de transporte regulada, con seguro y matrícula, amplio público objetivo",
-      "tipo_item": "Servicio (transporte)",
-      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "estrategia": "Prueba de productos y escalado por resultados",
+      "descripcion": "Probar distintos productos y escalar los que muestran resultados.",
+      "canal_plataforma": "TikTok, Instagram",
+      "canal_origen": "Marc Verdú",
+      "fuente_video": "They Started Out Skeptical and Ended Up Making $20,000 from Colombia",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "titulo_video": "Trata el dropshipping como un videojuego y hazte rico",
-      "canal": "Adrián Sáenz",
-      "descripcion_kb": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
-      "tipo_item": "Producto físico (aparente)",
-      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "estrategia": "Optimización de anuncios y escalado antes del Q4",
+      "descripcion": "Optimizar los anuncios y escalar la inversión antes del cuarto trimestre.",
+      "canal_plataforma": "TikTok/Meta Ads",
+      "canal_origen": "Marc Verdú",
+      "fuente_video": "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "titulo_video": "Cómo ganaría dinero con Claude si mi vida dependiera de ello",
-      "canal": "Adrián Sáenz",
-      "descripcion_kb": "Aprendizaje gamificado y personalizado para ganar dinero online",
-      "tipo_item": "Curso / formación digital",
-      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "estrategia": "Cambio de ángulo del producto para nichos no saturados",
+      "descripcion": "Modificar el enfoque del producto para llegar a audiencias nuevas. Ejemplo citado: pasar de 'corrector de juanetes' a 'plantilla que corrige la pisada'.",
+      "canal_plataforma": "TikTok Ads, Meta Ads",
+      "canal_origen": "Marc Verdú",
+      "fuente_video": "The Secret to Making $10,000/Month With Dropshipping That No One Uses",
       "fecha": "[DATA_GAP: fecha]"
     },
     {
-      "titulo_video": "7 Días Haciendo Compra-Venta En Latinoamérica",
-      "canal": "Adrián Sáenz",
-      "descripcion_kb": "Funciona en cualquier país del mundo",
-      "tipo_item": "Modelo de negocio (sin producto específico)",
-      "margen_estimado": "[DATA_GAP: margen_estimado]",
+      "estrategia": "Viralización de contenido",
+      "descripcion": "Difusión orgánica de un vídeo viral en TikTok e Instagram. La KB asocia este caso a 90 millones de visitas, sin detallar cómo se midieron.",
+      "canal_plataforma": "TikTok, Instagram",
+      "canal_origen": "Marc Verdú",
+      "fuente_video": "They Couldn't Afford Rent and Now They Make $100,000 with Dropshipping",
       "fecha": "[DATA_GAP: fecha]"
+    },
+    {
+      "estrategia": "Testing de campañas CBO/ABO",
+      "descripcion": "Se menciona el testing con CBO/ABO sin desarrollar su aplicación.",
+      "canal_plataforma": "TikTok/Meta Ads",
+      "canal_origen": "Marc Verdú",
+      "fuente_video": "How to Build a Dropshipping Store in 5 Minutes with Claude",
+      "fecha": "[DATA_GAP: fecha]",
+      "detalle_pendiente": "[DATA_GAP: definición operativa de CBO/ABO, presupuesto y criterios de decisión]"
     }
   ],
   "fuentes": [
-    "[DATA_GAP: video_id] · Antonio Faya · [DATA_GAP: fecha]",
-    "[DATA_GAP: video_id] · Adrián Sáenz · [DATA_GAP: fecha]"
+    "How to Sell Your First Dropshipping Product Without Paid Ads · Marc Verdú · [DATA_GAP: fecha]",
+    "They Started Out Skeptical and Ended Up Making $20,000 from Colombia · Marc Verdú · [DATA_GAP: fecha]",
+    "TOP 5 WINNING DROPSHIPPING PRODUCTS SEPTEMBER · Marc Verdú · [DATA_GAP: fecha]",
+    "The Secret to Making $10,000/Month With Dropshipping That No One Uses · Marc Verdú · [DATA_GAP: fecha]",
+    "They Couldn't Afford Rent and Now They Make $100,000 with Dropshipping · Marc Verdú · [DATA_GAP: fecha]",
+    "How to Build a Dropshipping Store in 5 Minutes with Claude · Marc Verdú · [DATA_GAP: fecha]"
   ],
-  "confianza": "Baja",
-  "fecha_consulta": "[DATA_GAP: fecha_consulta]",
-  "datos_faltantes_para_margen": [
-    "costo_origen_proveedor",
-    "precio_venta_propuesto",
-    "costos_logisticos",
-    "comisiones_pasarela",
-    "presupuesto_pauta"
+  "observaciones": [
+    "No hay contenido del canal primario Adrián Sáenz en el contexto inyectado. [DATA_GAP: estrategias de tráfico de Adrián Sáenz, incluidas reglas de coste $5-15 y ROAS mínimo 2]. No se puede verificar si las estrategias de Marc Verdú son coherentes con esas reglas.",
+    "Los registros de operations_traffic aparecen duplicados (por ejemplo, 'Optimización de anuncios y escalado antes del Q4' y 'Cambiar ángulos'). Se han consolidado en una sola entrada por estrategia.",
+    "Ninguna entrada incluye presupuesto, ROAS, CPA ni resultados medidos. Son referencias cualitativas de un único canal y no garantizan resultados."
   ],
-  "aviso": "Las referencias son de videos de mentores y no constituyen garantías de rentabilidad.",
-  "bitacora": {
-    "decision": "Responder con inventario de product_trends sin calcular margen.",
-    "motivo": "El contexto KB no contiene costos ni precios; calcular margen sería inventar datos financieros.",
-    "accion_sugerida": "Aportar costo en origen y precio de venta para aplicar la Regla del 3x por producto."
-  }
+  "confianza": "Media",
+  "fecha_consulta": "[DATA_GAP: fecha_consulta]"
 }
 ```
