@@ -87,34 +87,52 @@ class MetricsAggregator:
 
     # ── Lectura por fuente ────────────────────────────────────────────────────
 
+    # Columnas que el clasificador v2 añade a product_trends. Pueden no existir
+    # todavía: la query se adapta a lo que haya en el esquema.
+    COLUMNAS_OPCIONALES = ("clasificacion", "score", "clasificado_at", "margen_neto_unidad")
+
+    def _columnas_disponibles(self, conn: sqlite3.Connection) -> set:
+        return {r[1] for r in conn.execute("PRAGMA table_info(product_trends)")}
+
     def _leer_clasificaciones(self, dias: int) -> Dict[str, ProductMetrics]:
-        """Lee las decisiones que tomó el sistema desde SQLite."""
+        """
+        Lee las decisiones que tomó el sistema desde SQLite.
+
+        El esquema base de product_trends no tiene columnas de clasificación;
+        las añade el clasificador v2. Se leen solo las que existan.
+        """
         desde = (datetime.now(timezone.utc) - timedelta(days=dias)).isoformat()
         filas: Dict[str, ProductMetrics] = {}
 
         try:
             conn = sqlite3.connect(self.db_path)
             conn.row_factory = sqlite3.Row
-            cur = conn.cursor()
-            cur.execute(
-                """
-                SELECT sku, nombre, clasificacion, score, clasificado_at,
-                       multiplicador, margen_neto_unidad
-                FROM product_trends
-                WHERE clasificado_at >= ?
-                """,
+            disponibles = self._columnas_disponibles(conn)
+
+            base = ["product_name", "estimated_margin", "validated_at"]
+            extra = [c for c in self.COLUMNAS_OPCIONALES if c in disponibles]
+            campo_fecha = "clasificado_at" if "clasificado_at" in disponibles else "validated_at"
+
+            cur = conn.execute(
+                f"SELECT {', '.join(base + extra)} FROM product_trends "
+                f"WHERE {campo_fecha} >= ? OR {campo_fecha} IS NULL",
                 (desde,),
             )
             for row in cur.fetchall():
-                sku = row["sku"] or row["nombre"]
-                filas[sku] = ProductMetrics(
-                    sku=sku,
-                    nombre=row["nombre"] or "",
-                    clasificacion=row["clasificacion"],
-                    score=row["score"],
-                    clasificado_at=row["clasificado_at"],
-                    multiplicador_previsto=row["multiplicador"],
-                    margen_neto_previsto=row["margen_neto_unidad"],
+                nombre = row["product_name"] or ""
+                if not nombre:
+                    continue
+                claves = row.keys()
+                filas[nombre] = ProductMetrics(
+                    sku=nombre,
+                    nombre=nombre,
+                    clasificacion=row["clasificacion"] if "clasificacion" in claves else None,
+                    score=row["score"] if "score" in claves else None,
+                    clasificado_at=row[campo_fecha],
+                    multiplicador_previsto=row["estimated_margin"],
+                    margen_neto_previsto=(
+                        row["margen_neto_unidad"] if "margen_neto_unidad" in claves else None
+                    ),
                 )
             conn.close()
         except sqlite3.OperationalError as e:
