@@ -2,15 +2,20 @@
 YouTubeRSSFetcher - Descarga videos y transcripciones SIN YouTube API key.
 
 Estrategia 100% gratuita:
-  - RSS feed de YouTube (xml público, sin autenticación)
-  - yt-dlp para transcripciones automáticas/generadas
-  - OpenRouter para limpieza de texto vía LLM
+  - RSS feed de YouTube (xml público, sin autenticación); si no resuelve el
+    canal, yt-dlp --flat-playlist como respaldo
+  - yt-dlp para subtítulos manuales y automáticos
 """
 
+import html
+import os
+import shutil
 import subprocess
+import sys
 import json
 import hashlib
 import re
+import tempfile
 import urllib.request
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional
@@ -19,148 +24,191 @@ from datetime import datetime
 
 
 YOUTUBE_RSS_BASE = "https://www.youtube.com/feeds/videos.xml"
+_UA = {"User-Agent": "Mozilla/5.0"}
+_CHANNEL_ID_RE = re.compile(r"UC[\w-]{22}")
+
+
+def _ytdlp_cmd() -> List[str]:
+    """Comando base de yt-dlp: ejecutable en PATH o, si no, el módulo de Python."""
+    exe = shutil.which("yt-dlp")
+    if exe:
+        return [exe]
+    if not getattr(sys, "frozen", False):
+        return [sys.executable, "-m", "yt_dlp"]
+    return ["yt-dlp"]
+
+
+def _run_ytdlp(args: List[str], timeout: int = 60) -> Optional[str]:
+    """Ejecuta yt-dlp y devuelve stdout decodificado en UTF-8 (None si falla)."""
+    env = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
+    try:
+        res = subprocess.run(
+            _ytdlp_cmd() + args, capture_output=True, timeout=timeout, env=env
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as exc:
+        print(f"[YT-DLP] {exc}")
+        return None
+    if res.returncode != 0:
+        err = res.stderr.decode("utf-8", errors="replace").strip().splitlines()
+        print(f"[YT-DLP] código {res.returncode}: {err[-1] if err else ''}")
+        return None
+    return res.stdout.decode("utf-8", errors="replace")
 
 
 def _channel_to_rss_url(channel_input: str) -> Optional[str]:
     """
     Convierte handle/URL de canal a URL de feed RSS.
-    Soporta:
-      - @handle  →  resuelve channel_id via scraping ligero
-      - UCxxx    →  directo
-      - URL completa
+    Soporta UCxxx directo, /channel/UCxxx y @handle (resuelve el channel_id
+    leyendo la página pública, donde YouTube lo publica como externalId).
+    Devuelve None si no se puede resolver (el llamador cae a yt-dlp).
     """
-    # Si ya es un channel_id (UCxxx...)
-    if re.match(r"^UC[\w-]{22}$", channel_input):
+    channel_input = (channel_input or "").strip()
+    if _CHANNEL_ID_RE.fullmatch(channel_input):
         return f"{YOUTUBE_RSS_BASE}?channel_id={channel_input}"
 
-    # Si viene como URL, extraer handle o channel_id
-    handle = channel_input.lstrip("@")
-    if "/" in handle:
-        parts = handle.rstrip("/").split("/")
-        handle = parts[-1].lstrip("@")
+    m = re.search(r"/channel/(UC[\w-]{22})", channel_input)
+    if m:
+        return f"{YOUTUBE_RSS_BASE}?channel_id={m.group(1)}"
 
-    # Intentar resolver handle → channel_id via página pública
+    handle = channel_input.rstrip("/").split("/")[-1].lstrip("@")
+    if not handle:
+        return None
     try:
-        url = f"https://www.youtube.com/@{handle}"
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            html = resp.read().decode("utf-8", errors="ignore")
-        match = re.search(r'"channelId":"(UC[\w-]{22})"', html)
-        if match:
-            channel_id = match.group(1)
-            return f"{YOUTUBE_RSS_BASE}?channel_id={channel_id}"
-    except Exception:
-        pass
+        req = urllib.request.Request(f"https://www.youtube.com/@{handle}", headers=_UA)
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            page = resp.read().decode("utf-8", errors="ignore")
+        # externalId es el id del canal de la página; "channelId" puede ser de otro
+        m = re.search(r'"externalId":"(UC[\w-]{22})"', page) or re.search(
+            r'<link rel="canonical" href="https://www\.youtube\.com/channel/(UC[\w-]{22})"', page
+        )
+        if m:
+            return f"{YOUTUBE_RSS_BASE}?channel_id={m.group(1)}"
+    except Exception as exc:
+        print(f"[RSS] No se pudo resolver {handle}: {exc}")
     return None
+
+
+def _fetch_videos_ytdlp(channel_url: str, max_videos: int) -> List[Dict]:
+    """Respaldo: lista los últimos vídeos del canal con yt-dlp --flat-playlist."""
+    base = channel_url.rstrip("/")
+    if not base.endswith("/videos"):
+        base += "/videos"
+    out = _run_ytdlp(
+        ["--flat-playlist", "--playlist-end", str(max_videos), "--no-warnings",
+         "--print", "%(id)s\t%(title)s", base],
+        timeout=90,
+    )
+    videos = []
+    for line in (out or "").splitlines():
+        vid, _, title = line.partition("\t")
+        vid = vid.strip()
+        if re.fullmatch(r"[\w-]{11}", vid):
+            videos.append({
+                "video_id": vid, "title": title.strip(), "channel": "",
+                "published": "", "url": f"https://www.youtube.com/watch?v={vid}",
+            })
+    return videos
 
 
 def fetch_channel_videos(channel_url: str, max_videos: int = 15) -> List[Dict]:
     """
-    Obtiene lista de videos recientes via RSS (gratuito, sin API key).
+    Obtiene lista de vídeos recientes: RSS (rápido, con fecha) y, si falla,
+    yt-dlp. Sin API key.
 
     Returns:
         Lista de dicts: {video_id, title, channel, published, url}
     """
     rss_url = _channel_to_rss_url(channel_url)
-    if not rss_url:
-        return []
+    if rss_url:
+        try:
+            req = urllib.request.Request(rss_url, headers=_UA)
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                xml_data = resp.read()
+            root = ET.fromstring(xml_data)
+            ns = {
+                "atom": "http://www.w3.org/2005/Atom",
+                "yt": "http://www.youtube.com/xml/schemas/2015",
+            }
+            channel_name = root.findtext("atom:title", default="", namespaces=ns)
+            videos = []
+            for entry in root.findall("atom:entry", namespaces=ns)[:max_videos]:
+                video_id = entry.findtext("yt:videoId", default="", namespaces=ns)
+                if video_id:
+                    videos.append({
+                        "video_id": video_id,
+                        "title": entry.findtext("atom:title", default="", namespaces=ns),
+                        "channel": channel_name,
+                        "published": entry.findtext("atom:published", default="", namespaces=ns),
+                        "url": f"https://www.youtube.com/watch?v={video_id}",
+                    })
+            if videos:
+                return videos
+        except Exception as exc:
+            print(f"[RSS] Error con {rss_url}: {exc}")
 
-    try:
-        req = urllib.request.Request(rss_url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            xml_data = resp.read()
-    except Exception as e:
-        print(f"[RSS] Error fetching {rss_url}: {e}")
-        return []
+    # RSS no resolvió o vino vacío: yt-dlp
+    return _fetch_videos_ytdlp(channel_url, max_videos)
 
-    try:
-        root = ET.fromstring(xml_data)
-        ns = {
-            "atom": "http://www.w3.org/2005/Atom",
-            "yt": "http://www.youtube.com/xml/schemas/2015",
-            "media": "http://search.yahoo.com/mrss/",
-        }
-        channel_name = root.findtext("atom:title", default="", namespaces=ns)
-        entries = root.findall("atom:entry", namespaces=ns)[:max_videos]
 
-        videos = []
-        for entry in entries:
-            video_id = entry.findtext("yt:videoId", default="", namespaces=ns)
-            title = entry.findtext("atom:title", default="", namespaces=ns)
-            published = entry.findtext("atom:published", default="", namespaces=ns)
-            if video_id:
-                videos.append({
-                    "video_id": video_id,
-                    "title": title,
-                    "channel": channel_name,
-                    "published": published,
-                    "url": f"https://www.youtube.com/watch?v={video_id}",
-                })
-        return videos
-    except ET.ParseError as e:
-        print(f"[RSS] XML parse error: {e}")
-        return []
+def _pick_vtt(files: List[Path], lang: str) -> Optional[Path]:
+    """Prefiere el subtítulo exacto del idioma (`id.es.vtt`) sobre variantes."""
+    if not files:
+        return None
+
+    def rank(f: Path) -> int:
+        tag = f.name.rsplit(".vtt", 1)[0].rsplit(".", 1)[-1].lower()
+        if tag == lang:
+            return 0
+        if tag.startswith(lang) and "orig" not in tag:
+            return 1
+        return 2
+
+    return sorted(files, key=lambda f: (rank(f), f.name))[0]
 
 
 def download_transcript(video_id: str, lang: str = "es") -> Optional[str]:
     """
-    Descarga transcripción con yt-dlp (gratuito).
-    Intenta: subtítulos manuales → auto-generados → cualquier idioma disponible.
-
-    Requiere: pip install yt-dlp
+    Descarga la transcripción con yt-dlp (gratuito): subtítulos manuales y
+    automáticos del idioma pedido y, si no hay, en inglés.
     """
-    import tempfile, os
-
     url = f"https://www.youtube.com/watch?v={video_id}"
+    langs = [lang] if lang == "en" else [lang, "en"]
     with tempfile.TemporaryDirectory() as tmpdir:
-        base = Path(tmpdir) / video_id
-
-        for lang_opt in [["--sub-lang", lang], ["--sub-lang", "en"], ["--write-auto-subs"]]:
-            cmd = [
-                "yt-dlp",
-                "--skip-download",
-                "--write-subs",
-                *lang_opt,
-                "--sub-format", "vtt",
-                "--output", str(base),
-                "--quiet",
-                url,
-            ]
-            try:
-                subprocess.run(cmd, capture_output=True, timeout=30)
-            except (subprocess.TimeoutExpired, FileNotFoundError):
-                break
-
-            # Buscar archivo .vtt generado
-            for vtt_file in Path(tmpdir).glob("*.vtt"):
-                text = _parse_vtt(vtt_file.read_text(encoding="utf-8", errors="ignore"))
+        for lg in langs:
+            for old in Path(tmpdir).glob("*.vtt"):
+                old.unlink(missing_ok=True)
+            _run_ytdlp(
+                ["--skip-download", "--write-subs", "--write-auto-subs",
+                 "--sub-langs", f"{lg}.*,{lg}", "--sub-format", "vtt",
+                 "--no-warnings", "--quiet",
+                 "--output", str(Path(tmpdir) / video_id), url],
+                timeout=90,
+            )
+            vtt = _pick_vtt(list(Path(tmpdir).glob("*.vtt")), lg)
+            if vtt:
+                text = _parse_vtt(vtt.read_text(encoding="utf-8", errors="ignore"))
                 if text and len(text) > 100:
                     return text
-
     return None
 
 
 def _parse_vtt(vtt_content: str) -> str:
-    """Extrae texto limpio de un archivo VTT."""
+    """Extrae texto limpio de un archivo VTT (sin timestamps ni duplicados)."""
     lines = []
     for line in vtt_content.splitlines():
         line = line.strip()
-        # Saltar cabeceras, timestamps y líneas vacías
-        if not line or line.startswith("WEBVTT") or "-->" in line or re.match(r"^\d+$", line):
+        if (not line or line.startswith(("WEBVTT", "Kind:", "Language:", "NOTE"))
+                or "-->" in line or re.match(r"^\d+$", line)):
             continue
-        # Eliminar tags HTML
-        clean = re.sub(r"<[^>]+>", "", line)
+        clean = html.unescape(re.sub(r"<[^>]+>", "", line)).strip()
         if clean:
             lines.append(clean)
 
-    # Deduplicar líneas consecutivas repetidas (VTT duplica líneas en auto-subs)
-    deduped = []
-    prev = None
+    # Los auto-subs repiten líneas en ventana deslizante: quitar repetidas consecutivas
+    deduped: List[str] = []
     for l in lines:
-        if l != prev:
+        if not deduped or l != deduped[-1]:
             deduped.append(l)
-            prev = l
-
     return " ".join(deduped)
 
 
