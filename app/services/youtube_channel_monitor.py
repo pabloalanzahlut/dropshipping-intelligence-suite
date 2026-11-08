@@ -1,314 +1,302 @@
 """
 YouTubeChannelMonitor - Monitor Automático de Canales YouTube
-Descarga transcripciones VTT/SRT automáticamente de canales configurados.
+Descarga subtítulos de los canales configurados y guarda transcripciones limpias.
 
 Workflow:
-1. Cargar lista de canales (desde config JSON)
-2. Escanear canales para nuevos videos
-3. Descargar transcripciones VTT/SRT
-4. Generar hash MD5 para deduplicación
-5. Guardar en BD
-6. Ejecutar limpieza ultra
+1. Cargar canales (youtube_channels.json + canales_favoritos de la BD)
+2. Listar vídeos recientes de cada canal (RSS, con yt-dlp como respaldo)
+3. Descargar subtítulos SOLO de vídeos que aún no están guardados
+4. Limpiar, deduplicar por hash y guardar (transcript_store)
 """
 
-import os
 import json
-import hashlib
-from typing import Dict, List, Optional, Tuple
+import os
+import random
+import re
+import threading
+import time
 from datetime import datetime
-import subprocess
 from pathlib import Path
+from typing import Callable, Dict, List, Optional
 
 from app.database.connection import DatabaseConnection
+from app.services import transcript_store
 from app.services.transcript_cleaner import TranscriptCleaner
-from app.services.youtube_rss_fetcher import fetch_channel_videos, download_transcript, hash_content
+from app.services.youtube_rss_fetcher import fetch_channel_videos, download_transcript
+
+_YOUTUBE_CHANNEL_RE = re.compile(
+    r"^(?:https?://)?(?:www\.)?youtube\.com/"
+    r"(?:@[A-Za-z0-9._-]+|channel/UC[A-Za-z0-9_-]+|c/[A-Za-z0-9_.-]+|user/[A-Za-z0-9_.-]+)/?$"
+)
+
+
+def _norm_url(url: str) -> str:
+    """Clave de comparación de URLs de canal (sin esquema, www ni barra final)."""
+    u = (url or "").strip().lower().rstrip("/")
+    return re.sub(r"^https?://(www\.)?", "", u)
 
 
 class YouTubeChannelMonitor:
     """Monitor de canales YouTube con descarga automática de transcripciones."""
-    
-    def __init__(self, db_manager: Optional[DatabaseConnection] = None, config_path: str = "youtube_channels.json"):
+
+    def __init__(self, db_manager: Optional[DatabaseConnection] = None,
+                 config_path: Optional[str] = None):
         """
         Args:
             db_manager: Gestor de BD
-            config_path: Ruta al archivo de configuración de canales
+            config_path: JSON de canales (por defecto el de PathManager: data/youtube_channels.json)
         """
         self.db_manager = db_manager if db_manager else DatabaseConnection()
+        if config_path is None:
+            from app.config.path_manager import PathManager
+            config_path = str(PathManager.get_paths()["config"])
         self.config_path = config_path
-        self.canales = self._cargar_canales()
+        self._last_sync_path = Path(config_path).with_name("last_sync.json")
         self.cleaner = TranscriptCleaner()
-        self.monitor_log = []
-    
-    def _cargar_canales(self) -> List[Dict]:
-        """
-        Carga lista de canales desde archivo JSON.
-        Estructura esperada:
-        [
-            {"url": "https://www.youtube.com/@channel1", "nombre": "Channel 1"},
-            ...
-        ]
-        
-        Returns:
-            Lista de dicts con canales, o [] si no existe archivo
-        """
+        self.monitor_log: List[Dict] = []
+        self.ultimo_error = ""
+        self._cancel = threading.Event()
+        self.canales = self._cargar_canales()
+
+    @property
+    def db_path(self) -> str:
+        return self.db_manager.db_path
+
+    # ───────────────────────────── canales ──────────────────────────────────
+
+    def _leer_json(self) -> List[Dict]:
         if not os.path.exists(self.config_path):
-            # Crear archivo de ejemplo si no existe
-            canales_default = [
-                {"url": "https://www.youtube.com/@canalmentores", "nombre": "Canal Mentores"}
-            ]
-            self._guardar_canales(canales_default)
-            return canales_default
-        
-        try:
-            with open(self.config_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            print(f"[ERROR] YouTubeChannelMonitor: No se pudo cargar {self.config_path}: {str(e)}")
             return []
-    
-    def _guardar_canales(self, canales: List[Dict]) -> bool:
-        """Guarda lista de canales en archivo JSON."""
         try:
-            with open(self.config_path, 'w', encoding='utf-8') as f:
+            with open(self.config_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return data if isinstance(data, list) else []
+        except Exception as e:
+            print(f"[ERROR] YouTubeChannelMonitor: no se pudo leer {self.config_path}: {e}")
+            return []
+
+    def _cargar_canales(self) -> List[Dict]:
+        """Une el JSON con los canales activos de la BD (sin duplicar por URL).
+        El JSON manda: trae max_videos_scan, rol y notas."""
+        canales = self._leer_json()
+        vistos = {_norm_url(c.get("url", "")) for c in canales}
+        try:
+            with self.db_manager.get_connection() as conn:
+                rows = conn.execute(
+                    """SELECT nombre, url, idioma, tags, prioridad, activo
+                       FROM canales_favoritos
+                       WHERE activo = 1 AND url IS NOT NULL AND url != ''"""
+                ).fetchall()
+            for r in rows:
+                if _norm_url(r["url"]) in vistos:
+                    continue
+                vistos.add(_norm_url(r["url"]))
+                canales.append({
+                    "url": r["url"], "nombre": r["nombre"], "activo": True,
+                    "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()],
+                    "prioridad": r["prioridad"] or 5, "idioma": r["idioma"] or "es",
+                    "max_videos_scan": 15,
+                })
+        except Exception as e:
+            print(f"[WARN] No se pudieron leer canales_favoritos: {e}")
+        return canales
+
+    def _guardar_canales(self, canales: List[Dict]) -> bool:
+        """Guarda el JSON de forma atómica (archivo temporal + reemplazo)."""
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(self.config_path)), exist_ok=True)
+            tmp = self.config_path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
                 json.dump(canales, f, ensure_ascii=False, indent=2)
+            os.replace(tmp, self.config_path)
             return True
         except Exception as e:
-            print(f"[ERROR] No se pudo guardar canales: {str(e)}")
+            print(f"[ERROR] No se pudo guardar canales: {e}")
             return False
-    
+
     def agregar_canal(self, url: str, nombre: str,
                       tags: str = "", idioma: str = "es",
                       prioridad: int = 5, max_videos_scan: int = 30) -> bool:
-        """Agrega un nuevo canal al JSON y a la tabla canales_favoritos."""
+        """Agrega un canal al JSON y a canales_favoritos. Si falla, el motivo queda
+        en self.ultimo_error."""
+        self.ultimo_error = ""
+        url = (url or "").strip()
+        nombre = (nombre or "").strip()
+        if not _YOUTUBE_CHANNEL_RE.match(url):
+            self.ultimo_error = "URL de canal no válida (ej: https://www.youtube.com/@canal)"
+            return False
+        if not nombre:
+            self.ultimo_error = "Falta el nombre del canal"
+            return False
+        if any(_norm_url(c.get("url", "")) == _norm_url(url) for c in self.canales):
+            self.ultimo_error = "Ese canal ya está registrado"
+            return False
+
         handle = url.rstrip("/").split("/")[-1].lower()
-        nuevo_canal = {
+        nuevo = {
             "url": url, "nombre": nombre, "activo": True,
             "tags": [t.strip() for t in tags.split(",") if t.strip()],
             "prioridad": prioridad, "idioma": idioma,
             "max_videos_scan": max_videos_scan,
         }
-        self.canales.append(nuevo_canal)
-        guardado = self._guardar_canales(self.canales)
-        # Sincronizar también en canales_favoritos
+        # JSON: releer del disco para no pisar cambios hechos por la web
+        en_disco = self._leer_json()
+        en_disco.append(nuevo)
+        if not self._guardar_canales(en_disco):
+            self.ultimo_error = "No se pudo escribir el archivo de canales"
+            return False
+        self.canales.append(nuevo)
         try:
             with self.db_manager.get_connection() as conn:
                 conn.execute(
                     """INSERT OR IGNORE INTO canales_favoritos
                        (handle, nombre, url, idioma, especialidad, tags, prioridad)
                        VALUES (?,?,?,?,?,?,?)""",
-                    (handle, nombre, url, idioma, "general", tags, prioridad)
+                    (handle, nombre, url, idioma, "general", tags, prioridad),
                 )
                 conn.commit()
         except Exception as e:
             print(f"[WARN] No se pudo insertar en canales_favoritos: {e}")
-        return guardado
-    
+        return True
+
+    # ─────────────────────────── transcripciones ────────────────────────────
+
     def hash_transcripcion(self, contenido: str) -> str:
-        """Genera hash MD5 de una transcripción para deduplicación."""
-        return hashlib.md5(contenido.encode('utf-8')).hexdigest()
-    
-    def descargar_transcripcion_mock(self, video_id: str, titulo: str, canal: str) -> Optional[str]:
-        """
-        Mock para descargar transcripción (en implementación real, usa yt-dlp).
-        
-        Para desarrollo, retorna transcripción de ejemplo.
-        En producción, integrar con yt-dlp o youtube-transcript-api.
-        
-        Args:
-            video_id: ID del video (ej: "dQw4w9WgXcQ")
-            titulo: Título del video
-            canal: Nombre del canal
-        
-        Returns:
-            Contenido de transcripción (texto limpio), o None si falla
-        """
-        # Mock: Retornar transcripción de ejemplo
-        ejemplo_transcripcion = f"""
-[{canal}] {titulo}
+        """Hash MD5 de una transcripción para deduplicación."""
+        return transcript_store.hash_text(contenido)
 
-Eh, bueno, mira entonces, umm ok, hoy vamos a hablar de validación de productos en dropshipping.
-Entonces, la regla 3x significa que si el producto cuesta $10, el precio debe ser $30.
-Además, el margen debe ser mayor al 70%, sabes, eso es crítico para la viabilidad del negocio.
-
-Ehh, también importante es validar el peso, umm, debe ser menor a 1.2 kilogramos.
-Verdad, ok, estos tres factores son inmutables en nuestro sistema.
-
-Entonces, cuando validas un producto, asegúrate de que:
-- Costo origen es conocido
-- PVP cumple Regla 3x
-- Margen bruto es >= 70%
-- Peso neto es < 1.2 kg
-
-Mira, además, en TikTok y YouTube tienes que comunicar estos insights de forma que el viewer
-entienda por qué el producto es viable. Ehh, los hook patterns más efectivos son:
-story-telling, curiosity-gap, shock, humor.
-
-Ok, entonces para el copywriting en Shopify, recuerda el framework AIDA:
-Attention (títulos llamativos), Interest (descripción del problema), Decision (cómo resuelves),
-Action (botón de compra). Nunca uses adjetivos superlativos vacíos como "increíble" o "alucinante".
-
-Bueno, creo que esto cubre los fundamentos. Vamos al siguiente tema...
-        """.strip()
-        
-        return ejemplo_transcripcion
-    
-    def procesar_transcripcion(self, video_id: str, titulo: str, canal: str, transcripcion_raw: str) -> Optional[Dict]:
-        """
-        Procesa una transcripción: limpia, deduplica, guarda en BD.
-        
-        Args:
-            video_id: ID del video
-            titulo: Título del video
-            canal: Nombre del canal
-            transcripcion_raw: Contenido raw de transcripción
-        
-        Returns:
-            Dict con resultado del procesamiento, o None si falla
-        """
-        
-        # 1. Generar hash para deduplicación
-        hash_md5 = self.hash_transcripcion(transcripcion_raw)
-        
-        # 2. Verificar si ya existe
+    def procesar_transcripcion(self, video_id: str, titulo: str, canal: str,
+                               transcripcion_raw: str, idioma: str = "es") -> Optional[Dict]:
+        """Limpia y guarda una transcripción (ver transcript_store.save_transcript).
+        Devuelve None si falla; el motivo queda en self.ultimo_error."""
         try:
-            with self.db_manager.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT id FROM transcripciones_youtube WHERE hash_md5 = ?", (hash_md5,))
-                if cursor.fetchone():
-                    return {
-                        'video_id': video_id,
-                        'duplicado': True,
-                        'hash_md5': hash_md5,
-                        'mensaje': 'Transcripción duplicada, no procesada'
-                    }
+            return transcript_store.save_transcript(
+                self.db_path, video_id, titulo, canal, transcripcion_raw,
+                self.cleaner, idioma,
+            )
         except Exception as e:
-            print(f"[ERROR] Error verificando duplicado: {str(e)}")
+            self.ultimo_error = str(e)
+            print(f"[ERROR] Error guardando transcripción {video_id}: {e}")
             return None
-        
-        # 3. Limpiar transcripción
-        resultado_limpieza = self.cleaner.clean(transcripcion_raw, log_stats=True)
-        transcripcion_limpia = resultado_limpieza['text_limpio']
-        tokens_original = resultado_limpieza['tokens_original']
-        tokens_limpio = resultado_limpieza['tokens_limpio']
-        
-        # 4. Guardar en BD (primero insertar en video_sources para respetar FK)
-        try:
-            with self.db_manager.get_connection() as conn:
-                cursor = conn.cursor()
-                # Asegurar que el video exista en video_sources (idempotente)
-                cursor.execute("""
-                            INSERT OR IGNORE INTO video_sources
-                            (video_id, platform, title, channel_name, content_hash)
-                VALUES (?, 'youtube', ?, ?, ?)
-                        """, (video_id, titulo, canal, hash_md5))
-                # Insertar transcripción
-                cursor.execute("""
-                            INSERT INTO transcripciones_youtube
-                            (video_id, titulo, canal, fecha, transcripcion_texto, transcripcion_limpia, 
-                hash_md5, tokens_original, tokens_limpios, procesada)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """, (
-                video_id,
-                titulo,
-                canal,
-                datetime.now().isoformat(),
-                transcripcion_raw[:5000],  # Guardar primeros 5000 chars
-                transcripcion_limpia,
-                hash_md5,
-                tokens_original,
-                tokens_limpio,
-                True
-                ))
-                conn.commit()
-                
-                return {
-                    'video_id': video_id,
-                    'duplicado': False,
-                    'hash_md5': hash_md5,
-                    'titulo': titulo,
-                    'canal': canal,
-                    'tokens_original': tokens_original,
-                    'tokens_limpio': tokens_limpio,
-                    'reduccion_pct': resultado_limpieza['reduccion_pct'],
-                    'mensaje': 'Transcripción procesada exitosamente'
-                }
-        except Exception as e:
-            print(f"[ERROR] Error guardando transcripción: {str(e)}")
-            return None
-    
-    def sincronizar_canales(self) -> Dict:
+
+    # ───────────────────────────── sincronización ───────────────────────────
+
+    def cancelar_sincronizacion(self) -> None:
+        """Pide parar la sincronización en curso (termina el vídeo actual)."""
+        self._cancel.set()
+
+    def sincronizar_canales(self, progress: Optional[Callable[[str], None]] = None,
+                            max_nuevos_por_canal: int = 10) -> Dict:
         """
-        Sincroniza todos los canales via RSS + yt-dlp (sin YouTube API key, sin costo).
+        Sincroniza los canales activos: lista vídeos (RSS/yt-dlp) y descarga SOLO
+        los que aún no están guardados, con pausa entre descargas para no ser
+        bloqueado por YouTube.
         """
+        say = progress or (lambda _m: None)
+        self._cancel.clear()
+        self.canales = self._cargar_canales()
         stats = {
-            'fecha_sincronizacion': datetime.now().isoformat(),
-            'canales_procesados': 0,
-            'videos_descargados': 0,
-            'transcripciones_procesadas': 0,
-            'duplicados': 0,
-            'errores': 0,
-            'tokens_ahorrados': 0,
-            'detalles': []
+            "fecha_sincronizacion": datetime.now().isoformat(timespec="seconds"),
+            "canales_procesados": 0, "videos_descargados": 0,
+            "transcripciones_procesadas": 0, "duplicados": 0, "sin_subtitulos": 0,
+            "errores": 0, "tokens_ahorrados": 0, "cancelado": False, "detalles": [],
         }
+        guardados = transcript_store.video_ids_guardados(self.db_path)
+        activos = sorted((c for c in self.canales if c.get("activo", True)),
+                         key=lambda c: c.get("prioridad", 5))
+        descargas = 0
 
-        for canal_info in self.canales:
-            if not canal_info.get('activo', True):
-                continue
+        for canal_info in activos:
+            if self._cancel.is_set():
+                break
+            url = canal_info.get("url", "")
+            nombre = canal_info.get("nombre", "Sin nombre")
+            idioma = canal_info.get("idioma", "es")
+            max_scan = int(canal_info.get("max_videos_scan", 15) or 15)
 
-            canal_url = canal_info.get('url', '')
-            canal_nombre = canal_info.get('nombre', 'Sin nombre')
-            idioma = canal_info.get('idioma', 'es')
-            max_scan = canal_info.get('max_videos_scan', 15)
-
-            # Obtener lista de videos via RSS (gratuito)
-            videos = fetch_channel_videos(canal_url, max_videos=max_scan)
+            say(f"Escaneando {nombre}…")
+            videos = fetch_channel_videos(url, max_videos=max_scan)
+            stats["canales_procesados"] += 1
             if not videos:
-                print(f"[MONITOR] Sin videos RSS para {canal_nombre}")
-                stats['errores'] += 1
-                stats['canales_procesados'] += 1
+                print(f"[MONITOR] Sin vídeos para {nombre}")
+                stats["errores"] += 1
                 continue
 
-            for video in videos:
-                video_id = video['video_id']
-                titulo = video['title']
-
+            nuevos = [v for v in videos if v["video_id"] not in guardados][:max_nuevos_por_canal]
+            for video in nuevos:
+                if self._cancel.is_set():
+                    break
+                if descargas:  # pausa anti-bloqueo entre descargas
+                    time.sleep(random.uniform(1.5, 4.0))
+                descargas += 1
+                titulo = video.get("title", "")
+                say(f"{nombre}: {titulo[:60]}")
                 try:
-                    # Descargar transcripción con yt-dlp (gratuito)
-                    transcripcion = download_transcript(video_id, lang=idioma)
-                    if not transcripcion:
-                        stats['errores'] += 1
+                    texto = download_transcript(video["video_id"], lang=idioma)
+                    if not texto:
+                        stats["sin_subtitulos"] += 1
                         continue
-
-                    stats['videos_descargados'] += 1
-
-                    resultado = self.procesar_transcripcion(video_id, titulo, canal_nombre, transcripcion)
-                    if resultado:
-                        if resultado['duplicado']:
-                            stats['duplicados'] += 1
-                        else:
-                            stats['transcripciones_procesadas'] += 1
-                            stats['tokens_ahorrados'] += (resultado['tokens_original'] - resultado['tokens_limpio'])
-                        stats['detalles'].append(resultado)
+                    stats["videos_descargados"] += 1
+                    res = self.procesar_transcripcion(
+                        video["video_id"], titulo, video.get("channel") or nombre,
+                        texto, idioma)
+                    if not res:
+                        stats["errores"] += 1
+                    elif res["duplicado"]:
+                        stats["duplicados"] += 1
                     else:
-                        stats['errores'] += 1
-
+                        stats["transcripciones_procesadas"] += 1
+                        stats["tokens_ahorrados"] += res["tokens_original"] - res["tokens_limpio"]
+                        stats["detalles"].append(res)
+                        guardados.add(video["video_id"])
                 except Exception as e:
-                    print(f"[ERROR] Error procesando {titulo}: {str(e)}")
-                    stats['errores'] += 1
+                    print(f"[ERROR] Error procesando {titulo}: {e}")
+                    stats["errores"] += 1
 
-            stats['canales_procesados'] += 1
+            self._marcar_escaneo(url)
 
+        stats["cancelado"] = self._cancel.is_set()
         self.monitor_log.append(stats)
+        del self.monitor_log[:-20]
+        self._guardar_ultima_sync(stats)
         return stats
-    
+
+    def _marcar_escaneo(self, url: str) -> None:
+        try:
+            with self.db_manager.get_connection() as conn:
+                conn.execute(
+                    """UPDATE canales_favoritos SET last_scan_at = ?
+                       WHERE lower(rtrim(url, '/')) = lower(rtrim(?, '/'))""",
+                    (datetime.now().isoformat(timespec="seconds"), url),
+                )
+                conn.commit()
+        except Exception as e:
+            print(f"[WARN] No se pudo marcar last_scan_at: {e}")
+
+    def _guardar_ultima_sync(self, stats: Dict) -> None:
+        """Persiste el resumen (sin detalles) para verlo tras reiniciar la app."""
+        try:
+            resumen = {k: v for k, v in stats.items() if k != "detalles"}
+            self._last_sync_path.write_text(
+                json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception as e:
+            print(f"[WARN] No se pudo guardar last_sync.json: {e}")
+
+    def _leer_ultima_sync(self) -> Optional[Dict]:
+        try:
+            return json.loads(self._last_sync_path.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+
     def obtener_estado_monitor(self) -> Dict:
         """Retorna estado actual del monitor."""
-        activos = [c for c in self.canales if c.get('activo', True)]
+        activos = [c for c in self.canales if c.get("activo", True)]
+        ultima = self.monitor_log[-1] if self.monitor_log else self._leer_ultima_sync()
         return {
-            'canales_activos': len(activos),
-            'canales': self.canales,
-            'sincronizaciones': len(self.monitor_log),
-            'ultima_sincronizacion': self.monitor_log[-1] if self.monitor_log else None
+            "canales_activos": len(activos),
+            "canales": self.canales,
+            "sincronizaciones": len(self.monitor_log),
+            "ultima_sincronizacion": ultima,
         }
 
     def obtener_canales_favoritos(self) -> List[Dict]:
