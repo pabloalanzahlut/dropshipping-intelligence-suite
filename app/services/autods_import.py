@@ -197,7 +197,6 @@ def parsear(contenido: bytes, archivo: str = "", tipo: str = "auto", coste_por_u
             ambiguas += fd[1]
             cant = n(f, "cantidad")
             cant = int(cant) if cant and cant >= 1 else 1
-            k = 1 if (coste_por_unidad and "cantidad" in mapa) else 1
             envio = n(f, "coste_envio")
             fila = {
                 "fecha": fd[0], "pedido_tienda": c(f, "pedido_tienda").lstrip("#"), "titulo": c(f, "titulo"),
