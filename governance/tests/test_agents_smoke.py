@@ -29,10 +29,11 @@ AGENTS_REQUERIDOS = [
 
 AGENTES_CON_ARROBA = [f"@{a}" for a in AGENTS_REQUERIDOS]
 
+# executor.py enruta los tres agentes al mismo modelo de pago (los :free se retiran)
 MODELOS_ESPERADOS = {
-    "gem-qa-validation":     "google/gemini-2.5-flash:free",
-    "gem-backend-core":      "qwen/qwen-2.5-coder-32b-instruct:free",
-    "gem-orchestrator-core": "meta-llama/llama-3.1-8b-instruct:free",
+    "gem-qa-validation":     "anthropic/claude-haiku-5.5",
+    "gem-backend-core":      "anthropic/claude-haiku-5.5",
+    "gem-orchestrator-core": "anthropic/claude-haiku-5.5",
 }
 
 TEMPERATURAS_ESPERADAS = {
@@ -44,7 +45,7 @@ TEMPERATURAS_ESPERADAS = {
 TOKENS_ESPERADOS = {
     "gem-qa-validation":     4096,
     "gem-backend-core":      4096,
-    "gem-orchestrator-core": 2048,
+    "gem-orchestrator-core": 8192,   # la KB crece: 2048 cortaba el JSON a media cadena
 }
 class TestAgentModelRouting(unittest.TestCase):
     """Valida que el mapa de ruteo de agentes → modelos OpenRouter esté completo."""
@@ -142,15 +143,15 @@ class TestExecutorAgentRouting(unittest.TestCase):
 
     def test_02_resolve_qa_validation_model(self):
         model = self.executor.agent_model_map.get("gem-qa-validation")
-        self.assertEqual(model, "google/gemini-2.5-flash:free")
+        self.assertEqual(model, "anthropic/claude-haiku-5.5")
 
     def test_03_resolve_backend_core_model(self):
         model = self.executor.agent_model_map.get("gem-backend-core")
-        self.assertEqual(model, "qwen/qwen-2.5-coder-32b-instruct:free")
+        self.assertEqual(model, "anthropic/claude-haiku-5.5")
 
     def test_04_resolve_orchestrator_core_model(self):
         model = self.executor.agent_model_map.get("gem-orchestrator-core")
-        self.assertEqual(model, "meta-llama/llama-3.1-8b-instruct:free")
+        self.assertEqual(model, "anthropic/claude-haiku-5.5")
 
     def test_05_resolve_with_at_sign(self):
         for agent in AGENTES_CON_ARROBA:
@@ -200,7 +201,7 @@ class TestAgentMemoryIntegration(unittest.TestCase):
             ["formulas_conversion", "matriz_tendencias"]
         )
         self.assertEqual(e['event_type'], 'decision')
-        self.assertIn('formulas_conversion', str(e.get('sources', [])))
+        self.assertIn('formulas_conversion', str(e.get('details', {}).get('data_sources', [])))
 
     def test_05_backend_core_decision_log(self):
         e = self.memory.log_decision(
@@ -234,6 +235,8 @@ class TestProtocolEnforcerForAgents(unittest.TestCase):
 
     def setUp(self):
         self.enforcer = ProtocolEnforcer()
+        self.memory = MemoryLogger(memory_dir=tempfile.mkdtemp())
+        self.memory.log("gem-qa-validation", "validation", "Contexto de prueba", category="audit")
 
     def test_01_qa_data_gaps(self):
         required = {"formato_salida": str, "benchmark_kpi": float}

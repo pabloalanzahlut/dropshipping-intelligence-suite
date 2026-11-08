@@ -22,7 +22,7 @@ PVP = (Costo_Proveedor + Costo_Envío) × 3
 | Margen ads (Meta/TikTok) | ~20% | Presupuesto de adquisición |
 | Margen neto operacional | ~47% | Tu beneficio real |
 
-**Regla de Margen Bruto:** nunca bajar del 70%. Si el cálculo arroja menos → ADVERTENCIA inmediata.
+**Costes reales del P&L:** fees Shopify + divisa 4,0 % y cancelaciones/devoluciones 10,1 % de la facturación. El curso no fija un umbral de margen bruto (%).
 
 ---
 
@@ -32,7 +32,7 @@ PVP = (Costo_Proveedor + Costo_Envío) × 3
 ```
 Selling Price = (Item Cost + Shipping Cost) × 3.5
 ```
-Se usa 3.5x como valor por defecto (no el mínimo de 3x) para absorber variaciones de envío y fees de Shopify/Stripe.
+Se usa 3.5x como valor por defecto (por encima del objetivo 3x y del mínimo 2x) para absorber variaciones de envío y fees de Shopify/Stripe.
 
 ### Reglas de redondeo psicológico
 
@@ -52,16 +52,15 @@ Se usa 3.5x como valor por defecto (no el mínimo de 3x) para absorber variacion
 |---|---|---|
 | ≥ 5x | **HOT** | Acción inmediata — pasar a copywriting |
 | 3x – 4.99x | **WARM** | Desarrollar — re-evaluar siguiente ciclo |
-| 1.5x – 2.99x | **COLD** | Monitoreo pasivo |
-| < 1.5x | **DISCARD** | Rechazar — no procesar |
+| 2x – 2.99x | **COLD** | Monitoreo pasivo |
+| < 2x | **DISCARD** | Rechazar — no procesar |
 
 ---
 
 ## Restricciones Absolutas
 
-- **Peso máximo:** < 1.2 kg → si supera, RECHAZAR sin excepción
 - **Baterías de litio sueltas:** categoría prohibida (riesgo Stripe/PayPal)
-- **Margen mínimo:** 3x — no negociable
+- **Multiplicador mínimo:** 2x sobre coste landed — por debajo, RECHAZAR (objetivo 3x: advertir)
 
 ---
 

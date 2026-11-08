@@ -57,7 +57,7 @@ python build_exe.py --onefile    # Ejecutable único portable
 
 ### ✅ FASE 0: Fundacional (COMPLETADA)
 - [x] Tablas BD: `productos_validados`, `transcripciones_youtube`
-- [x] Motor `FinancialValidator` (Regla 3x, margen 70%, peso < 1.2kg)
+- [x] Motor `FinancialValidator` (multiplicador 2x/3x sobre coste landed, fees y cancelaciones)
 - [x] Variables de entorno configurables
 - [x] Tests unitarios
 
@@ -114,7 +114,6 @@ python build_exe.py --onefile    # Ejecutable único portable
 
 ### ✅ FASE 5: Validación Financiera + Dashboard (COMPLETADA)
 - [x] UI: Panel Validador Financiero con importación CSV/JSON
-- [x] Auditoría Iván Caicedo: peso < 1.2kg
 - [x] Export CSV/JSON con flagging de productos no-validados
 - [x] Batch processing con threading
 - [x] Dashboard con KPIs principales
@@ -159,8 +158,8 @@ python build_exe.py --onefile    # Ejecutable único portable
 ### `app/services/financial_validator.py`
 Validador financiero con reglas inmutables:
 - **Regla 3x** (Adrián Sáenz): PVP = Costo × 3
-- **Margen Bruto**: ≥ 70%
-- **Peso Logístico** (Iván Caicedo): < 1.2 kg
+- **Multiplicador**: mínimo 2x (rechaza) y objetivo 3x (advierte), sobre coste landed (producto + envío)
+- Sin umbral de margen % ni límite de peso: el curso no los fija
 
 ```python
 from app.services.financial_validator import FinancialValidator
@@ -396,8 +395,6 @@ Verifica:
 | Métrica | Target |
 |---------|--------|
 | Reducción tokens (limpieza) | -40 a -60% |
-| Tasa de validación (Regla 3x + margen) | ≥ 70% |
-| Peso auditoría (< 1.2kg) | 100% compliance |
 | Copys sin superlativos | 100% |
 | Guiones TikTok viables | 100% |
 

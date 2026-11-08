@@ -7,7 +7,6 @@ Antes de cualquier cambio, leer [`CLAUDE.md`](CLAUDE.md). Las siguientes reglas 
 | Regla | Valor |
 |-------|-------|
 | Margen mínimo | ≥ 3× costo origen |
-| Peso máximo | < 1.2 kg |
 | Baterías de litio sueltas | Prohibido |
 | Tiempo de envío en copy | 6-12 días laborables (nunca 24-48h) |
 

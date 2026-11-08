@@ -160,7 +160,7 @@ Cada paso del DAG utiliza el modelo OpenRouter asignado al agente correspondient
 
 ### 1. Agente Cazador de Tendencias (Product Hunter)
 *   **Misión**: Identificar y validar la viabilidad comercial de artículos ganadores en la base SQLite.
-*   **Restricción Justificada**: Debes calcular márgenes de ganancia mínimos de **3x (Regla del 3x en costos)** basados en tarifas reales del proveedor en origen. Un cálculo aproximado o inflado artificialmente destruirá la rentabilidad (ROI) al pasar a la fase de pauta publicitaria pagada.
+*   **Restricción Justificada**: Debes calcular el multiplicador sobre el **coste landed (producto + envío)** con tarifas reales del proveedor: **mínimo 2x** (rechazar si no llega) y **objetivo 3x** (advertir si no llega). El curso no fija umbral de margen % ni límite de peso. Un cálculo aproximado o inflado artificialmente destruirá la rentabilidad (ROI) al pasar a la fase de pauta publicitaria pagada.
 
 ### 2. Agente Funnel Builder (CRO & Copywriter)
 *   **Misión**: Diseñar la estructura persuasiva de las Landing Pages utilizando el framework AIDA.

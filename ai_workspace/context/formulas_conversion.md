@@ -43,8 +43,8 @@ Las siguientes métricas actúan como umbrales (benchmarks) analíticos que los 
   </etapa>
 
   <etapa id="DECISION">
-    <descripcion>Oferta comercial irresistible aplicando el multiplicador 3x y eliminando barreras de compra</descripcion>
-    <regla_de_control>El precio mostrado debe garantizar un margen bruto operativo superior al 70%</regla_de_control>
+    <descripcion>Oferta comercial clara aplicando el multiplicador objetivo 3x y eliminando barreras de compra</descripcion>
+    <regla_de_control>El precio mostrado debe respetar el multiplicador mínimo 2x sobre el coste landed (objetivo 3x)</regla_de_control>
     <plantilla_datos><![CDATA[
     [OFERTA_BENCHMARK]: "Consigue tu [Nombre_Producto] hoy con un [Porcentaje_Descuento]% de descuento de lanzamiento."
     [GARANTIA_RIESGO_CERO]: "Envío rápido con seguimiento e IVA incluido en el precio final. Garantía de reembolso de 30 días."

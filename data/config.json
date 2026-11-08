@@ -31,15 +31,15 @@
   ],
 
   "reglas_negocio": {
-    "regla_3x": {
-      "multiplicador": 3.0,
-      "descripcion": "El PVP debe ser Costo de Origen × 3 (Adrián Sáenz)"
+    "multiplicador": {
+      "minimo": 2.0,
+      "objetivo": 3.0,
+      "base": "coste_landed",
+      "descripcion": "PVP >= 2x coste landed (producto + envío): rechazar si no llega; objetivo 3x: advertir (Adrián Sáenz, Q4Ykcwh5Osc 24:40)"
     },
-    "margen_bruto_minimo": 0.70,
     "restriccion_logistica": {
-      "peso_maximo_kg": 1.2,
-      "descripcion": "Productos > 1.2kg requieren auditoría especial (Iván Caicedo)",
-      "baterias_litio": false
+      "baterias_litio": false,
+      "descripcion": "El curso no fija límite de peso; baterías de litio sueltas prohibidas"
     },
     "framework_publicitario": "AIDA",
     "superlativos_prohibidos": [

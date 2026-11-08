@@ -3,10 +3,10 @@
 <matriz_config>
   <![CDATA[
   [GOBERNANZA DE SELECCIÓN - MENTORES]
-  - Adrián Sáenz: Regla matemática estricta del 3x (Margen bruto mínimo del 70%).
+  - Adrián Sáenz: Multiplicador sobre coste landed: mínimo 2x, objetivo 3x (sin umbral de margen % ni de peso).
   - JaviEcom & Marc Verdú: Validación basada en volumen de engagement en TikTok Creative Center y Minea.
   - Vic Ecomilions: Enfoque en productos Evergreen de alta rotación (Hogar, Belleza).
-  - Iván Caicedo: Control estricto de fricción logística (Peso < 1.2 kg) y optimización del CPA.
+  - Iván Caicedo: Fricción logística y optimización del CPA.
   ]]>
 </matriz_config>
 
@@ -77,4 +77,4 @@
 | `agentes_escritura` | `@gem-backend-core` |
 | `modelo_recomendado` | `qwen/qwen-2.5-coder-32b-instruct:free` (procesamiento), `google/gemini-2.5-flash:free` (validación) |
 | `openrouter_ruta` | `https://openrouter.ai/api/v1/chat/completions` |
-| `benchmarks_requeridos` | Margen 3x mínimo, Peso < 1.2 kg, PVP 3x CO |
+| `benchmarks_requeridos` | Multiplicador mínimo 2x (objetivo 3x) sobre coste landed |

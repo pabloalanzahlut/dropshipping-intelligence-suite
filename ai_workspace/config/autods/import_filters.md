@@ -11,9 +11,8 @@ Configurar en: **Auto-DS → Import List → Filters** y como referencia de revi
 > Si se cumple **cualquiera** de estos, el producto se descarta sin revisión adicional.
 
 - [ ] Tiempo de envío estimado **> 12 días laborables**
-- [ ] Peso del producto **≥ 1.2 kg**
 - [ ] Producto contiene **baterías de litio sueltas** (no integradas en el dispositivo)
-- [ ] Margen calculado **< 3x** (PVP < 3 × costo total con envío)
+- [ ] Multiplicador **< 2x** (PVP < 2 × coste landed: producto + envío)
 - [ ] Proveedor con valoración **< 95% de satisfacción** o sin historial
 - [ ] País de origen **no admitido** por la pasarela de pago activa (Stripe / PayPal)
 
@@ -62,10 +61,9 @@ Configurar en: **Auto-DS → Import List → Filters** y como referencia de revi
 - Processing Time: Max **7 days**
 - Shipping Time: Max **12 days**
 - Minimum feedback score: **95%**
-- Weight: Max **1.2 kg** (si Auto-DS lo permite como filtro)
 
 **Filtros manuales (revisar al importar):**
-- Calcular margen con la fórmula: `PVP propuesto ÷ (costo + envío) ≥ 3`
+- Calcular el multiplicador con la fórmula: `PVP propuesto ÷ (costo + envío)` → mínimo 2, objetivo 3
 - Verificar que las imágenes del proveedor sean de calidad exportable
 
 ---

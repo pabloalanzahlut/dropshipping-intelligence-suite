@@ -124,9 +124,9 @@ El {producto_nombre} es la solución para {{categoria}}.
 Problema: La mayoría no sabe por dónde empezar.
 
 Solución: Valida 3 criterios:
-1. Precio justo (Regla 3x)
-2. Margen >= 70%
-3. Peso < 1.2kg
+1. Multiplicador mínimo 2x sobre el coste landed (objetivo 3x)
+2. Coste de origen entre $5 y $15
+3. Sin baterías de litio sueltas
 
 Resultado: Rentable desde el primer día.
         """.strip()

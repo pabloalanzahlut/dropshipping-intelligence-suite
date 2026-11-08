@@ -58,10 +58,9 @@
 
 ---
 
-## Checklist Regla 3x
+## Checklist multiplicador
 
-- [ ] PVP ≥ 3× costo origen → calculado con `/validar-financiero`
-- [ ] Margen bruto ≥ 70%
-- [ ] Peso < 1.2 kg
+- [ ] PVP ≥ 2× coste landed (mínimo) y, si es posible, 3× → calculado con `/validar-financiero`
+- [ ] Margen neto positivo tras fees 4,0 % y cancelaciones 10,1 %
 - [ ] Sin superlativos vacíos en el copy
 - [ ] Tiempo de envío: "6-12 días laborables"

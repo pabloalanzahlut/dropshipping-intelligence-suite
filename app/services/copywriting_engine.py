@@ -270,7 +270,7 @@ class CopywrightingEngine:
                 "extraordinario, sensacional, maravilloso, formidable, prodigioso, colosal, monumental, "
                 "excepcional, incomparable, insuperable, inigualable, inmejorable, estupendo, esplendido.\n"
                 "2. No alteres dimensiones, materiales, pesos o capacidades técnicas reales del producto.\n"
-                "3. El PVP debe garantizar un margen bruto superior al 70% (Regla 3x).\n"
+                "3. El PVP debe ser al menos 2x el coste landed (producto + envío) y, si el producto lo permite, 3x.\n"
                 "4. El tono debe ser persuasivo, directo y libre de humo o exageraciones comerciales.\n\n"
             )
 
@@ -314,7 +314,7 @@ class CopywrightingEngine:
                 "extraordinario, sensacional, maravilloso, formidable, prodigioso, colosal, monumental, "
                 "excepcional, incomparable, insuperable, inigualable, inmejorable, estupendo, esplendido.\n"
                 "2. No alteres dimensiones, materiales, pesos o capacidades técnicas reales del producto.\n"
-                "3. El PVP debe garantizar un margen bruto superior al 70% (Regla 3x).\n"
+                "3. El PVP debe ser al menos 2x el coste landed (producto + envío) y, si el producto lo permite, 3x.\n"
                 "4. El tono debe ser persuasivo, directo y libre de humo o exageraciones comerciales.\n\n"
                 "ESTRUCTURA OBLIGATORIA DEL ENTREGABLE (Markdown):\n\n"
                 "# [Título Magnético - Máximo 6 palabras]\n\n"

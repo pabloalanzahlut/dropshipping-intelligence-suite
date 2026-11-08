@@ -30,34 +30,39 @@ class TestFinancialValidator(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.tmpdir, ignore_errors=True)
 
-    def test_regla_3x_calcula_pvp(self):
-        r = self.validator.validar_producto("TEST-001", 10.0, 0.5)
-        self.assertTrue(r['regla_3x_cumple'])
-        self.assertEqual(r['pvp_calculado'], 30.0)
+    def test_sin_pvp_usa_objetivo_3x_sobre_coste_landed(self):
+        r = self.validator.validar_producto("TEST-001", 10.0, 0.5, costo_envio=2.0)
+        self.assertEqual(r['costo_landed'], 12.0)
+        self.assertEqual(r['pvp_calculado'], 36.0)
+        self.assertTrue(r['objetivo_x3_cumple'])
 
-    def test_margen_bruto_supera_70(self):
-        r = self.validator.validar_producto("TEST-002", 10.0, 0.5, 30.0)
-        self.assertFalse(r['margen_cumple'])
+    def test_por_debajo_de_2x_se_rechaza(self):
+        # $5 producto + $2 envío = $7 landed; PVP $13 = 1,86x  (sobre el producto solo sería 2,6x)
+        r = self.validator.validar_producto("TEST-002", 5.0, 0.5, 13.0, costo_envio=2.0)
+        self.assertFalse(r['validado'])
+        self.assertEqual(r['status_validacion'], 'rechazado')
 
-    def test_margen_bruto_ok(self):
-        r = self.validator.validar_producto("TEST-003", 10.0, 0.5, 35.0)
-        self.assertTrue(r['margen_cumple'])
+    def test_entre_2x_y_3x_valida_con_advertencia(self):
+        r = self.validator.validar_producto("TEST-003", 5.0, 0.5, 15.0, costo_envio=2.0)   # 2,14x
+        self.assertTrue(r['validado'])
+        self.assertFalse(r['objetivo_x3_cumple'])
+        self.assertTrue(any('x3' in a for a in r['advertencias']))
 
-    def test_peso_excede_limite(self):
-        r = self.validator.validar_producto("TEST-004", 10.0, 1.5)
-        self.assertFalse(r['logistica_cumple'])
+    def test_el_peso_no_rechaza(self):
+        # El curso no fija límite de peso: un producto pesado no se rechaza por eso
+        r = self.validator.validar_producto("TEST-004", 10.0, 5.0, 30.0)
+        self.assertTrue(r['validado'])
 
-    def test_peso_ok(self):
-        r = self.validator.validar_producto("TEST-005", 10.0, 0.5)
-        self.assertTrue(r['logistica_cumple'])
+    def test_margen_neto_descuenta_fees_y_cancelaciones(self):
+        r = self.validator.validar_producto("TEST-005", 5.0, 0.5, 15.0, costo_envio=2.0)
+        esperado = 15.0 - 7.0 - 15.0 * 0.04 - 15.0 * 0.101
+        self.assertAlmostEqual(r['margen_neto_unidad'], round(esperado, 2), places=2)
 
     def test_producto_completo_valido(self):
-            # Con PVP = costo*3=30, margen=66.7% (<70%), regla 3x OK, peso OK
-            # Nota: Regla 3x y margen 70% son matemáticamente incompatibles
-            # a este precio (PVP=CO*3 da margen 66.7%)
+            # PVP = costo*3 = 30 sin envío: cumple el objetivo x3
             r = self.validator.validar_producto("TEST-006", 10.0, 0.5, 30.0)
             self.assertTrue(r['regla_3x_cumple'])
-            self.assertTrue(r['logistica_cumple'])
+            self.assertTrue(r['validado'])
 
     def test_guardar_y_recuperar(self):
         r = self.validator.validar_producto("TEST-007", 10.0, 0.5, 35.0)
@@ -67,7 +72,7 @@ class TestFinancialValidator(unittest.TestCase):
     def test_validar_lote(self):
         prods = [
             {'sku': 'LOTE-1', 'costo_origen': 10.0, 'peso_kg': 0.5, 'pvp': 35.0},
-            {'sku': 'LOTE-2', 'costo_origen': 10.0, 'peso_kg': 1.5, 'pvp': 30.0},
+            {'sku': 'LOTE-2', 'costo_origen': 10.0, 'peso_kg': 0.5, 'pvp': 15.0},   # 1,5x: rechazado
         ]
         resultados, validados, rechazados = self.validator.validar_lote(prods)
         self.assertEqual(len(resultados), 2)
@@ -286,9 +291,13 @@ class TestMultiLang(unittest.TestCase):
 
     def test_traducir_copy_sin_pool(self):
         from app.services.multi_lang import traducir_copy
+        # Sin red: un pool que no responde debe dar None (antes se creaba un pool real y se
+        # llamaba a la API de verdad en cada ejecución de las pruebas)
+        class PoolSinRespuesta:
+            def execute_hybrid_query(self, **kwargs):
+                return None
         copy = {'titulo': 'Test', 'descripcion': 'Description'}
-        result = traducir_copy(copy, 'en', pool=None)
-        self.assertIsNone(result)
+        self.assertIsNone(traducir_copy(copy, 'en', pool=PoolSinRespuesta()))
 
 
 class TestTikTokCaptions(unittest.TestCase):

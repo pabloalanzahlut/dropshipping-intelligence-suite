@@ -224,8 +224,8 @@ Columnas:
 
 **Reglas de validación:**
 1. **Regla 3x** (Adrián Sáenz): `PVP >= Costo * 3`
-2. **Margen mínimo**: `Margen >= 70%`
-3. **Peso máximo** (Iván Caicedo): `Peso <= 1.2 kg`
+2. **Coste de origen** recomendado: $5–15
+3. Sin umbral de margen % ni límite de peso (el curso no los fija)
 
 **Colores de filas:**
 - Verde: Producto APROBADO

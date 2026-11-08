@@ -5,6 +5,7 @@ en 3 fases: PRE (antes), DURANTE, POST (despues).
 """
 
 import os
+import re
 import json
 import hashlib
 from typing import Dict, List, Optional, Tuple
@@ -143,9 +144,17 @@ class RulesValidator:
         missing = [n for n, h in rules_hints.items() if h.lower() not in self.agent_md_content.lower()]
         return (False, f'Faltan: {", ".join(missing)}') if missing else (True, 'Todas OK')
 
+    @staticmethod
+    def _sin_tildes(texto: str) -> str:
+        import unicodedata
+        return unicodedata.normalize('NFD', texto or '').encode('ascii', 'ignore').decode().lower()
+
     def _detectar_superlativos(self, texto: str) -> List[str]:
-        tl = texto.lower()
-        return [a for a in self.CRITICAL_ADJETIVOS_PROHIBIDOS if a.lower() in tl]
+        """Detecta superlativos vacíos ignorando tildes ("increíble" = "increible") y solo
+        como palabra completa o su plural/género ("único" sí, "unicornio" no)."""
+        tl = self._sin_tildes(texto)
+        return [a for a in self.CRITICAL_ADJETIVOS_PROHIBIDOS
+                if re.search(r'' + re.escape(self._sin_tildes(a)) + r'(?:s|es|a|as|os)?', tl)]
 
     def _detect_hallucinations(self, data: Dict) -> Tuple[bool, str]:
         if not isinstance(data, dict):
