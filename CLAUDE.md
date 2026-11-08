@@ -208,4 +208,52 @@ chat(task="analizar_imagen", ...)  # → Gemini Flash (multimodal)
 
 ---
 
-*GEM OS v2.2 — Metodología Xavier Mitjana + Jack Roberts AntiGravity + Adrián Sáenz Hostinger*
+## SEGURIDAD (método Xavier Mitjana "Refuerza tu seguridad" t=2:41)
+
+**Reglas de seguridad inmutables:**
+- `.env` → siempre en `.gitignore`, nunca commitear
+- `google_credentials.json` → excluido de git desde 2026-11-08
+- `.env.example` → versión pública con placeholders — es lo único que va a git
+- Ante duda sobre si un archivo tiene secretos: `grep -r "sk-\|Bearer\|password\|secret" <archivo>`
+
+**Verificación rápida de seguridad:**
+```bash
+git ls-files | grep -i "credential\|secret\|\.env$"   # debe devolver vacío
+```
+
+---
+
+## AGENTES AUTÓNOMOS (Xavier Mitjana t=8:15)
+
+El pipeline corre **sin intervención manual** vía `app/services/autonomous_scheduler.py`:
+
+| Job | Frecuencia | Qué hace |
+|-----|-----------|---------|
+| `youtube_monitor` | cada 2h | Detecta nuevos videos de mentores |
+| `transcript_cleaner` | cada 2h | Limpia e ingesta en KB |
+| `classify_products` | cada 6h | Clasifica HOT/WARM/COLD automáticamente |
+| `daily_report` | 08:00 UTC | Actualiza Google Sheets Dashboard |
+
+**Arrancar el agente autónomo:**
+```bash
+python -m app.services.autonomous_scheduler          # corre para siempre
+python -m app.services.autonomous_scheduler --once   # ciclo único (test)
+```
+
+---
+
+## MÉTODOS INTEGRADOS (todos complementarios, ninguno descartado)
+
+| Método | Video | Implementación |
+|--------|-------|---------------|
+| CLAUDE.md nativo | Xavier Mitjana v1 | Este archivo — Claude lo carga automático |
+| Skills slash commands | Xavier Mitjana v4 | `.claude/commands/*.md` |
+| Multi-IA especializada | Claseflix | `app/services/llm_router.py` + Higgsfield + Gemini Vision |
+| Refuerza seguridad | Xavier Mitjana t=2:41 | `.gitignore` + `.env.example` + sin credentials en git |
+| Agentes autónomos | Xavier Mitjana t=8:15 | `autonomous_scheduler.py` |
+| Reglas financieras | Adrián Sáenz | `CLAUDE.md §REGLAS FINANCIERAS` + `validator_rules.py` |
+| Sin prompts complejos | Xavier Mitjana v3 | Skills precodificados en `.claude/commands/` |
+
+---
+
+*GEM OS v3.0 — Xavier Mitjana (CLAUDE.md + Skills + Seguridad + Agentes autónomos) + Claseflix (Multi-IA) + Adrián Sáenz (Reglas financieras)*
