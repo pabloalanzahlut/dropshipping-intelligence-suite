@@ -379,3 +379,84 @@ def mig_0016_unico_producto_y_estado_canales(conn: sqlite3.Connection):
                      ("ultimo_check", "TEXT")):
         if col not in cols:
             conn.execute(f"ALTER TABLE canales_favoritos ADD COLUMN {col} {ddl}")
+
+
+@migration(17, "Catálogo de productos con estados (pipeline) y su historial")
+def mig_0017_catalogo_productos(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS productos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            categoria TEXT DEFAULT '',
+            url_proveedor TEXT DEFAULT '',
+            origen_video_id TEXT,
+            costo_origen REAL,
+            costo_envio REAL DEFAULT 0,
+            pvp REAL,
+            estado TEXT NOT NULL DEFAULT 'candidato',
+            clasificacion TEXT,
+            multiplicador REAL,
+            margen_neto_unidad REAL,
+            refutaciones TEXT DEFAULT '{}',
+            veredicto_refutacion TEXT,
+            demanda TEXT DEFAULT '{}',
+            creativo_ok INTEGER DEFAULT 0,
+            notas TEXT DEFAULT '',
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            actualizado_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_productos_estado ON productos(estado)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS producto_eventos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            producto_id INTEGER NOT NULL,
+            estado_anterior TEXT,
+            estado_nuevo TEXT,
+            nota TEXT DEFAULT '',
+            correlation_id TEXT,
+            fecha TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_producto_eventos_prod ON producto_eventos(producto_id)")
+
+
+@migration(18, "Métricas diarias del negocio (ROAS, CPA) y caja diaria")
+def mig_0018_metricas_negocio(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS metricas_diarias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha TEXT NOT NULL,
+            producto_id INTEGER,
+            plataforma TEXT NOT NULL DEFAULT 'meta',
+            gasto_ads REAL NOT NULL DEFAULT 0,
+            ingresos REAL NOT NULL DEFAULT 0,
+            pedidos INTEGER NOT NULL DEFAULT 0,
+            cogs_pagado REAL NOT NULL DEFAULT 0,
+            devoluciones REAL,
+            visitantes INTEGER,
+            presupuesto_diario REAL,
+            notas TEXT DEFAULT '',
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE SET NULL
+        )
+    """)
+    # Una fila por día, producto y plataforma (producto 0 = tienda completa)
+    conn.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_metricas_dia
+        ON metricas_diarias(fecha, COALESCE(producto_id, 0), plataforma)
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS caja_diaria (
+            fecha TEXT PRIMARY KEY,
+            saldo_cuenta REAL NOT NULL DEFAULT 0,
+            liberaciones_pasarela REAL NOT NULL DEFAULT 0,
+            pagos_proveedor_pendientes REAL NOT NULL DEFAULT 0,
+            notas TEXT DEFAULT '',
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
