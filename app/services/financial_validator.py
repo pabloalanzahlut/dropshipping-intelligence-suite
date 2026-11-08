@@ -107,7 +107,7 @@ class FinancialValidator:
             costo_landed = costo_landed * fx_rate
             fx_estimado = not is_rate_live(moneda_costo, moneda_pvp)
 
-        # 2. Sin PVP dado, usar el objetivo del curso (x3) sobre el landed
+        # 3. Sin PVP dado, usar el objetivo del curso (x3) sobre el landed
         pvp_calculado = pvp_sugerido if pvp_sugerido else costo_landed * self.MULTIPLICADOR_OBJETIVO
 
         # 3. Multiplicador y margen bruto sobre coste landed
