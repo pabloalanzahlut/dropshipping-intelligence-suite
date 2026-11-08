@@ -273,8 +273,16 @@ class YouTubeChannelMonitor:
             "canales_procesados": 0, "videos_descargados": 0,
             "transcripciones_procesadas": 0, "duplicados": 0, "sin_subtitulos": 0,
             "fuera_de_tema": 0, "errores": 0, "tokens_ahorrados": 0,
-            "cancelado": False, "limitado": False, "detalles": [],
+            "cancelado": False, "limitado": False, "lote_completo": False,
+            "reintentar_a": None, "detalles": [],
         }
+        # Tras un 429 reciente no se vuelve a insistir: alargaría el bloqueo
+        hasta = self.cooldown_hasta()
+        if hasta:
+            stats["limitado"] = True
+            stats["reintentar_a"] = hasta.isoformat(timespec="seconds")
+            say(f"YouTube limitó las descargas: reintenta a partir de las {hasta:%H:%M}.")
+            return stats
         guardados = transcript_store.video_ids_guardados(self.db_path)
         guardados |= set(self._leer_descartados())   # ya vistos y descartados por tema
         activos = sorted((c for c in self.canales if c.get("activo", True)),
@@ -282,7 +290,7 @@ class YouTubeChannelMonitor:
         descargas = 0
 
         for canal_info in activos:
-            if self._cancel.is_set() or stats["limitado"]:
+            if self._cancel.is_set() or stats["limitado"] or stats["lote_completo"]:
                 break
             url = canal_info.get("url", "")
             nombre = canal_info.get("nombre", "Sin nombre")
@@ -300,6 +308,11 @@ class YouTubeChannelMonitor:
             nuevos = [v for v in videos if v["video_id"] not in guardados][:max_nuevos_por_canal]
             for video in nuevos:
                 if self._cancel.is_set():
+                    break
+                if descargas >= MAX_DESCARGAS_POR_SYNC:
+                    stats["lote_completo"] = True
+                    say(f"Lote de {MAX_DESCARGAS_POR_SYNC} descargas completo: "
+                        "vuelve a sincronizar en ~30 min para seguir (así YouTube no te bloquea).")
                     break
                 if descargas and not self._esperar(random.uniform(*PAUSA_ENTRE_DESCARGAS)):
                     break   # pausa anti-bloqueo; cancelada durante la espera
@@ -335,8 +348,10 @@ class YouTubeChannelMonitor:
                         guardados.add(video["video_id"])
                 except RateLimited:
                     stats["limitado"] = True
+                    stats["reintentar_a"] = self._iniciar_cooldown().isoformat(timespec="seconds")
                     say("YouTube sigue limitando las descargas: sincronización detenida. "
-                        "Vuelve a intentarlo más tarde (lo ya guardado se conserva).")
+                        f"Reintenta a partir de las {stats['reintentar_a'][11:16]} "
+                        "(lo ya guardado se conserva).")
                     break
                 except Exception as e:
                     print(f"[ERROR] Error procesando {titulo}: {e}")
