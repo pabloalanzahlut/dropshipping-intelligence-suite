@@ -176,7 +176,7 @@ class NegocioTests(Base):
         for i in range(dias):
             bm.registrar_dia(self.db, {"fecha": (hoy - timedelta(days=dias - 1 - i)).isoformat(), "producto_id": p["id"],
                                        "gasto_ads": gasto, "ingresos": ingresos, "pedidos": pedidos,
-                                       "visitantes": visitantes, "presupuesto_diario": 20})
+                                       "cogs_pagado": pedidos * 7, "visitantes": visitantes, "presupuesto_diario": 20})
         return pc.obtener(self.db, p["id"])
 
     def test_escalado_dia_1_2_es_aprendizaje(self):

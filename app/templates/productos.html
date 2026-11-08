@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% block title %}Productos{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Productos</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="productos()" x-init="init()">
+
+  <div class="flex items-start justify-between flex-wrap" style="margin-bottom:20px;gap:12px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        Productos · <span style="background:linear-gradient(90deg,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">del candidato a escalar</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Cada producto avanza paso a paso y no se puede saltar ninguno. Cada paso comprueba datos reales.</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <input x-model="buscar" @input.debounce.300ms="cargar()" type="text" class="input-field" placeholder="Buscar producto…" aria-label="Buscar producto" style="width:200px;">
+      <button @click="abrirNuevo()" class="btn-primary" style="font-size:12px;padding:8px 14px;">＋ Nuevo producto</button>
+    </div>
+  </div>
+
+  <div x-show="error" x-cloak role="alert" style="background:rgba(244,63,94,0.08);border:1px solid rgba(251,113,133,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#fb7185;" x-text="error"></div>
+
+  <!-- Tablero -->
+  <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;align-items:flex-start;">
+    <template x-for="col in columnas" :key="col">
+      <section style="min-width:230px;width:230px;flex-shrink:0;" :aria-label="'Columna ' + col">
+        <div class="flex items-center justify-between" style="margin-bottom:8px;padding:0 4px;">
+          <h2 style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin:0;" :style="col === 'descartado' ? 'color:#fb7185' : 'color:#7880b0'" x-text="etiqueta(col)"></h2>
+          <span style="font-size:10px;color:#4a5080;" x-text="porEstado(col).length"></span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-height:60px;background:#08091a;border:1px solid #1a1d35;border-radius:10px;padding:8px;">
+          <template x-for="p in porEstado(col)" :key="p.id">
+            <button @click="abrir(p.id)" class="tarjeta" :aria-label="'Abrir ' + p.nombre">
+              <span style="font-size:13px;font-weight:600;color:#e8ecff;text-align:left;" x-text="p.nombre"></span>
+              <span class="flex items-center gap-2 flex-wrap" style="margin-top:6px;">
+                <span x-show="p.clasificacion" :class="claseBadge(p.clasificacion)" x-text="p.clasificacion"></span>
+                <span x-show="p.multiplicador" style="font-size:11px;color:#7880b0;" x-text="p.multiplicador + '×'"></span>
+                <span x-show="p.pvp" style="font-size:11px;color:#4a5080;" x-text="'PVP ' + p.pvp"></span>
+              </span>
+            </button>
+          </template>
+          <p x-show="porEstado(col).length === 0" style="font-size:11px;color:#3a3f68;text-align:center;margin:10px 0;">—</p>
+        </div>
+      </section>
+    </template>
+  </div>
+
+  <!-- Detalle -->
+  <div x-show="det" x-cloak role="dialog" aria-modal="true" aria-label="Detalle del producto" @keydown.escape.window="det = null"
+       class="flex items-start justify-center" style="position:fixed;inset:0;z-index:50;padding:30px 16px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);overflow-y:auto;"
+       @click.self="det = null">
+    <div x-show="det" class="flex flex-col" style="background:#0d0f1f;border:1px solid #252844;border-radius:16px;width:100%;max-width:820px;box-shadow:0 24px 64px rgba(0,0,0,0.6);">
+
+      <div style="padding:18px 22px 12px;border-bottom:1px solid #1a1d35;" class="flex items-start justify-between gap-3">
+        <div style="min-width:0;">
+          <div class="flex items-center gap-2 flex-wrap" style="margin-bottom:4px;">
+            <span class="badge badge-info" x-text="etiqueta(det?.estado)"></span>
+            <span x-show="det?.clasificacion" :class="claseBadge(det?.clasificacion)" x-text="det?.clasificacion"></span>
+          </div>
+          <h2 style="font-size:17px;font-weight:700;color:#e8ecff;margin:0;" x-text="det?.nombre"></h2>
+        </div>
+        <button @click="det = null" class="btn-ghost" style="padding:6px 10px;" aria-label="Cerrar">✕</button>
+      </div>
+
+      <!-- Recorrido -->
+      <div class="flex gap-1 flex-wrap" style="padding:10px 22px;border-bottom:1px solid #1a1d35;" aria-label="Pasos">
+        <template x-for="(paso, i) in pasos" :key="paso">
+          <span class="badge" :style="pasoStyle(paso)" x-text="(i + 1) + '. ' + etiqueta(paso)"></span>
+        </template>
+      </div>
+
+      <div class="flex gap-2 flex-wrap" style="padding:12px 22px 0;">
+        <template x-for="t in tabs" :key="t.v"><button @click="tab = t.v" :class="tab === t.v ? 'tab-btn active' : 'tab-btn'" x-text="t.t"></button></template>
+      </div>
+
+      <div style="padding:16px 22px;max-height:58vh;overflow-y:auto;">
+
+        <!-- Datos -->
+        <div x-show="tab === 'datos'">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+            <div style="grid-column:1/-1;"><label class="form-label" for="p-nombre">Nombre</label><input id="p-nombre" x-model="f.nombre" class="input-field"></div>
+            <div><label class="form-label" for="p-cat">Categoría</label><input id="p-cat" x-model="f.categoria" class="input-field"></div>
+            <div><label class="form-label" for="p-url">URL del proveedor</label><input id="p-url" x-model="f.url_proveedor" class="input-field" type="url"></div>
+            <div><label class="form-label" for="p-co">Coste de origen</label><input id="p-co" x-model.number="f.costo_origen" type="number" step="0.01" min="0" class="input-field"></div>
+            <div><label class="form-label" for="p-env">Envío del proveedor</label><input id="p-env" x-model.number="f.costo_envio" type="number" step="0.01" min="0" class="input-field"></div>
+            <div><label class="form-label" for="p-pvp">PVP</label><input id="p-pvp" x-model.number="f.pvp" type="number" step="0.01" min="0" class="input-field"></div>
+            <div style="grid-column:1/-1;"><label class="form-label" for="p-notas">Notas</label><textarea id="p-notas" x-model="f.notas" rows="2" class="input-field" style="resize:vertical;"></textarea></div>
+          </div>
+          <button @click="guardarDatos()" class="btn-ghost" style="margin-top:12px;">Guardar datos</button>
+
+          <div x-show="det?.calculo" style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">
+            <div class="mini"><p>Coste landed</p><strong x-text="det?.calculo?.costo_landed"></strong></div>
+            <div class="mini"><p>Multiplicador</p><strong :style="det?.calculo?.multiplicador >= 2 ? 'color:#34d399' : 'color:#fb7185'" x-text="det?.calculo?.multiplicador + '×'"></strong></div>
+            <div class="mini"><p>Clasificación</p><strong x-text="det?.calculo?.clasificacion"></strong></div>
+            <div class="mini"><p>Margen neto / unidad</p><strong x-text="det?.calculo?.margen_neto_unidad"></strong></div>
+            <div class="mini"><p>CPA máximo</p><strong x-text="det?.calculo?.cpa_max"></strong></div>
+            <div class="mini"><p>CPA objetivo (×0,70)</p><strong x-text="det?.calculo?.cpa_objetivo"></strong></div>
+          </div>
+          <p x-show="det?.calculo && !(det.costo_envio > 0)" style="font-size:11px;color:#fbbf24;margin:8px 0 0;">Envío sin informar: el multiplicador puede estar inflado.</p>
+
+          <div x-show="det?.insights?.length" style="margin-top:16px;">
+            <p style="font-size:10px;font-weight:700;color:#4a5080;letter-spacing:.5px;margin:0 0 6px;">EN LA KB</p>
+            <template x-for="i in (det?.insights || [])" :key="i.source_table + i.id">
+              <p style="font-size:11px;color:#7880b0;margin:0 0 4px;"><span style="color:#22d3ee;" x-text="i.titulo"></span> · <span x-text="i.channel_name"></span> — <span x-text="(i.content_preview || '').slice(0, 110)"></span></p>
+            </template>
+          </div>
+        </div>
+
+        <!-- Refutación -->
+        <div x-show="tab === 'refutacion'">
+          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Intenta demostrar que el producto <strong>no</strong> funciona. Responde con datos, no con opinión.</p>
+          <template x-for="n in [1,2,3,4,5,6,7,8]" :key="n">
+            <div style="border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;margin-bottom:8px;background:#08091a;">
+              <p style="font-size:12px;color:#c8d0f0;margin:0 0 8px;" x-text="n + '. ' + refutaciones[n]"></p>
+              <div class="flex items-center gap-3 flex-wrap">
+                <label class="ctl"><input type="radio" :name="'r' + n" value="pasa" x-model="ref[n].resultado"><span>Pasa (no se sostiene)</span></label>
+                <label class="ctl"><input type="radio" :name="'r' + n" value="refutada" x-model="ref[n].resultado"><span style="color:#fb7185;">Refutada (mata la tesis)</span></label>
+                <input x-model="ref[n].dato" class="input-field" placeholder="Dato que lo respalda" :aria-label="'Dato de la refutación ' + n" style="flex:1;min-width:180px;">
+              </div>
+            </div>
+          </template>
+          <button @click="guardarRefutaciones()" class="btn-ghost">Guardar refutaciones</button>
+          <p x-show="det?.veredicto_refutacion" style="font-size:12px;color:#a8b0d8;margin:12px 0 0;padding:10px 12px;border:1px solid #252844;border-radius:8px;" x-text="'Veredicto: ' + det?.veredicto_refutacion"></p>
+          <p style="font-size:10px;color:#4a5080;margin:8px 0 0;">0 refutadas: invertir · 1–2: solo presupuesto test de 15 €/día · 3 o más, o la 1 o la 6: descartar.</p>
+        </div>
+
+        <!-- Demanda y creativo -->
+        <div x-show="tab === 'demanda'">
+          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Test de demanda (fake door): mide el interés sin stock ni ads. Registra lo que midió.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+            <div><label class="form-label" for="d-vis">Visitantes</label><input id="d-vis" x-model.number="dem.visitantes" type="number" min="0" class="input-field"></div>
+            <div><label class="form-label" for="d-clic">Clics en «Comprar»</label><input id="d-clic" x-model.number="dem.clics_comprar" type="number" min="0" class="input-field"></div>
+            <div><label class="form-label" for="d-em">Emails captados</label><input id="d-em" x-model.number="dem.emails" type="number" min="0" class="input-field"></div>
+            <div><label class="form-label" for="d-dias">Días de test</label><input id="d-dias" x-model.number="dem.dias_test" type="number" min="0" class="input-field"></div>
+          </div>
+          <p x-show="dem.visitantes > 0" style="font-size:12px;color:#7880b0;margin:10px 0 0;">
+            Clic/visitante: <strong style="color:#22d3ee;" x-text="((dem.clics_comprar || 0) / dem.visitantes * 100).toFixed(1) + '%'"></strong> ·
+            Email/visitante: <strong style="color:#22d3ee;" x-text="((dem.emails || 0) / dem.visitantes * 100).toFixed(1) + '%'"></strong>
+          </p>
+          <label class="ctl" style="margin-top:12px;"><input type="checkbox" x-model="creativoOk"><span>El creativo funciona (hook, guion y vídeo validados)</span></label>
+          <div><button @click="guardarDemanda()" class="btn-ghost" style="margin-top:12px;">Guardar</button></div>
+          <p style="font-size:10px;color:#4a5080;margin:8px 0 0;">Se monta la tienda solo si el creativo funciona. El umbral lo decides tú con tus datos.</p>
+        </div>
+
+        <!-- Escalado -->
+        <div x-show="tab === 'escalado'">
+          <div x-show="det?.escalado">
+            <p style="font-size:13px;color:#e8ecff;margin:0 0 4px;">Decisión: <strong x-text="det?.escalado?.decision"></strong> <span style="color:#7880b0;" x-text="det?.escalado?.escenario ? '· ' + det.escalado.escenario + ' · día ' + det.escalado.dia : ''"></span></p>
+            <p style="font-size:12px;color:#a8b0d8;margin:0 0 10px;" x-text="det?.escalado?.accion"></p>
+            <template x-for="a in (det?.escalado?.advertencias || [])" :key="a"><p style="font-size:11px;color:#fbbf24;margin:0 0 4px;" x-text="'! ' + a"></p></template>
+          </div>
+          <p x-show="!det?.escalado" style="font-size:12px;color:#4a5080;">El escalado se evalúa cuando el producto llega a «Tienda». Registra sus métricas diarias en <a href="/negocio" style="color:#22d3ee;">Negocio</a>.</p>
+        </div>
+
+        <!-- Historial -->
+        <div x-show="tab === 'historial'">
+          <template x-for="e in (det?.eventos || [])" :key="e.id">
+            <div style="border-left:2px solid #252844;padding:2px 0 10px 12px;">
+              <p style="font-size:12px;color:#c8d0f0;margin:0;"><span x-text="e.estado_anterior && e.estado_nuevo ? etiqueta(e.estado_anterior) + ' → ' + etiqueta(e.estado_nuevo) : (e.estado_nuevo ? etiqueta(e.estado_nuevo) : 'Actualización')"></span> <span style="color:#4a5080;font-size:10px;" x-text="(e.fecha || '').slice(0, 16)"></span></p>
+              <p x-show="e.nota" style="font-size:11px;color:#7880b0;margin:2px 0 0;" x-text="e.nota"></p>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div style="padding:12px 22px;border-top:1px solid #1a1d35;" class="flex items-center justify-between gap-2 flex-wrap">
+        <button @click="eliminar()" class="btn-ghost" style="font-size:11px;color:#fb7185;">Eliminar</button>
+        <div class="flex gap-2 flex-wrap">
+          <button x-show="det && det.estado !== 'descartado'" @click="mover('descartado')" class="btn-ghost" style="font-size:12px;">Descartar</button>
+          <button x-show="det && det.estado === 'descartado'" @click="mover('candidato')" class="btn-ghost" style="font-size:12px;">Reabrir</button>
+          <button x-show="det?.siguiente" @click="mover(det.siguiente)" :disabled="moviendo" class="btn-primary" style="font-size:12px;padding:8px 16px;">
+            <span x-text="moviendo ? 'Comprobando…' : 'Avanzar a «' + etiqueta(det?.siguiente) + '»'"></span>
+          </button>
+        </div>
+      </div>
+      <p x-show="aviso" x-cloak role="alert" style="font-size:12px;color:#fb7185;margin:0;padding:0 22px 14px;" x-text="aviso"></p>
+    </div>
+  </div>
+
+  <!-- Nuevo -->
+  <div x-show="nuevo.abierto" x-cloak role="dialog" aria-modal="true" aria-label="Nuevo producto" @keydown.escape.window="nuevo.abierto = false"
+       class="flex items-start justify-center" style="position:fixed;inset:0;z-index:50;padding:40px 16px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);" @click.self="nuevo.abierto = false">
+    <form @submit.prevent="crear()" style="background:#0d0f1f;border:1px solid #252844;border-radius:16px;width:100%;max-width:520px;padding:22px;">
+      <h2 style="font-size:16px;font-weight:700;color:#e8ecff;margin:0 0 14px;">Nuevo producto</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="grid-column:1/-1;"><label class="form-label" for="n-nombre">Nombre</label><input id="n-nombre" x-model="nuevo.nombre" class="input-field" required></div>
+        <div><label class="form-label" for="n-co">Coste de origen</label><input id="n-co" x-model.number="nuevo.costo_origen" type="number" step="0.01" min="0" class="input-field"></div>
+        <div><label class="form-label" for="n-env">Envío</label><input id="n-env" x-model.number="nuevo.costo_envio" type="number" step="0.01" min="0" class="input-field"></div>
+        <div><label class="form-label" for="n-pvp">PVP</label><input id="n-pvp" x-model.number="nuevo.pvp" type="number" step="0.01" min="0" class="input-field"></div>
+        <div><label class="form-label" for="n-cat">Categoría</label><input id="n-cat" x-model="nuevo.categoria" class="input-field"></div>
+      </div>
+      <p style="font-size:10px;color:#4a5080;margin:10px 0 0;">Puedes dejar costes y PVP vacíos y completarlos antes de clasificarlo.</p>
+      <div class="flex justify-end gap-2" style="margin-top:16px;">
+        <button type="button" @click="nuevo.abierto = false" class="btn-ghost">Cancelar</button>
+        <button type="submit" class="btn-primary" style="font-size:12px;padding:8px 16px;">Crear</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.tarjeta { display: flex; flex-direction: column; width: 100%; background: #0d0f1f; border: 1px solid #1a1d35; border-radius: 8px; padding: 10px 11px; cursor: pointer; text-align: left; }
+.tarjeta:hover { border-color: #252844; background: #111328; }
+.mini { background: #08091a; border: 1px solid #1a1d35; border-radius: 8px; padding: 10px 12px; }
+.mini p { font-size: 10px; color: #7880b0; margin: 0 0 3px; }
+.mini strong { font-size: 15px; color: #e8ecff; font-family: 'Space Grotesk', sans-serif; }
+.ctl { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #a8b0d8; cursor: pointer; }
+.ctl input { accent-color: #22d3ee; }
+</style>
+
+<script>
+function productos() {
+  return {
+    items: [], resumen: {}, pasos: [], estados: [], refutaciones: {}, buscar: '', error: '',
+    det: null, tab: 'datos', f: {}, ref: {}, dem: {}, creativoOk: false, aviso: '', moviendo: false,
+    nuevo: { abierto: false, nombre: '', costo_origen: null, costo_envio: null, pvp: null, categoria: '' },
+    tabs: [{ v: 'datos', t: 'Datos y costes' }, { v: 'refutacion', t: 'Refutación' }, { v: 'demanda', t: 'Demanda y creativo' }, { v: 'escalado', t: 'Escalado' }, { v: 'historial', t: 'Historial' }],
+    NOMBRES: { candidato: 'Candidato', clasificado: 'Clasificado', refutado: 'Refutado', validado: 'Validado', creativo: 'Creativo', tienda: 'Tienda', escalado: 'Escalado', descartado: 'Descartados' },
+
+    get toast() { return Alpine.store('toast'); },
+    get columnas() { return this.estados; },
+    etiqueta(e) { return this.NOMBRES[e] || e || ''; },
+    porEstado(e) { return this.items.filter(p => p.estado === e); },
+    claseBadge(c) { return { HOT: 'badge badge-fail', WARM: 'badge badge-pending', COLD: 'badge badge-info', DISCARD: 'badge badge-fail' }[c] || 'badge'; },
+    pasoStyle(paso) {
+      const i = this.pasos.indexOf(paso), a = this.pasos.indexOf(this.det?.estado);
+      if (this.det?.estado === 'descartado') return 'background:#111328;color:#4a5080;border:1px solid #1a1d35;';
+      if (i < a) return 'background:rgba(52,211,153,0.1);color:#34d399;border:1px solid rgba(52,211,153,0.2);';
+      if (i === a) return 'background:rgba(34,211,238,0.12);color:#22d3ee;border:1px solid rgba(34,211,238,0.3);';
+      return 'background:#111328;color:#4a5080;border:1px solid #1a1d35;';
+    },
+
+    async mensaje(r, d) { try { const j = await r.json(); return typeof j.detail === 'string' ? j.detail : d; } catch (e) { return d; } },
+
+    async init() { await this.cargar(); },
+    async cargar() {
+      try {
+        const r = await fetch('/api/productos?buscar=' + encodeURIComponent(this.buscar));
+        if (!r.ok) throw new Error(await this.mensaje(r, 'Error ' + r.status));
+        const d = await r.json();
+        this.items = d.items; this.resumen = d.resumen; this.pasos = d.pasos; this.estados = d.estados; this.refutaciones = d.refutaciones;
+        this.error = '';
+      } catch (e) { this.error = 'No se pudieron cargar los productos: ' + e.message; }
+    },
+
+    cargarForm(p) {
+      this.det = p; this.aviso = '';
+      this.f = { nombre: p.nombre, categoria: p.categoria, url_proveedor: p.url_proveedor, costo_origen: p.costo_origen, costo_envio: p.costo_envio, pvp: p.pvp, notas: p.notas };
+      this.ref = {}; for (let n = 1; n <= 8; n++) this.ref[n] = Object.assign({ resultado: '', dato: '' }, (p.refutaciones || {})[n] || {});
+      this.dem = Object.assign({ visitantes: null, clics_comprar: null, emails: null, dias_test: null }, p.demanda || {});
+      this.creativoOk = !!p.creativo_ok;
+    },
+    async abrir(id) {
+      try {
+        const r = await fetch('/api/productos/' + id);
+        if (!r.ok) throw new Error(await this.mensaje(r, 'Error ' + r.status));
+        this.tab = 'datos'; this.cargarForm(await r.json());
+      } catch (e) { this.toast.error('No se pudo abrir el producto: ' + e.message); }
+    },
+    abrirNuevo() { this.nuevo = { abierto: true, nombre: '', costo_origen: null, costo_envio: null, pvp: null, categoria: '' }; },
+
+    async crear() {
+      const body = Object.fromEntries(Object.entries(this.nuevo).filter(([k, v]) => k !== 'abierto' && v !== null && v !== ''));
+      const r = await fetch('/api/productos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo crear.')); return; }
+      this.nuevo.abierto = false; this.toast.ok('Producto creado'); await this.cargar();
+    },
+    async enviar(url, metodo, cuerpo, okMsg) {
+      const r = await fetch(url, { method: metodo, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
+      if (!r.ok) { this.aviso = await this.mensaje(r, 'No se pudo guardar.'); this.toast.error(this.aviso); return null; }
+      this.aviso = ''; const p = await r.json();
+      if (okMsg) this.toast.ok(okMsg);
+      return p;
+    },
+    async guardarDatos() {
+      const body = Object.fromEntries(Object.entries(this.f).filter(([k, v]) => v !== null && v !== ''));
+      const p = await this.enviar('/api/productos/' + this.det.id, 'PATCH', body, 'Datos guardados');
+      if (p) { const t = this.tab; this.cargarForm(Object.assign(this.det, p)); this.tab = t; await this.cargar(); }
+    },
+    async guardarRefutaciones() {
+      const respuestas = {}; for (const n in this.ref) if (this.ref[n].resultado) respuestas[n] = this.ref[n];
+      const p = await this.enviar('/api/productos/' + this.det.id + '/refutaciones', 'PUT', { respuestas }, 'Refutaciones guardadas');
+      if (p) { const t = this.tab; this.cargarForm(p); this.tab = t; }
+    },
+    async guardarDemanda() {
+      const demanda = Object.fromEntries(Object.entries(this.dem).filter(([k, v]) => v !== null && v !== ''));
+      const p = await this.enviar('/api/productos/' + this.det.id + '/demanda', 'PUT', { demanda, creativo_ok: this.creativoOk }, 'Demanda guardada');
+      if (p) { const t = this.tab; this.cargarForm(p); this.tab = t; }
+    },
+    async mover(estado) {
+      this.moviendo = true;
+      const p = await this.enviar('/api/productos/' + this.det.id + '/mover', 'POST', { estado });
+      this.moviendo = false;
+      if (!p) return;
+      this.toast[p.auto_descartado ? 'info' : 'ok'](p.auto_descartado ? 'Producto descartado: ' + (p.eventos[0]?.nota || '') : 'Ahora en «' + this.etiqueta(p.estado) + '»');
+      await this.abrir(p.id); await this.cargar();
+    },
+    async eliminar() {
+      if (!confirm('¿Eliminar «' + this.det.nombre + '» y su historial? No se puede deshacer.')) return;
+      const r = await fetch('/api/productos/' + this.det.id, { method: 'DELETE' });
+      if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo eliminar.')); return; }
+      this.det = null; this.toast.ok('Producto eliminado'); await this.cargar();
+    },
+  };
+}
+</script>
+{% endblock %}
