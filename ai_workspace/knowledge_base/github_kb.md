@@ -100,3 +100,48 @@
 **Veces visto:** 1
 **Tags:** [SECRETS_SECURITY, INJECTION_RISK, auto-sync, anti-patrón]
 **Notas:** Fix: mover `${{ secrets.X }}` a `env:` del step y usar `$MY_VAR` en el script. Ver F-007 para el patrón exacto.
+
+---
+
+## INC-20261108-006 | SECRETS_SECURITY/COOKIES_TRACKED | CRÍTICO
+
+**Fecha:** 2026-11-08
+**Repositorio:** pabloalanzahlut/dropshipping-intelligence-suite
+**Firma del error:** `auth_token jwt activo en ai_workspace/scripts/skool_cookies.json versionado en git`
+**Causa raíz:** `auto_pipeline_skool.py` guarda cookies de sesión en un archivo JSON en `ai_workspace/scripts/`. El auto-sync commitió el archivo antes de que estuviera en .gitignore. El archivo contenía: `auth_token` JWT activo (exp Nov 2027), `aws-waf-token`, cookies AWS ALB y `__stripe_mid` / `__stripe_sid`.
+**Fix aplicado:** F-009 — `git rm --cached ai_workspace/scripts/skool_cookies.json` + añadir `*cookies*.json` y `**/cookies*.json` a .gitignore
+**Resultado:** ✅ RESUELTO (archivo fuera de tracking, .gitignore actualizado)
+**Tiempo total:** 10 min
+**Veces visto:** 1
+**Tags:** [SECRETS_SECURITY, COOKIES_TRACKED, skool, auth_token, JWT]
+**Notas:** ⚠️ ACCIÓN PENDIENTE DEL OPERADOR: El auth_token (exp Nov 2027) sigue en el historial git (commit d86d465). Para invalidarlo, cerrar sesión en Skool. Para limpiar el historial: `pip install git-filter-repo && git filter-repo --path ai_workspace/scripts/skool_cookies.json --invert-paths`. La clave de regla de prevención: `auto_pipeline_skool.py` debe tener `skool_cookies.json` en su propio directorio de trabajo temporal, no en un path versionado.
+
+---
+
+## INC-20261108-007 | SECRETS_SECURITY/PLAYWRIGHT_DATA | MEDIO
+
+**Fecha:** 2026-11-08
+**Repositorio:** pabloalanzahlut/dropshipping-intelligence-suite
+**Firma del error:** `.playwright-mcp/page-*.yml` grabaciones de sesiones autenticadas en git`
+**Causa raíz:** Playwright MCP graba capturas del árbol de accesibilidad de páginas en `.playwright-mcp/`. Si se navegó una sesión autenticada (Skool), las grabaciones pueden contener estructura interna de páginas privadas.
+**Fix aplicado:** F-010 — `git rm --cached .playwright-mcp/` + añadir `.playwright-mcp/` a .gitignore
+**Resultado:** ✅ RESUELTO
+**Tiempo total:** 5 min
+**Veces visto:** 1
+**Tags:** [SECRETS_SECURITY, PLAYWRIGHT_DATA, playwright-mcp]
+**Notas:** `.playwright-mcp/` debe estar siempre en .gitignore. Los archivos son temporales de sesión y nunca deberían versionarse.
+
+---
+
+## INC-20261108-008 | SECRETS_SECURITY/INJECTION_RISK | BAJO
+
+**Fecha:** 2026-11-08
+**Repositorio:** pabloalanzahlut/dropshipping-intelligence-suite
+**Firma del error:** `${{ secrets.MAKE_WEBHOOK_TIKTOK }}` / `${{ secrets.OPENROUTER_API_KEY }}` en bloque `run:` de auto-sync.yml`
+**Causa raíz:** Mismo patrón F-007 que INC-20261105-005 pero en un workflow diferente (auto-sync.yml). Detectado en auditoría de workflows del 2026-11-08.
+**Fix aplicado:** F-007 — mover secrets a `env:` del step con prefijo `_` para distinguirlos de vars de entorno reales
+**Resultado:** ✅ RESUELTO
+**Tiempo total:** 3 min
+**Veces visto:** 2 (veces totales del patrón F-007)
+**Tags:** [SECRETS_SECURITY, INJECTION_RISK, auto-sync, CI]
+**Notas:** Patrón recurrente. El auto-sync que genera workflows tiende a interpolarlo directamente. Revisar cada nuevo workflow antes del primer push.
