@@ -67,56 +67,58 @@ class FinancialValidator:
         sku: str,
         costo_origen: float,
         peso_kg: float = 0.0,
-        pvp_sugerido: Optional[float] = None
+        pvp_sugerido: Optional[float] = None,
+        costo_envio: float = 0.0
     ) -> Dict:
         """
         Valida un producto contra las reglas de negocio inmutables.
-        
+
+        El multiplicador se calcula sobre el coste LANDED (producto + envío),
+        no sobre el coste de producto solo (qgK3GfY5ZC4 11:30).
+
         Args:
             sku: SKU del producto
-            costo_origen: Costo de origen en USD
+            costo_origen: Costo del producto en el proveedor (USD)
             peso_kg: Peso neto del producto
             pvp_sugerido: PVP sugerido (opcional; si no se proporciona, se calcula)
-        
+            costo_envio: Coste de envío del proveedor al cliente (USD)
+
         Returns:
-            Dict con validación completa:
-            {
-                'sku': str,
-                'validado': bool,
-                'costo_origen': float,
-                'pvp_calculado': float,
-                'margen_bruto': float,
-                'regla_3x_cumple': bool,
-                'margen_cumple': bool,
-                'logistica_cumple': bool,
-                'peso_kg': float,
-                'status_validacion': str,
-                'nota_auditoria': str,
-                'detalles': dict
-            }
+            Dict con la validación completa, el desglose de costes operativos
+            y el margen neto real por unidad.
         """
-        
-        # 1. Sin PVP dado, usar el objetivo del curso (x3)
-        pvp_calculado = pvp_sugerido if pvp_sugerido else costo_origen * self.MULTIPLICADOR_OBJETIVO
 
-        # 2. Multiplicador y margen informativo
-        multiplicador  = pvp_calculado / costo_origen if costo_origen > 0 else 0.0
-        margen_bruto   = (pvp_calculado - costo_origen) / pvp_calculado if pvp_calculado > 0 else 0.0
+        # 1. Coste landed: el multiplicador se mide contra esto, no contra el producto solo
+        costo_landed = costo_origen + costo_envio
 
-        # 3. Regla del curso: solo x2 rechaza (24:40)
-        pvp_minimo      = costo_origen * self.MULTIPLICADOR_MINIMO
-        pvp_objetivo    = costo_origen * self.MULTIPLICADOR_OBJETIVO
+        # 2. Sin PVP dado, usar el objetivo del curso (x3) sobre el landed
+        pvp_calculado = pvp_sugerido if pvp_sugerido else costo_landed * self.MULTIPLICADOR_OBJETIVO
+
+        # 3. Multiplicador y margen bruto sobre coste landed
+        multiplicador = pvp_calculado / costo_landed if costo_landed > 0 else 0.0
+        margen_bruto  = (pvp_calculado - costo_landed) / pvp_calculado if pvp_calculado > 0 else 0.0
+
+        # 4. Costes operativos del P&L real (rqMrq2MGdpw) — se descuentan del PVP
+        coste_fees          = pvp_calculado * self.FEES_SHOPIFY_DIVISA_PCT
+        coste_cancelaciones = pvp_calculado * self.CANCELACIONES_PCT
+        margen_neto_unidad  = pvp_calculado - costo_landed - coste_fees - coste_cancelaciones
+        margen_neto_pct     = margen_neto_unidad / pvp_calculado if pvp_calculado > 0 else 0.0
+
+        # 5. Regla del curso: solo x2 rechaza (24:40)
+        pvp_minimo   = costo_landed * self.MULTIPLICADOR_MINIMO
+        pvp_objetivo = costo_landed * self.MULTIPLICADOR_OBJETIVO
         regla_minimo_cumple = pvp_calculado >= pvp_minimo - 0.01
         objetivo_cumple     = pvp_calculado >= pvp_objetivo - 0.01
 
-        # 4. Solo el piso x2 rechaza — el curso no impone otra condición de rechazo
+        # 6. Solo el piso x2 rechaza — el curso no impone otra condición de rechazo
         status_validacion = 'validado' if regla_minimo_cumple else 'rechazado'
 
         notas = []
         if not regla_minimo_cumple:
             notas.append(
-                f"Multiplicador {multiplicador:.2f}x por debajo del mínimo x2 del curso "
-                f"(Q4Ykcwh5Osc 24:40) — PVP mínimo ${pvp_minimo:.2f}, actual ${pvp_calculado:.2f}"
+                f"Multiplicador {multiplicador:.2f}x sobre coste landed ${costo_landed:.2f} "
+                f"por debajo del mínimo x2 del curso (Q4Ykcwh5Osc 24:40) — "
+                f"PVP mínimo ${pvp_minimo:.2f}, actual ${pvp_calculado:.2f}"
             )
 
         advertencias = []
@@ -130,6 +132,17 @@ class FinancialValidator:
                 f"Coste ${costo_origen:.2f} fuera del rango $5–15 que filtra el curso "
                 f"(Q4Ykcwh5Osc 17:50)"
             )
+        if costo_envio == 0.0:
+            advertencias.append(
+                "Coste de envío no informado: el multiplicador se ha calculado solo "
+                "sobre el producto y puede estar inflado (qgK3GfY5ZC4 11:30)"
+            )
+        if margen_neto_unidad <= 0:
+            advertencias.append(
+                f"Margen neto NEGATIVO (${margen_neto_unidad:.2f}/unidad) tras descontar "
+                f"fees {self.FEES_SHOPIFY_DIVISA_PCT:.1%} y cancelaciones "
+                f"{self.CANCELACIONES_PCT:.1%} del P&L real (rqMrq2MGdpw)"
+            )
 
         nota_auditoria = "; ".join(notas + advertencias) or "Producto validado exitosamente"
 
@@ -137,8 +150,12 @@ class FinancialValidator:
             'sku': sku,
             'validado': regla_minimo_cumple,
             'costo_origen': costo_origen,
+            'costo_envio': costo_envio,
+            'costo_landed': round(costo_landed, 2),
             'pvp_calculado': round(pvp_calculado, 2),
             'margen_bruto': round(margen_bruto * 100, 2),
+            'margen_neto_unidad': round(margen_neto_unidad, 2),
+            'margen_neto_pct': round(margen_neto_pct * 100, 2),
             'multiplicador': round(multiplicador, 2),
             'regla_minimo_cumple': regla_minimo_cumple,
             'objetivo_x3_cumple': objetivo_cumple,
@@ -153,10 +170,12 @@ class FinancialValidator:
                 'pvp_minimo_x2': round(pvp_minimo, 2),
                 'pvp_objetivo_x3': round(pvp_objetivo, 2),
                 'pvp_esperado_regla_3x': round(pvp_objetivo, 2),
+                'coste_fees_shopify_divisa': round(coste_fees, 2),
+                'coste_cancelaciones': round(coste_cancelaciones, 2),
                 'fecha_validacion': datetime.now().isoformat()
             }
         }
-        
+
         self.validaciones_log.append(resultado)
         return resultado
     
