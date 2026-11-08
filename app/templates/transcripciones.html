@@ -16,6 +16,9 @@
         Transcripciones · <span style="background:linear-gradient(90deg,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">YouTube</span>
       </h1>
       <p style="font-size:12px;color:#4a5080;margin:0;">Tus transcripciones guardadas: texto original y versión limpia para la base de conocimiento</p>
+      <p x-show="auto.proxima" x-cloak style="font-size:11px;color:#4a5080;margin:4px 0 0;">
+        <span style="color:#34d399;">●</span> Sincronización automática activa · próximo lote a las <span style="color:#7880b0;" x-text="auto.proxima"></span>
+      </p>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <button @click="abrirNuevo()" class="btn-ghost">＋ Agregar URL / texto</button>
@@ -283,6 +286,7 @@ function transcripciones() {
     detalle: null, cargandoDetalle: false, errorDetalle: '',
     vistaLimpia: true, copiado: false,
     sync: { running: false, msg: '', result: null, error: null }, syncTimer: null,
+    auto: { proxima: '' },
     nuevo: { abierto: false, modo: 'url', url: '', titulo: '', canal: '', texto: '', enviando: false, error: '' },
     _req: 0,
 
@@ -303,7 +307,18 @@ function transcripciones() {
       return 'Error ' + r.status;
     },
 
+    async cargarAuto() {
+      try {
+        const r = await fetch('/api/status');
+        if (!r.ok) return;
+        const job = ((await r.json()).scheduler?.jobs || []).find(j => j.id === 'transcripts_auto');
+        // next_run viene como "2026-11-08 20:45:00+01:00": se muestra solo la hora
+        this.auto.proxima = job && job.next_run ? String(job.next_run).substring(11, 16) : '';
+      } catch (e) { /* es solo informativo */ }
+    },
+
     async init() {
+      this.cargarAuto();
       await this.recargar();
       await this.consultarSync();
       if (this.sync.running) this.vigilarSync();
