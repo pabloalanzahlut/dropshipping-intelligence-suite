@@ -230,6 +230,17 @@ chat(task="analizar_imagen", ...)  # → Gemini Flash (multimodal)
 ### Clientes especializados:
 - `app/services/gemini_vision.py` → Análisis de imágenes de producto
 - `app/services/higgsfield_client.py` → Generación de videos TikTok
+- `app/services/fx_rates.py` → Tipo de cambio real (Frankfurter, sin clave)
+- `app/services/model_quality_ab.py` → ¿el modelo barato convierte peor? (caso Opus vs Haiku)
+
+### Medición y aprendizaje:
+- `app/services/metrics_aggregator.py` → Vista única: producto → decisión → resultado real
+- `app/services/self_improve.py` → Loop nocturno que **propone** ajustes, nunca los aplica
+
+**Límite del loop:** no puede tocar `CLAUDE.md`, `.claude/memory/`, el gate ni el
+validador financiero. Escribe en `ai_workspace/knowledge_base/propuestas_ajuste.md` y
+espera revisión humana. Un sistema que reescribe las reglas que lo evalúan acaba
+relajándolas.
 
 ---
 
