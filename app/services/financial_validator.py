@@ -193,6 +193,10 @@ class FinancialValidator:
                 'pvp_esperado_regla_3x': round(pvp_objetivo, 2),
                 'coste_fees_shopify_divisa': round(coste_fees, 2),
                 'coste_cancelaciones': round(coste_cancelaciones, 2),
+                'fx_rate': fx_rate,
+                'fx_estimado': fx_estimado,
+                'moneda_costo': moneda_costo,
+                'moneda_pvp': moneda_pvp,
                 'fecha_validacion': datetime.now().isoformat()
             }
         }
