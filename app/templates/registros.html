@@ -41,6 +41,31 @@
     </div>
   </section>
 
+  <!-- Avisos fuera de la app -->
+  <section class="card" style="margin-bottom:16px;padding:14px 18px;" aria-labelledby="avisos-titulo">
+    <div class="flex items-start justify-between flex-wrap" style="gap:10px;">
+      <div style="min-width:0;flex:1;">
+        <h2 id="avisos-titulo" class="section-title" style="margin-bottom:6px;">Avisos fuera de la app</h2>
+        <p x-show="!avisos" style="font-size:12px;color:#7880b0;margin:0;">Cargando…</p>
+        <div x-show="avisos" x-cloak style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+          <span :class="avisos?.windows.activo ? 'badge badge-done' : 'badge badge-pending'"
+                x-text="'Windows: ' + (avisos?.windows.activo ? 'activo' : (avisos?.windows.disponible ? 'desactivado' : 'no disponible'))"></span>
+          <span :class="avisos?.make.activo ? 'badge badge-done' : 'badge badge-pending'"
+                x-text="'Make.com (email, Telegram…): ' + (avisos?.make.activo ? 'activo' : (avisos?.make.configurado ? 'desactivado' : 'sin configurar'))"></span>
+        </div>
+        <p x-show="avisos" x-cloak style="font-size:11px;color:#7880b0;margin:0;line-height:1.55;">
+          Avisa de alertas de nivel <strong x-text="avisos?.nivel_minimo"></strong> o superior, una vez cada una; las críticas sin ver se recuerdan cada 12 h.
+          Silencio: <strong x-text="avisos?.silencio"></strong> (solo pasan las críticas).
+          <span x-show="avisos && !avisos.make.configurado"> Para recibirlas por email o Telegram define <code>MAKE_WEBHOOK_ALERTAS</code> en <code>.env</code> con el webhook de un escenario de Make (https).</span>
+        </p>
+        <p x-show="pruebaMsg" x-cloak role="status" style="font-size:12px;margin:8px 0 0;" :style="'color:' + (pruebaOk ? '#34d399' : '#fb7185')" x-text="pruebaMsg"></p>
+      </div>
+      <button type="button" class="btn-ghost" style="font-size:11px;" :disabled="probando || !avisos?.habilitado" @click="probarAvisos()">
+        <span x-text="probando ? 'Enviando…' : 'Enviar aviso de prueba'"></span>
+      </button>
+    </div>
+  </section>
+
   <div class="flex gap-2 flex-wrap items-end" style="margin-bottom:14px;">
     <div class="flex gap-2 flex-wrap" role="tablist">
       <template x-for="f in fuentes" :key="f.v">
@@ -79,7 +104,23 @@ function registros() {
     fuentes: [{ v: 'servidor', t: 'Servidor' }, { v: 'pipeline', t: 'Ingesta en vivo' }, { v: 'elite', t: 'Suite (estructurado)' }],
     color(n) { return { ERROR: '#fb7185', CRITICAL: '#fb7185', WARNING: '#fbbf24', INFO: '#22d3ee', DEBUG: '#4a5080' }[n] || '#a8b0d8'; },
     mant: { ultimo: null, en_curso: false },
-    init() { this.cargar(); this.cargarMant(); },
+    avisos: null, probando: false, pruebaMsg: '', pruebaOk: true,
+    init() { this.cargar(); this.cargarMant(); this.cargarAvisos(); },
+    async cargarAvisos() {
+      try { const r = await fetch('/api/avisos'); if (r.ok) this.avisos = await r.json(); } catch (e) { /* se reintenta al recargar */ }
+    },
+    async probarAvisos() {
+      this.probando = true; this.pruebaMsg = '';
+      try {
+        const r = await fetch('/api/avisos/prueba', { method: 'POST' });
+        const d = await r.json();
+        const nombres = { windows: 'Windows', make: 'Make.com' };
+        const detalle = Object.entries(d.canales || {}).map(([k, v]) => nombres[k] + ': ' + (v.ok ? 'enviado' : 'falló (' + (v.motivo || '?') + ')')).join(' · ');
+        this.pruebaOk = !!d.ok;
+        this.pruebaMsg = d.ok ? 'Aviso de prueba enviado → ' + detalle : (d.motivo || 'No se pudo enviar') + (detalle ? ' → ' + detalle : '');
+      } catch (e) { this.pruebaOk = false; this.pruebaMsg = 'No se pudo contactar con el servidor.'; }
+      this.probando = false;
+    },
     async cargarMant() {
       try { const r = await fetch('/api/mantenimiento'); if (r.ok) this.mant = await r.json(); } catch (e) { /* se reintenta */ }
     },
