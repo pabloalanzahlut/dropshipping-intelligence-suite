@@ -54,17 +54,40 @@ vendido a $15 aparenta 3,0× cuando es 2,14×.
 
 ## PIPELINE DE AGENTES (DAG)
 
+**El creativo va antes de montar la tienda.** Con Meta Andrómeda el creativo es la
+variable dominante: validarlo primero evita montar una tienda entera para un producto
+que no engancha (`rqMrq2MGdpw`).
+
 ```
-AutoDS Trending + Ad Spy + Shopify Analytics
+AutoDS MCP + Ad Spy + Shopify Analytics
     ↓
-Product Scout   (buscar_producto)        → Candidatos pre-filtrados
+Product Scout    (/buscar-producto)      → candidatos pre-filtrados
     ↓
-YouTube Monitor → Transcript Cleaner → Knowledge Base (ingerir_transcripcion_kb)
-    ↓                                        ↓
-Product Hunter  (clasificar_productos)  → HOT/WARM/COLD
-    ├── Funnel Builder  (estructurar_landing)  → Copy AIDA → Tienda Shopify
-    ├── Media Buyer     (redactar_guiones)     → Script TikTok 15-30s → Tienda Shopify
-    └── KB Agent        (consultar_kb_agente)  → Consultas internas del operador
+Product Hunter   (/clasificar-producto)  → score 0-100 → HOT/WARM/COLD
+    ↓
+Refutación       (/refutar-producto)     → 8 intentos de matar la tesis
+    ↓
+Validación       (/validar-financiero)   → coste landed + fees + cancelaciones
+    ↓
+┌─ VALIDAR DEMANDA Y CREATIVO (antes de montar nada) ─────────────┐
+│  /fake-door       → ¿interesa? sin stock ni inversión           │
+│  /hook-matrix     → ≥10 hooks por fórmula                       │
+│  /redactar-guion  → script TikTok 15-30s                        │
+│  /generar-video-ia→ Higgsfield genera el vídeo                  │
+└──────────────────────────────────────────────────────────────────┘
+    ↓ solo si el creativo funciona
+┌─ MONTAR LA TIENDA ───────────────────────────────────────────────┐
+│  /oferta-multiunidad    → 1+1, 2+2, escalones validados          │
+│  /estructurar-landing   → copy AIDA                              │
+│  /redactar-ficha-shopify→ ficha completa                         │
+│  /clonar-seccion        → secciones que ya funcionan             │
+└──────────────────────────────────────────────────────────────────┘
+    ↓
+Escalado   (/escalar-campana, /monitorear-caja)
+
+En paralelo y continuo:
+  YouTube Monitor → Transcript Cleaner → KB → /consolidar-manual
+  Métricas reales → /destilar-skill, self_improve (propone, no aplica)
 ```
 
 **Nunca saltar un paso.** Si un agente falla → detener cadena → pedir intervención.
