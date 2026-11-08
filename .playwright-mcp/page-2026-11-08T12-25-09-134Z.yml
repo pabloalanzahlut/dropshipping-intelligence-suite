@@ -1,0 +1,67 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e4]:
+    - generic [ref=f5e7]:
+      - generic [ref=f5e9]:
+        - link "Comunidad Ecommerce" [ref=f5e10] [cursor=pointer]:
+          - /url: /comunidad-ecommerce
+        - button [ref=f5e19] [cursor=pointer]
+      - button "Accedi" [ref=f5e27] [cursor=pointer]
+    - generic [ref=f5e30]:
+      - generic [ref=f5e32]:
+        - generic [ref=f5e34]:
+          - generic [ref=f5e35]:
+            - generic [ref=f5e36]: Comunidad Ecommerce
+            - generic [ref=f5e39]:
+              - img [ref=f5e40] [cursor=pointer]
+              - generic [ref=f5e43] [cursor=pointer]
+            - generic [ref=f5e45]:
+              - generic [ref=f5e46]: Privato
+              - generic [ref=f5e51]: 33.5k membri
+              - generic [ref=f5e59]: Gratis
+              - generic [ref=f5e64]:
+                - link [ref=f5e65] [cursor=pointer]:
+                  - /url: /@adrian
+                  - generic "Adrián Sáenz" [ref=f5e67]:
+                    - img "Adrián Sáenz" [ref=f5e68]
+                - link "Di Adrián Sáenz" [ref=f5e71] [cursor=pointer]:
+                  - /url: /@adrian
+                  - generic [ref=f5e73]:
+                    - text: Di
+                    - generic [ref=f5e74]: Adrián Sáenz
+          - generic [ref=f5e76]:
+            - generic [ref=f5e77]: "Importante: Antes de solicitar el acceso, mira los primeros 10 minutos del curso gratuito."
+            - generic [ref=f5e79]: Ahí explico cuál es la contraseña necesaria para entrar en la comunidad. Si no introduces la contraseña correcta, no podremos aceptar tu solicitud.
+        - link "Privacy e termini" [ref=f5e81] [cursor=pointer]:
+          - /url: /legal?t=privacy
+      - generic [ref=f5e85]:
+        - generic [ref=f5e87]:
+          - img "Comunidad Ecommerce" [ref=f5e89]
+          - generic [ref=f5e92]:
+            - generic [ref=f5e93]:
+              - link "Comunidad Ecommerce" [ref=f5e96] [cursor=pointer]:
+                - /url: /comunidad-ecommerce
+              - generic [ref=f5e97] [cursor=pointer]: skool.com/comunidad-ecommerce
+            - generic [ref=f5e100]:
+              - generic [ref=f5e101]: ● Formación de Ecommerce
+              - generic [ref=f5e102]: ● Comunidad y Soporte
+              - generic [ref=f5e103]: ● Acceso Gratuito
+            - generic [ref=f5e107]:
+              - link "33.5k Membri" [ref=f5e109] [cursor=pointer]:
+                - /url: /comunidad-ecommerce/-/members
+                - generic [ref=f5e110]:
+                  - generic [ref=f5e111]: 33.5k
+                  - generic [ref=f5e112]: Membri
+              - link "12 Online" [ref=f5e114] [cursor=pointer]:
+                - /url: /comunidad-ecommerce/-/members?t=online
+                - generic [ref=f5e115]:
+                  - generic [ref=f5e116]: "12"
+                  - generic [ref=f5e117]: Online
+              - link "4 Amministratori" [ref=f5e119] [cursor=pointer]:
+                - /url: /comunidad-ecommerce/-/members?t=admin
+                - generic [ref=f5e120]:
+                  - generic [ref=f5e121]: "4"
+                  - generic [ref=f5e122]: Amministratori
+            - button "UNISCITI AL GRUPPO" [ref=f5e124] [cursor=pointer]
+        - link "Powered by" [ref=f5e126] [cursor=pointer]:
+          - /url: /signup?utm_source=skooldotcom&utm_medium=website&utm_content=powered_by_skool&utm_campaign=signup_skool_logo_link
+  - alert [ref=f5e136]
