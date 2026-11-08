@@ -229,9 +229,19 @@ class GEMOSApplication:
                 pass
 
     def _on_global_sync(self):
+        if getattr(self, "_sync_running", False):
+            self._log("Ya hay una sincronización en curso.", level="WARNING")
+            return
+        # La consola es lazy: si aún no se abrió el panel Ingesta, cargarlo primero.
+        if not self.console_view:
+            self._show(7)
+            self._panel_loaded[7] = True
+            self._load_panel(7)
+        if not self.console_view:
+            self._sync_st.set_status("error", "Sin consola")
+            return
         self._sync_st.set_status("info", "Sincronizando...")
-        if self.console_view:
-            self.trigger_pipeline_ingestion(self.console_view)
+        self.trigger_pipeline_ingestion(self.console_view)
 
     def _verify_environment(self):
         from app.services.openrouter_client import sanitize_api_key
@@ -325,8 +335,13 @@ class GEMOSApplication:
             pass
 
     def trigger_pipeline_ingestion(self, view_instance):
+        if getattr(self, "_sync_running", False):
+            view_instance.write_log("[ORQUESTADOR] Ya hay una ingesta en curso.", level="WARNING")
+            return
+        self._sync_running = True
         view_instance.write_log("[ORQUESTADOR] Preparando entorno de sincronizacion...", level="SYSTEM")
         def worker_task():
+            ok = False
             try:
                 engine = ProviderMonitorEngine(db_manager=self.db_manager)
                 engine.log_callback = lambda msg: view_instance.write_log(msg, level="INFO")
@@ -334,10 +349,19 @@ class GEMOSApplication:
                 view_instance.write_log("[ORQUESTADOR] Iniciando escaneo e ingesta masiva de canales favoritos...", level="INFO")
                 engine.run_global_ingestion()
                 view_instance.write_log("[SISTEMA] Sincronizacion Maestra finalizada con exito.", level="OK")
+                ok = True
             except Exception as e:
                 view_instance.write_log(f"[CRITICO - MAIN] Fallo en la cadena de ejecucion: {str(e)}", level="CRITICAL")
                 import traceback
                 view_instance.write_log(traceback.format_exc(), level="CRITICAL")
+            finally:
+                self._sync_running = False
+                # Tk no es thread-safe: actualizar el indicador desde el hilo principal
+                try:
+                    self.root.after(0, lambda: self._sync_st.set_status(
+                        "ok" if ok else "error", "Listo" if ok else "Error"))
+                except Exception:
+                    pass
         threading.Thread(target=worker_task, daemon=True).start()
 
     def _on_close(self):
