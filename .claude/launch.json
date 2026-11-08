@@ -14,6 +14,13 @@
       "runtimeArgs": ["-m", "uvicorn", "app.services.dashboard_server:app", "--host", "127.0.0.1", "--port", "47821"],
       "port": 47821,
       "url": "http://localhost:47821"
+    },
+    {
+      "name": "gem-os-tienda-test",
+      "runtimeExecutable": "C:\\Users\\Alan\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "runtimeArgs": ["C:\\Users\\Alan\\AppData\\Local\\Temp\\claude\\dd76417ee7d8b6ce\\abee6602-b534-4112-ae7f-7635dbe72017\\scratchpad\\run_tienda_test.py"],
+      "port": 47899,
+      "url": "http://localhost:47899"
     }
   ]
 }
