@@ -257,6 +257,7 @@ def verificar_validacion_financiera(validacion: Dict) -> Dict:
         costo_envio=validacion.get("costo_envio", 0.0),
         pvp=validacion["pvp_calculado"],
         multiplicador_declarado=validacion["multiplicador"],
+        fx_rate=validacion.get("detalles", {}).get("fx_rate", 1.0),
     )
 
     resultados = [estructura, aritmetica]
