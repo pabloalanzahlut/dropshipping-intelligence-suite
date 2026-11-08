@@ -1043,6 +1043,7 @@ async def api_validar(data: ValidarIn) -> Dict[str, Any]:
         return validator.validar_producto(
             sku=data.sku,
             costo_origen=data.costo_origen,
+            costo_envio=data.costo_envio,
             peso_kg=data.peso_kg,
             pvp_sugerido=data.pvp_sugerido,
         )
