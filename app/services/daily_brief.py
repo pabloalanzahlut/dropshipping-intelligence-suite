@@ -98,7 +98,7 @@ def _sistema(db_path: str, config_path: str) -> Dict[str, Any]:
     if copias:
         lineas.append("Última copia de seguridad: "
                       + datetime.fromtimestamp(copias[-1].stat().st_mtime).strftime("%Y-%m-%d %H:%M")
-                      + f" ({len(copias)} guardadas).")
+                      + f" ({len(copias)} guardada{'s' if len(copias) != 1 else ''}).")
     else:
         lineas.append("Sin copias de seguridad automáticas.")
     return {"titulo": "Sistema", "lineas": lineas}
