@@ -1,5 +1,6 @@
 """Importación de CSV (Meta/Shopify) y avisos fuera de la app. Sin red, sin PowerShell real; BD temporal."""
 import json
+import logging
 import os
 import sqlite3
 import sys
@@ -214,6 +215,10 @@ class AvisosTests(Base):
 
     def setUp(self):
         super().setUp()
+        # Los avisos simulados (p. ej. «HTTP 500») no deben acabar en el servidor.log real
+        self.log = logging.getLogger("app.services.notifier")
+        self.nivel_log = self.log.level
+        self.log.setLevel(logging.CRITICAL)
         self.env = mock.patch.dict(os.environ, self.ENTORNO)
         self.env.start()
         self.toasts, self.hooks = [], []
@@ -228,6 +233,7 @@ class AvisosTests(Base):
         for p in (self.p1, self.p2, self.p3):
             p.stop()
         self.env.stop()
+        self.log.setLevel(self.nivel_log)
         super().tearDown()
 
     def _toast(self, titulo, texto, enlace=""):
