@@ -54,6 +54,31 @@ y el versionado [SemVer](https://semver.org/).
 - Escritorio con la paleta de la web (`design_tokens.py`); los estilos premium ya no los
   pisa `BaseTheme.apply()`.
 
+### Añadido (3ª ronda: herramienta final)
+- **Productos** (`/productos`, `product_catalog.py`): catálogo con el recorrido de CLAUDE.md
+  (candidato → clasificado → refutado → validado → creativo → tienda → escalado | descartado).
+  Cada paso comprueba datos reales y no se puede saltar ninguno: clasificación HOT/WARM/COLD por
+  multiplicador sobre coste landed, las 8 refutaciones del skill (con su veredicto), el validador
+  financiero, test de demanda + creativo confirmado, y el árbol de escalado con métricas reales.
+  Todo con `correlation_id` y registro de eventos.
+- **Negocio** (`/negocio`, `business_metrics.py`): ROAS real, CPA, resultado, margen neto (fees 4,0 %
+  y devoluciones 10,1 %), caja y días de caja, y decisión de escalado, con los umbrales literales de
+  los procedimientos `monitorear_flujo_caja` y `escalar_campana`. Panel de integraciones (solo
+  indica si están configuradas; nunca muestra las claves).
+- **Historial** (`/historial`) con exportación a **CSV** (UTF-8 con BOM; neutraliza fórmulas).
+- **Registros** (`/registros`): servidor, ingesta en vivo y log estructurado; el servidor escribe
+  `logs/elite/servidor.log` (rotativo).
+- **Contraseña opcional** (`GEM_OS_PASSWORD`): sesión por cookie firmada, bloqueo tras 5 fallos,
+  webhooks y estáticos exentos. Aviso en el log si se publica en red sin contraseña.
+- Avisos (toasts) y atajos de teclado (`g` + letra, `/`, `?`); menú dirigido por datos.
+- Escritorio: el Dashboard muestra canales, insights y estado como la web; la barra lateral marca
+  la pestaña activa. Corregido el contenedor de sección que nunca se colocaba (el Dashboard salía
+  vacío bajo los KPI).
+- `build_exe.py` incluye plantillas y estáticos de la web y los módulos nuevos.
+- Reglas falsas retiradas también de los comandos `/validar-financiero`, `/pipeline-completo`,
+  `/importar-masivo` y del skill de ficha Shopify.
+- `tests/test_negocio.py` y `tests/test_acceso.py`.
+
 ### Corregido (aprobado por el usuario)
 - `validator_rules.py::_check_business_rules` exigía en `agent.md` «Margen 70%» y «Peso 1.2 kg»
   (reglas que el curso no fija y que ya no están en `agent.md`): el pre-flight fallaba siempre y

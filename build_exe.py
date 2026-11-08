@@ -49,6 +49,17 @@ CONFIG_FILES = [
 # Hidden imports: módulos que PyInstaller no detecta automáticamente
 # porque se importan dinámicamente o se lanzan en threads/hilos.
 HIDDEN_IMPORTS = [
+    # Servicios añadidos en la auditoría de transcripciones (importados desde dashboard_server)
+    "app.services.transcript_store",
+    "app.services.topic_filter",
+    "app.services.agent_router",
+    "app.services.channel_store",
+    "app.services.kb_maintenance",
+    "app.services.product_catalog",
+    "app.services.business_metrics",
+    "app.services.exports",
+    "app.services.log_viewer",
+    "app.services.web_auth",
     "uvicorn",
     "uvicorn.logging",
     "uvicorn.loops",
@@ -201,6 +212,9 @@ def build_executable() -> None:
 
     _add_data(options, "ai_workspace", "ai_workspace", "AI")
     _add_data(options, "app/ui/resources", "app/ui/resources", "UI")
+    # La web (FastAPI) necesita sus plantillas y estáticos: PyInstaller no los detecta solo
+    _add_data(options, "app/templates", "app/templates", "WEB")
+    _add_data(options, "app/static", "app/static", "WEB")
     _add_data(options, "data", "data", "DATA")
 
     if (PROJECT_ROOT / ICON_PATH).exists():

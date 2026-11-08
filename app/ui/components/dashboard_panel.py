@@ -239,7 +239,7 @@ class DashboardPanelV3(tk.Frame):
         sec.pack(fill=tk.BOTH, expand=True, pady=(0, SPACING.md))
         self.canales_tree = self._create_table(
             sec, columns=["Canal", "Transcr.", "Filtro", "Estado"], col_widths=[170, 70, 90, 100])
-        self.canales_tree.configure(height=6)
+        self.canales_tree.configure(height=5)
         self.canales_tree.pack(fill=tk.BOTH, expand=True)
 
     def _build_insights(self, parent):
@@ -248,7 +248,7 @@ class DashboardPanelV3(tk.Frame):
         sec.pack(fill=tk.BOTH, expand=True, pady=(0, SPACING.md))
         self.insights_tree = self._create_table(
             sec, columns=["Producto", "Canal", "Fecha"], col_widths=[200, 110, 80])
-        self.insights_tree.configure(height=6)
+        self.insights_tree.configure(height=8)
         self.insights_tree.pack(fill=tk.BOTH, expand=True)
 
     def _build_estado(self, parent):
@@ -310,7 +310,8 @@ class DashboardPanelV3(tk.Frame):
                      f"{ult.get('transcripciones_procesadas', 0)} nuevas · {ult.get('fuera_de_tema', 0)} fuera de tema · "
                      f"{ult.get('errores', 0)} errores")
             if ult.get("limitado"):
-                texto += f" · YouTube limitó las descargas (reintenta desde las {str(ult.get('reintentar_a', ''))[11:16]})"
+                hora = str(ult.get("reintentar_a") or "")[11:16]
+                texto += " · YouTube limitó las descargas" + (f" (reintenta desde las {hora})" if hora else "")
             elif ult.get("lote_completo"):
                 texto += " · lote completo (sincroniza de nuevo en ~30 min)"
             lineas.append(texto)
@@ -356,12 +357,15 @@ class DashboardPanelV3(tk.Frame):
         # Content
         content = tk.Frame(section, bg=COLOR_BG_CARD)
         content.pack(fill=tk.BOTH, expand=True, padx=SPACING.md, pady=SPACING.md)
-        
+
+        # La tarjeta (section) hay que colocarla en su contenedor: antes solo se colocaba su
+        # interior, la tarjeta quedaba sin mostrar y el Dashboard salía vacío bajo los KPI.
+        section.pack(fill=tk.BOTH, expand=True, pady=(0, SPACING.md))
         return content
 
     def _create_table(self, parent, columns, col_widths):
         """Crear tabla minimalista."""
-        table = ttk.Treeview(parent, columns=columns, height=5, show="headings")
+        table = ttk.Treeview(parent, columns=columns, height=3, show="headings")
         
         for col, width in zip(columns, col_widths):
             table.heading(col, text=col, anchor="center")
