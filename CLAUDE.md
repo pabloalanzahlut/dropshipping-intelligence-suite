@@ -332,4 +332,45 @@ python -m app.services.autonomous_scheduler --once   # ciclo único (test)
 
 ---
 
-*GEM OS v3.0 — Xavier Mitjana (CLAUDE.md + Skills + Seguridad + Agentes autónomos) + Claseflix (Multi-IA) + Adrián Sáenz (Reglas financieras)*
+---
+
+## AUTO-DISPATCH (routing automático de consultas)
+
+Ante cualquier consulta en lenguaje natural, GEM OS mapea automáticamente al skill + conectores + Claude skills correspondientes **sin necesidad de slash commands**.
+
+→ **Tabla completa en [`ai_workspace/config/auto_dispatch.md`](ai_workspace/config/auto_dispatch.md)**
+→ **Mapa de conectores en [`ai_workspace/config/connector_map.md`](ai_workspace/config/connector_map.md)**
+
+### Lógica de routing rápida
+1. Detectar intención del usuario → buscar keywords en tabla auto_dispatch
+2. Activar skill primario correspondiente
+3. Cargar conectores del skill automáticamente (Ahrefs, Google Sheets, Stripe según aplique)
+4. Cargar Claude skills del skill (dataviz, artifact-design según aplique)
+5. Si ambigüedad → preguntar objetivo principal
+
+### Conectores disponibles
+| Conector | ID MCP | Para qué |
+|---------|--------|---------|
+| Google Sheets | `mcp__69f3b6ec` | Dashboard métricas, Pipeline, ROAS |
+| Stripe | `mcp__1cc6d3ec` | Revenue verificado, ROAS real |
+| Ahrefs | `mcp__plugin_marketing_ahrefs` | Keywords, SEO, competencia |
+| Gmail | `mcp__ae68f902` | Payouts Shopify, notificaciones |
+| Google Drive | `mcp__73e33a54` | Archivos KB, documentación |
+| Figma | `mcp__plugin_marketing_figma` | Mockups de creativos y fichas |
+| Google Calendar | `mcp__490e8c15` | Recordatorios de campaña |
+
+### Claude Skills disponibles
+| Skill | Cuándo |
+|-------|--------|
+| `dataviz` | Siempre que haya métricas o comparaciones |
+| `artifact-design` | Todo entregable visual (ficha, copy, informe) |
+| `anthropic-skills:deep-research` | Investigación compleja de nicho |
+| `artifact-capabilities` | Artefactos interactivos |
+
+### Prioridad del DAG (nunca saltarla)
+Si el usuario pide el paso N del pipeline sin haber completado el N-1 → ejecutar desde el inicio no completado:
+`/buscar-producto` → `/clasificar-producto` → `/refutar-producto` → `/validar-financiero` → `/hook-matrix` → `/redactar-guion` → *(si creativo funciona)* → `/redactar-ficha-shopify` → `/escalar-campana`
+
+---
+
+*GEM OS v3.0 — Xavier Mitjana (CLAUDE.md + Skills + Seguridad + Agentes autónomos) + Claseflix (Multi-IA) + Adrián Sáenz (Reglas financieras) + Auto-Dispatch (routing automático)*
