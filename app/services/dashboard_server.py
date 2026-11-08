@@ -341,7 +341,7 @@ def _get_total_videos() -> int:
         with db.get_connection() as conn:
             cur = conn.cursor()
             # Vídeos con conocimiento extraído por IA (no las transcripciones sueltas)
-            cur.execute("SELECT COUNT(*) FROM video_sources WHERE platform != ?",
+            cur.execute("SELECT COUNT(*) FROM video_sources WHERE platform NOT IN (?, 'fuera_de_tema')",
                         (transcript_store.TRANSCRIPT_PLATFORM,))
             return cur.fetchone()[0]
     except sqlite3.Error:
@@ -368,7 +368,9 @@ def _get_latest_insights(limit: int = 5) -> List[Dict[str, Any]]:
 
 _INSIGHTS_UNION = """
     SELECT id, 'product_trends' AS source_table, video_id,
-           product_name AS titulo, niche AS subtitulo, wow_factor AS contenido,
+           CASE WHEN product_name = 'Producto Extraído por IA'
+                THEN 'Sin nombre · ' || COALESCE(niche, 'producto') ELSE product_name END AS titulo,
+           niche AS subtitulo, wow_factor AS contenido,
            validated_at AS created_at
     FROM product_trends
     UNION ALL

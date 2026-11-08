@@ -363,3 +363,19 @@ def mig_0015_vertical_productos(conn: sqlite3.Connection):
             ALTER TABLE productos_validados
             ADD COLUMN vertical TEXT DEFAULT ''
         """)
+
+@migration(16, "Índice único de productos por vídeo y estado/filtro de tema en canales_favoritos")
+def mig_0016_unico_producto_y_estado_canales(conn: sqlite3.Connection):
+    # El mismo producto del mismo vídeo no se guarda dos veces (los 'sin nombre' pueden ser
+    # productos distintos y quedan fuera del índice)
+    conn.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_product_trends_video_nombre
+        ON product_trends(video_id, lower(product_name))
+        WHERE product_name != 'Producto Extraído por IA'
+    """)
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(canales_favoritos)").fetchall()}
+    for col, ddl in (("filtro_tema", "INTEGER DEFAULT 0"),
+                     ("ultimo_estado", "TEXT"),
+                     ("ultimo_check", "TEXT")):
+        if col not in cols:
+            conn.execute(f"ALTER TABLE canales_favoritos ADD COLUMN {col} {ddl}")

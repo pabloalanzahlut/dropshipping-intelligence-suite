@@ -328,8 +328,9 @@ class KBRouter:
                 + json.dumps(table_metrics["tables_data"], ensure_ascii=False, indent=2)
             )
 
+        # OR IGNORE: el índice único (video, producto) evita guardar el mismo insight dos veces
         cursor.execute("""
-            INSERT INTO product_trends
+            INSERT OR IGNORE INTO product_trends
                 (video_id, product_name, niche, wow_factor,
                  estimated_margin, competitor_weaknesses)
             VALUES (?, ?, ?, ?, ?, ?)

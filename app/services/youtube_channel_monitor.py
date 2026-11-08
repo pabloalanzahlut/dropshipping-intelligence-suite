@@ -106,6 +106,9 @@ class YouTubeChannelMonitor:
                     "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()],
                     "prioridad": r["prioridad"] or 5, "idioma": r["idioma"] or "es",
                     "max_videos_scan": 15,
+                    # Canales de la lista de favoritos que NO son los mentores del JSON: se
+                    # comprueba que el vídeo sea de ecommerce/dropshipping (p. ej. "Gian's Tech")
+                    "filtro_tema": True,
                 })
         except Exception as e:
             print(f"[WARN] No se pudieron leer canales_favoritos: {e}")
