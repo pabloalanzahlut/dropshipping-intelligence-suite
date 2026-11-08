@@ -464,7 +464,10 @@ class YouTubeMonitorPanel(ttk.Frame):
                 f"Errores: {ul.get('errores', 0)}  |  "
                 f"Tokens ahorrados: {ul.get('tokens_ahorrados', 0)}"
                 + ("  |  (cancelada)" if ul.get("cancelado") else "")
-                + ("  |  (detenida: YouTube limitó las descargas)" if ul.get("limitado") else "")
+                + ("  |  (detenida: YouTube limitó las descargas"
+                   + (f", reintenta desde las {str(ul['reintentar_a'])[11:16]}" if ul.get("reintentar_a") else "")
+                   + ")" if ul.get("limitado") else "")
+                + ("  |  (lote completo: sincroniza de nuevo en ~30 min)" if ul.get("lote_completo") else "")
             )
         else:
             txt = "Sin sincronizaciones aún. Presiona '⟳ Sincronizar Ahora' para comenzar."
@@ -522,7 +525,8 @@ class YouTubeMonitorPanel(ttk.Frame):
         self._recargar_todo()
         msg = (
             f"{'Sincronización cancelada' if resultado.get('cancelado') else 'Sincronización completada'}"
-            f"{' (YouTube limitó las descargas: vuelve a intentarlo más tarde)' if resultado.get('limitado') else ''}:\n"
+            f"{' (YouTube limitó las descargas: reintenta más tarde)' if resultado.get('limitado') else ''}"
+            f"{' (lote completo: vuelve a sincronizar en ~30 min)' if resultado.get('lote_completo') else ''}:\n"
             f"· Canales revisados: {resultado['canales_procesados']}\n"
             f"· Transcripciones nuevas: {resultado['transcripciones_procesadas']}\n"
             f"· Duplicados: {resultado['duplicados']}\n"

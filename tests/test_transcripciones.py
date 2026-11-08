@@ -318,7 +318,7 @@ class MonitorTests(unittest.TestCase):
         finally:
             self.mod.MAX_DESCARGAS_POR_SYNC = viejo
         self.assertTrue(r["lote_completo"])
-        self.assertEqual(r["videos_descargados"] + r["fuera_de_tema"] - r["fuera_de_tema"], 1)
+        self.assertEqual(r["videos_descargados"], 1)
 
 
 class AgentRouterTests(unittest.TestCase):
