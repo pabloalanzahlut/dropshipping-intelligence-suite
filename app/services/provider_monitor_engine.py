@@ -194,7 +194,7 @@ class ProviderMonitorEngine:
             "Iván Caicedo": "https://www.youtube.com/@ivancaicedo",
             "JaviEcom": "https://www.youtube.com/@javiecom",
             "Marc Verdú": "https://www.youtube.com/@marcverdu",
-            "Vic Ecomilions": "https://www.youtube.com/@vicecomilions",
+            "Vic Ecomilions": "https://www.youtube.com/@ecomilions",
         }
 
 

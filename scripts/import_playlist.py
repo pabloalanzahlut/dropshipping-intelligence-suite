@@ -25,9 +25,9 @@ PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLrs1PAk24jHeU8waSkHzgQTHm
 # Handles alternativos que deben fusionarse con el handle canónico
 # clave = handle de la playlist  →  valor = handle canónico ya en DB
 HANDLE_ALIASES = {
-    "@soyivancaicedo": "@ivancaicedo",
+    "@soyivancaicedo": "@soyivancaicedo",   # ya canónico (el canal real es @soyivancaicedo)
     "@javiecomm":      "@javiecom",
-    "@ecomilions":     "@vicecomilions",
+    "@ecomilions":     "@ecomilions",   # ya canónico (el canal real es @ecomilions)
     "@marcverdu":      "@marcverdu",   # ya canónico, solo por claridad
     "@adriansaenz":    "@adriansaenz",
 }

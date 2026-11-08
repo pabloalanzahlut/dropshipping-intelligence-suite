@@ -90,7 +90,7 @@ def seed_canales_favoritos():
         ("@ivancaicedo",   "Iván Caicedo",   "https://www.youtube.com/@ivancaicedo",   "es", "general", "dropshipping,productos",   2),
         ("@javiecom",      "JaviEcom",       "https://www.youtube.com/@javiecom",      "es", "general", "shopify,ecom",             2),
         ("@marcverdu",     "Marc Verdú",     "https://www.youtube.com/@marcverdu",     "es", "general", "shopify,productos",        3),
-        ("@vicecomilions", "Vic Ecomilions", "https://www.youtube.com/@vicecomilions", "es", "general", "dropshipping,scaling",     3),
+        ("@ecomilions", "Vic Ecomilions", "https://www.youtube.com/@ecomilions", "es", "general", "dropshipping,scaling",     3),
     ]
     insertados = 0
     with _conn() as conn:

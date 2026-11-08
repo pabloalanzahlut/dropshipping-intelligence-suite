@@ -198,7 +198,7 @@ def mig_0006_canales_favoritos(conn: sqlite3.Connection):
         ("@ivancaicedo",  "Iván Caicedo",  "https://www.youtube.com/@ivancaicedo",  "es", "dropshipping,productos",   2),
         ("@javiecom",     "JaviEcom",      "https://www.youtube.com/@javiecom",     "es", "shopify,ecom",            2),
         ("@marcverdu",    "Marc Verdú",    "https://www.youtube.com/@marcverdu",    "es", "shopify,productos",       3),
-        ("@vicecomilions","Vic Ecomilions","https://www.youtube.com/@vicecomilions","es", "dropshipping,scaling",    3),
+        ("@ecomilions","Vic Ecomilions","https://www.youtube.com/@ecomilions","es", "dropshipping,scaling",    3),
     ]
     for handle, nombre, url, idioma, tags, prioridad in canales:
         conn.execute(

@@ -291,6 +291,76 @@ class MonitorTests(unittest.TestCase):
         self.assertGreaterEqual(r["transcripciones_procesadas"], 2)
 
 
+    def test_lote_limitado_y_cooldown_tras_429(self):
+        from unittest.mock import patch
+        from app.services.youtube_rss_fetcher import RateLimited
+        llamadas = []
+
+        def siempre_429(video_id, lang="es"):
+            llamadas.append(video_id)
+            raise RateLimited("429")
+
+        with patch.object(self.mod, "fetch_channel_videos", self._videos),              patch.object(self.mod, "download_transcript", siempre_429):
+            r1 = self.m.sincronizar_canales()
+            self.assertTrue(r1["limitado"])
+            self.assertIsNotNone(r1["reintentar_a"])
+            n = len(llamadas)
+            r2 = self.m.sincronizar_canales()          # en cooldown: no toca YouTube
+        self.assertTrue(r2["limitado"])
+        self.assertEqual(len(llamadas), n)
+
+    def test_tope_de_descargas_por_lote(self):
+        from unittest.mock import patch
+        self.mod.MAX_DESCARGAS_POR_SYNC, viejo = 1, self.mod.MAX_DESCARGAS_POR_SYNC
+        try:
+            with patch.object(self.mod, "fetch_channel_videos", self._videos),                  patch.object(self.mod, "download_transcript", self._texto):
+                r = self.m.sincronizar_canales()
+        finally:
+            self.mod.MAX_DESCARGAS_POR_SYNC = viejo
+        self.assertTrue(r["lote_completo"])
+        self.assertEqual(r["videos_descargados"] + r["fuera_de_tema"] - r["fuera_de_tema"], 1)
+
+
+class AgentRouterTests(unittest.TestCase):
+    CASOS = [
+        ("¿Qué productos HOT han aparecido en la KB?", "gem-orchestrator-core", "producto"),
+        ("¿Cuáles son las mejores fórmulas de conversión registradas?", "gem-orchestrator-core", "estrategia"),
+        ("¿Qué estrategias de tráfico menciona la base de conocimiento?", "gem-orchestrator-core", "operaciones"),
+        ("Valida este producto: coste 6$, envío 2$, PVP 15$ ¿cumple el 2x?", "gem-qa-validation", "validacion"),
+        ("¿Salen las cuentas con coste 5 y PVP 12?", "gem-qa-validation", "validacion"),
+        ("Me sale error 429 con yt-dlp, ¿cómo lo arreglo?", "gem-backend-core", "tecnico"),
+        ("Escribe una consulta SQL para listar los productos de la tabla product_trends", "gem-backend-core", "tecnico"),
+        ("¿Cuál es el margen promedio de los productos indexados?", "gem-orchestrator-core", "metricas"),
+        ("¿Qué errores comunes menciona la KB?", "gem-orchestrator-core", "lecciones"),
+        ("¿Cómo escalo una campaña de Meta Ads con ROAS 2?", "gem-orchestrator-core", "operaciones"),
+        ("hola", "gem-orchestrator-core", "general"),
+    ]
+
+    def test_reconoce_el_tipo_y_elige_agente(self):
+        from app.services import agent_router
+        for pregunta, agente, tipo in self.CASOS:
+            r = agent_router.clasificar(pregunta)
+            self.assertEqual((r["agente"], r["tipo"]), (agente, tipo), pregunta)
+
+    def test_agente_fijado_a_mano_se_respeta_y_avisa(self):
+        from app.services import agent_router
+        r = agent_router.elegir_agente("Me sale error 429 con yt-dlp", "gem-orchestrator-core")
+        self.assertEqual(r["agente"], "gem-orchestrator-core")
+        self.assertFalse(r["automatico"])
+        self.assertEqual(r["sugerido"], "gem-backend-core")
+        self.assertTrue(agent_router.elegir_agente("Me sale error 429 con yt-dlp", "auto")["automatico"])
+        self.assertEqual(agent_router.elegir_agente("Me sale error 429 con yt-dlp", "auto")["agente"], "gem-backend-core")
+
+    def test_endpoints_de_ruta_y_agentes(self):
+        from fastapi.testclient import TestClient
+        import app.services.dashboard_server as ds
+        c = TestClient(ds.app)
+        r = c.get("/api/kb/ruta", params={"pregunta": "¿Cumple la regla 3x con coste 5 y PVP 12?"})
+        self.assertEqual(r.json()["agente"], "gem-qa-validation")
+        nombres = {a["nombre"] for a in c.get("/api/kb/agentes").json()}
+        self.assertEqual(nombres, {"gem-orchestrator-core", "gem-qa-validation", "gem-backend-core"})
+
+
 class EscritorioTests(unittest.TestCase):
     def test_rgba_se_convierte_a_hex_valido_para_tk(self):
         from app.ui.components.financial_validator_panel_v2 import _rgba_to_hex
