@@ -320,10 +320,12 @@ class ProviderMonitorEngine:
         except sqlite3.Error as exc:
             self.log_callback(f"⚠️ No se pudieron leer las transcripciones guardadas: {exc}")
             return 0
-        pendientes = [f for f in filas
-                      if self.queue_manager.video_status(f[2], f[0]) != STATUS_COMPLETED]
+        estados = {(f[2], f[0]): self.queue_manager.video_status(f[2], f[0]) for f in filas}
+        pendientes = [f for f in filas if estados[(f[2], f[0])] != STATUS_COMPLETED]
         if not pendientes:
             return 0
+        # Las que ya fallaron antes van al final: una rota no debe bloquear a las demás.
+        pendientes.sort(key=lambda f: estados[(f[2], f[0])] == STATUS_FAILED)
         self.log_callback(f"📂 {len(pendientes)} transcripciones guardadas sin analizar "
                           f"(se procesan hasta {maximo} en este ciclo, sin descargar nada)")
         procesadas = fallos_seguidos = 0
@@ -417,8 +419,12 @@ class ProviderMonitorEngine:
             creator, video_id, STATUS_PROCESSING, title=title)
 
         try:
-            # 2. Descargar transcripción real
-            raw_transcript = self.download_transcript(video_id)
+            # 2. Transcripción: la ya guardada (sin tocar YouTube) o, si no hay, descarga real
+            raw_transcript = self._transcripcion_guardada(video_id)
+            if raw_transcript:
+                self.log_callback(f"📂 Transcripción ya guardada, sin descargar: {title}")
+            else:
+                raw_transcript = self.download_transcript(video_id)
             if not raw_transcript:
                 self.queue_manager.update_video_status(
                     creator, video_id, STATUS_FAILED,
@@ -479,6 +485,14 @@ class ProviderMonitorEngine:
                 except Exception as _sync_err:
                     self.log_callback(f"⚠️ KBIndexSync: {_sync_err}")
                 return True
+            elif getattr(self.cleaner, "last_error", None):
+                # La IA no respondió (red, saldo, límite): NO es «sin valor». Se reintenta en el
+                # próximo ciclo en vez de darlo por analizado para siempre.
+                self.log_callback(f"⚠️ IA sin respuesta, se reintenta más tarde: {title}")
+                self.queue_manager.update_video_status(
+                    creator, video_id, STATUS_FAILED,
+                    title=title, error_msg=f"IA sin respuesta: {self.cleaner.last_error}")
+                return False
             else:
                 self.log_callback(f"⚠️ IA: VACÍO (sin valor CRO): {title}")
                 self.queue_manager.update_video_status(
@@ -501,6 +515,10 @@ class ProviderMonitorEngine:
         self.log_callback("🧠 INICIANDO CONSOLIDACIÓN MAESTRA DE LA KB")
         total_processed = 0
         total_failed = 0
+
+        # 0. Lo ya descargado primero: aprovecha las transcripciones guardadas sin gastar
+        #    ni una petición a YouTube (comparten el límite con la sincronización).
+        total_processed += self._ingestar_transcripciones_guardadas()
 
         for creator, url in self.favorite_channels.items():
             self.log_callback(f"\n⚡ Procesando canal: {creator}")
@@ -526,22 +544,24 @@ class ProviderMonitorEngine:
 
             channel_processed = 0
             for video in nuevos:
+                # Con la transcripción ya guardada no se llama a YouTube: ni límite por hora
+                # ni espera anti-ban (solo cuenta la IA).
+                if not self._transcripcion_guardada(video["video_id"]):
+                    # 2. Throttling: 10 videos/hora máximo
+                    if not self.throttle.can_proceed():
+                        self.log_callback(
+                            "⏳ Límite 10v/h alcanzado. Esperando ventana...")
+                        if not self.throttle.wait_until_available(timeout=3600):
+                            self.log_callback("🛑 Límite de hora excedido.")
+                            break
 
-                # 2. Throttling: 10 videos/hora máximo
-                if not self.throttle.can_proceed():
-                    self.log_callback(
-                        "⏳ Límite 10v/h alcanzado. Esperando ventana...")
-                    if not self.throttle.wait_until_available(timeout=3600):
-                        self.log_callback("🛑 Límite de hora excedido.")
-                        break
+                    # 3. Cooldown anti-ban aleatorio
+                    cooldown = random.uniform(6.0, 15.0)
+                    self.log_callback(f"⏳ Cooldown {cooldown:.1f}s...")
+                    time.sleep(cooldown)
 
-                # 3. Cooldown anti-ban aleatorio
-                cooldown = random.uniform(6.0, 15.0)
-                self.log_callback(f"⏳ Cooldown {cooldown:.1f}s...")
-                time.sleep(cooldown)
-
-                # 4. Registrar hit en throttle
-                self.throttle.register_hit()
+                    # 4. Registrar hit en throttle
+                    self.throttle.register_hit()
 
                 # 5. Procesar video
                 success = self._process_single_video(video, creator)
