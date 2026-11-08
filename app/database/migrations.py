@@ -100,7 +100,10 @@ def run_migrations(db_path: str) -> int:
             raise
 
     conn.close()
-    logger.info(f"[MIGRATIONS] Ejecutadas {count} migraciones. Total: {len(sorted_migrations)}")
+    # Se llama cada vez que se abre una DatabaseConnection (varias por petición web): solo se
+    # avisa cuando de verdad se ejecutó algo; si no, inundaba el registro del servidor.
+    logger.log(logging.INFO if count else logging.DEBUG,
+               f"[MIGRATIONS] Ejecutadas {count} migraciones. Total: {len(sorted_migrations)}")
     return count
 
 
