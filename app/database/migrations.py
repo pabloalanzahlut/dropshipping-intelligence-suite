@@ -195,7 +195,7 @@ def mig_0006_canales_favoritos(conn: sqlite3.Connection):
     # Seed: los 5 canales actuales
     canales = [
         ("@adriansaenz",  "Adrián Sáenz",  "https://www.youtube.com/@adriansaenz",  "es", "ads,shopify,dropshipping", 1),
-        ("@ivancaicedo",  "Iván Caicedo",  "https://www.youtube.com/@ivancaicedo",  "es", "dropshipping,productos",   2),
+        ("@soyivancaicedo",  "Iván Caicedo",  "https://www.youtube.com/@soyivancaicedo",  "es", "dropshipping,productos",   2),
         ("@javiecom",     "JaviEcom",      "https://www.youtube.com/@javiecom",     "es", "shopify,ecom",            2),
         ("@marcverdu",    "Marc Verdú",    "https://www.youtube.com/@marcverdu",    "es", "shopify,productos",       3),
         ("@ecomilions","Vic Ecomilions","https://www.youtube.com/@ecomilions","es", "dropshipping,scaling",    3),

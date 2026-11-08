@@ -588,9 +588,34 @@ async def api_status() -> Dict[str, Any]:
 # API — CANALES YOUTUBE
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _norm_channel_url(url: str) -> str:
+    u = (url or "").strip().lower().rstrip("/")
+    return re.sub(r"^https?://(www\.)?", "", u)
+
+
 @app.get("/api/channels")
 async def get_channels() -> List[Dict[str, Any]]:
-    return _load_channels_json()
+    """Todos los canales: los del JSON (mentores, con sus reglas) más los favoritos de la BD."""
+    canales = [c for c in _load_channels_json() if isinstance(c, dict)]
+    vistos = {_norm_channel_url(c.get("url", "")) for c in canales}
+    try:
+        with sqlite3.connect(DB_PATH, timeout=30) as conn:
+            conn.row_factory = sqlite3.Row
+            for r in conn.execute(
+                    """SELECT nombre, url, idioma, tags, prioridad, activo
+                       FROM canales_favoritos WHERE url IS NOT NULL AND url != ''
+                       ORDER BY prioridad, nombre"""):
+                if _norm_channel_url(r["url"]) in vistos:
+                    continue
+                vistos.add(_norm_channel_url(r["url"]))
+                canales.append({
+                    "nombre": r["nombre"], "url": r["url"], "activo": bool(r["activo"]),
+                    "idioma": r["idioma"], "prioridad": r["prioridad"],
+                    "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()],
+                })
+    except sqlite3.Error as exc:
+        log.warning(f"[CHANNELS] canales_favoritos: {exc}")
+    return canales
 
 
 @app.post("/api/channels", status_code=201)

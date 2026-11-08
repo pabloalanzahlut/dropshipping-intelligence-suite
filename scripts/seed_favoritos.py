@@ -87,7 +87,7 @@ def seed_playlists():
 def seed_canales_favoritos():
     canales = [
         ("@adriansaenz",   "Adrián Sáenz",   "https://www.youtube.com/@adriansaenz",   "es", "general", "shopify,ads,dropshipping", 1),
-        ("@ivancaicedo",   "Iván Caicedo",   "https://www.youtube.com/@ivancaicedo",   "es", "general", "dropshipping,productos",   2),
+        ("@soyivancaicedo",   "Iván Caicedo",   "https://www.youtube.com/@soyivancaicedo",   "es", "general", "dropshipping,productos",   2),
         ("@javiecom",      "JaviEcom",       "https://www.youtube.com/@javiecom",      "es", "general", "shopify,ecom",             2),
         ("@marcverdu",     "Marc Verdú",     "https://www.youtube.com/@marcverdu",     "es", "general", "shopify,productos",        3),
         ("@ecomilions", "Vic Ecomilions", "https://www.youtube.com/@ecomilions", "es", "general", "dropshipping,scaling",     3),

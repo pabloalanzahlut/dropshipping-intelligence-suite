@@ -191,7 +191,7 @@ class ProviderMonitorEngine:
         self.log_callback("⚠️ [CHANNELS] Usando defaults hardcodeados (5 mentores)")
         return {
             "Adrián Sáenz": "https://www.youtube.com/@adriansaenz",
-            "Iván Caicedo": "https://www.youtube.com/@ivancaicedo",
+            "Iván Caicedo": "https://www.youtube.com/@soyivancaicedo",
             "JaviEcom": "https://www.youtube.com/@javiecom",
             "Marc Verdú": "https://www.youtube.com/@marcverdu",
             "Vic Ecomilions": "https://www.youtube.com/@ecomilions",

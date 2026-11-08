@@ -10,24 +10,25 @@ from typing import Dict, Tuple
 # JACK-STYLE DESIGN SYSTEM — Neon, Glassmorphism & Premium Dark
 # ═══════════════════════════════════════════════════════════════════
 
-# Paleta Neon Principal
+# Paleta de acentos — idéntica a la web (app/templates/base.html) para que
+# escritorio y web se vean como una sola herramienta.
 NEON_COLORS = {
-    "cyan": "#00f5ff",      # Cyan brillante (acento principal)
-    "purple": "#b462ff",    # Púrpura vibrante
-    "pink": "#ff006e",      # Rosa neón
-    "blue": "#00d9ff",      # Azul eléctrico
-    "green": "#00ff88",     # Verde neón
-    "yellow": "#ffea00",    # Amarillo brillante
+    "cyan": "#22d3ee",      # acento principal
+    "purple": "#a78bfa",    # violeta
+    "pink": "#fb7185",      # rosa (errores / alertas)
+    "blue": "#06b6d4",      # cian oscuro
+    "green": "#34d399",     # verde (éxito)
+    "yellow": "#fbbf24",    # ámbar (avisos)
 }
 
-# Colores Base Oscuros (Jack-style dark backgrounds)
+# Fondos oscuros — mismos valores que la web (bg.base/deep/card/hover, border.dim/mid)
 DARK_BASE = {
-    "bg_primary": "#0a0a0f",      # Casi negro con tinte azul
-    "bg_secondary": "#13131a",    # Gris oscuro azulado
-    "bg_tertiary": "#1a1a24",     # Panel elevado
-    "bg_card": "#1e1e2e",         # Cards con glassmorphism
-    "bg_input": "#252535",        # Inputs y controles
-    "bg_hover": "#2a2a3e",        # Estado hover
+    "bg_primary": "#060810",      # bg.base: fondo de la aplicación
+    "bg_secondary": "#08091a",    # bg.deep: barra lateral y barras
+    "bg_tertiary": "#0d0f1f",     # bg.card: paneles
+    "bg_card": "#0d0f1f",         # bg.card: tarjetas
+    "bg_input": "#111328",        # bg.hover: campos y controles
+    "bg_hover": "#1a1d35",        # border.dim: estado hover
 }
 
 # Sistema de Vidrio (Glassmorphism)
@@ -38,22 +39,22 @@ GLASS_EFFECTS = {
     "shadow_glass": "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
 }
 
-# Texto con jerarquía optimizada
+# Texto con jerarquía — mismos valores que la web (text.bright → text.muted)
 TEXT_COLORS = {
-    "primary": "#ffffff",
-    "secondary": "#b4b4c8",
-    "tertiary": "#6b6b82",
-    "disabled": "#4a4a5e",
-    "neon_text": "#00f5ff",
+    "primary": "#e8ecff",
+    "secondary": "#a8b0d8",
+    "tertiary": "#7880b0",
+    "disabled": "#4a5080",
+    "neon_text": "#22d3ee",
 }
 
-# Paleta de estado con neon accents
+# Estados — mismos acentos que las insignias de la web
 STATUS_COLORS = {
-    "success": "#00ff88",
-    "error": "#ff006e",
-    "warning": "#ffea00",
-    "info": "#00d9ff",
-    "neutral": "#b4b4c8",
+    "success": "#34d399",
+    "error": "#fb7185",
+    "warning": "#fbbf24",
+    "info": "#22d3ee",
+    "neutral": "#a8b0d8",
 }
 
 # ═══════════════════════════════════════════════════════════════════

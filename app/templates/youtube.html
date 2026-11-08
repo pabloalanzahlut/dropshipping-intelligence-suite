@@ -71,6 +71,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:8px;margin-left:12px;flex-shrink:0;">
               <span x-show="isActive(ch)" style="font-size:9px;color:#22d3ee;animation:pulse-dot 1s infinite;">⬤ procesando</span>
+              <span x-show="ch.filtro_tema" class="badge badge-info" title="Solo se registran sus vídeos de ecommerce, dropshipping y Shopify">Solo ecommerce</span>
               <span :class="ch.activo ? 'badge badge-done' : 'badge badge-fail'"
                     x-text="ch.activo ? 'Activo' : 'Inactivo'"></span>
             </div>
