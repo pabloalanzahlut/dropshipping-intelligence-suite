@@ -11,6 +11,8 @@ import json
 from datetime import datetime
 
 from app.agents_engine.executor import AgentExecutor
+from app.config.path_manager import PathManager
+from app.services import store_context
 from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 
 
@@ -157,20 +159,24 @@ class KBAgentPanel(ttk.Frame):
     def _run_query(self, query: str):
         t0 = datetime.now()
         try:
+            # Cifras reales de la tienda (Shopify + AutoDS) desde SQLite: el agente no inventa ventas
+            db_path = getattr(self.db_manager, "db_path", None) or str(PathManager.get_paths()["db"])
+            bloque = store_context.bloque_para_prompt(db_path)
             result = self.executor.execute_agent_task(
                 agent_name="consultar_kb_agente",
                 skill_name="consultar_kb_agente",
                 project_name="kb_query",
-                user_request=query,
+                user_request=f"{bloque}PREGUNTA DEL OPERADOR:
+{query}" if bloque else query,
             )
             elapsed = (datetime.now() - t0).total_seconds()
-            self._show_result(result, elapsed)
+            self._show_result(result, elapsed, bool(bloque))
         except Exception as e:
             self._show_error(str(e))
 
     # ─────────────────────────── Display ───────────────────────────
 
-    def _show_result(self, raw: str, elapsed: float):
+    def _show_result(self, raw: str, elapsed: float, con_tienda: bool = False):
         try:
             data = json.loads(raw)
             formatted = json.dumps(data, ensure_ascii=False, indent=2)
@@ -181,6 +187,8 @@ class KBAgentPanel(ttk.Frame):
             formatted = raw
             meta = f"Respuesta en texto plano  |  {elapsed:.1f}s"
 
+        if con_tienda:
+            meta += "  |  con datos de la tienda"
         self.after(0, lambda: (
             self._set_response(formatted),
             self._set_status("● Listo", NEON_COLORS["green"]),

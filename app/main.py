@@ -16,6 +16,7 @@ from app.ui.components.tiktok_panel import TikTokPanel
 from app.ui.components.governance_panel import GovernancePanel
 from app.ui.components.ollama_panel import OllamaPanel
 from app.ui.components.kb_agent_panel import KBAgentPanel
+from app.ui.components.tienda_panel import TiendaPanel
 from app.database.connection import DatabaseConnection
 from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 from app.ui.themes.jack_styles import apply_jack_styles
@@ -70,6 +71,7 @@ class GEMOSApplication:
             ("🔗", "Enrutador", lambda: self._show(6)),
             ("📥", "Ingesta",  lambda: self._show(7)),
             ("🤖", "Agente IA", lambda: self._show(8)),
+            ("🛒", "Tienda",   lambda: self._show(9)),
         ])
         self.sidebar.grid(row=0, column=0, sticky="ns")
         
@@ -156,6 +158,7 @@ class GEMOSApplication:
             ("Enrutador", lambda parent: OllamaPanel(parent, db_manager=self.db_manager)),
             ("Ingesta", lambda parent: self._build_console()),
             ("Agente IA", lambda parent: KBAgentPanel(parent, db_manager=self.db_manager)),
+            ("Tienda", lambda parent: TiendaPanel(parent, db_manager=self.db_manager)),
         ]
         self._panel_factories = specs
         self._panel_loaded = [False] * len(specs)
