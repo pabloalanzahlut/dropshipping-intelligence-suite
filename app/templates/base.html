@@ -447,8 +447,9 @@
     <!-- Top bar -->
     <header id="topbar">
       <!-- Mobile hamburger -->
-      <button @click="sidebarOpen = !sidebarOpen" class="md:hidden btn-ghost" style="padding:6px 8px;">
-        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button type="button" @click="sidebarOpen = !sidebarOpen" class="md:hidden btn-ghost" style="padding:6px 8px;"
+              aria-label="Abrir o cerrar el menú" :aria-expanded="sidebarOpen" aria-controls="sidebar">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
@@ -460,6 +461,41 @@
 
       <!-- Right cluster -->
       <div style="display:flex;align-items:center;gap:12px;margin-left:auto;">
+        <!-- Centro de alertas (campana) -->
+        <div x-data="centroAlertas()" x-init="iniciar()" @keydown.escape.window="abierto = false" class="alertas-wrap">
+          <button type="button" class="btn-ghost bell" @click="alternar()" :aria-expanded="abierto"
+                  aria-haspopup="true" aria-controls="panel-alertas" :aria-label="etiqueta">
+            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span x-show="sinVer > 0" x-cloak class="bell-badge" :class="criticas > 0 ? 'crit' : ''" x-text="sinVer > 9 ? '9+' : sinVer" aria-hidden="true"></span>
+          </button>
+          <div id="panel-alertas" x-show="abierto" x-cloak @click.outside="abierto = false" class="alertas-panel"
+               role="region" aria-label="Alertas del sistema">
+            <div class="alertas-head">
+              <strong>Alertas</strong>
+              <span class="alertas-sub" x-text="total ? total + ' activas' : 'Todo en orden'"></span>
+              <button type="button" class="alertas-link" x-show="sinVer > 0" @click="marcarTodas()">Marcar como vistas</button>
+            </div>
+            <template x-if="cargando && !items.length"><p class="alertas-vacio">Revisando…</p></template>
+            <template x-if="!cargando && !items.length"><p class="alertas-vacio">No hay nada que requiera atención ahora mismo.</p></template>
+            <ul class="alertas-lista">
+              <template x-for="a in items" :key="a.id">
+                <li :class="'alerta ' + a.nivel + (a.vista_at ? ' vista' : '')">
+                  <a :href="a.enlace || '#'" @click="abrir(a)">
+                    <span class="alerta-nivel" x-text="a.nivel === 'critico' ? 'Crítica' : (a.nivel === 'aviso' ? 'Aviso' : 'Info')"></span>
+                    <span class="alerta-titulo" x-text="a.titulo"></span>
+                    <span class="alerta-detalle" x-text="a.detalle"></span>
+                  </a>
+                </li>
+              </template>
+            </ul>
+            <div class="alertas-pie">
+              <a href="/#resumen" class="alertas-link">Resumen del día</a>
+              <button type="button" class="alertas-link" @click="cargar(true)">Revisar ahora</button>
+            </div>
+          </div>
+        </div>
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="pulse-dot"></div>
           <span style="font-size:11px;color:#4a5080;">Sistema activo</span>

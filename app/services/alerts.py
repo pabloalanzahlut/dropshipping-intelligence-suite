@@ -13,13 +13,15 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import date, datetime, timedelta
+import threading
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from app.services import business_metrics, channel_store, product_catalog
 
 NIVELES = {"info": 1, "aviso": 2, "critico": 3}
+_LOCK = threading.Lock()
 
 
 def _db(db_path: str) -> sqlite3.Connection:
@@ -160,6 +162,11 @@ def calcular(db_path: str, config_path: str) -> List[Dict[str, str]]:
 
 def evaluar(db_path: str, config_path: str) -> Dict[str, Any]:
     """Recalcula, guarda las nuevas/vigentes y resuelve las que ya no aplican."""
+    with _LOCK:                          # el planificador y la API pueden coincidir
+        return _evaluar(db_path, config_path)
+
+
+def _evaluar(db_path: str, config_path: str) -> Dict[str, Any]:
     ahora = datetime.now().isoformat(timespec="seconds")
     vigentes = calcular(db_path, config_path)
     claves = {a["clave"] for a in vigentes}
