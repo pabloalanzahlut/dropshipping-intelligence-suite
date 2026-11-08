@@ -36,7 +36,7 @@ from pydantic import BaseModel
 
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
-from app.services import agent_router, channel_store, transcript_store
+from app.services import agent_router, business_metrics, channel_store, product_catalog, transcript_store
 
 log = logging.getLogger(__name__)
 
@@ -1289,6 +1289,169 @@ async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
     except Exception as exc:
         log.error(f"[KB QUERY] Error: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# API — CATÁLOGO DE PRODUCTOS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class ProductoIn(BaseModel):
+    nombre: str = ""
+    categoria: Optional[str] = None
+    url_proveedor: Optional[str] = None
+    origen_video_id: Optional[str] = None
+    costo_origen: Optional[float] = None
+    costo_envio: Optional[float] = None
+    pvp: Optional[float] = None
+    notas: Optional[str] = None
+
+
+class ProductoMoverIn(BaseModel):
+    estado: str
+    nota: str = ""
+
+
+class RefutacionesIn(BaseModel):
+    respuestas: Dict[str, Any]
+
+
+class DemandaIn(BaseModel):
+    demanda: Dict[str, Any] = {}
+    creativo_ok: Optional[bool] = None
+
+
+def _producto_o_error(fn):
+    """Traduce los errores del catálogo a respuestas HTTP claras."""
+    try:
+        return fn()
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    except sqlite3.Error as exc:
+        raise HTTPException(status_code=500, detail=f"Error de base de datos: {exc}")
+
+
+@app.get("/api/productos")
+async def api_productos(estado: str = Query("", max_length=20), buscar: str = Query("", max_length=100)) -> Dict[str, Any]:
+    return {"items": product_catalog.listar(DB_PATH, estado, buscar),
+            "estados": product_catalog.TODOS_LOS_ESTADOS,
+            "pasos": product_catalog.ESTADOS,
+            "resumen": product_catalog.resumen_estados(DB_PATH),
+            "refutaciones": {str(k): v for k, v in product_catalog.REFUTACIONES.items()}}
+
+
+@app.post("/api/productos", status_code=201)
+async def api_producto_crear(body: ProductoIn) -> Dict[str, Any]:
+    return _producto_o_error(lambda: product_catalog.crear(DB_PATH, body.model_dump(exclude_none=True)))
+
+
+@app.get("/api/productos/{producto_id}")
+async def api_producto_detalle(producto_id: int) -> Dict[str, Any]:
+    p = product_catalog.obtener(DB_PATH, producto_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    p["escalado"] = business_metrics.evaluar_escalado(DB_PATH, p) if p["estado"] in ("tienda", "escalado") else None
+    p["insights"] = _query_insights(buscar=p["nombre"], limite=5)["items"] if p["nombre"] else []
+    return p
+
+
+@app.patch("/api/productos/{producto_id}")
+async def api_producto_editar(producto_id: int, body: ProductoIn) -> Dict[str, Any]:
+    return _producto_o_error(lambda: product_catalog.actualizar(DB_PATH, producto_id, body.model_dump(exclude_none=True)))
+
+
+@app.post("/api/productos/{producto_id}/mover")
+async def api_producto_mover(producto_id: int, body: ProductoMoverIn) -> Dict[str, Any]:
+    return _producto_o_error(lambda: product_catalog.mover(DB_PATH, producto_id, body.estado, body.nota))
+
+
+@app.put("/api/productos/{producto_id}/refutaciones")
+async def api_producto_refutaciones(producto_id: int, body: RefutacionesIn) -> Dict[str, Any]:
+    return _producto_o_error(lambda: product_catalog.guardar_refutaciones(DB_PATH, producto_id, body.respuestas))
+
+
+@app.put("/api/productos/{producto_id}/demanda")
+async def api_producto_demanda(producto_id: int, body: DemandaIn) -> Dict[str, Any]:
+    return _producto_o_error(lambda: product_catalog.guardar_demanda(DB_PATH, producto_id, body.demanda, body.creativo_ok))
+
+
+@app.delete("/api/productos/{producto_id}")
+async def api_producto_borrar(producto_id: int) -> Dict[str, Any]:
+    if not product_catalog.borrar(DB_PATH, producto_id):
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    return {"status": "deleted", "id": producto_id}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# API — NEGOCIO: ROAS, CAJA, CPA, ESCALADO E INTEGRACIONES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class MetricaIn(BaseModel):
+    fecha: Optional[str] = None
+    producto_id: Optional[int] = None
+    plataforma: str = "meta"
+    gasto_ads: float = 0
+    ingresos: float = 0
+    pedidos: int = 0
+    cogs_pagado: float = 0
+    devoluciones: Optional[float] = None
+    visitantes: Optional[int] = None
+    presupuesto_diario: Optional[float] = None
+    notas: str = ""
+
+
+class CajaIn(BaseModel):
+    fecha: Optional[str] = None
+    saldo_cuenta: float
+    liberaciones_pasarela: float = 0
+    pagos_proveedor_pendientes: float = 0
+    notas: str = ""
+
+
+@app.get("/api/negocio/resumen")
+async def api_negocio_resumen(dias: int = Query(7, ge=1, le=365),
+                              producto_id: Optional[int] = None) -> Dict[str, Any]:
+    return {"resumen": business_metrics.resumen(DB_PATH, dias, producto_id),
+            "serie": business_metrics.serie_diaria(DB_PATH, max(dias, 14), producto_id),
+            "metricas": business_metrics.listar_metricas(DB_PATH, dias, producto_id)}
+
+
+@app.post("/api/negocio/metricas", status_code=201)
+async def api_negocio_metrica(body: MetricaIn) -> Dict[str, Any]:
+    try:
+        return business_metrics.registrar_dia(DB_PATH, body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.delete("/api/negocio/metricas/{metrica_id}")
+async def api_negocio_metrica_borrar(metrica_id: int) -> Dict[str, Any]:
+    if not business_metrics.borrar_dia(DB_PATH, metrica_id):
+        raise HTTPException(status_code=404, detail="Registro no encontrado.")
+    return {"status": "deleted", "id": metrica_id}
+
+
+@app.post("/api/negocio/caja", status_code=201)
+async def api_negocio_caja(body: CajaIn) -> Dict[str, Any]:
+    try:
+        return business_metrics.registrar_caja(DB_PATH, body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.get("/api/negocio/escalado/{producto_id}")
+async def api_negocio_escalado(producto_id: int) -> Dict[str, Any]:
+    p = product_catalog.obtener(DB_PATH, producto_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    return business_metrics.evaluar_escalado(DB_PATH, p)
+
+
+@app.get("/api/integraciones")
+async def api_integraciones() -> List[Dict[str, Any]]:
+    """Qué integraciones están configuradas (sí/no; nunca se devuelven los valores)."""
+    return business_metrics.estado_integraciones()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
