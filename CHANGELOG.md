@@ -54,6 +54,28 @@ y el versionado [SemVer](https://semver.org/).
 - Escritorio con la paleta de la web (`design_tokens.py`); los estilos premium ya no los
   pisa `BaseTheme.apply()`.
 
+### Añadido (5ª ronda: avisos externos e importación)
+- **Avisos fuera de la app** (`notifier.py`): notificación de Windows (PowerShell + WinRT, sin instalar
+  nada; al hacer clic abre la página de la alerta) y webhook de Make.com (`MAKE_WEBHOOK_ALERTAS`) para
+  email, Telegram o WhatsApp; el JSON lleva `asunto`, `mensaje` en texto plano y `alertas[]`. Cada alerta se
+  avisa una vez (otra si reaparece o sube de nivel); las críticas sin ver se recuerdan cada 12 h; horas de
+  silencio 23-7 (solo pasan las críticas). `GEM_OS_AVISOS`, `GEM_OS_AVISOS_NIVEL` y
+  `GEM_OS_AVISOS_SILENCIO` en `.env`. Solo avisa el servidor (no la app de escritorio). La revisión de
+  alertas pasa de cada hora a cada 15 min. Estado y «Enviar aviso de prueba» en Registros. Migración 20.
+- **Importar métricas desde CSV** (`metrics_import.py`, tarjeta en Negocio): Meta Ads Manager aporta el
+  gasto y las visitas a la página de destino; Shopify aporta ingresos y pedidos reales, de modo que el ROAS
+  sale de ingresos reales ÷ gasto (CLAUDE.md: «medido real, no el que declara Meta»). Detecta el origen,
+  separador (`,` `;` tab), codificación (UTF-8, UTF-16, Windows-1252), decimales con coma o punto y la
+  moneda; vista previa antes de guardar; filtro por campañas; avisa si los ingresos o el gasto se
+  sumarían dos veces con registros de otra plataforma. Reimportar no duplica y no pisa lo tecleado
+  (coste pagado, devoluciones, presupuesto, notas). Opcionales: importar las compras/valor que declara Meta
+  y estimar el coste pagado = pedidos × coste landed del producto.
+- `tests/test_importacion_avisos.py` (32 pruebas). Total: 258.
+
+### Corregido (5ª ronda)
+- Un ROAS de 0× se mostraba como «—» en Negocio.
+- Eliminadas 6 filas de prueba `TEST-*` de `productos_validados` (copia previa en `backups/`).
+
 ### Añadido (4ª ronda: automatización)
 - **Centro de alertas** (`alerts.py`, campana en la barra superior): comprobaciones deterministas cada
   hora y al abrir el panel — caja crítica/baja, ROAS < 1 / < 2, caja o métricas sin registrar, producto
