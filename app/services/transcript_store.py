@@ -16,8 +16,9 @@ from __future__ import annotations
 import hashlib
 import re
 import sqlite3
+from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 TRANSCRIPT_PLATFORM = "youtube_transcript"
 MAX_LIMIT = 500
@@ -31,11 +32,21 @@ _URL_ID_RE = re.compile(
 
 # ── utilidades ───────────────────────────────────────────────────────────────
 
-def _connect(db_path: str) -> sqlite3.Connection:
+@contextmanager
+def _db(db_path: str) -> Iterator[sqlite3.Connection]:
+    """Conexión que hace commit al salir bien, rollback si falla y SIEMPRE cierra
+    (el `with sqlite3.connect()` por sí solo no cierra: en Windows deja el archivo bloqueado)."""
     conn = sqlite3.connect(db_path, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 def _like(term: str) -> str:
@@ -89,7 +100,7 @@ def list_transcripts(
         params.append(_like(canal.strip()))
     where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
 
-    with _connect(db_path) as conn:
+    with _db(db_path) as conn:
         total = conn.execute(
             f"SELECT COUNT(*) FROM transcripciones_youtube t {where}", params
         ).fetchone()[0]
@@ -108,7 +119,7 @@ def list_transcripts(
 
 
 def get_transcript(db_path: str, transcripcion_id: int) -> Optional[Dict[str, Any]]:
-    with _connect(db_path) as conn:
+    with _db(db_path) as conn:
         row = conn.execute(
             """SELECT t.id, t.video_id, t.titulo, t.canal, t.fecha,
                       t.transcripcion_texto, t.transcripcion_limpia,
@@ -124,7 +135,7 @@ def get_transcript(db_path: str, transcripcion_id: int) -> Optional[Dict[str, An
 
 
 def stats(db_path: str) -> Dict[str, Any]:
-    with _connect(db_path) as conn:
+    with _db(db_path) as conn:
         row = conn.execute(
             """SELECT COUNT(*)                          AS total,
                       COALESCE(SUM(procesada = 1), 0)   AS procesadas,
@@ -141,7 +152,7 @@ def stats(db_path: str) -> Dict[str, Any]:
 
 def video_ids_guardados(db_path: str) -> set:
     """IDs de vídeo que ya tienen transcripción (para no volver a descargarlos)."""
-    with _connect(db_path) as conn:
+    with _db(db_path) as conn:
         return {r[0] for r in conn.execute("SELECT video_id FROM transcripciones_youtube")}
 
 
@@ -168,7 +179,7 @@ def save_transcript(
         raise ValueError(f"La transcripción es demasiado corta (mínimo {MIN_CHARS} caracteres).")
 
     digest = hash_text(raw)
-    with _connect(db_path) as conn:
+    with _db(db_path) as conn:
         dup = conn.execute(
             "SELECT id FROM transcripciones_youtube WHERE video_id = ? OR hash_md5 = ?",
             (video_id, digest),
@@ -219,7 +230,7 @@ def save_transcript(
 def delete_transcript(db_path: str, transcripcion_id: int) -> bool:
     """Borra la transcripción. Si su fuente la creó este módulo y ya no tiene más
     transcripciones, borra también esa fila de video_sources."""
-    with _connect(db_path) as conn:
+    with _db(db_path) as conn:
         row = conn.execute(
             "SELECT video_id FROM transcripciones_youtube WHERE id = ?",
             (transcripcion_id,),
@@ -265,7 +276,7 @@ def ingest_url(db_path: str, url: str, cleaner: Any, idioma: str = "es") -> Dict
     if not video_id:
         raise ValueError("URL de YouTube no válida.")
 
-    with _connect(db_path) as conn:
+    with _db(db_path) as conn:
         dup = conn.execute(
             "SELECT id FROM transcripciones_youtube WHERE video_id = ?", (video_id,)
         ).fetchone()

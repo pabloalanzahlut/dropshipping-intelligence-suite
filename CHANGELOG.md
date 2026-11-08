@@ -6,6 +6,44 @@ y el versionado [SemVer](https://semver.org/).
 
 ---
 
+## [Sin versionar] — 2026-11-08 (Auditoría de transcripciones)
+
+### Corregido
+- **Escritorio:** `main.py` llamaba a `self.after()` (no existe) y solo abría el Dashboard; los
+  paneles nacían fuera de su frame y no se ocultaban al cambiar de pestaña; `COLORS` no estaba
+  importado; el botón global «Sincronizar» no hacía nada si Ingesta no se había abierto y su
+  indicador nunca volvía a «Inactivo»; el Validador fallaba por un color `rgba` que Tk no admite.
+- **Descarga:** `youtube_rss_fetcher` no resolvía canales por `@handle` (YouTube cambió
+  `channelId` → `externalId`) ni bajaba subtítulos automáticos en español. Ahora RSS con
+  respaldo `yt-dlp --flat-playlist` y `--sub-langs "es.*"`, con inglés como segunda opción.
+- **Limpiador:** ya no borra palabras con significado («no», «este», «bueno», «mira»…) —
+  invertían frases («no funciona» → «funciona»— ni ejemplos de copy («oferta limitada»). Solo
+  quita disfluencias, etiquetas de sonido y relleno del canal.
+- **Monitor:** guardaba solo 5000 caracteres del original; releía todos los vídeos en cada
+  sincronización; leía `youtube_channels.json` del directorio actual y creaba un canal de
+  ejemplo; sincronizaba 5 canales de 29; un error dejaba el panel en «Sincronizando…».
+- **Web:** errores de la API rompían la tabla; búsqueda sin escapar `%`/`_`; `limite` sin tope;
+  `/api/process` permitía ingestas en paralelo; modales descolocados (Alpine borraba el
+  `display:flex` en línea).
+
+### Añadido
+- `app/services/transcript_store.py`: lectura/escritura compartida por escritorio y web.
+- Escritorio: pestaña **Transcripciones** (buscar, leer limpio/original, copiar, exportar `.md`,
+  pegar URL o texto, borrar) y botón **Cancelar** en la sincronización.
+- Web: ingesta por URL/texto, borrado, exportación `.md`, sincronización de canales con
+  progreso y cancelación, paginación («Cargar más»).
+- `tests/test_transcripciones.py` (21 pruebas, sin red).
+
+### Cambiado
+- `website/gem-os/index.html`: de página de venta a página interna de uso personal (sin
+  precios, testimonios ni cifras); reglas financieras corregidas según `CLAUDE.md`.
+- El servidor escucha en `127.0.0.1` por defecto (`GEM_OS_HOST=0.0.0.0` para publicarlo).
+- Las filas de `video_sources` creadas al guardar transcripciones llevan
+  `platform='youtube_transcript'` y la ingesta de IA no las da por procesadas.
+- Se eliminaron 2 transcripciones simuladas de la BD (copia en `backups/`).
+
+---
+
 ## [1.1.0] — 2026-10-25 (Fase 6C y 6D)
 
 ### Añadido

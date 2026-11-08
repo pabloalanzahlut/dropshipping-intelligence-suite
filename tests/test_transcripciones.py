@@ -66,7 +66,7 @@ class VttTests(unittest.TestCase):
 
 class StoreTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
+        self.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
         self.db = os.path.join(self.tmp.name, "t.db")
         DatabaseConnection(self.db)
         self.cleaner = TranscriptCleaner()
@@ -116,7 +116,9 @@ class StoreTests(unittest.TestCase):
         self.assertTrue(transcript_store.delete_transcript(self.db, r["id"]))
         self.assertFalse(transcript_store.delete_transcript(self.db, r["id"]))
         import sqlite3
-        n = sqlite3.connect(self.db).execute("SELECT COUNT(*) FROM video_sources").fetchone()[0]
+        from contextlib import closing
+        with closing(sqlite3.connect(self.db)) as conn:
+            n = conn.execute("SELECT COUNT(*) FROM video_sources").fetchone()[0]
         self.assertEqual(n, 0)
 
     def test_exportar_markdown(self):
@@ -131,7 +133,7 @@ class ApiTests(unittest.TestCase):
         from fastapi.testclient import TestClient
         import app.services.dashboard_server as ds
         self.ds = ds
-        self.tmp = tempfile.TemporaryDirectory()
+        self.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
         self.db = os.path.join(self.tmp.name, "t.db")
         DatabaseConnection(self.db)
         self._old = ds.DB_PATH
@@ -186,7 +188,7 @@ class EscritorioTests(unittest.TestCase):
     def test_main_usa_root_after_y_no_depende_de_colors(self):
         src = (Path(__file__).resolve().parent.parent / "app" / "main.py").read_text(encoding="utf-8")
         self.assertNotIn("self.after(", src)
-        self.assertNotIn("COLORS.", src)
+        self.assertNotRegex(src, r"(?<![A-Z_])COLORS\.")
 
 
 if __name__ == "__main__":
