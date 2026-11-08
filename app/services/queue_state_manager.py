@@ -191,6 +191,15 @@ class QueueStateManager:
             self._data["metadata"]["last_updated"] = now_iso
             self._atomic_save()
 
+    def video_status(self, channel_name: str, video_id: str) -> Optional[str]:
+        """Estado de un video en la cola (None si el canal o el video no constan)."""
+        with self._lock:
+            channel = self._find_channel(channel_name)
+            if channel is None:
+                return None
+            video = self._find_video(channel, video_id)
+            return video["status"] if video else None
+
     def mark_channel_scan_started(self, channel_name: str) -> None:
         """Marca el inicio de un escaneo de canal."""
         with self._lock:

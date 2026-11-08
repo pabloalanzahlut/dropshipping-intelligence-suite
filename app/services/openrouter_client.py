@@ -33,6 +33,9 @@ class OpenRouterTranscriptionCleaner:
         self.api_key = os.getenv("OPENROUTER_API_KEY")
         self.url = "https://openrouter.ai/api/v1/chat/completions"
         self.model_name = model_name
+        # Último fallo de comunicación (None si la última llamada respondió). Permite
+        # distinguir «la IA dijo VACÍO» de «la IA no respondió»: ambos devuelven None.
+        self.last_error: Optional[str] = None
 
         # Log sanitizado de inicialización
         logger = logging.getLogger(__name__)
@@ -131,11 +134,13 @@ class OpenRouterTranscriptionCleaner:
             "temperature": 0.1
         }
 
+        self.last_error = None
         try:
             response = self._post_with_retry(target_url, headers, payload)
             content = response.json()['choices'][0]['message']['content'].strip()
             return None if content == "VACÍO" else content
         except Exception as e:
+            self.last_error = str(e)[:200]
             print(f"Error de comunicación en la pasarela de IA ({target_url}): {str(e)}")
             return None
 
