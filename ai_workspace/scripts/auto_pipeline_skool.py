@@ -122,7 +122,7 @@ def login_automatico(page) -> bool:
 
         # Verificar login exitoso
         if "login" not in page.url and "error" not in page.content().lower()[:200]:
-            log.info("✓ Login exitoso")
+            log.info("Login exitoso")
             return True
         else:
             log.warning("Login fallido — verificar credenciales en .env")
