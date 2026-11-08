@@ -188,6 +188,12 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/resolver-github` | Diagnostica y resuelve problemas GitHub (CI, PRs, Dependabot, secretos) + auto-documenta en KB |
 | `/monitorear-skool` | Dr. Marcus Chen analiza posts de Comunidad Ecommerce Skool → extrae productos ganadores → KB |
 | `/generar-video-ia` | Imagen producto → Gemini Vision analiza → Higgsfield genera video TikTok 9:16 sin filmar |
+| `/refutar-producto` | 8 intentos de demoler la tesis antes de invertir (método Pavel: 74 tests para refutarse) |
+| `/fake-door` | Mide demanda real sin stock ni ads — pop-up de captura en vez de checkout |
+| `/oferta-multiunidad` | Construye escalones 1+1 / 2+2 validados sobre coste landed total |
+| `/clonar-seccion` | HTML de la competencia → Liquid con variables de Shopify |
+| `/destilar-skill` | Reescribe una skill desde ejecuciones reales, no desde la hipótesis inicial |
+| `/consolidar-manual` | Toda la KB → manual operativo paso a paso con fuentes y timestamps |
 
 ---
 
