@@ -205,7 +205,7 @@ class TranscripcionesGuardadasTests(Base):
         for v in ("a", "b", "c"):
             self.guardar(v)
         with sqlite3.connect(self.db) as conn:   # «b» ya está en la KB
-            conn.execute("INSERT INTO video_sources (video_id, platform, title) VALUES ('b', 'youtube', 'x')")
+            conn.execute("INSERT INTO video_sources (video_id, platform, title, channel_name, content_hash) VALUES ('b', 'youtube', 'x', 'Canal', 'h-b')")
         m = self.motor({("Canal", "c"): STATUS_COMPLETED})   # «c» ya se resolvió (p. ej. fuera de tema)
         self.assertEqual(m._ingestar_transcripciones_guardadas(), 1)
         self.assertEqual(m.llamadas, ["a"])
@@ -213,7 +213,7 @@ class TranscripcionesGuardadasTests(Base):
     def test_una_fila_youtube_transcript_no_cuenta_como_analizada(self):
         self.guardar("a")
         with sqlite3.connect(self.db) as conn:
-            conn.execute("INSERT INTO video_sources (video_id, platform, title) VALUES ('a', 'youtube_transcript', 'x')")
+            conn.execute("INSERT INTO video_sources (video_id, platform, title, channel_name, content_hash) VALUES ('a', 'youtube_transcript', 'x', 'Canal', 'h-a')")
         m = self.motor()
         m._ingestar_transcripciones_guardadas()
         self.assertEqual(m.llamadas, ["a"])

@@ -192,11 +192,15 @@ def verificar(db_path: str, url: str) -> Dict[str, Any]:
     """Comprueba que el canal existe y tiene vídeos (RSS o yt-dlp). Guarda el resultado.
 
     Estados: 'ok', 'sin_videos', 'no_encontrado'."""
-    from app.services.youtube_rss_fetcher import fetch_channel_videos
+    from app.services.youtube_rss_fetcher import RateLimited, fetch_channel_videos
     ahora = datetime.now().isoformat(timespec="seconds")
     try:
         videos = fetch_channel_videos(url, max_videos=1)
         estado = "ok" if videos else "no_encontrado"
+    except RateLimited:
+        # YouTube está limitando: no se sabe si el canal existe. No se guarda nada
+        # (marcarlo «no encontrado» sería una falsa alarma).
+        return {"url": url, "estado": "indeterminado", "ultimo_check": None}
     except Exception:
         estado = "no_encontrado"
     clave = normalizar_url(url)
