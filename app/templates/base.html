@@ -397,9 +397,7 @@
       {% set NAV = [
         ("Core", [
           ("/", "Dashboard", "M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z"),
-          ("/productos", "Productos", "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"),
           ("/validador", "Validador Financiero", "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"),
-          ("/negocio", "Negocio · ROAS y caja", "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"),
         ]),
         ("Ingesta y contenido", [
           ("/youtube", "YouTube · Ingesta", "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z"),
@@ -411,10 +409,6 @@
         ("Inteligencia", [
           ("/insights", "Insights KB", "M13 10V3L4 14h7v7l9-11h-7z"),
           ("/agente", "Agente IA · KB", "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"),
-        ]),
-        ("Sistema", [
-          ("/historial", "Historial y exportar", "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"),
-          ("/registros", "Registros", "M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"),
         ]),
       ] %}
       {% for seccion, items in NAV %}
@@ -488,9 +482,9 @@
     <div class="panel">
       <h2 style="font-size:15px;font-weight:700;color:#e8ecff;margin:0 0 12px;">Atajos de teclado</h2>
       <p style="font-size:12px;color:#7880b0;line-height:2;margin:0;">
-        <kbd>g</kbd> luego <kbd>d</kbd> Dashboard · <kbd>p</kbd> Productos · <kbd>v</kbd> Validador · <kbd>n</kbd> Negocio<br>
+        <kbd>g</kbd> luego <kbd>d</kbd> Dashboard · <kbd>v</kbd> Validador<br>
         <kbd>g</kbd> luego <kbd>y</kbd> YouTube · <kbd>t</kbd> Transcripciones · <kbd>c</kbd> Copys · <kbd>k</kbd> TikTok<br>
-        <kbd>g</kbd> luego <kbd>i</kbd> Insights · <kbd>a</kbd> Agente · <kbd>h</kbd> Historial · <kbd>r</kbd> Registros<br>
+        <kbd>g</kbd> luego <kbd>i</kbd> Insights · <kbd>a</kbd> Agente<br>
         <kbd>/</kbd> enfoca el buscador · <kbd>?</kbd> esta ayuda · <kbd>Esc</kbd> cierra
       </p>
     </div>
@@ -515,9 +509,9 @@
 
     // Atajos: g + letra navega; / enfoca el buscador; ? ayuda
     (function () {
-      const rutas = { d: '/', p: '/productos', v: '/validador', n: '/negocio', y: '/youtube',
+      const rutas = { d: '/', v: '/validador', y: '/youtube',
                       t: '/transcripciones', c: '/copys', k: '/tiktok', i: '/insights',
-                      a: '/agente', h: '/historial', r: '/registros' };
+                      a: '/agente', };
       let g = false, temp = null;
       const ayuda = () => document.getElementById('atajos');
       document.addEventListener('keydown', (e) => {
