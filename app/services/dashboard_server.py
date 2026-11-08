@@ -30,15 +30,17 @@ import jinja2
 from urllib.parse import quote
 
 from fastapi import BackgroundTasks, FastAPI, File, HTTPException, Query, Request, Response, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
-from app.services import agent_router, business_metrics, channel_store, exports, product_catalog, transcript_store
+from app.services import (agent_router, business_metrics, channel_store, exports, log_viewer,
+                          product_catalog, transcript_store, web_auth)
 
 log = logging.getLogger(__name__)
+log_viewer.configurar_log_servidor(PathManager.get_paths()["logs"] / "servidor.log")
 
 # ── Constantes ───────────────────────────────────────────────────────────────
 _GEM_PATHS = PathManager.get_paths()
@@ -152,6 +154,8 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         log.error(f"[SERVER] Error al inicializar BD: {exc}")
 
+    if os.getenv("GEM_OS_HOST", "127.0.0.1") not in ("127.0.0.1", "localhost") and not web_auth.activa():
+        log.warning("[SERVER] El servidor está accesible desde la red SIN contraseña: define GEM_OS_PASSWORD en .env.")
     engine = _get_engine()
 
     # Sincronizar kb_index.json al arrancar (en background, no bloquea)
@@ -277,7 +281,7 @@ def _render(request: Request, template: str, ctx: Dict[str, Any] = None):
         return HTMLResponse(content=_FALLBACK_HTML)
     try:
         tmpl = _jinja_env.get_template(template)
-        content = tmpl.render(request=request, **(ctx or {}))
+        content = tmpl.render(request=request, auth_activa=web_auth.activa(), **(ctx or {}))
         return HTMLResponse(content=content)
     except jinja2.TemplateNotFound:
         return HTMLResponse(content=_FALLBACK_HTML)
@@ -1467,6 +1471,81 @@ async def api_negocio_escalado(producto_id: int) -> Dict[str, Any]:
 async def api_integraciones() -> List[Dict[str, Any]]:
     """Qué integraciones están configuradas (sí/no; nunca se devuelven los valores)."""
     return business_metrics.estado_integraciones()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ACCESO CON CONTRASEÑA (opcional: GEM_OS_PASSWORD) Y REGISTROS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class LoginIn(BaseModel):
+    password: str = ""
+
+
+@app.middleware("http")
+async def _exigir_sesion(request: Request, call_next):
+    """Con GEM_OS_PASSWORD definida, todo requiere sesión salvo login, estáticos y webhooks."""
+    if not web_auth.activa() or web_auth.es_libre(request.url.path):
+        return await call_next(request)
+    if web_auth.token_valido(request.cookies.get(web_auth.COOKIE)):
+        return await call_next(request)
+    if request.method == "GET" and "text/html" in request.headers.get("accept", ""):
+        return RedirectResponse(url="/login?next=" + quote(request.url.path), status_code=303)
+    return JSONResponse(status_code=401, content={"detail": "Sesión requerida."})
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    return _render(request, "login.html")
+
+
+@app.post("/api/login")
+async def api_login(body: LoginIn, request: Request, response: Response) -> Dict[str, Any]:
+    if not web_auth.activa():
+        return {"status": "sin_contrasena"}
+    ip = request.client.host if request.client else "?"
+    espera = web_auth.bloqueado(ip)
+    if espera:
+        raise HTTPException(status_code=429, detail=f"Demasiados intentos. Espera {espera} s.")
+    if not web_auth.password_correcta(body.password):
+        web_auth.registrar_fallo(ip)
+        raise HTTPException(status_code=401, detail="Contraseña incorrecta.")
+    web_auth.limpiar_fallos(ip)
+    seguro = request.headers.get("x-forwarded-proto", request.url.scheme) == "https"
+    response.set_cookie(web_auth.COOKIE, web_auth.crear_token(), max_age=web_auth.DIAS_SESION * 86400,
+                        httponly=True, samesite="lax", secure=seguro, path="/")
+    return {"status": "ok"}
+
+
+@app.get("/logout")
+async def logout() -> RedirectResponse:
+    r = RedirectResponse(url="/login", status_code=303)
+    r.delete_cookie(web_auth.COOKIE, path="/")
+    return r
+
+
+@app.get("/registros", response_class=HTMLResponse)
+async def registros_page(request: Request):
+    return _render(request, "registros.html")
+
+
+@app.get("/api/registros")
+async def api_registros(fuente: str = Query("servidor", pattern="^(servidor|elite|pipeline)$"),
+                        nivel: str = Query("", pattern="^(|DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
+                        q: str = Query("", max_length=100),
+                        limite: int = Query(200, ge=1, le=1000)) -> Dict[str, Any]:
+    """Registros recientes (más nuevos primero). 'pipeline' = mensajes en vivo de la ingesta."""
+    if fuente == "pipeline":
+        with _LOG_BUS_LOCK:
+            bus = list(_LOG_BUS)
+        items = [{"ts": e["ts"], "nivel": e["level"], "origen": "pipeline", "msg": e["msg"]} for e in reversed(bus)]
+        if q.strip():
+            items = [e for e in items if q.strip().lower() in e["msg"].lower()]
+        minimo = log_viewer.NIVELES.get(nivel, 0)
+        items = [e for e in items if log_viewer.NIVELES.get(e["nivel"], 20) >= minimo][:limite]
+    else:
+        ruta = _GEM_PATHS["logs"] / ("servidor.log" if fuente == "servidor" else "elite_suite.jsonl")
+        items = log_viewer.consultar(fuente, ruta, nivel, q, limite)
+    return {"fuente": fuente, "items": items}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

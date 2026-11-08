@@ -414,6 +414,7 @@
         ]),
         ("Sistema", [
           ("/historial", "Historial y exportar", "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"),
+          ("/registros", "Registros", "M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"),
         ]),
       ] %}
       {% for seccion, items in NAV %}
@@ -436,6 +437,7 @@
          onmouseover="this.style.color='#7880b0'" onmouseout="this.style.color='#4a5080'">
         Estado del servidor →
       </a>
+      {% if auth_activa %}<a href="/logout" style="display:block;margin-top:6px;font-size:11px;color:#4a5080;text-decoration:none;">Cerrar sesión</a>{% endif %}
     </div>
   </aside>
 
@@ -489,7 +491,7 @@
       <p style="font-size:12px;color:#7880b0;line-height:2;margin:0;">
         <kbd>g</kbd> luego <kbd>d</kbd> Dashboard · <kbd>p</kbd> Productos · <kbd>v</kbd> Validador · <kbd>n</kbd> Negocio<br>
         <kbd>g</kbd> luego <kbd>y</kbd> YouTube · <kbd>t</kbd> Transcripciones · <kbd>c</kbd> Copys · <kbd>k</kbd> TikTok<br>
-        <kbd>g</kbd> luego <kbd>i</kbd> Insights · <kbd>a</kbd> Agente · <kbd>h</kbd> Historial<br>
+        <kbd>g</kbd> luego <kbd>i</kbd> Insights · <kbd>a</kbd> Agente · <kbd>h</kbd> Historial · <kbd>r</kbd> Registros<br>
         <kbd>/</kbd> enfoca el buscador · <kbd>?</kbd> esta ayuda · <kbd>Esc</kbd> cierra
       </p>
     </div>
@@ -516,7 +518,7 @@
     (function () {
       const rutas = { d: '/', p: '/productos', n: '/negocio', v: '/validador', y: '/youtube',
                       t: '/transcripciones', c: '/copys', k: '/tiktok', i: '/insights',
-                      a: '/agente', h: '/historial', };
+                      a: '/agente', h: '/historial', r: '/registros', };
       let g = false, temp = null;
       const ayuda = () => document.getElementById('atajos');
       document.addEventListener('keydown', (e) => {

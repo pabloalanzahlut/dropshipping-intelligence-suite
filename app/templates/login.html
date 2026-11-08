@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Acceso · GEM OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px;
+           background: #060810; color: #c8d0f0; font-family: 'Inter', system-ui, sans-serif; }
+    main { width: 100%; max-width: 360px; background: #0d0f1f; border: 1px solid #252844; border-radius: 16px; padding: 28px 24px;
+           box-shadow: 0 24px 64px rgba(0,0,0,.5); }
+    h1 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; color: #e8ecff; margin: 0 0 4px; }
+    p.sub { font-size: 12px; color: #4a5080; margin: 0 0 20px; }
+    label { display: block; font-size: 11px; font-weight: 500; color: #7880b0; margin-bottom: 6px; }
+    input { width: 100%; background: #08091a; border: 1px solid #252844; border-radius: 8px; color: #e8ecff; padding: 10px 12px; font-size: 14px; }
+    input:focus-visible { outline: 2px solid #22d3ee; outline-offset: 1px; }
+    button { width: 100%; margin-top: 16px; background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: #fff; font-weight: 600; font-size: 13px;
+             padding: 11px 16px; border: 0; border-radius: 8px; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    #msg { min-height: 18px; margin: 12px 0 0; font-size: 12px; color: #fb7185; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>GEM OS</h1>
+    <p class="sub">Introduce la contraseña para entrar.</p>
+    <form id="f">
+      <label for="p">Contraseña</label>
+      <input id="p" type="password" autocomplete="current-password" autofocus required>
+      <button id="b" type="submit">Entrar</button>
+      <p id="msg" role="alert"></p>
+    </form>
+  </main>
+  <script>
+    const f = document.getElementById('f'), msg = document.getElementById('msg'), b = document.getElementById('b');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault(); msg.textContent = ''; b.disabled = true;
+      try {
+        const r = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: document.getElementById('p').value }) });
+        if (r.ok) {
+          const next = new URLSearchParams(location.search).get('next') || '/';
+          location.href = next.startsWith('/') && !next.startsWith('//') ? next : '/';
+          return;
+        }
+        const j = await r.json().catch(() => ({}));
+        msg.textContent = j.detail || 'No se pudo iniciar sesión.';
+      } catch (err) { msg.textContent = 'Error de conexión con el servidor.'; }
+      b.disabled = false;
+    });
+  </script>
+</body>
+</html>
