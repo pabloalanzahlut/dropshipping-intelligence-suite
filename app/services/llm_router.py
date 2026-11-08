@@ -24,7 +24,7 @@ CRITICAL_TASKS = {
 
 MODEL_ROUTING = {
     # Críticas → Claude Sonnet via OpenRouter (sin necesitar ANTHROPIC_API_KEY)
-    "default_critical": "anthropic/claude-sonnet-4-5",
+    "default_critical": "anthropic/claude-sonnet-5-5",
     # Volumen alto → DeepSeek V3 (calidad excelente, ~21x más barato que Sonnet)
     "default_volume":   "deepseek/deepseek-chat-v3-0324",
     # Traducción / multilenguaje rápido
