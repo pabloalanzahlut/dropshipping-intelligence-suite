@@ -235,8 +235,11 @@ async def lifespan(app: FastAPI):
         ultimas = sorted((Path(DB_PATH).resolve().parent.parent / "backups").glob(
             f"{Path(DB_PATH).stem}_auto_*.db"))
         if not ultimas or time.time() - ultimas[-1].stat().st_mtime > 86400:
+            # misfire_grace_time: al arrancar el servidor está ocupado y, con el margen por
+            # defecto (1 s), APScheduler descartaba esta tarea por "llegar tarde".
             _scheduler.add_job(_scheduled_backup, "date", id="backup_inicial",
-                               run_date=datetime.now() + timedelta(seconds=30), replace_existing=True)
+                               run_date=datetime.now() + timedelta(seconds=30), replace_existing=True,
+                               misfire_grace_time=3600)
         _scheduler.start()
         log.info("[SERVER] APScheduler iniciado — ingesta KB 1h, transcripciones "
                  f"{minutos or 'desactivadas'} min, copia de seguridad diaria.")
