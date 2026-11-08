@@ -93,7 +93,7 @@
       </p>
       <div style="font-size:12px;color:#a8b0d8;line-height:1.9;margin-bottom:10px;">
         <div>Importado: <strong style="color:#e8ecff;" x-text="(autodsEst.pedidos || 0) + ' líneas de pedido · ' + (autodsEst.productos || 0) + ' productos'"></strong></div>
-        <div x-show="(autodsEst.importaciones || []).length">Última: <span x-text="(autodsEst.importaciones[0]?.archivo || '') + ' · ' + hace(autodsEst.importaciones[0]?.importado_at)"></span></div>
+        <div x-show="(autodsEst.importaciones || []).length">Última: <span x-text="((autodsEst.importaciones || [])[0]?.archivo || '') + ' · ' + hace((autodsEst.importaciones || [])[0]?.importado_at)"></span></div>
       </div>
 
       <form @submit.prevent="previsualizar()" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
@@ -125,7 +125,7 @@
   </div>
 
   <!-- KPIs -->
-  <div x-show="r" x-cloak>
+  <template x-if="r"><div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px;">
       <div class="kpi"><p>Pedidos</p><strong x-text="r.pedidos"></strong><span x-text="r.cancelados + ' cancelados · ' + r.unidades + ' uds'"></span></div>
       <div class="kpi"><p>Ingresos netos</p><strong x-text="eur(r.ingresos_netos)"></strong><span x-text="'bruto ' + eur(r.ingresos_brutos) + ' − reembolsos ' + eur(r.reembolsado)"></span></div>
@@ -188,7 +188,7 @@
         </template>
       </div>
     </div>
-  </div>
+  </div></template>
 
   <!-- Contexto del agente -->
   <div class="card" style="margin-top:14px;">
