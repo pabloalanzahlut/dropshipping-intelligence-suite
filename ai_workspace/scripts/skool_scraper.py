@@ -1,183 +1,286 @@
 """
-Skool Community Scraper — GEM OS v2.2
-Extrae posts de productos ganadores de Comunidad Ecommerce (Adrián Sáenz)
-Requiere cookies de sesión activas de Skool.
+GEM OS — Skool Market Intelligence Scraper
+==========================================
+Extrae posts de productos ganadores de Comunidad Ecommerce (Adrián Sáenz).
+Usa las cookies guardadas por setup_skool_session.py.
 
 Uso:
-  python skool_scraper.py --cookies cookies.json --output productos.json
-  python skool_scraper.py --cookies cookies.json --post-url "https://..."
+    python ai_workspace/scripts/skool_scraper.py          # extrae posts nuevos
+    python ai_workspace/scripts/skool_scraper.py --reporte # genera reporte mensual
 """
 
 import json
 import re
 import sys
 import argparse
-from datetime import datetime
+from datetime import datetime, date
 from pathlib import Path
+from collections import Counter
 
 try:
-    import requests
-    from bs4 import BeautifulSoup
+    from playwright.sync_api import sync_playwright
 except ImportError:
-    print("Instala dependencias: pip install requests beautifulsoup4")
-    sys.exit(1)
+    import subprocess
+    subprocess.run([sys.executable, "-m", "pip", "install", "playwright"], check=True)
+    subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=True)
+    from playwright.sync_api import sync_playwright
 
-SKOOL_BASE = "https://www.skool.com"
-COMMUNITY = "comunidad-ecommerce"
-KB_PATH = Path(__file__).parent.parent / "knowledge_base" / "skool_productos.json"
-HISTORIAL_PATH = Path(__file__).parent.parent / "knowledge_base" / "productos_ganadores_historial.md"
+# ── Rutas ────────────────────────────────────────────────────────────────────
+BASE = Path(__file__).parent.parent
+COOKIES_PATH = Path(__file__).parent / "skool_cookies.json"
+KB_PATH = BASE / "knowledge_base" / "skool_productos.json"
+HISTORIAL_PATH = BASE / "knowledge_base" / "productos_ganadores_historial.md"
+
+# ── Configuración ─────────────────────────────────────────────────────────────
+COMMUNITY_URL = "https://www.skool.com/comunidad-ecommerce"
+POST_URL = "https://www.skool.com/comunidad-ecommerce?c=84d2c047f1ce41a5a0fa42c7952169fc&s=newest&fl="
 
 KEYWORDS_GANADOR = [
-    "producto ganador", "winning product", "producto del mes",
-    "roas", "conversiones", "está vendiendo", "está petando",
-    "cpa", "aliexpress", "cj dropshipping", "temu", "€/día", "$/día"
+    "producto ganador", "winning product", "producto del mes", "está petando",
+    "está vendiendo", "roas", "conversiones", "cpa", "gané", "resultados",
+    "facturé", "€/día", "$/día", "aliexpress", "cjdropshipping", "temu",
+    "primera venta", "primer pedido", "recomiendo", "lo probé", "testeé"
 ]
 
-PESO_MAXIMO_KG = 1.2
-MULTIPLICADOR_MINIMO = 3.0
+MULTIPLICADOR_MINIMO = 2.0  # Regla Adrián Sáenz: mínimo 2x coste landed
 
 
-def cargar_cookies(ruta: str) -> dict:
-    """Carga cookies desde archivo JSON (exportado con extensión EditThisCookie)."""
-    with open(ruta) as f:
-        cookies_lista = json.load(f)
-    return {c["name"]: c["value"] for c in cookies_lista}
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def cargar_cookies() -> list:
+    if not COOKIES_PATH.exists():
+        print("✗ No hay cookies guardadas.")
+        print("  Ejecuta primero: python ai_workspace/scripts/setup_skool_session.py")
+        sys.exit(1)
+    with open(COOKIES_PATH) as f:
+        return json.load(f)
 
 
-def construir_session(cookies: dict) -> requests.Session:
-    s = requests.Session()
-    s.cookies.update(cookies)
-    s.headers.update({
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Referer": SKOOL_BASE,
-    })
-    return s
+def es_relevante(texto: str) -> bool:
+    texto_lower = texto.lower()
+    return any(kw in texto_lower for kw in KEYWORDS_GANADOR)
 
 
 def extraer_precio(texto: str) -> float | None:
-    """Extrae primer precio mencionado en texto (€ o $)."""
     match = re.search(r'[€$]\s*(\d+(?:[.,]\d+)?)', texto)
     if match:
         return float(match.group(1).replace(",", "."))
     return None
 
 
-def es_post_relevante(titulo: str, contenido: str) -> bool:
-    texto = (titulo + " " + contenido).lower()
-    return any(kw in texto for kw in KEYWORDS_GANADOR)
+def clasificar_gem(precio_venta: float | None, costo: float | None) -> str:
+    if not precio_venta or not costo or costo <= 0:
+        return "DESCONOCIDO"
+    mult = precio_venta / costo
+    if mult >= 5:   return "HOT"
+    if mult >= 3:   return "WARM"
+    if mult >= 2:   return "COLD"
+    return "DISCARD"
 
 
-def validar_regla_3x(precio_venta: float, costo: float) -> dict:
-    if costo <= 0:
-        return {"valida": False, "razon": "Costo desconocido"}
-    multiplicador = precio_venta / costo
-    margen = (precio_venta - costo) / precio_venta * 100
-    return {
-        "valida": multiplicador >= MULTIPLICADOR_MINIMO and margen >= 70,
-        "multiplicador": round(multiplicador, 2),
-        "margen_bruto": round(margen, 1),
-        "clasificacion": "HOT" if multiplicador >= 5 else "WARM" if multiplicador >= 3 else "COLD"
-    }
+def extraer_posts_playwright(page, url: str, max_scroll: int = 10) -> list[dict]:
+    """Extrae posts de una página de Skool con scroll infinito."""
+    page.goto(url, wait_until="networkidle", timeout=30_000)
+    page.wait_for_timeout(2000)
 
-
-def parsear_post(html_post: str, url: str) -> dict:
-    soup = BeautifulSoup(html_post, "html.parser")
-    titulo = soup.find("h1") or soup.find("h2")
-    titulo_texto = titulo.get_text(strip=True) if titulo else ""
-
-    cuerpo = soup.find("div", class_=re.compile(r"post|content|body", re.I))
-    contenido = cuerpo.get_text(" ", strip=True) if cuerpo else ""
-
-    precio_venta = extraer_precio(contenido)
-
-    # Buscar links de proveedores
-    links = soup.find_all("a", href=True)
-    link_proveedor = next(
-        (a["href"] for a in links if any(
-            p in a["href"] for p in ["aliexpress", "cjdropshipping", "temu", "amazon"]
-        )), ""
-    )
-
-    return {
-        "fecha_extraccion": datetime.now().isoformat(),
-        "url": url,
-        "titulo": titulo_texto,
-        "contenido_preview": contenido[:300],
-        "precio_venta_detectado": precio_venta,
-        "link_proveedor": link_proveedor,
-        "relevante": es_post_relevante(titulo_texto, contenido),
-    }
-
-
-def obtener_posts_comunidad(session: requests.Session, paginas: int = 3) -> list[dict]:
-    """Obtiene posts recientes de la comunidad."""
     posts = []
-    for pagina in range(1, paginas + 1):
-        url = f"{SKOOL_BASE}/{COMMUNITY}?s=newest&p={pagina}"
-        resp = session.get(url, timeout=15)
-        if resp.status_code != 200:
-            print(f"Error {resp.status_code} en página {pagina}")
-            break
-        soup = BeautifulSoup(resp.text, "html.parser")
+    seen_ids = set()
 
-        # Skool renderiza con JS — si el contenido está vacío, se necesita Playwright
-        articulos = soup.find_all("article") or soup.find_all("div", class_=re.compile(r"post", re.I))
-        for art in articulos:
-            enlace = art.find("a", href=True)
-            if enlace:
-                posts.append({"url": SKOOL_BASE + enlace["href"], "html": str(art)})
+    for _ in range(max_scroll):
+        # Extraer posts visibles
+        elementos = page.query_selector_all("[data-postid], article, [class*='post']")
+        for el in elementos:
+            try:
+                post_id = el.get_attribute("data-postid") or el.get_attribute("id") or ""
+                if post_id in seen_ids:
+                    continue
+                seen_ids.add(post_id)
+
+                texto = el.inner_text() or ""
+                if not es_relevante(texto):
+                    continue
+
+                # Intentar extraer autor y fecha
+                autor_el = el.query_selector("[class*='author'], [class*='name'], h3, h4")
+                autor = autor_el.inner_text().strip() if autor_el else "Desconocido"
+
+                fecha_el = el.query_selector("time, [class*='date'], [class*='time']")
+                fecha = fecha_el.get_attribute("datetime") or fecha_el.inner_text() if fecha_el else ""
+
+                # Link al post
+                link_el = el.query_selector("a[href*='/comunidad-ecommerce']")
+                link = link_el.get_attribute("href") if link_el else ""
+                if link and not link.startswith("http"):
+                    link = "https://www.skool.com" + link
+
+                precio = extraer_precio(texto)
+
+                posts.append({
+                    "id": post_id,
+                    "fecha_extraccion": datetime.now().isoformat(),
+                    "fecha_post": fecha,
+                    "autor": autor,
+                    "url": link,
+                    "contenido_preview": texto[:500].strip(),
+                    "precio_detectado": precio,
+                    "clasificacion_gem": "PENDIENTE",
+                    "keywords_match": [kw for kw in KEYWORDS_GANADOR if kw in texto.lower()],
+                    "engagement": {"likes": 0, "comentarios": 0}
+                })
+            except Exception:
+                continue
+
+        # Scroll para cargar más posts
+        prev_height = page.evaluate("document.body.scrollHeight")
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        page.wait_for_timeout(2000)
+        new_height = page.evaluate("document.body.scrollHeight")
+        if new_height == prev_height:
+            break  # No hay más contenido
+
     return posts
 
 
-def guardar_kb(productos: list[dict]):
+def guardar_kb(nuevos_posts: list[dict]) -> int:
+    """Guarda posts nuevos en la KB, evitando duplicados."""
     KB_PATH.parent.mkdir(parents=True, exist_ok=True)
     existentes = []
     if KB_PATH.exists():
         with open(KB_PATH) as f:
-            existentes = json.load(f)
+            try:
+                existentes = json.load(f)
+            except json.JSONDecodeError:
+                existentes = []
 
-    urls_existentes = {p["url"] for p in existentes}
-    nuevos = [p for p in productos if p.get("url") not in urls_existentes]
+    ids_existentes = {p.get("id", "") or p.get("url", "") for p in existentes}
+    nuevos = [p for p in nuevos_posts
+              if (p.get("id") or p.get("url")) not in ids_existentes]
 
     todos = existentes + nuevos
     with open(KB_PATH, "w", encoding="utf-8") as f:
         json.dump(todos, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ KB actualizada: {len(nuevos)} nuevos posts | {len(todos)} total")
-    return nuevos
+    return len(nuevos)
 
+
+def generar_reporte(mes: str | None = None) -> str:
+    """Genera reporte mensual del Dr. Marcus Chen."""
+    if not KB_PATH.exists():
+        return "KB vacía — ejecuta el scraper primero."
+
+    with open(KB_PATH) as f:
+        todos = json.load(f)
+
+    if not todos:
+        return "No hay posts en la KB todavía."
+
+    # Filtrar por mes si se especifica
+    if mes:
+        posts = [p for p in todos if mes.lower() in p.get("fecha_post", "").lower()]
+    else:
+        posts = todos
+
+    # Análisis
+    clasificaciones = Counter(p.get("clasificacion_gem", "PENDIENTE") for p in posts)
+    autores = Counter(p.get("autor", "?") for p in posts)
+    keywords = Counter()
+    for p in posts:
+        for kw in p.get("keywords_match", []):
+            keywords[kw] += 1
+
+    hoy = date.today().strftime("%B %Y")
+    reporte = f"""
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 REPORTE SKOOL — {mes or hoy}
+   Dr. Marcus Chen | 32 años · GEM OS Intelligence
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📥 POSTS ANALIZADOS: {len(posts)} relevantes de Comunidad Ecommerce
+
+🔥 CLASIFICACIÓN GEM OS:
+"""
+    for cls, count in clasificaciones.most_common():
+        emoji = {"HOT": "🔥", "WARM": "⚡", "COLD": "❄️", "DISCARD": "🗑️"}.get(cls, "❓")
+        reporte += f"   {emoji} {cls}: {count} posts\n"
+
+    reporte += f"""
+📈 TEMAS MÁS MENCIONADOS:
+"""
+    for kw, count in keywords.most_common(5):
+        reporte += f"   · '{kw}': {count} veces\n"
+
+    reporte += f"""
+👥 USUARIOS MÁS ACTIVOS:
+"""
+    for autor, count in autores.most_common(3):
+        reporte += f"   · {autor}: {count} posts relevantes\n"
+
+    # Posts HOT destacados
+    hot = [p for p in posts if p.get("clasificacion_gem") == "HOT"]
+    if hot:
+        reporte += f"\n🏆 PRODUCTOS HOT DETECTADOS:\n"
+        for p in hot[:3]:
+            reporte += f"   → {p.get('contenido_preview', '')[:120]}...\n"
+            reporte += f"      {p.get('url', '')}\n"
+
+    reporte += f"""
+🎯 ANÁLISIS DR. MARCUS CHEN:
+   Con {len(posts)} posts relevantes este período, la comunidad muestra
+   actividad {'alta' if len(posts) > 20 else 'moderada' if len(posts) > 5 else 'baja'}.
+   Los temas dominantes sugieren {'oportunidades activas' if keywords.get('roas', 0) > 2 else 'exploración de nuevos productos'}.
+   Recomendación: priorizar posts con evidencia real de ventas (ROAS + capturas).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+    return reporte
+
+
+# ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Skool Scraper — GEM OS")
-    parser.add_argument("--cookies", required=True, help="Ruta al archivo cookies.json")
-    parser.add_argument("--post-url", help="URL de un post específico a analizar")
-    parser.add_argument("--output", default=str(KB_PATH), help="Ruta de salida JSON")
-    parser.add_argument("--paginas", type=int, default=3, help="Páginas a escanear")
+    parser = argparse.ArgumentParser(description="GEM OS — Skool Scraper")
+    parser.add_argument("--reporte", action="store_true", help="Genera reporte mensual")
+    parser.add_argument("--mes", help="Mes para el reporte (ej: 'noviembre')")
+    parser.add_argument("--scroll", type=int, default=8, help="Veces a hacer scroll (default: 8)")
     args = parser.parse_args()
+
+    if args.reporte:
+        print(generar_reporte(args.mes))
+        return
 
     print("🔍 GEM OS — Skool Market Intelligence")
     print("   Agente: Dr. Marcus Chen | 32 años de experiencia")
     print("=" * 50)
 
-    cookies = cargar_cookies(args.cookies)
-    session = construir_session(cookies)
+    cookies = cargar_cookies()
 
-    if args.post_url:
-        resp = session.get(args.post_url, timeout=15)
-        post = parsear_post(resp.text, args.post_url)
-        print(json.dumps(post, ensure_ascii=False, indent=2))
-    else:
-        print(f"📡 Escaneando {args.paginas} páginas de posts recientes...")
-        posts = obtener_posts_comunidad(session, args.paginas)
-        relevantes = []
-        for p in posts:
-            datos = parsear_post(p["html"], p["url"])
-            if datos["relevante"]:
-                relevantes.append(datos)
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(
+            viewport={"width": 1280, "height": 800},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        )
+        # Cargar cookies de sesión guardadas
+        context.add_cookies(cookies)
+        page = context.new_page()
 
-        nuevos = guardar_kb(relevantes)
-        print(f"\n🎯 Posts relevantes encontrados: {len(relevantes)}")
-        print(f"📥 Nuevos en KB: {len(nuevos)}")
+        print(f"📡 Accediendo a Skool con sesión guardada...")
+        posts = extraer_posts_playwright(page, POST_URL, max_scroll=args.scroll)
+        browser.close()
+
+    print(f"✅ Posts relevantes encontrados: {len(posts)}")
+    nuevos = guardar_kb(posts)
+    print(f"📥 Nuevos en KB: {nuevos}")
+
+    if nuevos > 0:
+        print(f"\n🎯 {nuevos} posts nuevos guardados en:")
+        print(f"   {KB_PATH}")
+
+    # Reporte rápido
+    if posts:
+        print(f"\n--- Vista previa ---")
+        for p in posts[:3]:
+            print(f"  · {p['contenido_preview'][:100]}...")
 
 
 if __name__ == "__main__":
