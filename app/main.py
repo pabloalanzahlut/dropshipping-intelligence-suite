@@ -21,6 +21,8 @@ from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 from app.ui.themes.jack_styles import apply_jack_styles
 from app.services.provider_monitor_engine import ProviderMonitorEngine
 
+ERROR_COLOR = NEON_COLORS["pink"]
+
 
 class GEMOSApplication:
     def __init__(self, root: tk.Tk, initial_theme: str = "dark"):
@@ -174,7 +176,7 @@ class GEMOSApplication:
             self._panels[0].columnconfigure(0, weight=1)
             self._panels[0].rowconfigure(0, weight=1)
         except Exception as e:
-            ttk.Label(self._panels[0], text=f"Error Dashboard: {e}", foreground=COLORS.error).pack(pady=20)
+            ttk.Label(self._panels[0], text=f"Error Dashboard: {e}", foreground=ERROR_COLOR).pack(pady=20)
 
     def _build_console(self):
         """Construye panel de consola de ingesta."""
@@ -193,7 +195,7 @@ class GEMOSApplication:
                 f.grid()  # Show via grid (was hidden with grid_remove)
                 if not self._panel_loaded[i]:
                     self._panel_loaded[i] = True
-                    self.after(50, lambda i=i: self._load_panel(i))
+                    self.root.after(50, lambda i=i: self._load_panel(i))
             else:
                 f.grid_remove()  # Hide via grid (not remove completely)
 
@@ -213,7 +215,7 @@ class GEMOSApplication:
             frame.rowconfigure(0, weight=1)
             self._log(f"Panel cargado: {name}")
         except Exception as e:
-            ttk.Label(frame, text=f"Error {name}: {e}", foreground=COLORS.error).pack(pady=20)
+            ttk.Label(frame, text=f"Error {name}: {e}", foreground=ERROR_COLOR).pack(pady=20)
             self._log(f"Error cargando panel {name}: {e}")
 
     def _log(self, msg: str, level: str = "SYSTEM"):
