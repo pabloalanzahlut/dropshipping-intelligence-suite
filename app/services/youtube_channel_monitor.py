@@ -93,7 +93,7 @@ class YouTubeChannelMonitor:
         try:
             with self.db_manager.get_connection() as conn:
                 rows = conn.execute(
-                    """SELECT nombre, url, idioma, tags, prioridad, activo
+                    """SELECT nombre, url, idioma, tags, prioridad, activo, filtro_tema
                        FROM canales_favoritos
                        WHERE activo = 1 AND url IS NOT NULL AND url != ''"""
                 ).fetchall()
@@ -106,9 +106,9 @@ class YouTubeChannelMonitor:
                     "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()],
                     "prioridad": r["prioridad"] or 5, "idioma": r["idioma"] or "es",
                     "max_videos_scan": 15,
-                    # Canales de la lista de favoritos que NO son los mentores del JSON: se
-                    # comprueba que el vídeo sea de ecommerce/dropshipping (p. ej. "Gian's Tech")
-                    "filtro_tema": True,
+                    # Se decide por canal en la BD (se edita desde la web): con el filtro solo
+                    # se guardan vídeos de ecommerce/dropshipping (p. ej. descarta "Gian's Tech")
+                    "filtro_tema": bool(r["filtro_tema"]),
                 })
         except Exception as e:
             print(f"[WARN] No se pudieron leer canales_favoritos: {e}")

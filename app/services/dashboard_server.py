@@ -36,7 +36,7 @@ from pydantic import BaseModel
 
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
-from app.services import agent_router, transcript_store
+from app.services import agent_router, channel_store, transcript_store
 
 log = logging.getLogger(__name__)
 
@@ -730,67 +730,66 @@ async def api_status() -> Dict[str, Any]:
 # API — CANALES YOUTUBE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _norm_channel_url(url: str) -> str:
-    u = (url or "").strip().lower().rstrip("/")
-    return re.sub(r"^https?://(www\.)?", "", u)
+class CanalPatchIn(BaseModel):
+    url: str
+    nombre: Optional[str] = None
+    activo: Optional[bool] = None
+    prioridad: Optional[int] = None
+    idioma: Optional[str] = None
+    tags: Optional[str] = None
+    filtro_tema: Optional[bool] = None
+    max_videos_scan: Optional[int] = None
+
+
+class CanalUrlIn(BaseModel):
+    url: str
 
 
 @app.get("/api/channels")
 async def get_channels() -> List[Dict[str, Any]]:
-    """Todos los canales: los del JSON (mentores, con sus reglas) más los favoritos de la BD."""
-    canales = [c for c in _load_channels_json() if isinstance(c, dict)]
-    vistos = {_norm_channel_url(c.get("url", "")) for c in canales}
-    try:
-        with sqlite3.connect(DB_PATH, timeout=30) as conn:
-            conn.row_factory = sqlite3.Row
-            for r in conn.execute(
-                    """SELECT nombre, url, idioma, tags, prioridad, activo
-                       FROM canales_favoritos WHERE url IS NOT NULL AND url != ''
-                       ORDER BY prioridad, nombre"""):
-                if _norm_channel_url(r["url"]) in vistos:
-                    continue
-                vistos.add(_norm_channel_url(r["url"]))
-                canales.append({
-                    "nombre": r["nombre"], "url": r["url"], "activo": bool(r["activo"]),
-                    "idioma": r["idioma"], "prioridad": r["prioridad"],
-                    "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()],
-                })
-    except sqlite3.Error as exc:
-        log.warning(f"[CHANNELS] canales_favoritos: {exc}")
-    return canales
+    """Todos los canales (mentores del JSON + favoritos de la BD) como UNA lista, con su
+    estado, filtro de tema y número de transcripciones."""
+    return channel_store.listar(CHANNELS_JSON_PATH, DB_PATH)
 
 
 @app.post("/api/channels", status_code=201)
 async def add_channel(channel: ChannelIn) -> Dict[str, Any]:
-    url = channel.url.strip()
-    if not _YOUTUBE_CHANNEL_RE.match(url):
-        raise HTTPException(status_code=422, detail="URL de canal YouTube inválida.")
-    channels = _load_channels_json()
-    if any(ch.get("url") == url for ch in channels):
-        raise HTTPException(status_code=409, detail="Canal ya registrado.")
-    new_entry = {
-        "url": url, "nombre": channel.nombre.strip(), "activo": True,
-        "tags": [t.strip() for t in channel.tags.split(",") if t.strip()],
-        "idioma": channel.idioma, "prioridad": channel.prioridad,
-        "max_videos_scan": channel.max_videos_scan,
-    }
-    channels.append(new_entry)
-    _save_channels_json(channels)
-    # Sincronizar en canales_favoritos
     try:
-        handle = url.rstrip("/").split("/")[-1].lower()
-        import sqlite3 as _sq
-        with _sq.connect(DB_PATH) as _conn:
-            _conn.execute(
-                """INSERT OR IGNORE INTO canales_favoritos
-                   (handle, nombre, url, idioma, especialidad, tags, prioridad)
-                   VALUES (?,?,?,?,?,?,?)""",
-                (handle, channel.nombre.strip(), url, channel.idioma,
-                 "general", channel.tags, channel.prioridad)
-            )
-    except Exception:
-        pass
-    return new_entry
+        return channel_store.agregar(
+            CHANNELS_JSON_PATH, DB_PATH, channel.url, channel.nombre, channel.tags,
+            channel.idioma, channel.prioridad, channel.max_videos_scan)
+    except FileExistsError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.patch("/api/channels")
+async def patch_channel(cambios: CanalPatchIn) -> Dict[str, Any]:
+    """Activa/desactiva, renombra, cambia prioridad, idioma, etiquetas o el filtro de tema."""
+    try:
+        return channel_store.actualizar(
+            CHANNELS_JSON_PATH, DB_PATH, cambios.url,
+            cambios.model_dump(exclude={"url"}, exclude_none=True))
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Canal no encontrado.")
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.delete("/api/channels")
+async def delete_channel(url: str = Query(..., max_length=300)) -> Dict[str, Any]:
+    """Quita el canal de la lista. No borra sus transcripciones ni su KB."""
+    if not channel_store.eliminar(CHANNELS_JSON_PATH, DB_PATH, url):
+        raise HTTPException(status_code=404, detail="Canal no encontrado.")
+    return {"status": "deleted", "url": url}
+
+
+@app.post("/api/channels/verificar")
+async def verify_channel(body: CanalUrlIn) -> Dict[str, Any]:
+    """Comprueba que el canal existe (detecta URLs rotas, p. ej. un 404)."""
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(None, lambda: channel_store.verificar(DB_PATH, body.url))
 
 
 @app.get("/api/channels/favoritos")
