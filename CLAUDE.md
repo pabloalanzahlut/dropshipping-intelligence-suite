@@ -147,6 +147,12 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 - `ai_workspace/skills/gestionar_meta_ads/procedimiento.md` — Naming de campañas + hooks s0–3 (Roger Viladrosa)
 - `ai_workspace/skills/resolver_github/procedimiento.md` — Especialista GitHub: CI/CD, PRs, Dependabot, secretos (auto-alimentado por KB)
 - `ai_workspace/skills/monitorear_skool/procedimiento.md` — Agente Dr. Marcus Chen: extrae y analiza productos ganadores de Skool (Comunidad Ecommerce)
+- `ai_workspace/skills/configurar_tienda/procedimiento.md` — Checklist Shopify inicial: dominio, pagos, políticas, envíos, AutoDS, píxeles
+- `ai_workspace/skills/trafico_organico/procedimiento.md` — TikTok/Reels orgánico: cuenta, contenido, edición, métricas de validación
+- `ai_workspace/skills/google_ads/procedimiento.md` — Google Ads: búsqueda, Shopping, PMax, keywords, optimización ROAS
+- `ai_workspace/skills/tiktok_ads/procedimiento.md` — TikTok Ads pagados: pixel, Business Manager, campañas, retargeting
+- `ai_workspace/skills/amazon_dropshipping/procedimiento.md` — Amazon como canal: proveedor, listings, envíos, devoluciones, AutoDS
+- `ai_workspace/skills/tiktok_shop/procedimiento.md` — TikTok Shop sin stock: cuenta, productos, afiliados, LIVE, caso de éxito
 - `ai_workspace/scripts/skool_scraper.py` — Script de extracción autenticada de posts Skool → KB
 - `ai_workspace/knowledge_base/skool_productos.json` — Base de datos de productos extraídos de Skool
 - `ai_workspace/config/openrouter_setup.md` — Modelos económicos para volumen alto
