@@ -463,3 +463,30 @@ def mig_0018_metricas_negocio(conn: sqlite3.Connection):
             creado_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+
+@migration(19, "Centro de alertas y resúmenes diarios")
+def mig_0019_alertas_y_resumenes(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS alertas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clave TEXT NOT NULL UNIQUE,
+            nivel TEXT NOT NULL DEFAULT 'aviso',
+            titulo TEXT NOT NULL,
+            detalle TEXT DEFAULT '',
+            enlace TEXT DEFAULT '',
+            origen TEXT DEFAULT '',
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            actualizado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            vista_at TEXT,
+            resuelta_at TEXT
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_alertas_activas ON alertas(resuelta_at)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS resumenes_diarios (
+            fecha TEXT PRIMARY KEY,
+            contenido TEXT NOT NULL,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
