@@ -22,9 +22,8 @@ Lee `ai_workspace/skills/clasificar_productos/procedimiento.md` y clasifica el p
 
 ### PASO 2: Validar Financiero
 Aplica las reglas de `.continue/rules/dropshipping_financial_rules.md`:
-- Ratio 3x ≥ 3.0
-- Margen Bruto ≥ 70%
-- Peso < 1.2 kg
+- Multiplicador ≥ 2.0 sobre coste landed (rechaza) y objetivo ≥ 3.0 (advierte)
+- Sin umbral de margen % ni límite de peso (el curso no los fija)
 - Sin baterías de litio sueltas
 
 → Si RECHAZADO → DETENER. Reportar al usuario.

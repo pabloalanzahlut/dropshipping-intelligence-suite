@@ -14,7 +14,7 @@ Lee `ai_workspace/skills/importar_masivo/procedimiento.md` y procesa URLs de Ali
 1. Recibir lista de URLs (una por línea)
 2. Para cada URL: extraer precio proveedor + coste envío estimado = coste landed
 3. Validar regla 3x: PVP_mínimo = 2× coste_landed; PVP_objetivo = 3× coste_landed
-4. Verificar restricciones: peso <1.2kg, sin litio suelto, envío ≤12 días
+4. Verificar restricciones: sin litio suelto, envío ≤12 días (sin límite de peso: el curso no lo fija)
 5. VÁLIDO → crear borrador en Shopify vía AutoDS API | RECHAZADO → registrar motivo
 
 ## Regla financiera (Adrián Sáenz `Q4Ykcwh5Osc 24:40`)

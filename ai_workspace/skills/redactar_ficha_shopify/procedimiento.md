@@ -34,7 +34,7 @@
 |-----------|--------|
 | `costo_origen_usd` ausente | `[DATA_GAP: costo_origen_usd]` — no continuar |
 | `pvp_usd / costo_origen_usd < 3.0` | ERROR: viola Regla 3x — rechazar |
-| `peso_kg > 1.2` | ERROR: viola restricción logística — rechazar |
+| `peso_kg` | Dato del proveedor: se copia tal cual; el curso no fija límite de peso |
 | `nombre` ausente | `[DATA_GAP: nombre]` — no continuar |
 | `material` ausente | Usar "Material no especificado" y advertir |
 

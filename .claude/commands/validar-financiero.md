@@ -14,16 +14,18 @@ Si alguno falta → preguntar al usuario.
 
 ```
 Ratio 3x      = PVP / CO  (debe ser ≥ 3.0)
-Margen Bruto  = (PVP - CO) / PVP × 100  (debe ser ≥ 70%)
+Coste landed  = costo_origen + envío
+Multiplicador = PVP / coste landed
+Margen bruto  = (PVP - coste landed) / PVP × 100  (informativo: el curso no fija umbral)
 ```
 
 ## Reglas de validación:
 
 | Criterio | Umbral | Resultado si falla |
 |----------|--------|-------------------|
-| Ratio 3x | ≥ 3.0 | ❌ RECHAZAR |
-| Margen Bruto | ≥ 70% | ⚠️ ADVERTIR |
-| Peso | < 1.2 kg | ❌ RECHAZAR si supera |
+| Multiplicador mínimo (sobre coste landed) | ≥ 2.0 | ❌ RECHAZAR |
+| Multiplicador objetivo | ≥ 3.0 | ⚠️ ADVERTIR |
+| Coste de origen | $5–15 | ⚠️ ADVERTIR fuera de rango |
 | Baterías litio sueltas | No | ❌ RECHAZAR categoría |
 
 ## Output:
@@ -31,10 +33,9 @@ Margen Bruto  = (PVP - CO) / PVP × 100  (debe ser ≥ 70%)
 ```
 ✅ APROBADO / ❌ RECHAZADO / ⚠️ CONDICIONAL
 
-Ratio 3x: X.X (objetivo ≥ 3.0)
-Margen Bruto: XX% (objetivo ≥ 70%)
-Peso: X.X kg (límite < 1.2 kg)
-Logística: OK / PROBLEMA
+Multiplicador: X.X sobre coste landed (mínimo 2.0 · objetivo 3.0)
+Margen neto/unidad: $X.XX tras fees 4,0 % y cancelaciones 10,1 %
+Logística: OK / PROBLEMA (baterías de litio sueltas)
 
 Veredicto: [explicación]
 ```
