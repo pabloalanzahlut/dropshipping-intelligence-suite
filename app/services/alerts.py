@@ -77,7 +77,12 @@ def _negocio(db_path: str) -> List[Dict[str, str]]:
 
 def _productos(db_path: str) -> List[Dict[str, str]]:
     out: List[Dict[str, str]] = []
-    for p in product_catalog.listar(db_path):
+    catalogo = product_catalog.listar(db_path)
+    if not catalogo:
+        out.append(_a("sin_productos", "info", "El catálogo de productos está vacío",
+                      "Empieza por Productos → nuevo candidato; cada paso del recorrido comprueba datos reales.",
+                      "/productos", "productos"))
+    for p in catalogo:
         if p["estado"] not in ("tienda", "escalado"):
             continue
         dec = business_metrics.evaluar_escalado(db_path, p)

@@ -36,8 +36,8 @@ from pydantic import BaseModel
 
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
-from app.services import (agent_router, business_metrics, channel_store, exports, log_viewer,
-                          product_catalog, transcript_store, web_auth)
+from app.services import (agent_router, alerts, business_metrics, channel_store, daily_brief,
+                          exports, log_viewer, product_catalog, transcript_store, web_auth)
 
 log = logging.getLogger(__name__)
 log_viewer.configurar_log_servidor(PathManager.get_paths()["logs"] / "servidor.log")
@@ -210,7 +210,29 @@ async def lifespan(app: FastAPI):
         except Exception as exc:
             log.warning(f"[SERVER] Copia de seguridad automática falló: {exc}")
 
+    def _scheduled_alertas() -> None:
+        """Revisión automática: caja, ROAS, canales, sincronización, copias, IA."""
+        try:
+            r = alerts.evaluar(DB_PATH, CHANNELS_JSON_PATH)
+            log.info(f"[SERVER] Alertas revisadas: {r['vigentes']} vigentes, {r['nuevas']} nuevas.")
+        except Exception as exc:
+            log.warning(f"[SERVER] Revisión de alertas falló: {exc}")
+
+    def _scheduled_resumen() -> None:
+        """Resumen del día (08:00)."""
+        try:
+            alerts.evaluar(DB_PATH, CHANNELS_JSON_PATH)
+            daily_brief.generar(DB_PATH, CHANNELS_JSON_PATH)
+            log.info("[SERVER] Resumen diario generado.")
+        except Exception as exc:
+            log.warning(f"[SERVER] Resumen diario falló: {exc}")
+
     if _scheduler_available and _scheduler is not None and engine is not None:
+        _scheduler.add_job(_scheduled_alertas, "interval", minutes=60, id="alertas_auto", max_instances=1,
+                           misfire_grace_time=600, replace_existing=True,
+                           next_run_time=datetime.now() + timedelta(seconds=45))
+        _scheduler.add_job(_scheduled_resumen, "cron", hour=8, minute=0, id="resumen_diario",
+                           replace_existing=True, misfire_grace_time=6 * 3600, coalesce=True)
         _scheduler.add_job(
             _scheduled_ingest,
             "interval",
@@ -1474,6 +1496,49 @@ async def api_negocio_escalado(producto_id: int) -> Dict[str, Any]:
 async def api_integraciones() -> List[Dict[str, Any]]:
     """Qué integraciones están configuradas (sí/no; nunca se devuelven los valores)."""
     return business_metrics.estado_integraciones()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CENTRO DE ALERTAS Y RESUMEN DIARIO (automáticos, sin IA)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_ALERTAS_EVAL = {"ts": 0.0}
+
+
+@app.get("/api/alertas")
+async def api_alertas(todas: bool = False, refrescar: bool = False) -> Dict[str, Any]:
+    """Alertas activas. Se recalculan si la última revisión tiene más de 2 minutos
+    (para que registrar la caja o un canal las actualice al momento)."""
+    if refrescar or time.time() - _ALERTAS_EVAL["ts"] > 120:
+        _ALERTAS_EVAL["ts"] = time.time()
+        try:
+            await asyncio.get_event_loop().run_in_executor(
+                None, lambda: alerts.evaluar(DB_PATH, CHANNELS_JSON_PATH))
+        except Exception as exc:
+            log.warning(f"[SERVER] No se pudieron recalcular las alertas: {exc}")
+    return alerts.listar(DB_PATH, incluir_resueltas=todas)
+
+
+@app.post("/api/alertas/vistas")
+async def api_alertas_vistas(alerta_id: Optional[int] = None) -> Dict[str, Any]:
+    """Marca como vista una alerta (o todas). Sigue activa mientras el problema exista."""
+    return {"marcadas": alerts.marcar_vista(DB_PATH, alerta_id)}
+
+
+@app.get("/api/resumen-diario")
+async def api_resumen_diario() -> Dict[str, Any]:
+    """Resumen de hoy (lo genera si todavía no existe) y el historial de los guardados."""
+    loop = asyncio.get_event_loop()
+    r = await loop.run_in_executor(
+        None, lambda: daily_brief.ultimo(DB_PATH, regenerar_si_falta=True, config_path=CHANNELS_JSON_PATH))
+    return {"resumen": r, "historial": daily_brief.historial(DB_PATH)}
+
+
+@app.post("/api/resumen-diario/generar")
+async def api_resumen_diario_generar() -> Dict[str, Any]:
+    loop = asyncio.get_event_loop()
+    r = await loop.run_in_executor(None, lambda: daily_brief.generar(DB_PATH, CHANNELS_JSON_PATH))
+    return {"resumen": r, "historial": daily_brief.historial(DB_PATH)}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
