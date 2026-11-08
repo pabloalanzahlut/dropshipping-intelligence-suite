@@ -139,7 +139,7 @@
            onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Ver todos →</a>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <template x-for="ins in (metrics.insights || [])" :key="ins.product_name">
+        <template x-for="(ins, i) in (metrics.insights || [])" :key="i">
           <div class="insight-card">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
               <div style="min-width:0;">

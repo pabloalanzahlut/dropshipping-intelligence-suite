@@ -13,7 +13,7 @@
     <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
       Scripts <span style="background:linear-gradient(90deg,#fb7185,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">TikTok</span>
     </h1>
-    <p style="font-size:12px;color:#4a5080;margin:0;">4 patrones de hooks virales · Estructura 4 columnas · 30–60 s</p>
+    <p style="font-size:12px;color:#4a5080;margin:0;">4 patrones de hooks virales · Estructura 4 columnas · 15–30 s</p>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -67,13 +67,13 @@
             Duración objetivo
             <span style="color:#22d3ee;font-weight:600;" x-text="' — ' + form.duracion_segundos + 's'"></span>
           </label>
-          <input x-model.number="form.duracion_segundos" type="range" min="15" max="90" step="15"
+          <input x-model.number="form.duracion_segundos" type="range" min="15" max="30" step="5"
                  style="width:100%;accent-color:#06b6d4;margin-bottom:4px;">
           <div style="display:flex;justify-content:space-between;font-size:10px;color:#4a5080;">
             <span>15s</span>
-            <span>45s</span>
-            <span>75s</span>
-            <span>90s</span>
+            <span>20s</span>
+            <span>25s</span>
+            <span>30s</span>
           </div>
         </div>
 
@@ -166,7 +166,7 @@
 <script>
 function tiktok() {
   return {
-    form: { nombre_producto: '', categoria: 'hogar', patron_hook: 'story-telling', duracion_segundos: 60 },
+    form: { nombre_producto: '', categoria: 'hogar', patron_hook: 'story-telling', duracion_segundos: 25 },
     hookPatterns: [
       { value: 'story-telling', label: '📖 Story Telling', desc: 'In medias res, narrativa' },
       { value: 'curiosity-gap', label: '🔍 Curiosity Gap', desc: 'Genera intriga' },
