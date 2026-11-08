@@ -194,8 +194,8 @@ def clasificar_gem(texto: str, precio: float | None) -> str:
 
 def scrape_posts(page, max_scroll: int = 10) -> list[dict]:
     log.info(f"Scrapeando {POST_FEED_URL}...")
-    page.goto(POST_FEED_URL, wait_until="networkidle", timeout=30_000)
-    page.wait_for_timeout(2500)
+    page.goto(POST_FEED_URL, wait_until="domcontentloaded", timeout=60_000)
+    page.wait_for_timeout(3000)
 
     posts = []
     seen = set()
