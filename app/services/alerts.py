@@ -122,8 +122,9 @@ def _sistema(db_path: str, config_path: str) -> List[Dict[str, str]]:
             out.append(_a("sync_antigua", "aviso", f"Las transcripciones llevan {int(h // 24)} días sin actualizarse",
                           "La sincronización automática no está funcionando: mira Registros.", "/registros", "sistema"))
         if ult.get("limitado"):
+            hora = str(ult.get("reintentar_a") or "")[11:16]
             out.append(_a("sync_limitada", "info", "YouTube ha limitado las descargas",
-                          f"Se reintentará solo (a partir de las {str(ult.get('reintentar_a') or '')[11:16] or 'pronto'}).",
+                          "Se reintentará solo " + (f"a partir de las {hora}." if hora else "en el próximo lote automático."),
                           "/transcripciones", "sistema"))
     except Exception:
         out.append(_a("sync_nunca", "info", "Todavía no se han sincronizado transcripciones",
