@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Historial{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Historial y exportar</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="historial()" x-init="init()">
+
+  <div class="flex items-start justify-between flex-wrap" style="margin-bottom:20px;gap:12px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+        Historial · <span style="background:linear-gradient(90deg,#fbbf24,#fb7185);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">todo lo que has generado</span>
+      </h1>
+      <p style="font-size:12px;color:#4a5080;margin:0;">Consulta, busca y descarga en CSV (se abre en Excel con los acentos bien).</p>
+    </div>
+    <a :href="urlCsv" class="btn-primary" style="text-decoration:none;font-size:12px;padding:8px 14px;" download>Descargar CSV</a>
+  </div>
+
+  <div class="flex gap-2 flex-wrap" style="margin-bottom:12px;" role="tablist">
+    <template x-for="t in tipos" :key="t.v">
+      <button role="tab" :aria-selected="tipo === t.v" @click="cambiar(t.v)" :class="tipo === t.v ? 'tab-btn active' : 'tab-btn'" x-text="t.t"></button>
+    </template>
+  </div>
+
+  <div style="margin-bottom:14px;max-width:360px;">
+    <label class="form-label" for="h-buscar">Buscar</label>
+    <input id="h-buscar" x-model="buscar" @input.debounce.350ms="cargar()" type="text" class="input-field" placeholder="Texto a buscar…">
+  </div>
+
+  <div x-show="error" x-cloak role="alert" style="background:rgba(244,63,94,0.08);border:1px solid rgba(251,113,133,0.25);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:#fb7185;" x-text="error"></div>
+
+  <div style="background:#08091a;border:1px solid #1a1d35;border-radius:12px;overflow:auto;">
+    <table class="data-table" x-show="filas.length">
+      <thead><tr><template x-for="c in columnas" :key="c.k"><th x-text="c.t"></th></template></tr></thead>
+      <tbody>
+        <template x-for="(f, i) in filas" :key="i">
+          <tr>
+            <template x-for="c in columnas" :key="c.k">
+              <td style="max-width:320px;"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" :title="texto(f[c.k])" x-text="texto(f[c.k])"></div></td>
+            </template>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+    <p x-show="!filas.length && !cargando" style="font-size:12px;color:#4a5080;text-align:center;padding:40px 0;margin:0;" x-text="buscar ? 'Nada coincide con la búsqueda.' : 'Todavía no hay nada aquí.'"></p>
+  </div>
+
+  <div x-show="filas.length" class="flex items-center justify-between flex-wrap" style="margin-top:12px;gap:12px;">
+    <span style="font-size:11px;color:#4a5080;" x-text="'Mostrando ' + filas.length + ' de ' + total"></span>
+    <button x-show="filas.length < total" @click="cargar(true)" class="btn-ghost" style="font-size:11px;">Cargar más</button>
+  </div>
+</div>
+
+<script>
+function historial() {
+  return {
+    tipo: 'productos', buscar: '', columnas: [], filas: [], total: 0, error: '', cargando: false, _req: 0,
+    tipos: [
+      { v: 'productos', t: 'Productos' }, { v: 'validaciones', t: 'Validaciones' }, { v: 'copys', t: 'Copys' },
+      { v: 'guiones', t: 'Guiones TikTok' }, { v: 'metricas', t: 'Métricas' }, { v: 'transcripciones', t: 'Transcripciones' },
+      { v: 'insights', t: 'Insights KB' }, { v: 'canales', t: 'Canales' },
+    ],
+    get urlCsv() { return '/api/exportar/' + this.tipo + '.csv?buscar=' + encodeURIComponent(this.buscar); },
+    texto(v) { if (v === null || v === undefined) return ''; if (typeof v === 'boolean') return v ? 'sí' : 'no'; return String(v); },
+    init() { this.cargar(); },
+    cambiar(t) { this.tipo = t; this.buscar = ''; this.cargar(); },
+    async cargar(mas = false) {
+      const token = ++this._req; this.cargando = true;
+      try {
+        const p = new URLSearchParams({ limite: 50, offset: mas ? this.filas.length : 0 });
+        if (this.buscar) p.set('buscar', this.buscar);
+        const r = await fetch('/api/historial/' + this.tipo + '?' + p);
+        if (!r.ok) throw new Error('Error ' + r.status);
+        const d = await r.json();
+        if (token !== this._req) return;
+        this.columnas = d.columnas; this.total = d.total; this.filas = mas ? this.filas.concat(d.filas) : d.filas; this.error = '';
+      } catch (e) { if (token === this._req) { this.error = 'No se pudo cargar el historial: ' + e.message; this.filas = []; } }
+      finally { if (token === this._req) this.cargando = false; }
+    },
+  };
+}
+</script>
+{% endblock %}
