@@ -27,6 +27,10 @@ from app.services.youtube_rss_fetcher import RateLimited, download_transcript, f
 # Pausa aleatoria entre descargas (s) y esperas ante HTTP 429 de YouTube (s)
 PAUSA_ENTRE_DESCARGAS = (6.0, 14.0)
 ESPERAS_429 = (60, 180, 420)
+# YouTube corta tras ~15-20 descargas de subtítulos seguidas y tarda más de 15 min en
+# levantar el bloqueo: se trabaja por lotes y, si aun así bloquea, se deja enfriar.
+MAX_DESCARGAS_POR_SYNC = 15
+COOLDOWN_429_MIN = 45
 
 _YOUTUBE_CHANNEL_RE = re.compile(
     r"^(?:https?://)?(?:www\.)?youtube\.com/"
@@ -57,6 +61,7 @@ class YouTubeChannelMonitor:
         self.config_path = config_path
         self._last_sync_path = Path(config_path).with_name("last_sync.json")
         self._descartados_path = Path(config_path).with_name("videos_descartados.json")
+        self._cooldown_path = Path(config_path).with_name("sync_cooldown.json")
         self.cleaner = TranscriptCleaner()
         self.monitor_log: List[Dict] = []
         self.ultimo_error = ""
@@ -206,6 +211,25 @@ class YouTubeChannelMonitor:
             os.replace(tmp, self._descartados_path)
         except Exception as e:
             print(f"[WARN] No se pudo guardar videos_descartados.json: {e}")
+
+    def cooldown_hasta(self) -> Optional[datetime]:
+        """Hasta cuándo no conviene volver a descargar (tras un 429), o None."""
+        try:
+            hasta = datetime.fromisoformat(
+                json.loads(self._cooldown_path.read_text(encoding="utf-8"))["hasta"])
+            return hasta if hasta > datetime.now() else None
+        except Exception:
+            return None
+
+    def _iniciar_cooldown(self) -> datetime:
+        from datetime import timedelta
+        hasta = datetime.now() + timedelta(minutes=COOLDOWN_429_MIN)
+        try:
+            self._cooldown_path.write_text(
+                json.dumps({"hasta": hasta.isoformat(timespec="seconds")}), encoding="utf-8")
+        except Exception as e:
+            print(f"[WARN] No se pudo guardar sync_cooldown.json: {e}")
+        return hasta
 
     def _esperar(self, segundos: float) -> bool:
         """Espera en tramos de 1 s; devuelve False si se canceló mientras tanto."""

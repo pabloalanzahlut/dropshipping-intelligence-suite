@@ -1,0 +1,79 @@
+```json
+{
+  "respuesta": "No cumple la regla del multiplicador mínimo de 3x. Con costo de producto de $6 y envío de $2 (costo total $8), el precio de venta de $15 equivale a 1.875x sobre el costo total y a 2.5x sobre el costo de producto. Para cumplir 3x sobre el costo total, el precio mínimo es $24. Si la regla se aplica solo al costo del producto, el precio mínimo es $18.",
+  "tipo_consulta": "metrica",
+  "datos": [
+    {
+      "concepto": "Costo de producto",
+      "valor_usd": 6,
+      "fuente": "Dato aportado por el operador"
+    },
+    {
+      "concepto": "Costo de envío",
+      "valor_usd": 2,
+      "fuente": "Dato aportado por el operador"
+    },
+    {
+      "concepto": "Costo total (producto + envío)",
+      "valor_usd": 8,
+      "calculo": "6 + 2"
+    },
+    {
+      "concepto": "Precio de venta propuesto",
+      "valor_usd": 15,
+      "fuente": "Dato aportado por el operador"
+    },
+    {
+      "concepto": "Multiplicador sobre costo total",
+      "valor": 1.875,
+      "calculo": "15 / 8",
+      "cumple_3x": false
+    },
+    {
+      "concepto": "Multiplicador sobre costo de producto",
+      "valor": 2.5,
+      "calculo": "15 / 6",
+      "cumple_3x": false
+    },
+    {
+      "concepto": "Precio mínimo para 3x sobre costo total",
+      "valor_usd": 24,
+      "calculo": "8 × 3"
+    },
+    {
+      "concepto": "Precio mínimo para 3x sobre costo de producto",
+      "valor_usd": 18,
+      "calculo": "6 × 3"
+    },
+    {
+      "concepto": "Rango de coste de producto (regla financiera primaria)",
+      "valor": "5-15 USD",
+      "cumple": true,
+      "fuente": "Jerarquía de fuentes: Adrián Sáenz (fuente primaria)"
+    },
+    {
+      "concepto": "ROAS mínimo",
+      "valor": 2,
+      "evaluable": false,
+      "motivo": "[DATA_GAP: gasto publicitario por venta / CPA previsto]"
+    }
+  ],
+  "fuentes": [
+    "Gobernanza global: Regla del 3x en costos (Agente Cazador de Tendencias / Product Hunter)",
+    "Jerarquía de fuentes: regla financiera de Adrián Sáenz (coste $5-15, ROAS mínimo 2)"
+  ],
+  "confianza": "Alta",
+  "notas": [
+    "No se encontró ningún insight de Adrián Sáenz en el contexto KB inyectado. Las reglas usadas proceden de la gobernanza global y de la jerarquía de fuentes, no de los insights KB.",
+    "Los insights KB del contexto proceden de Marc Verdú (canal complementario). No se citan porque no aportan datos financieros para esta validación.",
+    "Se asume que $6, $2 y $15 están expresados en USD, según el enunciado.",
+    "La validación no incluye costos de pasarela de pago, impuestos ni comisiones de plataforma, porque no fueron proporcionados ([DATA_GAP: comisiones_plataforma]).",
+    "Los valores financieros son cálculos sobre datos del operador y no garantizan resultados de venta."
+  ],
+  "fecha_consulta": "[DATA_GAP: fecha_consulta]",
+  "bitacora": {
+    "decision": "FORMAT_VALIDO / REGLA_3X_NO_CUMPLIDA",
+    "accion_recomendada": "Ajustar el precio a un mínimo de $24 (base costo total) o $18 (base costo de producto), o reducir costos de origen, antes de avanzar a pauta."
+  }
+}
+```
