@@ -133,7 +133,11 @@ class RulesValidator:
             return False, f"No se pudo crear: {str(e)}"
 
     def _check_business_rules(self) -> Tuple[bool, str]:
-        rules_hints = {'Regla 3x': '* 3', 'Margen': '70%', 'Peso': '1.2 kg', 'AIDA': 'AIDA', 'Superlativos': 'superlativos'}
+        # Reglas que agent.md debe contener: las del curso de Adrián Sáenz. Antes se exigían
+        # «Margen 70%» y «Peso 1.2 kg», que el curso NO fija y se retiraron de agent.md;
+        # con ellas el pre-flight fallaba siempre y bloqueaba a todos los agentes.
+        rules_hints = {'Mínimo 2x': '* 2', 'Objetivo 3x': '* 3', 'ROAS': 'ROAS',
+                       'AIDA': 'AIDA', 'Superlativos': 'superlativos'}
         if not self.agent_md_content:
             return False, "agent.md no cargado"
         missing = [n for n, h in rules_hints.items() if h.lower() not in self.agent_md_content.lower()]
