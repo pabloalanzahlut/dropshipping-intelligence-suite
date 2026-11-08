@@ -35,7 +35,7 @@ from pydantic import BaseModel
 
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
-from app.services import transcript_store
+from app.services import agent_router, transcript_store
 
 log = logging.getLogger(__name__)
 
@@ -273,7 +273,7 @@ class TikTokIn(BaseModel):
 
 class KBQueryIn(BaseModel):
     pregunta: str
-    agente: str = "gem-orchestrator-core"
+    agente: str = "auto"      # "auto" = el router elige según el tipo de pregunta
     proyecto: str = "kb_consulta"
 
 
@@ -705,27 +705,32 @@ async def api_pipeline_status() -> Dict[str, Any]:
 
 
 @app.get("/api/kb/stream")
-async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "gem-orchestrator-core"):
-    """SSE: emite la respuesta del agente KB carácter a carácter (simulado streaming)."""
+async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "auto"):
+    """SSE: emite la respuesta del agente KB carácter a carácter (simulado streaming).
+    Con agente="auto" (por defecto) reconoce el tipo de pregunta y elige el agente;
+    el primer evento ({"route": ...}) dice cuál se eligió y por qué."""
     async def _generator() -> AsyncGenerator[str, None]:
         if not pregunta.strip():
-            yield f"data: {json.dumps({'token': '[ERROR] Pregunta vacía'})}\n\n"
+            yield f"data: {json.dumps({'error': 'La pregunta está vacía.'})}\n\n"
             return
         try:
             from app.agents_engine.executor import AgentExecutor
+            ruta = agent_router.elegir_agente(pregunta, agente)
+            yield f"data: {json.dumps({'route': ruta}, ensure_ascii=False)}\n\n"
             executor = AgentExecutor()
             kb_context = _build_kb_context(30)
             pregunta_enriquecida = (
                 f"CONTEXTO KB (últimos insights del sistema):\n"
                 f"---\n{kb_context}\n---\n\n"
+                f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}\n"
                 f"PREGUNTA DEL OPERADOR:\n{pregunta}"
             )
             # Ejecutar en hilo (es síncrono) y emitir por chunks
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             resultado = await loop.run_in_executor(
                 None,
                 lambda: executor.execute_agent_task(
-                    agent_name=agente,
+                    agent_name=ruta["agente"],
                     skill_name="consultar_kb_agente",
                     project_name="kb_stream",
                     user_request=pregunta_enriquecida,
@@ -740,7 +745,7 @@ async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "gem
                 chunk = resultado[i:i + chunk_size]
                 yield f"data: {json.dumps({'token': chunk}, ensure_ascii=False)}\n\n"
                 await asyncio.sleep(0.015)
-            yield f"data: {json.dumps({'done': True, 'raw': resultado}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'done': True, 'raw': resultado, 'route': ruta}, ensure_ascii=False)}\n\n"
         except Exception as exc:
             yield f"data: {json.dumps({'error': str(exc)})}\n\n"
 
@@ -957,6 +962,25 @@ def _build_kb_context(limit: int = 30) -> str:
 
 # ─── Agente IA endpoint ───────────────────────────────────────────────────────
 
+@app.get("/api/kb/ruta")
+async def api_kb_ruta(pregunta: str = Query("", max_length=2000),
+                      agente: str = "auto") -> Dict[str, Any]:
+    """Qué agente atenderá la pregunta y por qué (se muestra en vivo mientras se escribe)."""
+    return agent_router.elegir_agente(pregunta, agente)
+
+
+@app.get("/api/kb/agentes")
+async def api_kb_agentes() -> List[Dict[str, Any]]:
+    """Agentes disponibles con el modelo REAL que usa el motor (no etiquetas a mano)."""
+    from app.agents_engine.executor import AGENT_MODEL_MAP, AGENT_TEMP_MAP
+    return [
+        {"nombre": nombre, "rol": info["rol"], "descripcion": info["descripcion"],
+         "modelo": AGENT_MODEL_MAP.get(nombre, "desconocido"),
+         "temperatura": AGENT_TEMP_MAP.get(nombre)}
+        for nombre, info in agent_router.AGENTES.items()
+    ]
+
+
 @app.post("/api/kb/sync")
 async def api_kb_sync(background_tasks: BackgroundTasks) -> Dict[str, Any]:
     """Regenera kb_index.json y los archivos kb_*.md desde SQLite."""
@@ -979,15 +1003,17 @@ async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
     """Envía una pregunta al AgentExecutor con contexto KB inyectado desde SQLite."""
     try:
         from app.agents_engine.executor import AgentExecutor
+        ruta = agent_router.elegir_agente(data.pregunta, data.agente)
         executor = AgentExecutor()
         kb_context = _build_kb_context(30)
         pregunta_enriquecida = (
             f"CONTEXTO KB (últimos insights del sistema):\n"
             f"---\n{kb_context}\n---\n\n"
+            f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}\n"
             f"PREGUNTA DEL OPERADOR:\n{data.pregunta}"
         )
         resultado = executor.execute_agent_task(
-            agent_name=data.agente,
+            agent_name=ruta["agente"],
             skill_name="consultar_kb_agente",
             project_name=data.proyecto,
             user_request=pregunta_enriquecida,
@@ -996,7 +1022,7 @@ async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
             parsed = json.loads(_strip_md_fences(resultado))
         except (json.JSONDecodeError, TypeError):
             parsed = {"respuesta": resultado}
-        return {"status": "ok", "agente": data.agente, "resultado": parsed}
+        return {"status": "ok", "agente": ruta["agente"], "ruta": ruta, "resultado": parsed}
     except RuntimeError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
     except Exception as exc:
