@@ -87,8 +87,8 @@ function registros() {
       const r = await fetch('/api/mantenimiento/ejecutar', { method: 'POST' });
       if (!r.ok) { Alpine.store('toast').error((await r.json().catch(() => ({}))).detail || 'No se pudo iniciar el mantenimiento.'); return; }
       this.mant.en_curso = true;
-      Alpine.store('toast').info('Mantenimiento en marcha: tarda un minuto aproximadamente.');
-      for (let i = 0; i < 60 && this.mant.en_curso; i++) { await new Promise(s => setTimeout(s, 3000)); await this.cargarMant(); }
+      Alpine.store('toast').info('Mantenimiento en marcha: comprobar los canales tarda unos minutos (≈12 s por canal).');
+      for (let i = 0; i < 240 && this.mant.en_curso; i++) { await new Promise(s => setTimeout(s, 5000)); await this.cargarMant(); }
       if (!this.mant.en_curso) { Alpine.store('toast').ok('Mantenimiento terminado.'); this.cargar(); }
     },
     programar() { clearInterval(this._t); if (this.auto) this._t = setInterval(() => this.cargar(), 5000); },

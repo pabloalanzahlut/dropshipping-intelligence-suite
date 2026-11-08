@@ -25,6 +25,7 @@ from app.services import channel_store
 
 _LOCK = threading.Lock()
 PAUSA_ENTRE_CANALES = 2.0       # s: 29 comprobaciones seguidas despertarían el límite de YouTube
+                                # (cada comprobación ya tarda ≈10 s: la pasada completa son unos 6 min)
 MAX_CANALES_POR_PASADA = 40
 DIAS_TEMPORALES = 2
 UMBRAL_ESPACIO_MUERTO = 0.20    # VACUUM solo si más del 20 % de las páginas están libres
