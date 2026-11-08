@@ -21,6 +21,23 @@ from app.ui.themes.design_tokens import (
 )
 
 
+
+def _rgba_to_hex(color: str, background: str = "#000000") -> str:
+    """Tk no entiende 'rgba(r, g, b, a)': lo mezcla con el fondo y devuelve '#rrggbb'."""
+    import re as _re
+    m = _re.match(r"rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)", color or "")
+    if not m:
+        return color
+    r, g, b = (int(m.group(k)) for k in (1, 2, 3))
+    a = float(m.group(4)) if m.group(4) is not None else 1.0
+    bg = background.lstrip("#")
+    if len(bg) != 6:
+        bg = "000000"
+    br, bgc, bb = (int(bg[k:k + 2], 16) for k in (0, 2, 4))
+    mix = lambda fg, back: max(0, min(255, round(fg * a + back * (1 - a))))
+    return "#{:02x}{:02x}{:02x}".format(mix(r, br), mix(g, bgc), mix(b, bb))
+
+
 class ModernButton(tk.Canvas):
     """Botón personalizado con efectos neon y glassmorphism."""
     
@@ -140,7 +157,7 @@ class GlassCard(tk.Canvas):
         
         # Inner glow
         self.create_rectangle(4, 4, w-4, h-4,
-                            fill="", outline=self.gradient["inner_glow"],
+                            fill="", outline=_rgba_to_hex(self.gradient["inner_glow"], self.gradient["start"]),
                             width=1, tags="glow")
         
         # Título

@@ -146,15 +146,15 @@ class GEMOSApplication:
     def _create_panels(self):
         """Crea todos los paneles en frames apilables con lazy loading."""
         specs = [
-            ("Dashboard", lambda: DashboardPanel(self._pc, db_manager=self.db_manager)),
-            ("Validador", lambda: FinancialValidatorPanel(self._pc, db_manager=self.db_manager)),
-            ("YouTube", lambda: YouTubeMonitorPanel(self._pc, db_manager=self.db_manager)),
-            ("Copys", lambda: CopywritingPanel(self._pc, db_manager=self.db_manager)),
-            ("TikTok", lambda: TikTokPanel(self._pc, db_manager=self.db_manager)),
-            ("Gobernanza", lambda: GovernancePanel(self._pc, db_manager=self.db_manager)),
-            ("Enrutador", lambda: OllamaPanel(self._pc, db_manager=self.db_manager)),
-            ("Ingesta", self._build_console),
-            ("Agente IA", lambda: KBAgentPanel(self._pc, db_manager=self.db_manager)),
+            ("Dashboard", lambda parent: DashboardPanel(parent, db_manager=self.db_manager)),
+            ("Validador", lambda parent: FinancialValidatorPanel(parent, db_manager=self.db_manager)),
+            ("YouTube", lambda parent: YouTubeMonitorPanel(parent, db_manager=self.db_manager)),
+            ("Copys", lambda parent: CopywritingPanel(parent, db_manager=self.db_manager)),
+            ("TikTok", lambda parent: TikTokPanel(parent, db_manager=self.db_manager)),
+            ("Gobernanza", lambda parent: GovernancePanel(parent, db_manager=self.db_manager)),
+            ("Enrutador", lambda parent: OllamaPanel(parent, db_manager=self.db_manager)),
+            ("Ingesta", lambda parent: self._build_console()),
+            ("Agente IA", lambda parent: KBAgentPanel(parent, db_manager=self.db_manager)),
         ]
         self._panel_factories = specs
         self._panel_loaded = [False] * len(specs)
@@ -166,11 +166,13 @@ class GEMOSApplication:
             ttk.Label(f, text="Cargando...", foreground="#888").pack(pady=20)
             self._panels.append(f)
         self._panel_loaded[0] = True
+        for w in self._panels[0].winfo_children():
+            w.destroy()
         try:
-            p = specs[0][1]()
+            # El panel debe nacer DENTRO de su frame: si no, al cambiar de pestaña
+            # el frame se oculta pero el panel (hijo de _pc) sigue visible.
+            p = specs[0][1](self._panels[0])
             self._panels[0].panel_ref = p
-            for w in self._panels[0].winfo_children():
-                w.destroy()
             p.grid(row=0, column=0, sticky="nsew")
             self._panels[0].columnconfigure(0, weight=1)
             self._panels[0].rowconfigure(0, weight=1)
@@ -207,7 +209,7 @@ class GEMOSApplication:
         for w in frame.winfo_children():
             w.destroy()
         try:
-            panel = factory()
+            panel = factory(frame)
             frame.panel_ref = panel
             panel.grid(row=0, column=0, sticky="nsew")
             frame.columnconfigure(0, weight=1)

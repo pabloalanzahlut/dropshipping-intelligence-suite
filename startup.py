@@ -11,7 +11,8 @@ Uso:
 
 Variables de entorno relevantes:
     GEM_OS_DATA_DIR   — Ruta de datos (default: ./data)
-    DASHBOARD_PORT    — Puerto del servidor (default: 8050)
+    DASHBOARD_PORT    — Puerto del servidor (default: 47821)
+    GEM_OS_HOST       — Interfaz (default: 127.0.0.1 = solo este PC; 0.0.0.0 para publicarlo)
     DISABLE_OLLAMA    — Desactiva capa Ollama (recomendado en servidor)
 """
 import argparse
@@ -42,7 +43,7 @@ log = logging.getLogger("gem_os.startup")
 
 def main():
     parser = argparse.ArgumentParser(description="GEM OS — Arranque del servidor web")
-    parser.add_argument("--host", default=os.getenv("GEM_OS_HOST", "0.0.0.0"))
+    parser.add_argument("--host", default=os.getenv("GEM_OS_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.getenv("DASHBOARD_PORT", "47821")))
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--reload", action="store_true", help="Hot-reload (solo desarrollo)")

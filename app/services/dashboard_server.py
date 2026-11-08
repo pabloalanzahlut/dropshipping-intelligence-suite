@@ -1194,4 +1194,7 @@ _FALLBACK_HTML = """<!DOCTYPE html>
 
 # ── Ejecución directa ─────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=DASHBOARD_PORT, log_level="info")
+    # Solo local por defecto: el servidor no tiene login y expone acciones de
+    # borrado/ingesta. Para publicarlo (VPS) hay que pedirlo: GEM_OS_HOST=0.0.0.0
+    uvicorn.run(app, host=os.getenv("GEM_OS_HOST", "127.0.0.1"),
+                port=DASHBOARD_PORT, log_level="info")
