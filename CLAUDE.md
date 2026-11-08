@@ -31,20 +31,24 @@ Los canales complementarios **añaden valor** sin reemplazar ni modificar ningun
 
 ## REGLAS FINANCIERAS
 
-Fuente única: curso Adrián Sáenz (`Q4Ykcwh5Osc`). Solo se aplican reglas que el curso dice explícitamente. No se inventa ninguna.
+→ **Detalle completo en [`.claude/memory/reglas-financieras.md`](.claude/memory/reglas-financieras.md)**
 
-| Regla | Valor | Timestamp | Acción si falla |
-|-------|-------|-----------|-----------------|
-| Multiplicador mínimo | PVP ≥ 2× costo origen | 24:40 | RECHAZAR producto |
-| Multiplicador objetivo | PVP ≥ 3× costo origen | 24:40 | ADVERTIR — subir si el producto lo permite |
-| Coste de origen | $5–15 recomendado | 17:50 | ADVERTIR fuera de rango |
-| ROAS mínimo | ≥ 2 en campañas activas | 09:40 | ADVERTIR si no se alcanza |
-| Presupuesto test | 15 €/día como base | 11:06 | Referencia de escalado |
-| Baterías de litio sueltas | Prohibido | — | RECHAZAR (restricción aduanera) |
+Lo esencial, siempre vigente:
 
-**El curso NO menciona:** umbral de margen %, límite de peso en kg. Esas reglas no existen.
+| Regla | Valor | Fuente |
+|-------|-------|--------|
+| Multiplicador mínimo | PVP ≥ 2× **coste landed** (producto + envío) | `Q4Ykcwh5Osc 24:40` |
+| Multiplicador objetivo | PVP ≥ 3× **coste landed** | `Q4Ykcwh5Osc 24:40` |
+| Coste de origen | $5–15 | `Q4Ykcwh5Osc 17:50` |
+| ROAS mínimo | ≥ 2 (medido real, no el que declara Meta) | `Q4Ykcwh5Osc 09:40` |
+| Fees Shopify + divisa | 4,0% de facturación | `rqMrq2MGdpw` P&L |
+| Cancelaciones y devoluciones | 10,1% de facturación | `rqMrq2MGdpw` P&L |
+| Baterías de litio sueltas | Prohibido | restricción aduanera |
 
-Ejemplo real del curso (23:54): 21 € → 49,99 € = **2,38×, 58% de margen** → VALIDADO con advertencia de subir a x3.
+**El multiplicador va sobre coste landed, nunca sobre el producto solo.** $5 + $2 de envío
+vendido a $15 aparenta 3,0× cuando es 2,14×.
+
+**El curso NO menciona:** umbral de margen %, límite de peso en kg. No se aplican.
 
 ---
 
