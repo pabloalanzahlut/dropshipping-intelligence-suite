@@ -124,15 +124,25 @@ def check_aritmetica_financiera(
     costo_envio: float,
     pvp: float,
     multiplicador_declarado: float,
+    fx_rate: float = 1.0,
     tolerancia: float = 0.01,
 ) -> GateResult:
     """
-    Recalcula el multiplicador y lo compara con el que declaró el agente.
+    Recalcula el multiplicador desde los costes crudos y lo compara con el
+    que declaró el agente.
 
     Este es el equivalente a recompilar el binario y compararlo: si el número
     no cuadra, no cuenta, sin importar cómo lo justifique el agente.
+
+    El recálculo parte siempre de los inputs originales (coste producto, coste
+    envío, tipo de cambio) — nunca del coste landed que venga ya calculado en
+    la salida, que es justo el valor que se quiere verificar.
+
+    Args:
+        fx_rate: tipo aplicado si el coste y el PVP están en divisas distintas.
+                 1.0 cuando comparten divisa.
     """
-    landed = costo_origen + costo_envio
+    landed = (costo_origen + costo_envio) * fx_rate
     if landed <= 0:
         return GateResult(
             passed=False,
@@ -149,7 +159,8 @@ def check_aritmetica_financiera(
     if not ok:
         violaciones.append(
             f"Multiplicador declarado {multiplicador_declarado:.2f}x no coincide con "
-            f"el real {real:.2f}x (PVP ${pvp:.2f} / landed ${landed:.2f}). "
+            f"el real {real:.2f}x (PVP {pvp:.2f} / landed {landed:.2f} "
+            f"[({costo_origen} + {costo_envio}) × fx {fx_rate}]). "
             f"Desvío {desvio:.2f} supera la tolerancia {tolerancia}"
         )
 
@@ -159,6 +170,7 @@ def check_aritmetica_financiera(
         violations=violaciones,
         evidence={
             "costo_landed": round(landed, 2),
+            "fx_rate": fx_rate,
             "multiplicador_real": round(real, 2),
             "multiplicador_declarado": multiplicador_declarado,
             "desvio": round(desvio, 4),
