@@ -285,7 +285,7 @@ def actualizar_kb(posts: list[dict]) -> int:
     with open(KB_PATH, "w", encoding="utf-8") as f:
         json.dump(existentes + nuevos, f, ensure_ascii=False, indent=2)
 
-    log.info(f"✓ KB actualizada: +{len(nuevos)} nuevos | {len(existentes)+len(nuevos)} total")
+    log.info(f"KB actualizada: +{len(nuevos)} nuevos | {len(existentes)+len(nuevos)} total")
     return len(nuevos)
 
 
