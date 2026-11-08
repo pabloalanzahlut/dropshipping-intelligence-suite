@@ -21,6 +21,7 @@
 | F-008 | DEPENDABOT/VERSION_NONEXISTENT | no matching distribution found | Verificar con pip index versions | 1 |
 | F-009 | SECRETS_SECURITY/COOKIES_TRACKED | cookies de sesión (auth_token jwt) versionadas en git | git rm --cached + .gitignore *cookies*.json | 1 |
 | F-010 | SECRETS_SECURITY/PLAYWRIGHT_DATA | grabaciones playwright de sesiones autenticadas en git | git rm --cached .playwright-mcp/ + .gitignore | 1 |
+| F-011 | SECRETS_SECURITY/HISTORY_LEAK | secret en historial de git (cualquier archivo) | git filter-repo --path <archivo> --invert-paths --force + force push | 2 |
 
 ---
 
