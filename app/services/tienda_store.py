@@ -295,6 +295,7 @@ def resumen(db_path: str, dias: int = 30, hoy: Optional[date] = None) -> Dict[st
             "SELECT * FROM tienda_pedidos WHERE fecha BETWEEN ? AND ? ORDER BY fecha", (desde, hasta))]
         lineas = [dict(r) for r in conn.execute(
             """SELECT l.pedido_id, l.titulo, l.sku, l.cantidad, l.precio_unit, l.variante_id,
+                      p.total AS pedido_total, p.reembolsado AS pedido_reembolsado,
                       v.coste AS coste, v.producto_id, v.producto
                FROM tienda_lineas l JOIN tienda_pedidos p ON p.pedido_id = l.pedido_id
                LEFT JOIN tienda_variantes v ON v.variante_id = l.variante_id
@@ -322,7 +323,9 @@ def resumen(db_path: str, dias: int = 30, hoy: Optional[date] = None) -> Dict[st
     prods: Dict[str, Dict[str, Any]] = {}
     ingreso_lineas = ingreso_con_coste = 0.0
     for l in lineas:
-        ing = l["precio_unit"] * l["cantidad"]
+        # El reembolso del pedido se reparte a prorrata entre sus líneas (Shopify no lo da por línea aquí)
+        quedan = max(0.0, 1 - l["pedido_reembolsado"] / l["pedido_total"]) if l["pedido_total"] > 0 else 1.0
+        ing = l["precio_unit"] * l["cantidad"] * quedan
         clave = l["producto_id"] or l["titulo"]
         d = prods.setdefault(clave, {"producto": l["producto"] or l["titulo"], "unidades": 0, "ingresos": 0.0,
                                      "ingresos_con_coste": 0.0, "coste": 0.0})
