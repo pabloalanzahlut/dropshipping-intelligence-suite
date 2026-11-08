@@ -192,6 +192,8 @@ class GEMOSApplication:
 
     def _show(self, idx: int):
         """Muestra panel idx con lazy loading."""
+        if hasattr(self, "sidebar"):
+            self.sidebar.seleccionar(idx)
         for i, f in enumerate(self._panels):
             if i == idx:
                 f.grid()  # Show via grid (was hidden with grid_remove)

@@ -206,6 +206,13 @@ class Sidebar(tk.Frame):
         )
         self.toggle_btn.pack(fill=tk.X, padx=8)
     
+    def seleccionar(self, index: int):
+        """Marca el elemento activo sin ejecutar su acción (para cambios hechos por código)."""
+        if 0 <= index < len(self.buttons):
+            for i, btn in enumerate(self.buttons):
+                btn.set_active(i == index)
+            self.active_index = index
+
     def _on_item_click(self, index: int):
         """Maneja el click en un item del sidebar."""
         # Actualizar botón activo

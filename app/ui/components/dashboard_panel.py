@@ -98,11 +98,12 @@ class DashboardPanelV3(tk.Frame):
         right_col = tk.Frame(content_frame, bg=COLOR_BG_PRIMARY)
         right_col.grid(row=0, column=1, sticky="nsew", padx=(SPACING.md, 0))
         
-        # Tablas en columna izquierda
+        # Igual que el Dashboard web: canales y validaciones a la izquierda;
+        # insights de la KB y estado del proceso a la derecha
+        self._build_canales(left_col)
         self._build_tables(left_col)
-        
-        # Gráficos en columna derecha
-        self._build_charts(right_col)
+        self._build_insights(right_col)
+        self._build_estado(right_col)
 
     def _build_header(self, parent):
         """Header moderno con título y controles."""
@@ -232,6 +233,93 @@ class DashboardPanelV3(tk.Frame):
         
         return card
 
+    def _build_canales(self, parent):
+        """Tabla de canales (como «Canales Favoritos» de la web)."""
+        sec = self._create_section(parent, "📡 Canales", COLOR_PRIMARY)
+        sec.pack(fill=tk.BOTH, expand=True, pady=(0, SPACING.md))
+        self.canales_tree = self._create_table(
+            sec, columns=["Canal", "Transcr.", "Filtro", "Estado"], col_widths=[170, 70, 90, 100])
+        self.canales_tree.configure(height=6)
+        self.canales_tree.pack(fill=tk.BOTH, expand=True)
+
+    def _build_insights(self, parent):
+        """Últimos insights de la KB (como «Últimos Insights» de la web)."""
+        sec = self._create_section(parent, "⚡ Últimos Insights", COLOR_SECONDARY)
+        sec.pack(fill=tk.BOTH, expand=True, pady=(0, SPACING.md))
+        self.insights_tree = self._create_table(
+            sec, columns=["Producto", "Canal", "Fecha"], col_widths=[200, 110, 80])
+        self.insights_tree.configure(height=6)
+        self.insights_tree.pack(fill=tk.BOTH, expand=True)
+
+    def _build_estado(self, parent):
+        """Estado del proceso: KB, última sincronización y avisos."""
+        sec = self._create_section(parent, "🛰 Estado del proceso", COLOR_SUCCESS)
+        sec.pack(fill=tk.BOTH, expand=True)
+        self.estado_label = tk.Label(sec, text="—", justify=tk.LEFT, anchor="nw", wraplength=420,
+                                     font=FONT_BODY_SM, fg=COLOR_TEXT_SECONDARY, bg=COLOR_BG_CARD)
+        self.estado_label.pack(fill=tk.BOTH, expand=True)
+
+    def _update_extra(self):
+        """Canales, insights y estado: los mismos datos que muestra la web."""
+        import json
+        import sqlite3
+        from pathlib import Path
+        from app.config.path_manager import PathManager
+        from app.services import channel_store
+
+        rutas = PathManager.get_paths()
+        db = self.db_manager.db_path
+        # Canales
+        self.canales_tree.delete(*self.canales_tree.get_children())
+        problemas = 0
+        try:
+            canales = channel_store.listar(str(rutas["config"]), db)
+        except Exception:
+            canales = []
+        for i, c in enumerate(canales):
+            estado = ("Inactivo" if not c["activo"] else
+                      "404 — revisar" if c["ultimo_estado"] == "no_encontrado" else
+                      "OK" if c["ultimo_estado"] == "ok" else "Sin verificar")
+            problemas += c["ultimo_estado"] == "no_encontrado"
+            self.canales_tree.insert("", tk.END, values=[
+                c["nombre"], c["transcripciones"], "Solo ecommerce" if c["filtro_tema"] else "Sin filtro", estado],
+                tags=("even" if i % 2 == 0 else "odd",))
+        # Insights
+        self.insights_tree.delete(*self.insights_tree.get_children())
+        kb = {"product_trends": 0, "conversion_formulas": 0, "operations_traffic": 0}
+        try:
+            with sqlite3.connect(db, timeout=10) as conn:
+                filas = conn.execute(
+                    """SELECT CASE WHEN t.product_name = 'Producto Extraído por IA'
+                                   THEN 'Sin nombre · ' || COALESCE(t.niche, '') ELSE t.product_name END,
+                              COALESCE(v.channel_name, '?'), substr(COALESCE(t.validated_at, ''), 1, 10)
+                       FROM product_trends t LEFT JOIN video_sources v ON v.video_id = t.video_id
+                       ORDER BY t.id DESC LIMIT 12""").fetchall()
+                for t in kb:
+                    kb[t] = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+        except sqlite3.Error:
+            filas = []
+        for i, f in enumerate(filas):
+            self.insights_tree.insert("", tk.END, values=list(f), tags=("even" if i % 2 == 0 else "odd",))
+        # Estado
+        lineas = [f"Base de conocimiento: {kb['product_trends']} productos · "
+                  f"{kb['conversion_formulas']} fórmulas · {kb['operations_traffic']} notas de operaciones"]
+        try:
+            ult = json.loads(Path(str(rutas["config"])).with_name("last_sync.json").read_text(encoding="utf-8"))
+            texto = (f"Última sincronización ({str(ult.get('fecha_sincronizacion', ''))[:16].replace('T', ' ')}): "
+                     f"{ult.get('transcripciones_procesadas', 0)} nuevas · {ult.get('fuera_de_tema', 0)} fuera de tema · "
+                     f"{ult.get('errores', 0)} errores")
+            if ult.get("limitado"):
+                texto += f" · YouTube limitó las descargas (reintenta desde las {str(ult.get('reintentar_a', ''))[11:16]})"
+            elif ult.get("lote_completo"):
+                texto += " · lote completo (sincroniza de nuevo en ~30 min)"
+            lineas.append(texto)
+        except Exception:
+            lineas.append("Aún no hay sincronizaciones de transcripciones.")
+        if problemas:
+            lineas.append(f"⚠ {problemas} canal(es) no se encuentran (404): revísalos en la pestaña YouTube.")
+        self.estado_label.config(text="\n\n".join(lineas))
+
     def _build_tables(self, parent):
         """Construir sección de tablas."""
         # Tabla de validaciones
@@ -273,7 +361,7 @@ class DashboardPanelV3(tk.Frame):
 
     def _create_table(self, parent, columns, col_widths):
         """Crear tabla minimalista."""
-        table = ttk.Treeview(parent, columns=columns, height=8, show="headings")
+        table = ttk.Treeview(parent, columns=columns, height=5, show="headings")
         
         for col, width in zip(columns, col_widths):
             table.heading(col, text=col, anchor="center")
@@ -326,7 +414,7 @@ class DashboardPanelV3(tk.Frame):
             stats = self._fetch_statistics()
             self._update_kpis(stats)
             self._update_tables(stats)
-            self._draw_charts()
+            self._update_extra()
             self.timestamp_label.config(
                 text=f"Última actualización: {datetime.now().strftime('%H:%M:%S')}"
             )
