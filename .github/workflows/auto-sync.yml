@@ -22,18 +22,22 @@ jobs:
           echo "Commit: ${{ github.sha }}"
 
       - name: Check secrets configured
+        env:
+          _MAKE_WEBHOOK_TIKTOK: ${{ secrets.MAKE_WEBHOOK_TIKTOK }}
+          _OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          _REMOVEBG_API_KEY: ${{ secrets.REMOVEBG_API_KEY }}
         run: |
-          if [ -z "${{ secrets.MAKE_WEBHOOK_TIKTOK }}" ]; then
+          if [ -z "$_MAKE_WEBHOOK_TIKTOK" ]; then
             echo "⚠️ WARNING: MAKE_WEBHOOK_TIKTOK no configurado en Secrets"
           else
             echo "✅ MAKE_WEBHOOK_TIKTOK configurado"
           fi
-          if [ -z "${{ secrets.OPENROUTER_API_KEY }}" ]; then
+          if [ -z "$_OPENROUTER_API_KEY" ]; then
             echo "⚠️ WARNING: OPENROUTER_API_KEY no configurado en Secrets"
           else
             echo "✅ OPENROUTER_API_KEY configurado"
           fi
-          if [ -z "${{ secrets.REMOVEBG_API_KEY }}" ]; then
+          if [ -z "$_REMOVEBG_API_KEY" ]; then
             echo "⚠️ WARNING: REMOVEBG_API_KEY no configurado en Secrets"
           else
             echo "✅ REMOVEBG_API_KEY configurado"
