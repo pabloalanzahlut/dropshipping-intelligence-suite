@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Arranca el servidor web de GEM OS en segundo plano (sin ventana de consola).
 

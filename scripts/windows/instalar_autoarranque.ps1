@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Hace que GEM OS arranque solo al iniciar sesión en Windows (tarea programada del usuario).
 

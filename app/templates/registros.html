@@ -21,6 +21,26 @@
     </label>
   </div>
 
+  <!-- Mantenimiento automático (domingos 04:00) -->
+  <section class="card" style="margin-bottom:16px;padding:14px 18px;" aria-labelledby="mant-titulo">
+    <div class="flex items-center justify-between flex-wrap" style="gap:10px;">
+      <div>
+        <h2 id="mant-titulo" class="section-title" style="margin-bottom:4px;">Mantenimiento automático</h2>
+        <p style="font-size:12px;color:#7880b0;margin:0;line-height:1.5;" x-show="!mant.ultimo">Aún no se ha ejecutado. Se lanza solo los domingos a las 04:00.</p>
+        <p style="font-size:12px;color:#a8b0d8;margin:0;line-height:1.5;" x-show="mant.ultimo" x-cloak>
+          Última pasada: <span x-text="(mant.ultimo?.fecha || '').replace('T', ' ').slice(0, 16)"></span> ·
+          Base de datos: <strong :style="'color:' + (mant.ultimo?.integridad_ok ? '#34d399' : '#fb7185')" x-text="mant.ultimo?.integridad_ok ? 'íntegra' : 'CON ERRORES'"></strong> ·
+          Canales revisados: <span x-text="mant.ultimo?.canales ? mant.ultimo.canales.revisados + ' (' + mant.ultimo.canales.ok + ' correctos, ' + mant.ultimo.canales.no_encontrado + ' no encontrados)' : '—'"></span> ·
+          Temporales borrados: <span x-text="mant.ultimo?.temporales ? mant.ultimo.temporales.borrados : '—'"></span>
+        </p>
+        <p style="font-size:11px;color:#fb7185;margin:4px 0 0;" x-show="mant.ultimo?.errores?.length" x-cloak x-text="(mant.ultimo?.errores || []).join(' · ')"></p>
+      </div>
+      <button type="button" class="btn-ghost" style="font-size:11px;" :disabled="mant.en_curso" @click="ejecutarMant()">
+        <span x-text="mant.en_curso ? 'Ejecutando…' : 'Ejecutar ahora'"></span>
+      </button>
+    </div>
+  </section>
+
   <div class="flex gap-2 flex-wrap items-end" style="margin-bottom:14px;">
     <div class="flex gap-2 flex-wrap" role="tablist">
       <template x-for="f in fuentes" :key="f.v">
@@ -58,7 +78,19 @@ function registros() {
     fuente: 'servidor', nivel: '', q: '', items: [], error: '', cargando: false, auto: false, _t: null, _req: 0,
     fuentes: [{ v: 'servidor', t: 'Servidor' }, { v: 'pipeline', t: 'Ingesta en vivo' }, { v: 'elite', t: 'Suite (estructurado)' }],
     color(n) { return { ERROR: '#fb7185', CRITICAL: '#fb7185', WARNING: '#fbbf24', INFO: '#22d3ee', DEBUG: '#4a5080' }[n] || '#a8b0d8'; },
-    init() { this.cargar(); },
+    mant: { ultimo: null, en_curso: false },
+    init() { this.cargar(); this.cargarMant(); },
+    async cargarMant() {
+      try { const r = await fetch('/api/mantenimiento'); if (r.ok) this.mant = await r.json(); } catch (e) { /* se reintenta */ }
+    },
+    async ejecutarMant() {
+      const r = await fetch('/api/mantenimiento/ejecutar', { method: 'POST' });
+      if (!r.ok) { Alpine.store('toast').error((await r.json().catch(() => ({}))).detail || 'No se pudo iniciar el mantenimiento.'); return; }
+      this.mant.en_curso = true;
+      Alpine.store('toast').info('Mantenimiento en marcha: tarda un minuto aproximadamente.');
+      for (let i = 0; i < 60 && this.mant.en_curso; i++) { await new Promise(s => setTimeout(s, 3000)); await this.cargarMant(); }
+      if (!this.mant.en_curso) { Alpine.store('toast').ok('Mantenimiento terminado.'); this.cargar(); }
+    },
     programar() { clearInterval(this._t); if (this.auto) this._t = setInterval(() => this.cargar(), 5000); },
     async cargar() {
       const token = ++this._req; this.cargando = true;
