@@ -102,12 +102,17 @@
                 <!-- Muestra respuesta estructurada o texto plano -->
                 <template x-if="typeof msg.resultado === 'object' && msg.resultado !== null">
                   <div>
-                    <template x-for="[k, v] in Object.entries(msg.resultado)" :key="k">
-                      <div style="margin-bottom:8px;" x-show="v && String(v).trim()">
-                        <p style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4a5080;margin:0 0 3px;" x-text="k"></p>
-                        <p style="font-size:12px;color:#c8d0f0;margin:0;line-height:1.6;white-space:pre-wrap;" x-text="typeof v === 'object' ? JSON.stringify(v, null, 2) : v"></p>
-                      </div>
-                    </template>
+                    <!-- La respuesta primero y bien legible; el resto, plegado -->
+                    <p x-show="msg.resultado.respuesta" style="font-size:13px;color:#e8ecff;margin:0 0 10px;line-height:1.7;white-space:pre-wrap;" x-text="msg.resultado.respuesta"></p>
+                    <details x-show="Object.keys(msg.resultado).some(k => k !== 'respuesta')">
+                      <summary style="font-size:11px;color:#7880b0;cursor:pointer;">Ver el detalle</summary>
+                      <template x-for="[k, v] in Object.entries(msg.resultado).filter(([k]) => k !== 'respuesta')" :key="k">
+                        <div style="margin-top:8px;" x-show="v && String(v).trim()">
+                          <p style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4a5080;margin:0 0 3px;" x-text="k"></p>
+                          <p style="font-size:12px;color:#c8d0f0;margin:0;line-height:1.6;white-space:pre-wrap;" x-text="typeof v === 'object' ? JSON.stringify(v, null, 2) : v"></p>
+                        </div>
+                      </template>
+                    </details>
                   </div>
                 </template>
                 <template x-if="typeof msg.resultado !== 'object' || msg.resultado === null">
@@ -115,6 +120,21 @@
                     <span x-text="msg.texto"></span><span x-show="msg.streaming" style="display:inline-block;width:2px;height:13px;background:#a78bfa;margin-left:2px;animation:blink-cursor .7s step-end infinite;vertical-align:text-bottom;"></span>
                   </p>
                 </template>
+              </div>
+              <!-- Fuentes: vídeos de origen de lo que cita el agente -->
+              <div x-show="msg.fuentes && msg.fuentes.length" style="margin-top:8px;">
+                <p style="font-size:10px;font-weight:700;color:#4a5080;margin:0 0 4px;letter-spacing:.5px;">FUENTES</p>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <template x-for="f in (msg.fuentes || [])" :key="f.n">
+                    <a :href="f.url" target="_blank" rel="noopener"
+                       style="display:flex;gap:8px;align-items:baseline;font-size:11px;color:#7880b0;text-decoration:none;padding:5px 8px;background:#08091a;border:1px solid #1a1d35;border-radius:6px;">
+                      <span style="color:#22d3ee;font-weight:700;" x-text="'[' + f.n + ']'"></span>
+                      <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                            x-text="f.titulo + ' · ' + f.canal + ' · ' + (f.video_title || 'vídeo')"></span>
+                      <span style="margin-left:auto;color:#4a5080;">↗</span>
+                    </a>
+                  </template>
+                </div>
               </div>
             </div>
           </div>
@@ -284,6 +304,7 @@ function agente() {
               sse.close();
               this.cargando = false;
               this.historial[idx].streaming = false;
+              this.historial[idx].fuentes = d.fuentes || [];
               // Intentar parsear JSON final
               try {
                 const parsed = JSON.parse(d.raw || buffer);
