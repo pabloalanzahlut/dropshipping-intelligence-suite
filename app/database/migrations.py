@@ -497,3 +497,132 @@ def mig_0020_alertas_notificada(conn: sqlite3.Connection):
     columnas = {r[1] for r in conn.execute("PRAGMA table_info(alertas)")}
     if "notificada_at" not in columnas:
         conn.execute("ALTER TABLE alertas ADD COLUMN notificada_at TEXT")
+
+
+@migration(21, "Tienda: pedidos y variantes de Shopify, importaciones de AutoDS y registro de sincronizaciones")
+def mig_0021_tienda_shopify_autods(conn: sqlite3.Connection):
+    # Instantánea de Shopify (se rellena con la API; los importes van en la divisa de la tienda)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS tienda_pedidos (
+            pedido_id TEXT PRIMARY KEY,
+            nombre TEXT NOT NULL DEFAULT '',
+            creado_at TEXT NOT NULL,
+            fecha TEXT NOT NULL,
+            cancelado_at TEXT,
+            moneda TEXT DEFAULT '',
+            total REAL NOT NULL DEFAULT 0,
+            subtotal REAL NOT NULL DEFAULT 0,
+            descuentos REAL NOT NULL DEFAULT 0,
+            envio REAL NOT NULL DEFAULT 0,
+            impuestos REAL NOT NULL DEFAULT 0,
+            reembolsado REAL NOT NULL DEFAULT 0,
+            estado_pago TEXT DEFAULT '',
+            estado_envio TEXT DEFAULT '',
+            unidades INTEGER NOT NULL DEFAULT 0,
+            pais TEXT DEFAULT '',
+            canal TEXT DEFAULT '',
+            lineas_incompletas INTEGER NOT NULL DEFAULT 0,
+            actualizado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            correlation_id TEXT
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_tienda_pedidos_fecha ON tienda_pedidos(fecha)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS tienda_lineas (
+            pedido_id TEXT NOT NULL,
+            idx INTEGER NOT NULL,
+            variante_id TEXT DEFAULT '',
+            sku TEXT DEFAULT '',
+            titulo TEXT DEFAULT '',
+            cantidad INTEGER NOT NULL DEFAULT 0,
+            precio_unit REAL NOT NULL DEFAULT 0,
+            PRIMARY KEY (pedido_id, idx),
+            FOREIGN KEY (pedido_id) REFERENCES tienda_pedidos(pedido_id) ON DELETE CASCADE
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_tienda_lineas_variante ON tienda_lineas(variante_id)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS tienda_variantes (
+            variante_id TEXT PRIMARY KEY,
+            producto_id TEXT NOT NULL,
+            producto TEXT DEFAULT '',
+            estado TEXT DEFAULT '',
+            vendor TEXT DEFAULT '',
+            sku TEXT DEFAULT '',
+            titulo TEXT DEFAULT '',
+            precio REAL NOT NULL DEFAULT 0,
+            coste REAL,
+            stock INTEGER,
+            actualizado_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_tienda_variantes_producto ON tienda_variantes(producto_id)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS tienda_sync (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fuente TEXT NOT NULL DEFAULT 'shopify',
+            iniciado_at TEXT NOT NULL,
+            terminado_at TEXT,
+            estado TEXT NOT NULL DEFAULT 'en_curso',
+            dias INTEGER,
+            pedidos INTEGER DEFAULT 0,
+            variantes INTEGER DEFAULT 0,
+            tienda TEXT DEFAULT '',
+            moneda TEXT DEFAULT '',
+            detalle TEXT DEFAULT '',
+            correlation_id TEXT
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_tienda_sync_fuente ON tienda_sync(fuente, id)")
+
+    # AutoDS: exportaciones (CSV/XLSX) que el operador sube; la clave evita duplicar al reimportar
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS autods_importaciones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            archivo TEXT DEFAULT '',
+            sha256 TEXT NOT NULL UNIQUE,
+            tipo TEXT NOT NULL,
+            filas INTEGER NOT NULL DEFAULT 0,
+            nuevas INTEGER NOT NULL DEFAULT 0,
+            mapeo TEXT DEFAULT '',
+            importado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            correlation_id TEXT
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS autods_pedidos (
+            clave TEXT PRIMARY KEY,
+            importacion_id INTEGER,
+            pedido_tienda TEXT DEFAULT '',
+            fecha TEXT NOT NULL,
+            titulo TEXT DEFAULT '',
+            sku TEXT DEFAULT '',
+            cantidad INTEGER NOT NULL DEFAULT 1,
+            precio_venta REAL,
+            coste_proveedor REAL,
+            coste_envio REAL,
+            estado TEXT DEFAULT '',
+            proveedor TEXT DEFAULT '',
+            tracking TEXT DEFAULT '',
+            pais TEXT DEFAULT '',
+            importado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            correlation_id TEXT
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_autods_pedidos_fecha ON autods_pedidos(fecha)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_autods_pedidos_tienda ON autods_pedidos(pedido_tienda)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS autods_productos (
+            clave TEXT PRIMARY KEY,
+            importacion_id INTEGER,
+            titulo TEXT DEFAULT '',
+            sku TEXT DEFAULT '',
+            coste REAL,
+            precio_venta REAL,
+            stock INTEGER,
+            proveedor TEXT DEFAULT '',
+            estado TEXT DEFAULT '',
+            importado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            correlation_id TEXT
+        )
+    """)

@@ -37,7 +37,7 @@
 
   <!-- KPIs -->
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;">
-    <div class="kpi"><p>ROAS real</p><strong :style="'color:' + color(r.roas_estado?.estado)" x-text="r.roas ? r.roas + '×' : '—'"></strong><span x-text="r.roas_estado?.estado"></span></div>
+    <div class="kpi"><p>ROAS real</p><strong :style="'color:' + color(r.roas_estado?.estado)" x-text="r.roas != null ? r.roas + '×' : '—'"></strong><span x-text="r.roas_estado?.estado"></span></div>
     <div class="kpi"><p>CPA real</p><strong x-text="r.cpa_real ?? '—'"></strong><span>gasto / pedidos</span></div>
     <div class="kpi"><p>Resultado del periodo</p><strong :style="r.resultado_periodo >= 0 ? 'color:#34d399' : 'color:#fb7185'" x-text="r.resultado_periodo ?? '—'"></strong><span>ingresos − ads − coste</span></div>
     <div class="kpi"><p>Margen neto</p><strong :style="r.margen_neto >= 0 ? 'color:#34d399' : 'color:#fb7185'" x-text="r.margen_neto ?? '—'"></strong><span x-text="r.devoluciones_estimadas ? 'devoluciones estimadas (10,1 %)' : 'con devoluciones reales'"></span></div>
