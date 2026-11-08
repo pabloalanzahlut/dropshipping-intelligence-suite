@@ -260,5 +260,103 @@ class TranscripcionesGuardadasTests(Base):
         self.assertEqual(estados["x"][0], STATUS_COMPLETED)
 
 
+class MantenimientoTests(Base):
+    """Integridad, optimización, temporales y verificación de canales (sin red)."""
+
+    def setUp(self):
+        super().setUp()
+        from app.services import mantenimiento
+        self.m = mantenimiento
+
+    def test_integridad_ok_y_detecta_corrupcion(self):
+        self.assertTrue(self.m.verificar_integridad(self.db)["ok"])
+        roto = Path(self.tmp.name) / "data" / "roto.db"
+        roto.write_bytes(b"esto no es una base de datos sqlite" * 200)
+        with self.assertRaises(sqlite3.DatabaseError):          # el paso falla y ejecutar() lo registra
+            self.m.verificar_integridad(str(roto))
+
+    def test_optimizar_solo_hace_vacuum_con_mucho_espacio_muerto(self):
+        r = self.m.optimizar_db(self.db)
+        self.assertFalse(r["vacuum"])
+        with sqlite3.connect(self.db) as conn:                   # crea y borra datos → páginas libres
+            conn.execute("CREATE TABLE basura (x TEXT)")
+            conn.executemany("INSERT INTO basura VALUES (?)", [("x" * 4000,)] * 600)
+            conn.commit()
+            conn.execute("DROP TABLE basura")
+            conn.commit()
+        self.assertTrue(self.m.optimizar_db(self.db)["vacuum"])
+
+    def test_limpia_solo_temporales_antiguos(self):
+        carpeta = Path(self.tmp.name) / "data" / "temp_transcripts"
+        carpeta.mkdir()
+        viejo, nuevo = carpeta / "viejo.vtt", carpeta / "nuevo.vtt"
+        viejo.write_text("a")
+        nuevo.write_text("b")
+        antiguo = __import__("time").time() - 5 * 86400
+        os.utime(viejo, (antiguo, antiguo))
+        r = self.m.limpiar_temporales(str(Path(self.tmp.name) / "data"))
+        self.assertEqual(r["borrados"], 1)
+        self.assertFalse(viejo.exists())
+        self.assertTrue(nuevo.exists())
+
+    def test_verificar_canales_solo_pendientes_y_para_si_youtube_limita(self):
+        Path(self.cfg).write_text(json.dumps([
+            {"nombre": f"C{i}", "url": f"https://www.youtube.com/@c{i}", "activo": True} for i in range(4)]), encoding="utf-8")
+        original = self.m.channel_store.verificar
+        vistos = []
+
+        def falso(db, url):
+            vistos.append(url)
+            return {"url": url, "estado": "indeterminado" if len(vistos) == 2 else "ok"}
+        self.m.channel_store.verificar = falso
+        try:
+            r = self.m.verificar_canales(self.cfg, self.db, pausa=0)
+        finally:
+            self.m.channel_store.verificar = original
+        self.assertEqual(len(vistos), 2)                         # se detiene al primer «indeterminado»
+        self.assertEqual((r["ok"], r["indeterminado"], r["revisados"]), (1, 1, 2))
+
+    def test_ejecutar_guarda_el_resultado_y_un_paso_roto_no_para_los_demas(self):
+        original = self.m.optimizar_db
+        self.m.optimizar_db = lambda *_: (_ for _ in ()).throw(RuntimeError("disco lleno"))
+        try:
+            r = self.m.ejecutar(self.db, self.cfg, canales=False)
+        finally:
+            self.m.optimizar_db = original
+        self.assertTrue(r["integridad_ok"])
+        self.assertIsNone(r["optimizacion"])
+        self.assertTrue(any("optimizacion" in e for e in r["errores"]))
+        self.assertEqual(self.m.ultimo(self.cfg)["fecha"], r["fecha"])
+
+    def test_no_se_solapa_consigo_mismo(self):
+        self.m._LOCK.acquire()
+        try:
+            self.assertIn("omitido", self.m.ejecutar(self.db, self.cfg, canales=False))
+        finally:
+            self.m._LOCK.release()
+
+    def test_alertas_integridad_rota_y_mantenimiento_pendiente(self):
+        alerts.evaluar(self.db, self.cfg)
+        self.assertIn("mantenimiento_pendiente", self.claves())  # nunca se ha ejecutado
+        self.m.ruta_estado(self.cfg).write_text(json.dumps(
+            {"fecha": date.today().isoformat() + "T04:00:00", "integridad_ok": False,
+             "integridad": {"ok": False, "detalle": "page 7 corrupta"}}), encoding="utf-8")
+        alerts.evaluar(self.db, self.cfg)
+        claves = self.claves()
+        self.assertEqual(claves["bd_integridad"]["nivel"], "critico")
+        self.assertNotIn("mantenimiento_pendiente", claves)
+        self.assertIn("page 7", claves["bd_integridad"]["detalle"])
+
+    def test_verificar_no_marca_no_encontrado_si_youtube_limita(self):
+        from app.services import channel_store, youtube_rss_fetcher
+        original = youtube_rss_fetcher.fetch_channel_videos
+        youtube_rss_fetcher.fetch_channel_videos = lambda *a, **k: (_ for _ in ()).throw(youtube_rss_fetcher.RateLimited("429"))
+        try:
+            r = channel_store.verificar(self.db, "https://www.youtube.com/@x")
+        finally:
+            youtube_rss_fetcher.fetch_channel_videos = original
+        self.assertEqual(r["estado"], "indeterminado")
+
+
 if __name__ == "__main__":
     unittest.main()

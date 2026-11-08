@@ -54,6 +54,38 @@ y el versionado [SemVer](https://semver.org/).
 - Escritorio con la paleta de la web (`design_tokens.py`); los estilos premium ya no los
   pisa `BaseTheme.apply()`.
 
+### Añadido (4ª ronda: automatización)
+- **Centro de alertas** (`alerts.py`, campana en la barra superior): comprobaciones deterministas cada
+  hora y al abrir el panel — caja crítica/baja, ROAS < 1 / < 2, caja o métricas sin registrar, producto
+  que toca cortar o escalar, canales no encontrados o sin verificar, sincronización antigua o limitada por
+  YouTube, copia de seguridad antigua, integridad de la BD, IA sin configurar. Cada alerta tiene clave
+  estable: no se duplica y se resuelve sola cuando el problema desaparece; «vista» ≠ «resuelta».
+- **Resumen diario** (`daily_brief.py`, tarjeta en el Dashboard, 08:00): negocio de ayer y 7 días, caja,
+  recorrido de productos, conocimiento nuevo, estado del sistema y «hoy toca» priorizado. Si falta un
+  dato lo dice; no inventa cifras. Se guarda en `resumenes_diarios` (migración 19, junto con `alertas`).
+- **Transcripciones → KB sin volver a descargar**: el motor de ingesta usa primero el texto ya guardado
+  (sin tocar YouTube, sin esperas anti-ban ni límite por hora) y cada ciclo procesa hasta 10 transcripciones
+  guardadas aún sin analizar, con circuit breaker tras 3 fallos de la IA.
+- **Mantenimiento semanal** (`mantenimiento.py`, domingo 04:00, también desde Registros): integridad de la
+  BD, optimización (VACUUM solo con > 20 % de espacio muerto), borrado de temporales y verificación de los
+  canales pendientes (se detiene si YouTube limita). Resultado en `data/mantenimiento.json`.
+- **Arranque con Windows** (`scripts/windows/`): `iniciar_gem_os.ps1` (sin ventana, no duplica el servidor),
+  `instalar_autoarranque.ps1` (tarea del usuario, sin administrador; `-SoloMostrar` y `-Quitar`) y
+  `abrir_gem_os.bat` (doble clic).
+- `tests/test_automatizacion.py` (28 pruebas, sin red ni IA, BD temporal).
+
+### Corregido (4ª ronda)
+- **Una caída de la IA se guardaba como «sin valor»**: `clean_transcript` devuelve `None` tanto para
+  «VACÍO» como para un fallo de red/saldo, y el motor marcaba el vídeo como completado para siempre. Ahora
+  distingue ambos (`last_error`) y reintenta en el ciclo siguiente.
+- **`x-init="init()"` duplicado en 9 páginas**: Alpine ya llama a `init()` solo, así que cada página
+  arrancaba dos temporizadores y dos conexiones SSE.
+- **Verificar un canal con YouTube limitando lo marcaba «no encontrado»** (falsa alarma): ahora devuelve
+  «indeterminado» y no guarda nada.
+- **Accesibilidad y móvil**: botón de menú sin nombre, 11 campos sin etiqueta (Validador, Copys, TikTok),
+  selector de hooks sin grupo, y desbordamiento horizontal en `/`, `/transcripciones` y `/tiktok` (rejillas
+  fijas → una columna en móvil; tablas anchas con desplazamiento propio).
+
 ### Añadido (3ª ronda: herramienta final)
 - **Productos** (`/productos`, `product_catalog.py`): catálogo con el recorrido de CLAUDE.md
   (candidato → clasificado → refutado → validado → creativo → tienda → escalado | descartado).
