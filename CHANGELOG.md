@@ -40,6 +40,28 @@ y el versionado [SemVer](https://semver.org/).
   descargas; si sigue limitado, la sincronización se detiene sin perder lo guardado.
 - `tests/test_transcripciones.py` (29 pruebas, sin red).
 
+- **Agente IA con enrutado automático** (`app/services/agent_router.py`): reconoce el tipo de
+  pregunta (producto, estrategia, operaciones, métricas, lecciones, validación financiera,
+  técnica) y elige `gem-orchestrator-core` / `gem-qa-validation` / `gem-backend-core`; la web
+  muestra el agente detectado mientras se escribe y permite fijarlo a mano. El selector mostraba
+  modelos que no se usaban: ahora lee el modelo real de `/api/kb/agentes`.
+- Insights KB: totales reales (270), búsqueda, filtro por canal y por tipo, paginación y el
+  nombre del producto como título. Antes se omitían en silencio las 90 fórmulas de conversión y
+  las 90 notas de operaciones (la consulta pedía una columna inexistente), también al agente.
+- Validador web: campo **Envío** (coste landed), margen neto, fees 4,0 % + cancelaciones 10,1 %,
+  PVP mínimo/objetivo y advertencias, como pide la regla de Adrián Sáenz.
+- Sincronización: lote máximo de 15 descargas y enfriamiento de 45 min tras un 429 de YouTube.
+- Escritorio con la paleta de la web (`design_tokens.py`); los estilos premium ya no los
+  pisa `BaseTheme.apply()`.
+
+### Corregido (2ª ronda)
+- Dashboard web: el panel «Últimos Insights» salía vacío (claves duplicadas en Alpine) y todas
+  las páginas lanzaban `Cannot read properties of undefined (reading 'after')`.
+- Canales con URL incorrecta: Iván Caicedo → `@soyivancaicedo`, Vic Ecomilions → `@ecomilions`.
+- TikTok: la duración vuelve a 15–30 s (regla del Media Buyer en `CLAUDE.md`).
+- `/youtube` listaba 5 de 29 canales.
+- `elite_logger.py` no compilaba (IndentationError desde el commit inicial).
+
 ### Cambiado
 - `website/gem-os/index.html`: de página de venta a página interna de uso personal (sin
   precios, testimonios ni cifras); reglas financieras corregidas según `CLAUDE.md`.
