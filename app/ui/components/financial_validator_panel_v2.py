@@ -562,9 +562,51 @@ class FinancialValidatorPanel(ttk.Frame):
             self._update_status("❌ Error al cargar JSON", STATUS_COLORS["error"])
     
     def _add_manual_product(self):
-        """Abre diálogo para añadir producto manualmente."""
-        messagebox.showinfo("Próximamente", 
-                          "Función de añadir manual en desarrollo")
+        """Abre un diálogo para validar un producto escrito a mano (SKU, coste, envío y PVP)."""
+        top = tk.Toplevel(self)
+        top.title("Añadir producto manualmente")
+        top.configure(bg=DARK_BASE['bg_secondary'])
+        top.transient(self.winfo_toplevel())
+        top.resizable(False, False)
+        campos = [("sku", "SKU / nombre del producto", ""), ("costo_origen", "Coste de origen (USD)", ""),
+                  ("costo_envio", "Coste de envío (USD)", "0"), ("pvp", "PVP sugerido (USD)", "")]
+        vars_ = {}
+        for i, (clave, texto, defecto) in enumerate(campos):
+            tk.Label(top, text=texto, bg=DARK_BASE['bg_secondary'], fg=TEXT_COLORS['secondary'],
+                     anchor="w").grid(row=i, column=0, sticky="w", padx=14, pady=(10 if i == 0 else 4, 0))
+            v = tk.StringVar(value=defecto)
+            vars_[clave] = v
+            ttk.Entry(top, textvariable=v, width=34).grid(row=i, column=1, padx=14, pady=(10 if i == 0 else 4, 0))
+
+        def num(clave, obligatorio):
+            t = vars_[clave].get().strip().replace(",", ".")
+            if not t:
+                if obligatorio:
+                    raise ValueError(f"Falta: {dict((c, x) for c, x, _ in campos)[clave]}.")
+                return None
+            n = float(t)
+            if n < 0:
+                raise ValueError("Los importes no pueden ser negativos.")
+            return n
+
+        def validar():
+            try:
+                sku = vars_["sku"].get().strip()
+                if not sku:
+                    raise ValueError("Falta el SKU o nombre del producto.")
+                producto = {"sku": sku, "costo_origen": num("costo_origen", True),
+                            "costo_envio": num("costo_envio", False) or 0.0, "pvp": num("pvp", False)}
+            except ValueError as exc:
+                messagebox.showwarning("Datos no válidos", str(exc), parent=top)
+                return
+            top.destroy()
+            self._procesar_productos([producto])
+
+        botones = tk.Frame(top, bg=DARK_BASE['bg_secondary'])
+        botones.grid(row=len(campos), column=0, columnspan=2, pady=14)
+        ttk.Button(botones, text="Validar", command=validar).pack(side=tk.LEFT, padx=6)
+        ttk.Button(botones, text="Cancelar", command=top.destroy).pack(side=tk.LEFT)
+        top.grab_set()
     
     def _procesar_productos(self, productos: List[Dict[str, Any]]):
         """Procesa y valida productos en thread separado."""
