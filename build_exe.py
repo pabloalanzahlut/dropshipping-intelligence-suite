@@ -6,9 +6,12 @@ Windows con configuración avanzada:
 
   • Entry point Tkinter  →  app/main.py
   • FastAPI dashboard    →  app/services/dashboard_server.py (hidden import)
-  • Datos adicionales    →  config.json, youtube_channels.json, queue_state.json
+  • Datos adicionales    →  plantillas config.json y youtube_channels.json (sin BD, sin claves)
   • --noconsole          →  Interfaz limpia sin ventana CMD negra
   • Uvicorn en segundo plano sin ventanas de comando externas
+  • Seguridad            →  .env, credenciales, cookies y bases de datos NUNCA van dentro; el build
+                            comprueba el resultado con scripts/verificar_dist.py y falla si encuentra alguno.
+                            Las claves se piden en Configuración y viven en %APPDATA%\GEM_OS_Suite\.env.
 
 Uso:
     python build_exe.py              # Compilación en carpeta (--onedir)
@@ -60,6 +63,14 @@ HIDDEN_IMPORTS = [
     "app.services.exports",
     "app.services.log_viewer",
     "app.services.web_auth",
+    # Automatización, importación y .exe portable
+    "app.services.alerts",
+    "app.services.daily_brief",
+    "app.services.mantenimiento",
+    "app.services.metrics_import",
+    "app.services.notifier",
+    "app.config.secrets_store",
+    "app.config.runtime_setup",
     "uvicorn",
     "uvicorn.logging",
     "uvicorn.loops",
@@ -100,6 +111,16 @@ COLLECT_ALL = [
     "app.utils",
 ]
 
+# Librerías pesadas instaladas en el entorno que la suite NO usa (el bundle pesaba 800 MB por torch)
+EXCLUDES = [
+    "torch", "torchvision", "torchaudio", "tensorflow", "tensorboard",
+    "matplotlib", "IPython", "notebook", "jupyter", "pytest",
+]
+
+# Lo que NUNCA debe viajar dentro del .exe: claves, cookies, credenciales y bases de datos
+# (las claves se piden en Configuración y se guardan en %APPDATA%\GEM_OS_Suite\.env).
+SECRETOS_EN_AI_WORKSPACE = ("google_credentials.json", "skool_cookies.json", ".env")
+
 # ---------------------------------------------------------------------------
 # Utilidades de ayuda
 # ---------------------------------------------------------------------------
@@ -118,6 +139,22 @@ def _add_data(options: list, src: str, dst: str, tag: str) -> bool:
         _log("\u2705", tag, f"Incluido: {src} \u2192 {dst}")
         return True
     return False
+
+
+def _preparar_recursos() -> Path:
+    """Copia de `ai_workspace` SIN secretos (ni cookies, ni .zip) en build/_recursos.
+
+    PyInstaller empaqueta carpetas enteras; para excluir archivos hay que darle una copia limpia."""
+    destino = PROJECT_ROOT / "build" / "_recursos" / "ai_workspace"
+    shutil.rmtree(destino.parent, ignore_errors=True)
+
+    def _ignorar(_dir, nombres):
+        return [n for n in nombres
+                if n in SECRETOS_EN_AI_WORKSPACE or "cookies" in n.lower() or n.endswith(".zip")
+                or n == "__pycache__"]
+
+    shutil.copytree(PROJECT_ROOT / "ai_workspace", destino, ignore=_ignorar)
+    return destino
 
 
 def _ensure_build_dir(args) -> None:
@@ -186,36 +223,35 @@ def build_executable() -> None:
         options.append(f"--collect-all={pkg}")
     _log("📚", "COLLECT", f"{len(COLLECT_ALL)} paquetes con collect-all")
 
-    # Incluir plantillas en data_template/ (PathManager las copiará a AppData en 1er inicio)
-    _add_data(options, "app/database/dropshipping_suite.db",
-              "data_template", "DB")
+    for mod in EXCLUDES:
+        options.append(f"--exclude-module={mod}")
+    _log("✂️", "EXCLUDE", f"{len(EXCLUDES)} librerías pesadas sin uso excluidas")
 
+    # Plantillas JSON en data_template/: runtime_setup las copia a %APPDATA%\GEM_OS_Suite\data en el
+    # primer arranque si faltan. NO se empaqueta ninguna base de datos: se crea y migra sola al abrir
+    # (tus datos actuales se traen desde Configuración → «Traer mis datos desde…»).
     cfg_included = 0
     for cfg in CONFIG_FILES:
+        if Path(cfg).name == "queue_state.json":
+            continue      # estado de ejecución: se genera solo
         if _add_data(options, cfg, "data_template", "CFG"):
             cfg_included += 1
-        # Fallback: buscar config en raíz (legacy)
-        if cfg_included == 0:
-            for cfg in ["config.json", "youtube_channels.json", "queue_state.json"]:
-                if _add_data(options, cfg, "data_template", "CFG"):
-                    cfg_included += 1
-        if cfg_included == 0:
-            _log("⚠️", "CFG", "No se incluyo ningun archivo de configuracion.")
+    if cfg_included == 0:
+        _log("⚠️", "CFG", "No se incluyo ninguna plantilla de configuracion.")
 
-    if (PROJECT_ROOT / ".env").exists():
-        _add_data(options, ".env", ".", "ENV")
-    elif (PROJECT_ROOT / ".env.example").exists():
-        options.append("--add-data=.env.example;.env")
-        _log("⚠️", "ENV", ".env no encontrado, se uso .env.example como plantilla.")
-    else:
-        _log("⚠️", "ENV", "No se encontro .env ni .env.example.")
+    # Claves: NUNCA dentro del .exe. Solo la plantilla pública, para que sepas qué variables existen.
+    if (PROJECT_ROOT / ".env.example").exists():
+        options.append(f"--add-data=.env.example{os.pathsep}.")
+        _log("🔐", "ENV", ".env NO se incluye; solo .env.example (las claves se piden en Configuración).")
 
-    _add_data(options, "ai_workspace", "ai_workspace", "AI")
+    recursos = _preparar_recursos()
+    options.append(f"--add-data={recursos}{os.pathsep}ai_workspace")
+    _log("✅", "AI", "ai_workspace incluido SIN credenciales ni cookies")
+    _add_data(options, "agent.md", ".", "AGENT")
     _add_data(options, "app/ui/resources", "app/ui/resources", "UI")
     # La web (FastAPI) necesita sus plantillas y estáticos: PyInstaller no los detecta solo
     _add_data(options, "app/templates", "app/templates", "WEB")
     _add_data(options, "app/static", "app/static", "WEB")
-    _add_data(options, "data", "data", "DATA")
 
     if (PROJECT_ROOT / ICON_PATH).exists():
         options.append(f"--icon={ICON_PATH}")
@@ -251,11 +287,15 @@ def build_executable() -> None:
 
         _log("📁", "OUTPUT", f"Ejecutable en: {output_dir}/")
 
+        # Los datos, logs y copias viven en %APPDATA%\GEM_OS_Suite (ya no se crean carpetas vacías aquí).
+        # Comprobación obligatoria: si hay secretos o bases de datos dentro, el build FALLA.
         if not args.onefile:
-            for folder in ["data", "logs", "backups"]:
-                folder_path = output_dir / folder
-                folder_path.mkdir(parents=True, exist_ok=True)
-                _log("📁", "POST", f"Carpeta de datos creada: {folder_path}")
+            verificar = subprocess.run([sys.executable, str(PROJECT_ROOT / "scripts" / "verificar_dist.py"),
+                                        str(output_dir)])
+            if verificar.returncode != 0:
+                _log("❌", "SEGURIDAD", "El resultado contiene secretos o bases de datos. NO lo distribuyas.")
+                sys.exit(2)
+            _log("🔒", "SEGURIDAD", "Verificado: sin .env, credenciales, cookies ni bases de datos dentro.")
 
         _ensure_build_dir(args)
         print()
