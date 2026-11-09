@@ -114,6 +114,10 @@ Del log de gitleaks, capturar:
 - `Line`: línea exacta
 - `Fingerprint`: ID único `{commit}:{file}:{rule}:{line}`
 
+**Nunca copies el valor detectado a la KB ni a ningún informe** (ni siquiera si parece de prueba): el `.exe` se
+empaqueta con `ai_workspace/` y su verificación de seguridad rechaza cadenas con forma de clave. Anota solo el
+tipo, el prefijo y la longitud, p. ej. `sk-or-v1-… (34 car.)`.
+
 ---
 
 ## FASE 4 — CATÁLOGO DE FIXES
