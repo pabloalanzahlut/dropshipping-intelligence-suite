@@ -391,12 +391,10 @@ def estado_integraciones() -> List[Dict[str, Any]]:
             faltan = est["faltan"] or ([] if est["configurada"] else ["SHOPIFY_STORE_URL"])
         out.append({"id": clave, "nombre": nombre, "para": para, "configurada": not faltan,
                     "faltan": faltan, "nota": ""})
-    token_autods = bool((os.getenv("AUTODS_API_TOKEN") or "").strip())
     out.append({"id": "autods", "nombre": "AutoDS", "para": "Coste real de proveedor y envío por pedido",
                 "configurada": False, "faltan": [],
-                "nota": ("Token de API guardado, pero el cliente espera la documentación de AutoDS: mientras tanto "
-                         "sube su export (CSV/Excel) en Tienda." if token_autods else
-                         "Su API exige aprobación y pago: sube el export de AutoDS (CSV/Excel) en Tienda.")})
+                "nota": "Sin API pública de datos: AutoDS sincroniza con Shopify (coste por artículo) y su export "
+                        "(CSV/Excel) se sube en Tienda."})
     out.append({"id": "meta_ads", "nombre": "Meta Ads / TikTok Ads", "para": "Gasto y ROAS de campañas",
                 "configurada": False, "faltan": [], "nota": "Sin integración: registra los datos a mano en Negocio."})
     return out
