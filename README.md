@@ -1,7 +1,10 @@
-# 🎯 GEM OS • Dropshipping Intelligence Suite v2.0
+# 🎯 GEM OS • Dropshipping Intelligence Suite
 
-**Software de escritorio para validación financiera, análisis de tendencias y generación de contenido dropshipping.**
-**Stack:** Python 3.11+ / Tkinter / SQLite / OpenRouter AI / Ollama
+**Suite de inteligencia para dropshipping global en Shopify: validación financiera, selección de producto, copy, guiones de vídeo y monitorización, con app de escritorio, panel web y agentes autónomos.**
+**Stack:** Python 3.11+ / FastAPI + panel web / Tkinter / SQLite / APScheduler / OpenRouter (Claude, DeepSeek, Gemini) / Higgsfield
+
+> Herramienta de uso personal. Las reglas financieras vienen del curso de Adrián Sáenz y son inmutables (ver [`CLAUDE.md`](CLAUDE.md)).
+> Las secciones marcadas `AUTO` de este README las regenera `scripts/sync_readme.py`; no se editan a mano.
 
 ---
 
@@ -64,6 +67,34 @@ lo comprueba con `scripts/verificar_dist.py` y falla si encuentra alguno). Cómo
 5. Para que arranque con Windows: `powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1 -Exe "C:\ruta\GEM_OS_Suite.exe"`.
 
 Datos, registros y copias del `.exe` viven en `%APPDATA%\GEM_OS_Suite\` (`GEM_OS_DATA_DIR` lo cambia).
+
+---
+
+## 🧰 Skills y comandos (Claude Code)
+
+Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`](CLAUDE.md)). Pipeline: producto → clasificar → refutar → validar financiero → creativo → tienda → escalado.
+
+<!-- AUTO:skills -->
+<!-- /AUTO:skills -->
+
+---
+
+## 🛡️ CI/CD, seguridad y agente GitHub autónomo
+
+- **Validación** (`validate-pipeline.yml`): comprueba archivos obligatorios, que no haya `.env` versionado y ejecuta **gitleaks v8.30.1** (binario con SHA-256 fijado) sobre **todo el historial**. Corre en cada push/PR relevante y **a diario a las 06:17 UTC**.
+- **Agente autónomo** (`self-heal.yml` + `scripts/github_self_heal.py`): cuando un CI falla, busca la firma en el catálogo `ai_workspace/config/github_fixes.json`; si hay fix automático abre una rama `selfheal/*`, la verifica con gitleaks y la fusiona; si la firma es nueva abre un Issue; **si detecta una fuga real de secreto abre un Issue crítico y no reescribe el historial** (hay que rotar la credencial). Cierra solo los PR de Dependabot obsoletos y registra cada incidente en [`github_kb.md`](ai_workspace/knowledge_base/github_kb.md).
+- **README**: `sync_readme.py --check` falla el CI si estas secciones se desfasan; el agente las regenera.
+- **Secretos**: `.env`, credenciales y cookies nunca se versionan (`.gitignore`); solo `.env.example`. Detalle en [`SECURITY.md`](SECURITY.md).
+
+<!-- AUTO:workflows -->
+<!-- /AUTO:workflows -->
+
+---
+
+## 📦 Dependencias fijadas
+
+<!-- AUTO:deps -->
+<!-- /AUTO:deps -->
 
 ---
 
