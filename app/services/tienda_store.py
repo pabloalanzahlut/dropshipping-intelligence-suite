@@ -29,6 +29,7 @@ from typing import Any, Callable, Dict, List, Optional
 from zoneinfo import ZoneInfo
 
 from app.services import business_metrics as bm
+from app.services import product_catalog
 from app.services.shopify_client import (SCOPES_NECESARIOS, ShopifyClient, ShopifyError,
                                           estado_credenciales)
 
@@ -302,6 +303,10 @@ def resumen(db_path: str, dias: int = 30, hoy: Optional[date] = None) -> Dict[st
                WHERE p.fecha BETWEEN ? AND ? AND p.cancelado_at IS NULL""", (desde, hasta))]
         activos = {r["producto_id"] for r in conn.execute(
             "SELECT DISTINCT producto_id FROM tienda_variantes WHERE estado = 'active'")}
+        cat = [dict(r) for r in conn.execute(
+            """SELECT producto_id, MIN(producto) AS producto, MIN(precio) AS pvp, AVG(coste) AS coste,
+                      SUM(COALESCE(stock, 0)) AS stock, COUNT(coste) AS con_coste, COUNT(*) AS variantes
+               FROM tienda_variantes WHERE estado = 'active' GROUP BY producto_id ORDER BY producto""")]
         gasto = conn.execute(
             "SELECT COALESCE(SUM(gasto_ads), 0) FROM metricas_diarias WHERE fecha BETWEEN ? AND ? "
             "AND plataforma != 'shopify'", (desde, hasta)).fetchone()[0]
@@ -374,6 +379,16 @@ def resumen(db_path: str, dias: int = 30, hoy: Optional[date] = None) -> Dict[st
                   "margen_pct": round(m / base, 4) if base > 0 else None}
     cobertura_pedidos = round(conocidos / len(validos), 4) if validos else None
 
+    # Economía del catálogo con el coste que AutoDS escribe en Shopify («coste por artículo»). El multiplicador de
+    # las reglas se mide sobre coste LANDED (producto + envío): aquí falta el envío, así que es un techo.
+    catalogo = []
+    for c in cat:
+        mult = round(c["pvp"] / c["coste"], 2) if c["coste"] and c["coste"] > 0 and c["pvp"] else None
+        catalogo.append({"producto": c["producto"], "pvp": round(c["pvp"] or 0, 2),
+                         "coste": round(c["coste"], 2) if c["coste"] else None, "multiplicador": mult,
+                         "clasificacion": product_catalog.clasificar(mult) if mult is not None else None,
+                         "stock": c["stock"], "variantes_sin_coste": c["variantes"] - c["con_coste"]})
+
     roas = round(neto / gasto, 2) if gasto > 0 and neto > 0 else None
     beneficio_tras_ads = (round(margen["margen"] - gasto, 2)
                           if margen and cobertura_pedidos is not None and cobertura_pedidos >= 0.95 else None)
@@ -406,6 +421,13 @@ def resumen(db_path: str, dias: int = 30, hoy: Optional[date] = None) -> Dict[st
     if validos and (cobertura_pedidos or 0) < 1:
         falta.append(f"Se conoce el coste real del {round((cobertura_pedidos or 0) * 100)} % de los pedidos: "
                      "añade el coste por artículo en Shopify o importa el export de AutoDS.")
+    sin_coste = [c["producto"] for c in catalogo if c["coste"] is None]
+    if sin_coste:
+        falta.append(f"{len(sin_coste)} producto(s) activo(s) sin coste por artículo en Shopify: no se puede "
+                     "calcular su multiplicador.")
+    if margen and margen["de_shopify"]:
+        falta.append(f"El coste de {margen['de_shopify']} pedido(s) sale del «coste por artículo» de Shopify (lo escribe "
+                     "AutoDS): puede no incluir el envío del proveedor y AutoDS lo guarda en la divisa del proveedor (USD).")
     if validos and gasto <= 0:
         falta.append("No hay gasto en ads registrado en el periodo: sin él no hay ROAS real.")
     if not autods_filas:
@@ -429,6 +451,7 @@ def resumen(db_path: str, dias: int = 30, hoy: Optional[date] = None) -> Dict[st
         "margen_real": margen, "cobertura_coste_pedidos": cobertura_pedidos, "cobertura_coste_shopify": cobertura_shopify,
         "beneficio_tras_ads": beneficio_tras_ads,
         "top_productos": top, "productos_activos": len(activos), "activos_sin_ventas": len(activos - vendidos),
+        "catalogo": catalogo,
         "paises": sorted(({"pais": k, "pedidos": v} for k, v in paises.items()), key=lambda x: -x["pedidos"])[:3],
         "serie": serie, "datos_que_faltan": falta,
     }

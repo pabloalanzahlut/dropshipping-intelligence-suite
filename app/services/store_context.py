@@ -87,6 +87,13 @@ def construir(db_path: str, dias: int = 30) -> Dict[str, Any]:
                 f"{p['producto'][:40]} ({p['unidades']} ud, {_imp(p['ingresos'], m)}, margen {_pct(p['margen_pct'])})"
                 for p in r["top_productos"][:3]))
         L.append(f"Catálogo activo {r['productos_activos']} productos, {r['activos_sin_ventas']} sin ventas en el periodo.")
+        for p in r["catalogo"][:3]:
+            if p["multiplicador"] is not None:
+                L.append(f"  · {p['producto'][:45]}: PVP {_imp(p['pvp'], m)} · coste {_imp(p['coste'], m)} → "
+                         f"{str(p['multiplicador']).replace('.', ',')}× ({p['clasificacion']}) · stock {p['stock']}")
+        if any(p["multiplicador"] is not None for p in r["catalogo"]):
+            L.append("  (multiplicador sobre el coste de producto de Shopify, SIN envío: sobre coste landed es menor; "
+                     "reglas: mínimo 2×, objetivo 3×)")
     if a["pedidos"]:
         extra = f" · envío {_imp(a['coste_envio'], m)}" if a["coste_envio"] is not None else ""
         est_txt = ", ".join(f"{e['estado']} {e['n']}" for e in a["estados"][:4])
