@@ -405,13 +405,133 @@
     },
     {
       "nombre": "Iván Caicedo",
-      "url": "https://www.youtube.com/@ivancaicedo",
-      "status": "Procesando",
-      "last_scan": "2026-11-06T04:12:34.595269+00:00",
-      "total_videos": 0,
-      "processed_count": 0,
+      "url": "https://www.youtube.com/@soyivancaicedo",
+      "status": "Completado",
+      "last_scan": "2026-11-09T03:44:51.023324+00:00",
+      "total_videos": 17,
+      "processed_count": 17,
       "failed_count": 0,
-      "videos": []
+      "videos": [
+        {
+          "video_id": "yBNMK5J2qgY",
+          "title": "Me van a llamar vende humo, pero vivir del dropshipping es fácil",
+          "status": "Completado",
+          "timestamp": "2026-11-08T22:43:29.350421+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "U2Efy6zJAHU",
+          "title": "Why You're Late to Winning Products (And How to Avoid It)",
+          "status": "Completado",
+          "timestamp": "2026-11-09T01:43:50.430639+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "bHJ0sAYPaRE",
+          "title": "Stop Losing Money Long-Term With Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-09T01:44:16.490197+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "BeFQAPtIFiE",
+          "title": "How to Make $3,000 USD a Week with Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-09T01:44:38.811498+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "Ft6Hv46pnm8",
+          "title": "They Made $12,000 USD Net in One Month With Dropshipping: How Did They Do It?",
+          "status": "Completado",
+          "timestamp": "2026-11-09T01:44:59.486870+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "2b3aNqaY4nw",
+          "title": "The 2-Month Plan to Make $10,000 USD/Month with Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-09T01:45:24.076756+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "Q3ComGuIG9Q",
+          "title": "From Driver and in Debt to Making $450,000 USD in a Month with Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-09T01:45:46.962348+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "pEJffR9Gl64",
+          "title": "How to Start Dropshipping from Scratch in 2026 | Step-by-Step Guide for Beginners",
+          "status": "Completado",
+          "timestamp": "2026-11-09T01:46:10.002723+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "ZTtA0Vz2wBQ",
+          "title": "They Bet Everything on Dropshipping and Ended Up Retiring Their Mom",
+          "status": "Completado",
+          "timestamp": "2026-11-09T01:46:31.331946+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "MgnrgxUe-V8",
+          "title": "Curso Completo de Dropshipping en Guatemala",
+          "status": "Completado",
+          "timestamp": "2026-11-09T02:44:00.821894+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "oh4dSdnXglw",
+          "title": "This Is The Best App I've Ever Tried For Dropshipping.",
+          "status": "Completado",
+          "timestamp": "2026-11-09T02:44:24.164786+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "9OL69wdi2RQ",
+          "title": "Is E-commerce Worth It? They Sold Their Businesses and Completely Transformed Their Lives.",
+          "status": "Completado",
+          "timestamp": "2026-11-09T02:44:48.726805+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "i--9qYoC280",
+          "title": "Making a Living From Dropshipping Is Very Easy",
+          "status": "Completado",
+          "timestamp": "2026-11-09T02:45:06.136746+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "Gzu9D4bGvn0",
+          "title": "This Is The Best-Selling Dropshipping Sales Page In LATAM",
+          "status": "Completado",
+          "timestamp": "2026-11-09T02:45:30.642772+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "yi3QO7yt6Xw",
+          "title": "Curso Completo de Dropshipping en México",
+          "status": "Completado",
+          "timestamp": "2026-11-09T02:45:57.269755+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "tfRl9Km_6Qw",
+          "title": "Como hacer Dropshipping con Inteligencia Artificial 2026 (Automatiza tu Tienda con Claude)",
+          "status": "Completado",
+          "timestamp": "2026-11-09T03:44:22.923412+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "tKg3OnJJvrk",
+          "title": "Empezaron Su Negocio Con Solo 96 USD Y Hoy Viven Viajando Gracias Al Dropshipping",
+          "status": "Completado",
+          "timestamp": "2026-11-09T03:44:51.023324+00:00",
+          "error": ""
+        }
+      ]
     },
     {
       "nombre": "JaviEcom",
@@ -682,7 +802,7 @@
     },
     {
       "nombre": "Vic Ecomilions",
-      "url": "https://www.youtube.com/@vicecomilions",
+      "url": "https://www.youtube.com/@ecomilions",
       "status": "Procesando",
       "last_scan": "2026-11-06T09:13:07.522456+00:00",
       "total_videos": 0,
@@ -692,7 +812,7 @@
     }
   ],
   "metadata": {
-    "last_load": "2026-11-05T22:04:30.898080+00:00",
-    "last_updated": "2026-11-06T09:13:07.508085+00:00"
+    "last_load": "2026-11-08T21:43:26.330176+00:00",
+    "last_updated": "2026-11-09T03:44:51.023324+00:00"
   }
 }
