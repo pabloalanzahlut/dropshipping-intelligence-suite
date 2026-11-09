@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 
 from app.ui.themes import DarkTheme, LightTheme
 from app.ui.components import StatusIndicator, ConsoleView
-from app.ui.components.navigation_v2 import Sidebar
+from app.config.runtime_setup import iniciar_entorno
+from app.ui.components.navigation_v2 import Sidebar, SECCION
+from app.ui.components.settings_panel import SettingsPanel
 from app.ui.components.dashboard_panel import DashboardPanel
 from app.ui.components.financial_validator_panel_v2 import FinancialValidatorPanel
 from app.ui.components.youtube_monitor_panel import YouTubeMonitorPanel
@@ -23,6 +25,7 @@ from app.ui.themes.jack_styles import apply_jack_styles
 from app.services.provider_monitor_engine import ProviderMonitorEngine
 
 ERROR_COLOR = NEON_COLORS["pink"]
+IDX_CONFIG = 10            # posición del panel Configuración en `_create_panels`
 
 
 class GEMOSApplication:
@@ -43,14 +46,19 @@ class GEMOSApplication:
         # theme_use("default") y, si no, los botones/campos quedan con el aspecto de Windows.
         if initial_theme == "dark":
             apply_jack_styles(self.root)
-        load_dotenv()
+        # Claves y carpetas: en el .exe siembra la carpeta del usuario y lee el .env de ahí
+        # (nunca de dentro del programa); en desarrollo lee el .env del proyecto.
+        iniciar_entorno()
         self.console_view = None
+        self._sin_claves = False
         self._verify_environment()
         self.db_manager = DatabaseConnection()
         self._panels = []
         self._build_main_layout()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self._log("💎 GEM OS v3.0 iniciado correctamente.")
+        if self._sin_claves:           # primer arranque: lleva a Configuración en vez de un aviso suelto
+            self.root.after(300, lambda: self._show(IDX_CONFIG))
 
     def _build_main_layout(self):
         """Sidebar premium + toolbar neon + contenedor de paneles."""
@@ -61,17 +69,26 @@ class GEMOSApplication:
         self.root.rowconfigure(0, weight=1)
         
         # Sidebar premium
+        # Menú agrupado como la web; el 4.º valor es el índice del panel en `_create_panels`
+        def _item(icono, texto, idx):
+            return (icono, texto, lambda: self._show(idx), idx)
         self.sidebar = Sidebar(mc, items=[
-            ("🏠", "Dashboard", lambda: self._show(0)),
-            ("💎", "Validador", lambda: self._show(1)),
-            ("▶️", "YouTube",   lambda: self._show(2)),
-            ("✍️", "Copys",     lambda: self._show(3)),
-            ("🎵", "TikTok",   lambda: self._show(4)),
-            ("📋", "Gobernanza", lambda: self._show(5)),
-            ("🔗", "Enrutador", lambda: self._show(6)),
-            ("📥", "Ingesta",  lambda: self._show(7)),
-            ("🤖", "Agente IA", lambda: self._show(8)),
-            ("🛒", "Tienda",   lambda: self._show(9)),
+            (SECCION, "Core", None),
+            _item("🏠", "Dashboard", 0),
+            _item("💎", "Validador", 1),
+            (SECCION, "Ingesta y contenido", None),
+            _item("▶️", "YouTube", 2),
+            _item("✍️", "Copys", 3),
+            _item("🎵", "TikTok", 4),
+            _item("📥", "Ingesta", 7),
+            (SECCION, "Inteligencia", None),
+            _item("🤖", "Agente IA", 8),
+            (SECCION, "Tienda", None),
+            _item("🛒", "Tienda", 9),
+            (SECCION, "Sistema", None),
+            _item("📋", "Gobernanza", 5),
+            _item("🔗", "Enrutador", 6),
+            _item("⚙️", "Configuración", IDX_CONFIG),
         ])
         self.sidebar.grid(row=0, column=0, sticky="ns")
         
@@ -159,6 +176,9 @@ class GEMOSApplication:
             ("Ingesta", lambda parent: self._build_console()),
             ("Agente IA", lambda parent: KBAgentPanel(parent, db_manager=self.db_manager)),
             ("Tienda", lambda parent: TiendaPanel(parent, db_manager=self.db_manager)),
+            ("Configuración", lambda parent: SettingsPanel(
+                parent, db_manager=self.db_manager, al_cambiar_claves=self._on_claves_cambiadas,
+                primer_arranque=self._sin_claves)),
         ]
         self._panel_factories = specs
         self._panel_loaded = [False] * len(specs)
@@ -272,18 +292,31 @@ class GEMOSApplication:
         budget = os.getenv("AI_MONTHLY_BUDGET_USD", "20.0")
         keys_status.append(f"Presupuesto mensual: ${budget} USD")
         if not or_key and not fl_key and not anth_key:
-            messagebox.showwarning(
-                "Sin APIs Configuradas",
-                "No se detectaron API keys de IA.\n\n"
-                "El software funcionara en modo offline con:\n"
-                "* Templates locales de copywriting\n"
-                "* Ollama local (si esta instalado)\n"
-                "* Cache de KB existente\n\n"
-                "Configura OPENROUTER_API_KEY en .env para funcionalidad completa."
-            )
+            # Sin clave: no se interrumpe con un aviso; se abre Configuración (ver __init__)
+            self._sin_claves = True
+            self._log("🔑 Sin claves de IA: modo offline (plantillas locales, Ollama si está, caché de la KB). "
+                      "Pega tu clave en Configuración.", level="WARNING")
         else:
             status_msg = "\n".join(keys_status)
             self._log(f"🔑 APIs: {status_msg}")
+
+    def _on_claves_cambiadas(self) -> None:
+        """Se guardó o quitó una clave: actualiza el indicador y hace que el Agente IA (que lee la
+        clave al crearse) se vuelva a crear la próxima vez que se abra."""
+        hay = bool(os.getenv("OPENROUTER_API_KEY", ""))
+        try:
+            self._api_st.set_status("ok" if hay else "error", "API Key" if hay else "Sin API")
+        except Exception:
+            pass
+        self._recargar_panel(8)
+
+    def _recargar_panel(self, idx: int) -> None:
+        """Descarta un panel ya cargado para que se reconstruya al volver a abrirlo."""
+        if 0 <= idx < len(self._panels) and self._panel_loaded[idx]:
+            for w in self._panels[idx].winfo_children():
+                w.destroy()
+            ttk.Label(self._panels[idx], text="Cargando...", foreground="#888").pack(pady=20)
+            self._panel_loaded[idx] = False
 
     def _on_theme_changed(self) -> None:
         new_theme = self._tv.get()
