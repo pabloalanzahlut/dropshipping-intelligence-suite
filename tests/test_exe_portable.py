@@ -272,5 +272,87 @@ class ImportarDatosTests(Congelado):
             runtime_setup.importar_datos(PathManager.get_paths()["data"])
 
 
+class RecursosYAgenteTests(Congelado):
+    def test_resolve_resource_prefiere_lo_del_usuario_y_cae_al_bundle(self):
+        _bundle_con_recursos(self.bundle)
+        # sin sembrar: se resuelve al bundle (agent.md existe allí)
+        self.assertEqual(Path(PathManager.resolve_resource("agent.md")), self.bundle / "agent.md")
+        runtime_setup.sembrar_datos_iniciales()
+        self.assertEqual(Path(PathManager.resolve_resource("agent.md")), self.user / "agent.md")   # ahora el editable
+        self.assertEqual(Path(PathManager.resolve_resource("ai_workspace")), self.user / "ai_workspace")
+        absoluta = str(Path(self.tmp.name) / "x.md")
+        self.assertEqual(PathManager.resolve_resource(absoluta), absoluta)
+        # algo que no existe en ningún sitio → la ruta escribible (usuario)
+        self.assertEqual(Path(PathManager.resolve_resource("no_existe.md")), self.user / "no_existe.md")
+
+    def test_el_agente_encuentra_agent_md_sin_depender_del_cwd(self):
+        """Antes: rutas relativas al cwd → en el .exe el pre-flight daba FAIL y el Agente IA no arrancaba."""
+        _bundle_con_recursos(self.bundle)
+        (self.bundle / "agent.md").write_text((REPO / "agent.md").read_text(encoding="utf-8"), encoding="utf-8")
+        runtime_setup.sembrar_datos_iniciales()
+        os.chdir(self.tmp.name)                                   # un cwd cualquiera, sin agent.md
+        from app.services.validator_rules import RulesValidator
+        ok, msg = RulesValidator(db_manager=mock.Mock())._check_agent_md()
+        self.assertTrue(ok, msg)
+        from app.agents_engine.executor import AgentExecutor
+        ex = AgentExecutor(db_manager=mock.Mock())
+        self.assertEqual(Path(ex.workspace_path), self.user / "ai_workspace")
+        self.assertEqual(Path(ex.validator.agent_md_path), self.user / "agent.md")
+
+
+def _cargar_verificador():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("verificar_dist", REPO / "scripts" / "verificar_dist.py")
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    return modulo
+
+
+class VerificarDistTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+        self.dist = Path(self.tmp.name) / "GEM_OS_Suite"
+        (self.dist / "_internal" / "app" / "templates").mkdir(parents=True)
+        (self.dist / "_internal" / "app" / "templates" / "base.html").write_text("<html>", encoding="utf-8")
+        (self.dist / "_internal" / "agent.md").write_text("# a", encoding="utf-8")
+        (self.dist / "_internal" / ".env.example").write_text("OPENROUTER_API_KEY=sk-or-v1-XXXX\n", encoding="utf-8")
+        (self.dist / "GEM_OS_Suite.exe").write_bytes(b"MZ")
+        self.v = _cargar_verificador()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_un_dist_limpio_pasa(self):
+        r = self.v.verificar(self.dist)
+        self.assertEqual(r, {"prohibidos": [], "claves": [], "faltan": []})
+        self.assertEqual(self.v.main([str(self.dist)]), 0)
+
+    def test_detecta_env_credenciales_cookies_y_bases_de_datos(self):
+        interno = self.dist / "_internal"
+        (interno / ".env").write_text("A=1", encoding="utf-8")
+        (interno / "ai_workspace" / "config").mkdir(parents=True)
+        (interno / "ai_workspace" / "config" / "google_credentials.json").write_text("{}", encoding="utf-8")
+        (interno / "skool_cookies.json").write_text("{}", encoding="utf-8")
+        (interno / "data").mkdir()
+        (interno / "data" / "dropshipping_suite.db").write_bytes(b"SQLite")
+        r = self.v.verificar(self.dist)
+        self.assertEqual(len(r["prohibidos"]), 4)
+        self.assertEqual(self.v.main([str(self.dist)]), 2)
+
+    def test_detecta_una_clave_real_escondida_en_un_texto(self):
+        (self.dist / "_internal" / "notas.txt").write_text("mi clave sk-or-v1-" + "a1B2c3D4e5" * 4, encoding="utf-8")
+        r = self.v.verificar(self.dist)
+        self.assertEqual(r["claves"], ["_internal/notas.txt"])
+        self.assertEqual(self.v.main([str(self.dist)]), 2)
+
+    def test_el_example_no_cuenta_pero_los_recursos_si_hacen_falta(self):
+        (self.dist / "_internal" / "agent.md").unlink()
+        r = self.v.verificar(self.dist)
+        self.assertEqual(r["prohibidos"], [])
+        self.assertEqual(r["faltan"], ["agent.md"])
+        self.assertEqual(self.v.main([str(self.dist)]), 3)
+        self.assertEqual(self.v.main([str(Path(self.tmp.name) / "no_existe")]), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
