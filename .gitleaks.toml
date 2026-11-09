@@ -5,8 +5,8 @@ useDefault = true
 
 # Only documented placeholders, never whole files: a real key pasted into README or .env.example must still fail.
 [[allowlists]]
-description = "OpenRouter placeholders in docs and .env.example"
+description = "OpenRouter placeholders in docs, .env.example y tests"
 regexTarget = "secret"
 regexes = [
-  '''^sk-or-v1-(?:tu_clave|TU_API_KEY_AQUI|X{8,})$''',
+  '''^sk-or-v1-(?:tu_clave|TU_API_KEY_AQUI|X{8,}|[A-Z]{8,}[0-9]+)$''',
 ]
