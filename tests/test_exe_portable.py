@@ -143,7 +143,7 @@ class AlmacenDeClavesTests(Congelado):
         self.assertEqual(os.environ["GEMTEST_C"], "de_b")
 
     def test_nunca_revela_ni_registra_el_valor(self):
-        secreto = "sk-or-v1-SECRETOSECRETOSECRETO1234"
+        secreto = "sk-or-v1-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         with self.assertLogs(level=logging.DEBUG) as logs:
             logging.getLogger("prueba").debug("inicio")
             secrets_store.guardar_valores({"GEMTEST_A": secreto})
