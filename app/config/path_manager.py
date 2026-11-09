@@ -134,7 +134,9 @@ class PathManager:
             'resources': base_dir / "app" / "ui" / "resources",
         }
 
-        cls._ensure_dirs(paths)
+        # En el .exe el bundle (base/recursos) es de solo lectura: solo se crea lo del usuario
+        solo_lectura = ("base", "resources") if cls._is_executable() else ()
+        cls._ensure_dirs({k: v for k, v in paths.items() if k not in solo_lectura})
         return paths
 
     @classmethod
