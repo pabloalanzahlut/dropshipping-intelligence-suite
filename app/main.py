@@ -20,13 +20,19 @@ from app.ui.components.governance_panel import GovernancePanel
 from app.ui.components.ollama_panel import OllamaPanel
 from app.ui.components.kb_agent_panel import KBAgentPanel
 from app.ui.components.tienda_panel import TiendaPanel
+from app.ui.components.productos_panel import ProductosPanel
+from app.ui.components.negocio_panel import NegocioPanel
+from app.ui.components.insights_panel import InsightsPanel
+from app.ui.components.sistema_panel import SistemaPanel
 from app.database.connection import DatabaseConnection
 from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 from app.ui.themes.jack_styles import apply_jack_styles
 from app.services.provider_monitor_engine import ProviderMonitorEngine
 
 ERROR_COLOR = NEON_COLORS["pink"]
-IDX_CONFIG = 10            # posición del panel Configuración en `_create_panels`
+# Posición de cada panel nuevo en `_create_panels` (los antiguos conservan sus números: la consola
+# de Ingesta, por ejemplo, está fija en el 7)
+IDX_CONFIG, IDX_PRODUCTOS, IDX_NEGOCIO, IDX_INSIGHTS, IDX_SISTEMA = 10, 11, 12, 13, 14
 
 
 class GEMOSApplication:
@@ -76,17 +82,21 @@ class GEMOSApplication:
         self.sidebar = Sidebar(mc, items=[
             (SECCION, "Core", None),
             _item("🏠", "Dashboard", 0),
+            _item("📦", "Productos", IDX_PRODUCTOS),
             _item("💎", "Validador", 1),
+            _item("📈", "Negocio", IDX_NEGOCIO),
             (SECCION, "Ingesta y contenido", None),
             _item("▶️", "YouTube", 2),
             _item("✍️", "Copys", 3),
             _item("🎵", "TikTok", 4),
             _item("📥", "Ingesta", 7),
             (SECCION, "Inteligencia", None),
+            _item("⚡", "Insights KB", IDX_INSIGHTS),
             _item("🤖", "Agente IA", 8),
             (SECCION, "Tienda", None),
             _item("🛒", "Tienda", 9),
             (SECCION, "Sistema", None),
+            _item("🛠", "Alertas y registros", IDX_SISTEMA),
             _item("📋", "Gobernanza", 5),
             _item("🔗", "Enrutador", 6),
             _item("⚙️", "Configuración", IDX_CONFIG),
@@ -141,6 +151,12 @@ class GEMOSApplication:
         self._sync_st = StatusIndicator(indicators_frame, status="neutral", text="Inactivo")
         self._sync_st.pack(side=tk.RIGHT, padx=6)
 
+        # Campana de alertas (mismas que la web): el número son las que aún no has visto
+        self._campana = tk.Button(indicators_frame, text="🔔", command=self._abrir_alertas,
+                                  bg=DARK_BASE['bg_input'], fg=TEXT_COLORS['secondary'],
+                                  font=("Segoe UI", 10, "bold"), relief=tk.FLAT, padx=10, pady=3, cursor="hand2")
+        self._campana.pack(side=tk.RIGHT, padx=6)
+
         # Servidor web embebido (alertas, avisos, resumen, mantenimiento y sync corren en él)
         self._srv_st = StatusIndicator(indicators_frame, status="neutral", text="Servidor: —")
         self._srv_st.pack(side=tk.RIGHT, padx=6)
@@ -192,6 +208,11 @@ class GEMOSApplication:
             ("Configuración", lambda parent: SettingsPanel(
                 parent, db_manager=self.db_manager, al_cambiar_claves=self._on_claves_cambiadas,
                 primer_arranque=self._sin_claves)),
+            ("Productos", lambda parent: ProductosPanel(parent, db_manager=self.db_manager)),
+            ("Negocio", lambda parent: NegocioPanel(parent, db_manager=self.db_manager)),
+            ("Insights", lambda parent: InsightsPanel(parent, db_manager=self.db_manager)),
+            ("Sistema", lambda parent: SistemaPanel(parent, db_manager=self.db_manager,
+                                                    al_cambiar_alertas=self._pintar_campana)),
         ]
         self._panel_factories = specs
         self._panel_loaded = [False] * len(specs)
