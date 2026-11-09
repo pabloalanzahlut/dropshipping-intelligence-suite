@@ -1,0 +1,21 @@
+{
+  "_doc": "Catálogo máquina-legible de fixes GitHub. Espeja la tabla de ai_workspace/knowledge_base/github_kb.md. 'auto' = el agente puede aplicarlo solo (PR + merge si el chequeo local pasa). 'auto': false = abre Issue.",
+  "fixes": [
+    {"id": "F-001", "tipo": "CI_FAILURE/SECRETS_SCAN", "regex": "grep -r .sk-or-v1-", "auto": false, "accion": "issue"},
+    {"id": "F-002", "tipo": "DEPENDABOT/DIRTY_PR", "regex": "pull request is not mergeable", "auto": true, "accion": "cerrar_dependabot_obsoleto"},
+    {"id": "F-003", "tipo": "WORKFLOW_CONFIG", "regex": "workflow file .* from the (head|PR) branch", "auto": false, "accion": "issue"},
+    {"id": "F-004", "tipo": "WORKFLOW_CONFIG/ACTION_VERSION", "regex": "Node\\.js \\d+ actions are deprecated", "auto": true, "accion": "bump_actions"},
+    {"id": "F-005", "tipo": "SECRETS_SECURITY", "regex": "RuleID:\\s+generic-api-key", "auto": true, "accion": "allowlist_gitleaks"},
+    {"id": "F-006", "tipo": "WORKFLOW_CONFIG/RUNNER_COMPAT", "regex": "gitleaks-action.*(ubuntu-2[6-9]|GLIBC|not found)", "auto": false, "accion": "issue"},
+    {"id": "F-007", "tipo": "SECRETS_SECURITY/INJECTION_RISK", "regex": "\\$\\{\\{\\s*secrets\\.[A-Z0-9_]+\\s*\\}\\}.*\\brun:", "auto": true, "accion": "secrets_a_env"},
+    {"id": "F-008", "tipo": "DEPENDABOT/VERSION_NONEXISTENT", "regex": "No matching distribution found for ([A-Za-z0-9_.\\-]+)==", "auto": true, "accion": "pin_version_existente"},
+    {"id": "F-009", "tipo": "SECRETS_SECURITY/COOKIES_TRACKED", "regex": "File:\\s+\\S*cookies\\S*\\.json", "auto": true, "accion": "untrack_archivo"},
+    {"id": "F-010", "tipo": "SECRETS_SECURITY/PLAYWRIGHT_DATA", "regex": "File:\\s+\\.playwright-mcp/", "auto": true, "accion": "untrack_archivo"},
+    {"id": "F-011", "tipo": "SECRETS_SECURITY/HISTORY_LEAK", "regex": "leaks found: [1-9]", "auto": false, "accion": "issue_fuga"},
+    {"id": "F-012", "tipo": "SECRETS_SECURITY/FALSE_POSITIVE", "regex": "RuleID:\\s+generic-api-key", "auto": true, "accion": "allowlist_gitleaks"}
+  ],
+  "limites": {
+    "max_prs_por_dia": 2,
+    "rutas_prohibidas": ["CLAUDE.md", ".claude/memory/", "app/services/deterministic_gate.py", "app/services/financial_validator.py", ".github/workflows/validate-pipeline.yml", "ai_workspace/config/github_fixes.json"]
+  }
+}
