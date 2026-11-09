@@ -453,6 +453,55 @@ class AutodsTests(Base):
         self.assertEqual(r["con_tracking_pct"], 0.5)
 
 
+class DivisaTests(Base):
+    """AutoDS da el coste en USD y la venta en EUR: los costes se convierten, no se mezclan."""
+    CSV = AutodsTests.CSV
+
+    def parsear(self, rate=0.9, vivo=True, **kw):
+        with mock.patch.object(ai._fx, "get_rate", return_value=rate),                 mock.patch.object(ai._fx, "is_rate_live", return_value=vivo):
+            return ai.parsear(self.CSV, "a.csv", **kw)
+
+    def test_coste_usd_se_convierte_a_la_divisa_de_la_tienda(self):
+        p = self.parsear(moneda_coste="USD", moneda_tienda="EUR")
+        f = p["filas"][0]                                        # coste 4,00 y envío 1,50 en USD
+        self.assertEqual((f["coste_proveedor"], f["coste_envio"]), (3.6, 1.35))
+        self.assertEqual(f["precio_venta"], 45.0)                # la venta ya viene en la divisa de la tienda
+        self.assertEqual((p["moneda_coste"], p["moneda_tienda"], p["tasa_cambio"], p["tasa_en_vivo"]),
+                         ("USD", "EUR", 0.9, True))
+        self.assertIn("USD a EUR", p["avisos"][0])
+
+    def test_misma_divisa_o_sin_indicarla_no_convierte(self):
+        for kw in ({}, {"moneda_coste": "EUR"}):
+            f = self.parsear(**kw)["filas"][0]
+            self.assertEqual(f["coste_proveedor"], 4.0)
+
+    def test_tasa_manual_manda_y_no_consulta_la_red(self):
+        with mock.patch.object(ai._fx, "get_rate", side_effect=AssertionError("no debe llamarse")):
+            p = ai.parsear(self.CSV, "a.csv", moneda_coste="USD", tasa_cambio=0.8)
+        self.assertEqual(p["filas"][0]["coste_proveedor"], 3.2)
+
+    def test_si_el_cambio_no_es_en_vivo_se_avisa(self):
+        p = self.parsear(vivo=False, moneda_coste="USD")
+        self.assertFalse(p["tasa_en_vivo"])
+        self.assertIn("respaldo", p["avisos"][0])
+
+    def test_divisas_invalidas(self):
+        for kw in ({"moneda_coste": "DOLARES"}, {"moneda_coste": "USD", "tasa_cambio": 0}):
+            with self.assertRaises(ValueError):
+                ai.parsear(self.CSV, "a.csv", **kw)
+
+    def test_el_margen_real_usa_el_coste_convertido(self):
+        tienda_store.SYNC_LOCK.acquire(); tienda_store.SYNC_LOCK.release()
+        c, _ = cliente()
+        tienda_store.sincronizar_shopify(self.db, c, dias=30)
+        ayer = tienda_store._fecha_local(AYER.strftime("%Y-%m-%dT%H:%M:%SZ"), tienda_store._zona("Europe/Madrid"))
+        csv = (f"Número de pedido;Fecha del pedido;Producto;Cantidad;Coste\n#1004;{ayer};Lámpara luna;1;20,00\n").encode()
+        ai.aplicar(self.db, ai.parsear(csv, "p.csv", moneda_coste="USD", moneda_tienda="EUR", tasa_cambio=0.9))
+        r = tienda_store.resumen(self.db, 30, hoy=date.fromisoformat(ayer) + timedelta(days=1))
+        # #1001 y #1002: 10 + 5 de coste en Shopify; #1004: 20 USD × 0,9 = 18 EUR (no 20)
+        self.assertEqual(r["margen_real"]["coste_producto_y_envio"], 33.0)
+
+
 class ContextoAgenteTests(Base):
     def test_sin_conectar_dice_data_gap_y_prohibe_inventar(self):
         with entorno():
