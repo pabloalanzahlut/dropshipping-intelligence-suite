@@ -150,7 +150,7 @@ class AlmacenDeClavesTests(Congelado):
             secrets_store.cargar_entorno()
         self.assertNotIn("SECRETO", " ".join(logs.output))
         self.assertEqual(secrets_store.estado_claves(["GEMTEST_A", "GEMTEST_B"]), {"GEMTEST_A": True, "GEMTEST_B": False})
-        self.assertEqual(secrets_store.enmascarar(secreto), "…1234")
+        self.assertEqual(secrets_store.enmascarar(secreto), "…XXXX")
         self.assertEqual(secrets_store.enmascarar("corta"), "••••")
         self.assertEqual(secrets_store.enmascarar(""), "")
 
