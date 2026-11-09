@@ -75,6 +75,43 @@ Datos, registros y copias del `.exe` viven en `%APPDATA%\GEM_OS_Suite\` (`GEM_OS
 Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`](CLAUDE.md)). Pipeline: producto → clasificar → refutar → validar financiero → creativo → tienda → escalado.
 
 <!-- AUTO:skills -->
+33 comandos disponibles:
+
+| Comando | Función |
+|---|---|
+| `/amazon-dropshipping` | Lee ai_workspace/skills/amazon_dropshipping/procedimiento.md y configura el canal Amazon como complemento a Sh |
+| `/autods-notas` | Genera notas profesionales en inglés para enviar a proveedores chinos a través de AutoDS |
+| `/buscar-producto` | Descubre candidatos aplicando los 5 criterios de producto ganador |
+| `/clasificar-producto` | Eres el **Product Hunter** de GEM OS |
+| `/clonar-seccion` | Convierte una sección de una tienda que ya funciona en código Liquid para Shopify |
+| `/configurar-tienda` | Lee ai_workspace/skills/configurar_tienda/procedimiento.md y guía al usuario por el checklist completo de conf |
+| `/consolidar-manual` | Convierte toda la Knowledge Base en **un manual paso a paso**, no en una lista |
+| `/consultar-kb` | Lee ai_workspace/skills/consultar_kb_agente/procedimiento.md y responde la consulta del operador basándose en  |
+| `/destilar-skill` | Reescribe una skill a partir de lo que **realmente pasó**, no de lo que creíamos |
+| `/escalar-campana` | Lee ai_workspace/skills/escalar_campana/procedimiento.md y decide si escalar, mantener, optimizar o cortar la  |
+| `/estructurar-landing` | Eres el **Funnel Builder** de GEM OS |
+| `/fake-door` | Mide si un producto interesa **antes de comprar stock o gastar en ads** |
+| `/generar-video-ia` | Genera un video de producto para TikTok Ads usando **Higgsfield AI** — sin filmar, sin equipo |
+| `/gestionar-meta-ads` | Lee ai_workspace/skills/gestionar_meta_ads/procedimiento.md y genera naming de campañas + hooks s0–s3 estilo R |
+| `/google-ads` | Lee ai_workspace/skills/google_ads/procedimiento.md y configura/optimiza campañas de Google Ads |
+| `/hook-matrix` | Lee ai_workspace/skills/redactar_hook_matrix/procedimiento.md y genera una matriz de ≥10 hooks por fórmula |
+| `/importar-masivo` | Lee ai_workspace/skills/importar_masivo/procedimiento.md y procesa URLs de AliExpress/CJ/Temu → valida regla 3 |
+| `/investigar-nicho` | Lee ai_workspace/skills/investigar_nicho/procedimiento.md y genera un informe de 10 ángulos de ataque para el  |
+| `/matriz-precios` | Genera la matriz de precios con clasificación HOT/WARM/COLD/DISCARD para un lote de productos |
+| `/monitorear-caja` | Lee ai_workspace/skills/monitorear_flujo_caja/procedimiento.md y analiza la salud financiera del día/semana |
+| `/monitorear-skool` | Lee ai_workspace/skills/monitorear_skool/procedimiento.md |
+| `/oferta-multiunidad` | Diseña la estructura de oferta que sube el ticket medio sin tocar el precio unitario |
+| `/pipeline-completo` | Ejecuta el pipeline completo de GEM OS sobre una transcripción de video o datos de producto |
+| `/recuperar-carrito` | Webhook Shopify → Make.com → email nocturno 20–23h para recuperación de carritos abandonados |
+| `/redactar-anuncios-meta` | Lee ai_workspace/skills/redactar_anuncios_meta/procedimiento.md y genera copy para Meta Ads estáticos |
+| `/redactar-ficha-shopify` | Lee ai_workspace/skills/redactar_ficha_shopify/procedimiento.md y genera ficha completa de producto para Shopi |
+| `/redactar-guion` | Eres el **Media Buyer** de GEM OS |
+| `/refutar-producto` | Antes de invertir en pauta, intenta **demostrar que el producto no funciona** |
+| `/resolver-github` | Lee ai_workspace/skills/resolver_github/procedimiento.md y diagnostica/resuelve problemas GitHub (CI, PRs, Dep |
+| `/tiktok-ads` | Lee ai_workspace/skills/tiktok_ads/procedimiento.md y configura/gestiona campañas de TikTok Ads pagados |
+| `/tiktok-shop` | Lee ai_workspace/skills/tiktok_shop/procedimiento.md y configura/opera el canal TikTok Shop sin stock |
+| `/trafico-organico` | Lee ai_workspace/skills/trafico_organico/procedimiento.md y ejecuta el flujo de contenido orgánico para TikTok |
+| `/validar-financiero` | Ejecuta la validación financiera completa de un producto según las reglas inmutables de GEM OS |
 <!-- /AUTO:skills -->
 
 ---
@@ -87,6 +124,15 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 - **Secretos**: `.env`, credenciales y cookies nunca se versionan (`.gitignore`); solo `.env.example`. Detalle en [`SECURITY.md`](SECURITY.md).
 
 <!-- AUTO:workflows -->
+| Workflow | Disparadores |
+|---|---|
+| Auto Label PRs (`auto-label.yml`) | pull_request |
+| Auto Sync GEM OS (`auto-sync.yml`) | push, schedule, workflow_dispatch |
+| Cleanup Stale Branches (`delete-stale-branches.yml`) | schedule, workflow_dispatch |
+| Release GEM OS (`release.yml`) | push |
+| Setup Repository Labels (`setup-labels.yml`) | workflow_dispatch |
+| Stale Issues & PRs (`stale.yml`) | schedule, workflow_dispatch |
+| Validate GEM OS Pipeline (`validate-pipeline.yml`) | pull_request, push, schedule, workflow_dispatch |
 <!-- /AUTO:workflows -->
 
 ---
@@ -94,6 +140,20 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 ## 📦 Dependencias fijadas
 
 <!-- AUTO:deps -->
+| Paquete | Versión fijada |
+|---|---|
+| requests | 2.34.2 |
+| python-dotenv | 1.2.4 |
+| pyinstaller | 6.22.3 |
+| yt-dlp | 2026.10.26 |
+| youtube-transcript-api | 0.6.2 |
+| openai | 1.54.3 |
+| fastapi | 0.162.0 |
+| uvicorn | 0.54.0 |
+| python-multipart | 0.0.33 |
+| jinja2 | 3.1.6 |
+| markdown | 3.11.3 |
+| apscheduler | 3.11.3 |
 <!-- /AUTO:deps -->
 
 ---
@@ -400,25 +460,12 @@ DATABASE_PATH=app/database/dropshipping_suite.db
 
 ## 🧪 Testing
 
-### Test FASE 0: Fundacional
 ```bash
-python cli_test.py
+python -m pytest tests/ -q                 # suite completa
+python cli_test.py                         # humo de FASE 0 (BD, validador, limpieza)
+python scripts/sync_readme.py --check      # README sincronizado
+python scripts/github_self_heal.py --dry-run   # relevamiento del agente GitHub sin escribir
 ```
-
-Verifica:
-- Conexión a BD
-- FinancialValidator (Regla 3x, margen, peso)
-- TranscriptCleaner (limpieza ultra)
-
-### Test FASES 1, 3, 4
-```bash
-python test_fases_1_3_4.py
-```
-
-Verifica:
-- YouTubeChannelMonitor
-- CopywrightingEngine
-- TikTokScriptGenerator
 
 ---
 
@@ -432,31 +479,10 @@ Verifica:
 
 ---
 
-## 🎨 UI Tabs
+## 🎨 Interfaces
 
-1. **Validador Financiero (FASE 5)**
-   - Importar CSV/JSON
-   - Tabla de validaciones
-   - Exportar CSV/JSON
-
-2. **YouTube Monitor (FASE 1)**
-   - Agregar canales
-   - Sincronizar
-   - Ver estadísticas
-
-3. **Ingesta Masiva (Legacy)**
-   - Ingesta de GEM OS original
-
----
-
-## 🚀 Próximos Pasos (Fase 6+)
-
-- [ ] UI para Copywriting AIDA con preview en tiempo real
-- [ ] UI para Generador de Guiones TikTok (batch mode visual)
-- [ ] Dashboard consolidado con gráficos
-- [ ] Empaquetamiento .exe con PyInstaller
-- [ ] Integración real con OpenRouter API
-- [ ] Integración real con YouTube API
+- **Panel web** (FastAPI, `app/services/dashboard_server.py`): productos, negocio, Insights KB, tienda Shopify, sistema y configuración. Es la referencia visual; el escritorio replica su diseño.
+- **Escritorio** (Tkinter, `app/main.py`): validador financiero, monitor de YouTube, panel de tienda y configuración. El `.exe` arranca el servidor web por sí mismo.
 
 ---
 
@@ -489,7 +515,3 @@ Copyright 2026 GEM OS. Todos los derechos reservados.
 - **Mentores**: Adrián Sáenz (Regla 3x), Iván Caicedo (Logística), JaviEcom/Marc Verdú/Vic Ecomilions (Copywriting)
 
 ---
-
-**Versión:** 1.0 (FASES 0-5 COMPLETADAS)  
-**Fecha:** 2026-10-25  
-**Status:** ✅ MVP OPERACIONAL (Desktop)
