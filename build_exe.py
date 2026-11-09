@@ -11,7 +11,7 @@ Windows con configuración avanzada:
   • Uvicorn en segundo plano sin ventanas de comando externas
   • Seguridad            →  .env, credenciales, cookies y bases de datos NUNCA van dentro; el build
                             comprueba el resultado con scripts/verificar_dist.py y falla si encuentra alguno.
-                            Las claves se piden en Configuración y viven en %APPDATA%\GEM_OS_Suite\.env.
+                            Las claves se piden en Configuración y viven en %APPDATA%/GEM_OS_Suite/.env.
 
 Uso:
     python build_exe.py              # Compilación en carpeta (--onedir)
