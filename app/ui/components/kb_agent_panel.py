@@ -12,7 +12,7 @@ from datetime import datetime
 
 from app.agents_engine.executor import AgentExecutor
 from app.config.path_manager import PathManager
-from app.services import store_context
+from app.services import agent_router, insights_service, store_context
 from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 
 
@@ -71,6 +71,21 @@ class KBAgentPanel(ttk.Frame):
         self.query_text.insert("1.0", "Escribe tu pregunta aquí...")
         self.query_text.bind("<FocusIn>", self._clear_placeholder)
         self.query_text.bind("<Return>", lambda e: self._on_consultar() or "break")
+        self.query_text.bind("<KeyRelease>", lambda e: self._actualizar_ruta())
+
+        # Agente: automático (por tipo de pregunta) o fijado a mano — igual que la web
+        fila_ag = ttk.Frame(query_frame)
+        fila_ag.pack(fill=tk.X, pady=(0, 6))
+        ttk.Label(fila_ag, text="Agente:").pack(side=tk.LEFT)
+        self._agente_var = tk.StringVar(value="Automático (por tipo de pregunta)")
+        self._agentes_opc = {"Automático (por tipo de pregunta)": "auto"}
+        for nombre, info in agent_router.AGENTES.items():
+            self._agentes_opc[f"{nombre} · {info['rol']}"] = nombre
+        cb = ttk.Combobox(fila_ag, textvariable=self._agente_var, values=list(self._agentes_opc), state="readonly", width=44)
+        cb.pack(side=tk.LEFT, padx=6)
+        cb.bind("<<ComboboxSelected>>", lambda e: self._actualizar_ruta())
+        self._ruta_lbl = ttk.Label(fila_ag, text="", foreground=TEXT_COLORS["tertiary"])
+        self._ruta_lbl.pack(side=tk.LEFT, padx=8)
 
         # Botones
         btn_row = ttk.Frame(query_frame)
@@ -156,38 +171,92 @@ class KBAgentPanel(ttk.Frame):
         self._set_response("Consultando la Knowledge Base…")
         threading.Thread(target=self._run_query, args=(query,), daemon=True).start()
 
+    def _agente_elegido(self) -> str:
+        return self._agentes_opc.get(self._agente_var.get(), "auto")
+
+    def _actualizar_ruta(self):
+        """Muestra qué agente se usaría para lo que se está escribiendo."""
+        texto = self.query_text.get("1.0", tk.END).strip()
+        if not texto or texto == "Escribe tu pregunta aquí...":
+            self._ruta_lbl.config(text="")
+            return
+        ruta = agent_router.elegir_agente(texto, self._agente_elegido())
+        modo = "detectado" if ruta.get("automatico") else "fijado"
+        self._ruta_lbl.config(text=f"→ {ruta['agente']} ({ruta['tipo_etiqueta']}, {modo})")
+
+    @staticmethod
+    def _sin_fences(texto: str) -> str:
+        """Los modelos suelen envolver el JSON en ```json ... ```; deja solo el JSON."""
+        t = (texto or "").strip()
+        if not t.startswith("```"):
+            return t
+        t = t.split("\n", 1)[1] if "\n" in t else ""
+        if t.rstrip().endswith("```"):
+            t = t.rstrip()[:-3]
+        return t.strip()
+
     def _run_query(self, query: str):
         t0 = datetime.now()
         try:
-            # Cifras reales de la tienda (Shopify + AutoDS) desde SQLite: el agente no inventa ventas
+            # Mismo camino que la web: se detecta el tipo de pregunta, se elige el agente y se inyectan
+            # los insights de la KB más relevantes (numerados) + las cifras reales de la tienda.
             db_path = getattr(self.db_manager, "db_path", None) or str(PathManager.get_paths()["db"])
+            ruta = agent_router.elegir_agente(query, self._agente_elegido())
+            kb_context, fuentes = insights_service.contexto_kb_para(db_path, query, ruta["tipo"])
             bloque = store_context.bloque_para_prompt(db_path)
+            enriquecida = (
+                f"{bloque}"
+                f"CONTEXTO KB (insights más relevantes, numerados):
+---
+{kb_context}
+---
+
+"
+                f"{insights_service.INSTRUCCION_FUENTES}
+"
+                f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}
+"
+                f"PREGUNTA DEL OPERADOR:
+{query}"
+            )
             result = self.executor.execute_agent_task(
-                agent_name="consultar_kb_agente",
+                agent_name=ruta["agente"],
                 skill_name="consultar_kb_agente",
                 project_name="kb_query",
-                user_request=(f"{bloque}PREGUNTA DEL OPERADOR:\n{query}" if bloque else query),
+                user_request=enriquecida,
             )
             elapsed = (datetime.now() - t0).total_seconds()
-            self._show_result(result, elapsed, bool(bloque))
+            self._show_result(result, elapsed, bool(bloque), ruta,
+                              insights_service.fuentes_citadas(result, fuentes))
         except Exception as e:
             self._show_error(str(e))
 
     # ─────────────────────────── Display ───────────────────────────
 
-    def _show_result(self, raw: str, elapsed: float, con_tienda: bool = False):
+    def _show_result(self, raw: str, elapsed: float, con_tienda: bool = False, ruta=None, fuentes=None):
         try:
-            data = json.loads(raw)
+            data = json.loads(self._sin_fences(raw))
             formatted = json.dumps(data, ensure_ascii=False, indent=2)
             confianza = data.get("confianza", "?")
             tipo = data.get("tipo_consulta", "?")
             meta = f"Tipo: {tipo}  |  Confianza: {confianza}  |  {elapsed:.1f}s"
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, AttributeError):
             formatted = raw
             meta = f"Respuesta en texto plano  |  {elapsed:.1f}s"
 
+        if ruta:
+            meta += f"  |  Agente: {ruta['agente']} ({ruta['tipo_etiqueta']})"
         if con_tienda:
             meta += "  |  con datos de la tienda"
+        if fuentes:
+            formatted += "
+
+── Fuentes de la KB ──
+" + "
+".join(
+                f"[{f['n']}] {f['titulo']} — «{f['video_title'] or '?'}» · {f['canal']}" + (f"
+     {f['url']}" if f["url"] else "")
+                for f in fuentes)
         self.after(0, lambda: (
             self._set_response(formatted),
             self._set_status("● Listo", NEON_COLORS["green"]),

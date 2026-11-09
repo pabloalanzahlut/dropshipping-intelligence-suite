@@ -3,13 +3,26 @@
   "fuente": "sqlite",
   "nota": "Generado automáticamente desde SQLite. No editar manualmente.",
   "ultima_actualizacion": "2026-11-09",
-  "total_entradas": 217,
+  "total_entradas": 220,
   "por_tipo": {
-    "productos": 67,
-    "conversion": 70,
-    "operaciones": 80
+    "productos": 68,
+    "conversion": 71,
+    "operaciones": 81
   },
   "entradas": [
+    {
+      "tipo": "producto",
+      "tabla": "product_trends",
+      "id": 113,
+      "video_id": "ixxStVoWnUg",
+      "video_title": "FINDING THE BEST DROPSHIPPING WINNING PRODUCTS",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "2026-11-09",
+      "nombre": "Aliviador de dolor de pies",
+      "nicho": "Salud y bienestar",
+      "wow_factor": "Alivia el dolor de pies de manera efectiva",
+      "margen_estimado": 3.0
+    },
     {
       "tipo": "producto",
       "tabla": "product_trends",
@@ -880,6 +893,19 @@
       "nicho": "Seguridad en bicicletas y patinetes eléctricos",
       "wow_factor": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
       "margen_estimado": 3.0
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 113,
+      "video_id": "ixxStVoWnUg",
+      "video_title": "FINDING THE BEST DROPSHIPPING WINNING PRODUCTS",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "categoria": "landingpage",
+      "framework": "AIDA",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: No especificado  \n\n- La tienda de Cloud Step está bien diseñada con social proof y reviews reales.  \n- La tienda de Pocket Shave necesita mejorar el diseño y la presentació",
+      "triggers": "Gatillos detectados en pauta"
     },
     {
       "tipo": "conversion",
@@ -1790,6 +1816,19 @@
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Cloud, OpenAI  \n\n- Conectar Shopify con Cloud para automatizar la selección y carga de productos.  \n- Usar OpenAI para mejorar imágenes del producto y generar contenido visual profesional.  \n- C",
       "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 113,
+      "video_id": "ixxStVoWnUg",
+      "video_title": "FINDING THE BEST DROPSHIPPING WINNING PRODUCTS",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "fuente_trafico": "TikTok Ads",
+      "estrategia_escalado": "Estrategia orgánica sin anuncios",
+      "logistica": "No especificado",
+      "peso_kg": 0.0
     },
     {
       "tipo": "operaciones",

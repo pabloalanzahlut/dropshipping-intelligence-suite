@@ -804,9 +804,9 @@
       "nombre": "Vic Ecomilions",
       "url": "https://www.youtube.com/@ecomilions",
       "status": "Completado",
-      "last_scan": "2026-11-09T05:44:53.050037+00:00",
-      "total_videos": 8,
-      "processed_count": 7,
+      "last_scan": "2026-11-09T05:45:18.547467+00:00",
+      "total_videos": 10,
+      "processed_count": 9,
       "failed_count": 0,
       "videos": [
         {
@@ -861,8 +861,22 @@
         {
           "video_id": "ixxStVoWnUg",
           "title": "FINDING THE BEST DROPSHIPPING WINNING PRODUCTS",
+          "status": "Completado",
+          "timestamp": "2026-11-09T05:45:16.476536+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "kGLiEYWvzV4",
+          "title": "This is what 24 HOURS looks like as the owner of an E-COMMERCE business making +$25,000 a day",
+          "status": "Completado",
+          "timestamp": "2026-11-09T05:45:18.547467+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "S4K0AiochwE",
+          "title": "How to Go From DROPSHIPPING to PRIVATE LABEL: How I Would Find My Supplier",
           "status": "Procesando",
-          "timestamp": "2026-11-09T05:44:53.054041+00:00",
+          "timestamp": "2026-11-09T05:45:18.554522+00:00",
           "error": ""
         }
       ]
@@ -870,6 +884,6 @@
   ],
   "metadata": {
     "last_load": "2026-11-08T21:43:26.330176+00:00",
-    "last_updated": "2026-11-09T05:44:53.054041+00:00"
+    "last_updated": "2026-11-09T05:45:18.554522+00:00"
   }
 }
