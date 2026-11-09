@@ -92,3 +92,49 @@ def a_csv(columnas: Sequence[Dict[str, str]], filas: Sequence[Dict[str, Any]]) -
     for f in filas:
         w.writerow([_celda(f.get(c["k"])) for c in columnas])
     return ("﻿" + salida.getvalue()).encode("utf-8")
+
+
+# ── historial unificado (lo comparten la web y el escritorio) ────────────────
+
+def dataset(db_path: str, config_path: str, tipo: str, buscar: str = "", limite: int = 50,
+            offset: int = 0) -> Dict[str, Any]:
+    """Filas en el formato común {columnas, filas, total} para cualquier tipo de historial,
+    incluidos `insights` y `canales`. Lanza KeyError si el tipo no existe."""
+    from app.services import channel_store, insights_service
+    if tipo in DATASETS:
+        return consultar(db_path, tipo, buscar, limite, offset)
+    if tipo == "insights":
+        res = insights_service.query_insights(db_path, buscar=buscar, limite=min(limite, 200), offset=offset,
+                                              preview_chars=400)
+        cols = [("source_table", "Tipo"), ("titulo", "Insight"), ("subtitulo", "Nicho / marco"),
+                ("content_preview", "Contenido"), ("channel_name", "Canal"), ("video_title", "Vídeo"),
+                ("created_at", "Fecha")]
+        return {"tipo": tipo, "columnas": [{"k": k, "t": t} for k, t in cols], "filas": res["items"],
+                "total": res["total"]}
+    if tipo == "canales":
+        todos = channel_store.listar(config_path, db_path)
+        if buscar.strip():
+            q = buscar.strip().lower()
+            todos = [c for c in todos if q in (c["nombre"] + " " + c["url"]).lower()]
+        cols = [("nombre", "Canal"), ("url", "URL"), ("activo", "Activo"), ("prioridad", "Prioridad"),
+                ("idioma", "Idioma"), ("filtro_tema", "Solo ecommerce"), ("transcripciones", "Transcripciones"),
+                ("ultimo_estado", "Última verificación")]
+        return {"tipo": tipo, "columnas": [{"k": k, "t": t} for k, t in cols],
+                "filas": todos[offset:offset + limite], "total": len(todos)}
+    raise KeyError(tipo)
+
+
+def todas_las_filas(db_path: str, config_path: str, tipo: str, buscar: str = "") -> Dict[str, Any]:
+    """Todas las filas de un historial (hasta MAX_FILAS_CSV) listas para `a_csv`.
+    `insights` se pide de 200 en 200 porque su consulta tiene ese tope."""
+    from app.services import insights_service
+    if tipo != "insights":
+        return dataset(db_path, config_path, tipo, buscar, MAX_FILAS_CSV, 0)
+    datos = dataset(db_path, config_path, tipo, buscar, 200, 0)
+    filas, offset = list(datos["filas"]), 200
+    while len(filas) < datos["total"] and offset < MAX_FILAS_CSV:
+        filas += insights_service.query_insights(db_path, buscar=buscar, limite=200, offset=offset,
+                                                 preview_chars=400)["items"]
+        offset += 200
+    datos["filas"] = filas
+    return datos

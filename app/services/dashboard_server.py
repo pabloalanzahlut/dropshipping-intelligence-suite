@@ -1606,24 +1606,10 @@ async def api_registros(fuente: str = Query("servidor", pattern="^(servidor|elit
 
 def _dataset(tipo: str, buscar: str, limite: int, offset: int) -> Dict[str, Any]:
     """Filas en el formato común {columnas, filas, total} para cualquier tipo de historial."""
-    if tipo in exports.DATASETS:
-        return exports.consultar(DB_PATH, tipo, buscar, limite, offset)
-    if tipo == "insights":
-        res = _query_insights(buscar=buscar, limite=min(limite, 200), offset=offset, preview_chars=400)
-        cols = [("source_table", "Tipo"), ("titulo", "Insight"), ("subtitulo", "Nicho / marco"),
-                ("content_preview", "Contenido"), ("channel_name", "Canal"), ("video_title", "Vídeo"), ("created_at", "Fecha")]
-        return {"tipo": tipo, "columnas": [{"k": k, "t": t} for k, t in cols], "filas": res["items"], "total": res["total"]}
-    if tipo == "canales":
-        todos = channel_store.listar(CHANNELS_JSON_PATH, DB_PATH)
-        if buscar.strip():
-            q = buscar.strip().lower()
-            todos = [c for c in todos if q in (c["nombre"] + " " + c["url"]).lower()]
-        cols = [("nombre", "Canal"), ("url", "URL"), ("activo", "Activo"), ("prioridad", "Prioridad"),
-                ("idioma", "Idioma"), ("filtro_tema", "Solo ecommerce"), ("transcripciones", "Transcripciones"),
-                ("ultimo_estado", "Última verificación")]
-        return {"tipo": tipo, "columnas": [{"k": k, "t": t} for k, t in cols],
-                "filas": todos[offset:offset + limite], "total": len(todos)}
-    raise HTTPException(status_code=404, detail="Tipo de historial desconocido.")
+    try:
+        return exports.dataset(DB_PATH, CHANNELS_JSON_PATH, tipo, buscar, limite, offset)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Tipo de historial desconocido.")
 
 
 @app.get("/api/historial/{tipo}")
@@ -1635,13 +1621,10 @@ async def api_historial(tipo: str, buscar: str = Query("", max_length=100),
 @app.get("/api/exportar/{tipo}.csv")
 async def api_exportar_csv(tipo: str, buscar: str = Query("", max_length=100)) -> Response:
     """Descarga el historial como CSV (UTF-8 con BOM, listo para Excel)."""
-    datos = _dataset(tipo, buscar, exports.MAX_FILAS_CSV if tipo != "insights" else 200, 0)
-    if tipo == "insights":      # insights va paginado de 200 en 200
-        filas, offset = list(datos["filas"]), 200
-        while len(filas) < datos["total"] and offset < exports.MAX_FILAS_CSV:
-            filas += _query_insights(buscar=buscar, limite=200, offset=offset, preview_chars=400)["items"]
-            offset += 200
-        datos["filas"] = filas
+    try:
+        datos = exports.todas_las_filas(DB_PATH, CHANNELS_JSON_PATH, tipo, buscar)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Tipo de historial desconocido.")
     nombre = f"gemos_{tipo}_{time.strftime('%Y%m%d')}.csv"
     return Response(content=exports.a_csv(datos["columnas"], datos["filas"]),
                     media_type="text/csv; charset=utf-8",

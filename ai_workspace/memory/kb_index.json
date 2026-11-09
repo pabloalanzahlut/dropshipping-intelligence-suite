@@ -3,13 +3,52 @@
   "fuente": "sqlite",
   "nota": "Generado automáticamente desde SQLite. No editar manualmente.",
   "ultima_actualizacion": "2026-11-09",
-  "total_entradas": 208,
+  "total_entradas": 217,
   "por_tipo": {
-    "productos": 64,
-    "conversion": 67,
-    "operaciones": 77
+    "productos": 67,
+    "conversion": 70,
+    "operaciones": 80
   },
   "entradas": [
+    {
+      "tipo": "producto",
+      "tabla": "product_trends",
+      "id": 112,
+      "video_id": "_Vnz2yi1hlY",
+      "video_title": "THIS IS WHAT A DROPSHIPPING STORE MAKING OVER $120,000 A MONTH LOOKS LIKE",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "2026-11-09",
+      "nombre": "Smooth Roller (producto de depilación)",
+      "nicho": "Cuidado personal y depilación",
+      "wow_factor": "Elimina el vello sin dolor ni irritación, con resultados visibles rápidamente",
+      "margen_estimado": 4.7
+    },
+    {
+      "tipo": "producto",
+      "tabla": "product_trends",
+      "id": 111,
+      "video_id": "9QJsbQz2bPU",
+      "video_title": "5 DROPSHIPPING MISTAKES TO AVOID IN Q4 (Don't do this)",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "2026-11-09",
+      "nombre": "Producto Extraído por IA",
+      "nicho": "Dropshipping",
+      "wow_factor": "Ver transcripción",
+      "margen_estimado": 3.0
+    },
+    {
+      "tipo": "producto",
+      "tabla": "product_trends",
+      "id": 110,
+      "video_id": "VVqIujF6Sm4",
+      "video_title": "Chatting about dropshipping and life with my student Nicole",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "2026-11-09",
+      "nombre": "Producto Extraído por IA",
+      "nicho": "Dropshipping",
+      "wow_factor": "Ver transcripción",
+      "margen_estimado": 3.0
+    },
     {
       "tipo": "producto",
       "tabla": "product_trends",
@@ -841,6 +880,45 @@
       "nicho": "Seguridad en bicicletas y patinetes eléctricos",
       "wow_factor": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
       "margen_estimado": 3.0
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 112,
+      "video_id": "_Vnz2yi1hlY",
+      "video_title": "THIS IS WHAT A DROPSHIPPING STORE MAKING OVER $120,000 A MONTH LOOKS LIKE",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "categoria": "landingpage",
+      "framework": "AIDA",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page\nFramework: No especificado\nApps: No especificado\n\n- La tienda utiliza fotos de alta calidad, branding consistente y colores específicos (verde) para reforzar la identidad de marca.\n- Incluye secciones de \"ante",
+      "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 111,
+      "video_id": "9QJsbQz2bPU",
+      "video_title": "5 DROPSHIPPING MISTAKES TO AVOID IN Q4 (Don't do this)",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "categoria": "anuncio",
+      "framework": "AIDA",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: anuncio  \nFramework: No especificado  \nApps: No especificado  \n\n- Adaptar el marketing al Q4: ofertas, ángulos y creativos deben ajustarse a eventos como Black Friday, Cyber Monday y Navidad.  \n- Validar anuncios y creativ",
+      "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 110,
+      "video_id": "VVqIujF6Sm4",
+      "video_title": "Chatting about dropshipping and life with my student Nicole",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "categoria": "landing_page",
+      "framework": "AIDA",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: No especificado  \nFramework: No especificado  \nApps: Shopify  \n\n- Nicole desactiva las notificaciones de Shopify para evitar la dependencia emocional de las ventas.  \n- Revisa los pedidos una vez al día para mantener un en",
+      "triggers": "Gatillos detectados en pauta"
     },
     {
       "tipo": "conversion",
@@ -1712,6 +1790,45 @@
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Cloud, OpenAI  \n\n- Conectar Shopify con Cloud para automatizar la selección y carga de productos.  \n- Usar OpenAI para mejorar imágenes del producto y generar contenido visual profesional.  \n- C",
       "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 112,
+      "video_id": "_Vnz2yi1hlY",
+      "video_title": "THIS IS WHAT A DROPSHIPPING STORE MAKING OVER $120,000 A MONTH LOOKS LIKE",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "fuente_trafico": "TikTok Ads",
+      "estrategia_escalado": "Adaptación del producto a mercados menos competidos (Argentina)",
+      "logistica": "Proveedor recomendado (TeamDrop Products) con costes bajos y envíos eficientes",
+      "peso_kg": 0.0
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 111,
+      "video_id": "9QJsbQz2bPU",
+      "video_title": "5 DROPSHIPPING MISTAKES TO AVOID IN Q4 (Don't do this)",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "fuente_trafico": "TikTok/Meta Ads",
+      "estrategia_escalado": "Aumentar presupuesto en noviembre y diciembre tras validar estrategias en octubre.",
+      "logistica": "Preparar proveedores en septiembre para evitar problemas de envío durante el Q4.",
+      "peso_kg": 0.0
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 110,
+      "video_id": "VVqIujF6Sm4",
+      "video_title": "Chatting about dropshipping and life with my student Nicole",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "fuente_trafico": "TikTok/Meta Ads",
+      "estrategia_escalado": "CBO/ABO Testing",
+      "logistica": "No especificado",
+      "peso_kg": 0.0
     },
     {
       "tipo": "operaciones",

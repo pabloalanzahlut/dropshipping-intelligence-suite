@@ -804,9 +804,9 @@
       "nombre": "Vic Ecomilions",
       "url": "https://www.youtube.com/@ecomilions",
       "status": "Completado",
-      "last_scan": "2026-11-09T05:43:59.787434+00:00",
-      "total_videos": 4,
-      "processed_count": 3,
+      "last_scan": "2026-11-09T05:44:53.050037+00:00",
+      "total_videos": 8,
+      "processed_count": 7,
       "failed_count": 0,
       "videos": [
         {
@@ -833,8 +833,36 @@
         {
           "video_id": "VVqIujF6Sm4",
           "title": "Chatting about dropshipping and life with my student Nicole",
+          "status": "Completado",
+          "timestamp": "2026-11-09T05:44:16.716015+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "9QJsbQz2bPU",
+          "title": "5 DROPSHIPPING MISTAKES TO AVOID IN Q4 (Don't do this)",
+          "status": "Completado",
+          "timestamp": "2026-11-09T05:44:31.473268+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "_Vnz2yi1hlY",
+          "title": "THIS IS WHAT A DROPSHIPPING STORE MAKING OVER $120,000 A MONTH LOOKS LIKE",
+          "status": "Completado",
+          "timestamp": "2026-11-09T05:44:52.020147+00:00",
+          "error": ""
+        },
+        {
+          "video_id": "b92E1XxlxxU",
+          "title": "5 MISTAKES KEEPING YOU FROM MAKING A LIVING IN ECOMMERCE (you were lied to)",
+          "status": "Completado",
+          "timestamp": "2026-11-09T05:44:53.050037+00:00",
+          "error": "IA returned VACÍO"
+        },
+        {
+          "video_id": "ixxStVoWnUg",
+          "title": "FINDING THE BEST DROPSHIPPING WINNING PRODUCTS",
           "status": "Procesando",
-          "timestamp": "2026-11-09T05:43:59.801271+00:00",
+          "timestamp": "2026-11-09T05:44:53.054041+00:00",
           "error": ""
         }
       ]
@@ -842,6 +870,6 @@
   ],
   "metadata": {
     "last_load": "2026-11-08T21:43:26.330176+00:00",
-    "last_updated": "2026-11-09T05:43:59.801271+00:00"
+    "last_updated": "2026-11-09T05:44:53.054041+00:00"
   }
 }
