@@ -121,7 +121,7 @@ class Sidebar(tk.Frame):
 
     EXPANDED_WIDTH = 220
     COLLAPSED_WIDTH = 70
-    ALTO_BOTON = 40
+    ALTO_BOTON = 34
 
     def __init__(self, parent, items: List[Tuple], **kwargs):
         super().__init__(parent, bg=DARK_BASE['bg_secondary'], **kwargs)
