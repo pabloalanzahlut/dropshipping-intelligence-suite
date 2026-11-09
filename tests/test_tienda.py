@@ -361,6 +361,21 @@ class EstadisticasTests(Base):
         self.assertEqual((r["productos_activos"], r["activos_sin_ventas"]), (3, 1))
         self.assertEqual(r["top_productos"][0]["producto"], "Lámpara luna")
 
+    def test_catalogo_multiplicador_con_las_reglas_y_avisos(self):
+        self.sync()
+        r = self.resumen()
+        por = {c["producto"]: c for c in r["catalogo"]}
+        self.assertEqual((por["Pelota gatos"]["multiplicador"], por["Pelota gatos"]["clasificacion"]), (3.0, "WARM"))
+        self.assertIsNone(por["Lámpara luna"]["multiplicador"])           # sin coste: no se inventa
+        self.assertIsNone(por["Lámpara luna"]["clasificacion"])
+        self.assertTrue(any("2 producto(s) activo(s) sin coste" in f for f in r["datos_que_faltan"]))
+        # el coste de esos pedidos sale de Shopify (lo escribe AutoDS): se avisa de sus límites
+        self.assertTrue(any("coste por artículo" in f and "USD" in f for f in r["datos_que_faltan"]))
+        with entorno(**ENV_CC):
+            texto = store_context.construir(self.db, 30)["texto"]
+        self.assertIn("3,0× (WARM)", texto)
+        self.assertIn("SIN envío", texto)
+
     def test_margen_con_coste_real_de_autods(self):
         self.sync()
         csv = (f"Número de pedido;Fecha del pedido;Producto;SKU;Cantidad;Precio de venta;Coste;Coste de envío;Estado;"
