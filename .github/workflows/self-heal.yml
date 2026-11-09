@@ -1,0 +1,84 @@
+name: Self-Heal GEM OS
+
+on:
+  workflow_run:
+    workflows: ["Validate GEM OS Pipeline"]
+    types: [completed]
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'README.md'
+      - '.claude/commands/**'
+      - 'requirements.txt'
+      - '.github/workflows/**'
+  schedule:
+    - cron: '47 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+
+concurrency:
+  group: self-heal
+  cancel-in-progress: false
+
+env:
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256_LINUX_X64: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+
+jobs:
+  heal:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Install gitleaks
+        run: |
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL --retry 3 -o "$RUNNER_TEMP/$tarball" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tarball}"
+          echo "${GITLEAKS_SHA256_LINUX_X64}  $RUNNER_TEMP/$tarball" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      - name: Tests del agente
+        run: python3 -m unittest tests.test_github_self_heal -v
+
+      - name: Resolver fallo de CI
+        if: github.event_name == 'workflow_run'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: python3 scripts/github_self_heal.py --run-id "$RUN_ID"
+
+      - name: Relevamiento (sin fallo de CI)
+        if: github.event_name != 'workflow_run'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/github_self_heal.py
+
+      - name: Sincronizar README
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! python3 scripts/sync_readme.py --check; then
+            python3 scripts/sync_readme.py
+            git config user.name "gem-os-self-heal"
+            git config user.email "self-heal@users.noreply.github.com"
+            git add README.md
+            git commit -m "docs(self-heal): sincronizar README con el repositorio"
+            git push origin master
+          fi
+
+      - name: Verificar README en PR
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/sync_readme.py --check
