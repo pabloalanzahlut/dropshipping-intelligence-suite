@@ -16,12 +16,6 @@ ROOT = Path(__file__).resolve().parent.parent
 README = ROOT / "README.md"
 
 
-def version() -> str:
-    init = (ROOT / "app" / "__init__.py").read_text(encoding="utf-8")
-    m = re.search(r'__version__\s*=\s*["\']([^"\']+)', init)
-    return f"**Versión de la app:** `{m.group(1)}`" if m else "**Versión de la app:** sin definir"
-
-
 def _descripcion(md: Path) -> str:
     for linea in md.read_text(encoding="utf-8").splitlines()[1:]:
         linea = linea.strip()
@@ -57,7 +51,7 @@ def deps() -> str:
     return "\n".join(filas)
 
 
-GENERADORES = {"version": version, "skills": skills, "workflows": workflows, "deps": deps}
+GENERADORES = {"skills": skills, "workflows": workflows, "deps": deps}
 
 
 def renderizar(texto: str) -> str:
