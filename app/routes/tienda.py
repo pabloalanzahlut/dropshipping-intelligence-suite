@@ -8,7 +8,7 @@ La sesión (GEM_OS_PASSWORD) la exige el middleware de la app; aquí no se devue
 import asyncio
 import logging
 import threading
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, Query, UploadFile
 
@@ -88,14 +88,18 @@ async def api_contexto(dias: int = Query(30, ge=1, le=365)) -> Dict[str, Any]:
             "instruccion": store_context.INSTRUCCION}
 
 
-async def _leer(archivo: UploadFile, tipo: str, coste_por_unidad: bool, formato_fecha: str) -> Dict[str, Any]:
+async def _leer(archivo: UploadFile, tipo: str, coste_por_unidad: bool, formato_fecha: str,
+                moneda_coste: str = "USD", tasa_cambio: Optional[float] = None) -> Dict[str, Any]:
     datos = await archivo.read(autods_import.MAX_BYTES + 1)
     if len(datos) > autods_import.MAX_BYTES:
         raise HTTPException(status_code=413, detail="El archivo pasa de 10 MB: exporta un periodo más corto.")
     if formato_fecha not in ("auto", "mdy"):
         raise HTTPException(status_code=422, detail="formato_fecha debe ser «auto» o «mdy».")
+    # La divisa de la tienda sale de la última sincronización de Shopify (EUR si aún no hay ninguna)
+    moneda_tienda = ((tienda_store.ultima_sync(DB_PATH, solo_ok=True) or {}).get("moneda")) or "EUR"
     try:
-        return autods_import.parsear(datos, archivo.filename or "", tipo, coste_por_unidad, formato_fecha)
+        return autods_import.parsear(datos, archivo.filename or "", tipo, coste_por_unidad, formato_fecha,
+                                     moneda_coste or None, moneda_tienda, tasa_cambio)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
 
@@ -103,15 +107,17 @@ async def _leer(archivo: UploadFile, tipo: str, coste_por_unidad: bool, formato_
 @tienda_router.post("/autods/previsualizar")
 async def api_autods_previsualizar(archivo: UploadFile = File(...), tipo: str = Form("auto"),
                                    coste_por_unidad: bool = Form(False),
-                                   formato_fecha: str = Form("auto")) -> Dict[str, Any]:
+                                   formato_fecha: str = Form("auto"), moneda_coste: str = Form("USD"),
+                                   tasa_cambio: Optional[float] = Form(None)) -> Dict[str, Any]:
     """Lee el export de AutoDS y dice qué haría, sin escribir nada."""
-    parsed = await _leer(archivo, tipo, coste_por_unidad, formato_fecha)
+    parsed = await _leer(archivo, tipo, coste_por_unidad, formato_fecha, moneda_coste, tasa_cambio)
     return autods_import.previsualizar(DB_PATH, parsed)
 
 
 @tienda_router.post("/autods/importar", status_code=201)
 async def api_autods_importar(archivo: UploadFile = File(...), tipo: str = Form("auto"),
                               coste_por_unidad: bool = Form(False),
-                              formato_fecha: str = Form("auto")) -> Dict[str, Any]:
-    parsed = await _leer(archivo, tipo, coste_por_unidad, formato_fecha)
+                              formato_fecha: str = Form("auto"), moneda_coste: str = Form("USD"),
+                              tasa_cambio: Optional[float] = Form(None)) -> Dict[str, Any]:
+    parsed = await _leer(archivo, tipo, coste_por_unidad, formato_fecha, moneda_coste, tasa_cambio)
     return await asyncio.get_running_loop().run_in_executor(None, lambda: autods_import.aplicar(DB_PATH, parsed))

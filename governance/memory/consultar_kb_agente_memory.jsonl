@@ -1,0 +1,3 @@
+{"agent_name": "consultar_kb_agente", "event_type": "model_routing", "category": "technical", "summary": "Ruteado a modelo: anthropic/claude-haiku-5.5 (temp=0.1, max_tokens=8192)", "details": null, "context_hash": null, "timestamp": "2026-11-09T05:21:44.273162+00:00"}
+{"agent_name": "consultar_kb_agente", "event_type": "warning", "category": "technical", "summary": "Output no-JSON", "details": null, "context_hash": null, "timestamp": "2026-11-09T05:21:52.194584+00:00"}
+{"agent_name": "consultar_kb_agente", "event_type": "execution_complete", "category": "business", "summary": "Task 'kb_query': WARNING", "details": null, "context_hash": null, "timestamp": "2026-11-09T05:21:52.194584+00:00"}

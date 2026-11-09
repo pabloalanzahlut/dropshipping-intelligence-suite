@@ -103,6 +103,10 @@
           <select id="ad-tipo" x-model="imp.tipo" class="input-field"><option value="auto">Detectar</option><option value="pedidos">Pedidos</option><option value="productos">Productos</option></select></div>
         <div><label class="form-label" for="ad-fecha">Fechas con barras</label>
           <select id="ad-fecha" x-model="imp.formato_fecha" class="input-field"><option value="auto">DD/MM/AAAA</option><option value="mdy">MM/DD/AAAA</option></select></div>
+        <div><label class="form-label" for="ad-mon">Divisa del coste</label>
+          <select id="ad-mon" x-model="imp.moneda_coste" class="input-field"><option value="USD">USD (AliExpress, CJ…)</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select></div>
+        <div><label class="form-label" for="ad-tasa">Tipo de cambio (opc.)</label>
+          <input id="ad-tasa" x-model="imp.tasa_cambio" type="number" step="0.0001" min="0" class="input-field" placeholder="el de hoy"></div>
         <div style="grid-column:1/-1;"><label style="display:flex;gap:8px;align-items:center;font-size:12px;color:#a8b0d8;cursor:pointer;">
           <input type="checkbox" x-model="imp.coste_por_unidad"> El coste del export es <strong>por unidad</strong> (si no, se toma como total de la línea)</label></div>
         <div style="grid-column:1/-1;"><button type="submit" class="btn-ghost" style="width:100%;justify-content:center;" :disabled="!archivo || cargando" x-text="cargando ? 'Leyendo…' : 'Previsualizar (no guarda nada)'"></button></div>
@@ -116,6 +120,7 @@
           <template x-for="(cab, campo) in (vista?.columnas || {})" :key="campo"><span class="badge badge-info" x-text="campo + ' ← ' + cab"></span></template>
         </div>
         <p x-show="(vista?.sin_mapear || []).length" style="font-size:11px;color:#7880b0;margin:8px 0 0;" x-text="'Sin usar: ' + (vista?.sin_mapear || []).join(', ')"></p>
+        <p style="font-size:11px;color:#a8b0d8;margin:8px 0 0;" x-text="vista ? 'Costes en ' + vista.moneda_coste + (vista.moneda_coste !== vista.moneda_tienda ? ' → ' + vista.moneda_tienda + ' × ' + vista.tasa_cambio + (vista.tasa_en_vivo ? '' : ' (valor de respaldo)') : ' (sin convertir)') : ''"></p>
         <p style="font-size:10px;font-weight:700;color:#4a5080;letter-spacing:.5px;margin:10px 0 4px;">COMPRUEBA UNA FILA QUE CONOZCAS</p>
         <p style="font-size:11px;color:#a8b0d8;margin:0;line-height:1.7;" x-text="ejemplo()"></p>
         <template x-for="a in (vista?.avisos || [])" :key="a"><p style="font-size:11px;color:#fbbf24;margin:6px 0 0;" x-text="'! ' + a"></p></template>
@@ -215,7 +220,7 @@ function tienda() {
     dias: 30, r: null, a: null, ctx: '', error: '',
     shopify: { configurada: false, faltan: [] }, autodsEst: {}, sync: {},
     prueba: null, probando: false, archivo: null, vista: null, cargando: false, importando: false,
-    imp: { tipo: 'auto', coste_por_unidad: false, formato_fecha: 'auto' },
+    imp: { tipo: 'auto', coste_por_unidad: false, formato_fecha: 'auto', moneda_coste: 'USD', tasa_cambio: '' },
     _timer: null,
     get toast() { return Alpine.store('toast'); },
     get moneda() { return (this.r && this.r.moneda) || ''; },
@@ -237,7 +242,7 @@ function tienda() {
       const e = this.vista && this.vista.ejemplo; if (!e) return '';
       if (this.vista.tipo === 'productos') return (e.titulo || e.sku) + ' · coste ' + e.coste + ' · precio ' + (e.precio_venta ?? '—') + ' · stock ' + (e.stock ?? '—');
       return 'Pedido ' + (e.pedido_tienda || '(sin nº)') + ' · ' + e.fecha + ' · ' + e.cantidad + ' ud · ' + (e.titulo || e.sku) +
-        ' · coste de producto TOTAL ' + e.coste_proveedor + ' · envío ' + (e.coste_envio ?? '—') + ' · venta ' + (e.precio_venta ?? '—');
+        ' · coste de producto TOTAL (en ' + this.vista.moneda_tienda + ') ' + e.coste_proveedor + ' · envío ' + (e.coste_envio ?? '—') + ' · venta ' + (e.precio_venta ?? '—');
     },
     async mensaje(r, d) { try { const j = await r.json(); return typeof j.detail === 'string' ? j.detail : d; } catch (e) { return d; } },
     async init() { await this.estado(); await this.cargar(); },
@@ -283,6 +288,7 @@ function tienda() {
       const f = new FormData();
       f.append('archivo', this.archivo); f.append('tipo', this.imp.tipo);
       f.append('coste_por_unidad', this.imp.coste_por_unidad ? 'true' : 'false'); f.append('formato_fecha', this.imp.formato_fecha);
+      f.append('moneda_coste', this.imp.moneda_coste); if (this.imp.tasa_cambio !== '' && this.imp.tasa_cambio != null) f.append('tasa_cambio', this.imp.tasa_cambio);
       return f;
     },
     async previsualizar() {

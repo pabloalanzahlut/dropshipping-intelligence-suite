@@ -1,0 +1,70 @@
+```json
+{
+  "respuesta": "En los últimos 30 días (2026-10-11 → 2026-11-09) su tienda registra 0 pedidos y 0 unidades vendidas [TIENDA]. Los ingresos netos son 0,00 EUR (bruto 0,00 EUR, reembolsado 0,00 EUR) y el ticket medio no aplica [TIENDA]. No es posible calcular el ROAS real: el bloque CONTEXTO TIENDA no incluye el gasto publicitario del periodo, y con ingresos de 0,00 EUR el ROAS sería 0 con cualquier gasto mayor que cero. Para calcularlo necesito el gasto real en pauta (importe en EUR y plataforma) del periodo.",
+  "tipo_consulta": "metrica",
+  "datos": [
+    {
+      "metrica": "pedidos_totales",
+      "valor": 0,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "pedidos_cancelados",
+      "valor": 0,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "unidades_vendidas",
+      "valor": 0,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "ingresos_netos_eur",
+      "valor": 0.00,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "ingresos_brutos_eur",
+      "valor": 0.00,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "reembolsado_eur",
+      "valor": 0.00,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "ticket_medio",
+      "valor": null,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "roas_real",
+      "valor": null,
+      "fuente": "[DATA_GAP: gasto_publicitario_periodo]"
+    },
+    {
+      "metrica": "productos_catalogo_activo",
+      "valor": 1,
+      "sin_ventas_en_periodo": 1,
+      "fuente": "[TIENDA]"
+    }
+  ],
+  "data_gaps": [
+    "[DATA_GAP: gasto_publicitario_periodo] Falta el gasto en pauta (EUR y plataforma) para calcular el ROAS.",
+    "[DATA_GAP: pedidos_periodo] No hay pedidos en el periodo indicado en el bloque CONTEXTO TIENDA.",
+    "[DATA_GAP: coste_proveedor_y_envios] AutoDS sin importar: no se conoce el coste de proveedor ni los envíos reales."
+  ],
+  "referencia_kb": {
+    "criterio": "ROAS mínimo 2 (regla financiera inmutable)",
+    "canal": "Adrián Sáenz (fuente PRIMARIA)",
+    "nota": "Referencia de criterio, no garantía. Se aplicará al ROAS real cuando se disponga del gasto publicitario."
+  },
+  "fuentes": ["[TIENDA] Shopify sincronizado 2026-11-09 05:21 UTC"],
+  "confianza": "Alta para pedidos e ingresos (dato directo de [TIENDA]); No calculable para ROAS",
+  "fecha_consulta": "2026-11-09",
+  "bitacora": "Consulta de métricas de ventas y ROAS. Resultado: 0 pedidos y 0,00 EUR en el periodo. ROAS no calculado por falta de gasto publicitario. Se solicita el dato al operador."
+}
+```
+
+Para completar el ROAS, indique el gasto publicitario de los últimos 30 días (importe en EUR y plataforma, por ejemplo TikTok Ads o Meta). Con ese dato lo calculo como ingresos netos entre gasto publicitario, y lo comparo con el mínimo de 2 de la referencia de Adrián Sáenz.

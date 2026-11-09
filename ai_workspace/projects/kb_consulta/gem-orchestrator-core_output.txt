@@ -1,0 +1,64 @@
+```json
+{
+  "respuesta": "[TIENDA] En los últimos 30 días (2026-10-11 → 2026-11-09) hay 0 pedidos, 0 unidades vendidas y 0,00 EUR de ingresos netos (bruto 0,00 EUR, reembolsado 0,00 EUR). No puedo calcular el ROAS real: el bloque CONTEXTO TIENDA no incluye el gasto publicitario del periodo. [DATA_GAP: gasto_publicitario_periodo]",
+  "tipo_consulta": "metrica",
+  "datos": [
+    {
+      "metrica": "pedidos",
+      "valor": 0,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "unidades_vendidas",
+      "valor": 0,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "ingresos_netos_EUR",
+      "valor": 0.00,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "ingresos_brutos_EUR",
+      "valor": 0.00,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "reembolsos_EUR",
+      "valor": 0.00,
+      "fuente": "[TIENDA]"
+    },
+    {
+      "metrica": "ticket_medio",
+      "valor": null,
+      "fuente": "[TIENDA] — DATA_GAP: no hay pedidos en el periodo"
+    },
+    {
+      "metrica": "roas_real",
+      "valor": null,
+      "fuente": "[TIENDA] — DATA_GAP: gasto publicitario no disponible"
+    },
+    {
+      "metrica": "catalogo_activo",
+      "valor": 1,
+      "detalle": "1 producto sin ventas en el periodo",
+      "fuente": "[TIENDA]"
+    }
+  ],
+  "datos_pendientes": [
+    "[DATA_GAP: gasto_publicitario_periodo] — necesario para calcular ROAS (ingresos atribuidos / gasto publicitario).",
+    "[DATA_GAP: coste_proveedor_y_envios] — AutoDS sin importar; sin coste de proveedor ni envíos reales no se puede calcular margen.",
+    "[DATA_GAP: pedidos_periodo] — 0 pedidos en el periodo; no hay base para medir conversión ni ROAS."
+  ],
+  "fuentes": ["[TIENDA] · Shopify sincronizado 2026-11-09 05:21 UTC"],
+  "confianza": "Alta",
+  "fecha_consulta": "2026-11-09",
+  "nota": "El CONTEXTO KB indexado no contiene ROAS ni métricas de la tienda del operador, por lo que no se citan insights de la KB en esta respuesta. Las referencias de ROAS de los canales (por ejemplo, el mínimo de ROAS 2 de Adrián Sáenz) son criterios de referencia, no datos de tu tienda."
+}
+```
+
+**Para calcular el ROAS real necesito:**
+1. El gasto publicitario (Meta Ads, TikTok Ads u otros) del periodo 2026-10-11 → 2026-11-09, en EUR.
+2. Confirmación de si quieres el ROAS sobre ingresos brutos o netos.
+
+**Para una lectura de margen:** el coste de proveedor y los envíos reales de los productos importados en AutoDS.

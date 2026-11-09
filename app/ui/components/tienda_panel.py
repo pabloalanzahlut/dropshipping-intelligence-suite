@@ -11,7 +11,7 @@ servicios): lo que se sincroniza aquí lo ve la web y el Agente IA de ambas.
 import threading
 import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, simpledialog, ttk
 from tkinter.scrolledtext import ScrolledText
 
 from app.config.path_manager import PathManager
@@ -239,9 +239,17 @@ class TiendaPanel(ttk.Frame):
             "¿El coste de tu export está dado POR UNIDAD?\n\nSí = por unidad (se multiplicará por la cantidad)\n"
             "No = es el total de la línea del pedido")
 
+        moneda = (simpledialog.askstring(
+            "Divisa del coste", "¿En qué divisa viene el COSTE en tu export?\n(USD para AliExpress/CJ, EUR si ya está "
+            "en euros). Se convertirá a la divisa de tu tienda.", initialvalue="USD", parent=self) or "").strip().upper()
+        if not moneda:
+            return
+        ok_sync = tienda_store.ultima_sync(self.db_path, solo_ok=True) or {}
+        moneda_tienda = ok_sync.get("moneda") or "EUR"
+
         def trabajo():
             p = Path(ruta)
-            parsed = autods_import.parsear(p.read_bytes(), p.name, "auto", por_unidad)
+            parsed = autods_import.parsear(p.read_bytes(), p.name, "auto", por_unidad, "auto", moneda, moneda_tienda)
             return parsed, autods_import.previsualizar(self.db_path, parsed)
 
         def listo(res):
@@ -250,7 +258,9 @@ class TiendaPanel(ttk.Frame):
             fila = (f"{e.get('titulo') or e.get('sku')} · coste {e.get('coste')}" if v["tipo"] == "productos" else
                     f"pedido {e.get('pedido_tienda') or '(sin nº)'} · {e['fecha']} · {e['cantidad']} ud · "
                     f"coste de producto TOTAL {e['coste_proveedor']} · envío {e.get('coste_envio')}")
-            texto = (f"Archivo: {v['archivo']} ({v['tipo']})\n"
+            conv = (f"{v['moneda_coste']} → {v['moneda_tienda']} × {v['tasa_cambio']}"
+                    if v["moneda_coste"] != v["moneda_tienda"] else f"{v['moneda_coste']} (sin convertir)")
+            texto = (f"Archivo: {v['archivo']} ({v['tipo']}) · costes en {conv}\n"
                      f"Filas: {v['filas']} · nuevas {v['nuevas']} · ya existentes {v['actualizadas']}\n\n"
                      "Columnas reconocidas:\n  " + "\n  ".join(f"{k} ← «{c}»" for k, c in v["columnas"].items()) +
                      (f"\n\nSin usar: {', '.join(v['sin_mapear'])}" if v["sin_mapear"] else "") +

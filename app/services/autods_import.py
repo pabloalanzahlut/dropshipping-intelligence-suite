@@ -15,7 +15,10 @@ QUÉ NO SE ASUME
   · Las fechas con barras se leen como DD/MM/AAAA salvo que indiques `formato_fecha="mdy"`.
   · Reimportar el mismo archivo (o uno solapado) no duplica nada: cada línea tiene una clave estable.
 
-Los importes se guardan tal cual vienen (sin convertir divisas): usa un export en la divisa de tu tienda.
+DIVISAS: AutoDS muestra el coste de compra en la divisa del proveedor (USD en AliExpress) y la venta en la de
+tu tienda (EUR). Los COSTES se convierten a la divisa de la tienda al importar (`moneda_coste` + tipo de cambio de
+fx_rates, o el `tasa_cambio` que indiques); el precio de venta se toma ya en la divisa de la tienda. La previsualización
+enseña la moneda, la tasa y si es en vivo, para que no haya mezcla silenciosa de USD y EUR en el margen.
 """
 from __future__ import annotations
 
@@ -29,6 +32,7 @@ from contextlib import closing
 from datetime import date, timedelta
 from typing import Any, Dict, List, Optional
 
+from app.services import fx_rates as _fx
 from app.services import metrics_import as _mi
 
 MAX_BYTES = 10 * 1024 * 1024
@@ -138,12 +142,32 @@ def _fecha(valor: Any, formato: str):
 
 # ── parseo (sin tocar la base de datos) ──────────────────────────────────────
 
+def _tasa(moneda_coste: Optional[str], moneda_tienda: str, tasa_cambio: Optional[float]):
+    """(tasa, en_vivo, aviso). Sin `moneda_coste` o igual a la de la tienda no se convierte."""
+    origen, destino = (moneda_coste or moneda_tienda).strip().upper(), (moneda_tienda or "EUR").strip().upper()
+    if not (re.fullmatch(r"[A-Z]{3}", origen) and re.fullmatch(r"[A-Z]{3}", destino)):
+        raise ValueError("Las divisas deben ser códigos de 3 letras (USD, EUR…).")
+    if origen == destino:
+        return 1.0, True, None
+    if tasa_cambio is not None:
+        if tasa_cambio <= 0:
+            raise ValueError("El tipo de cambio debe ser mayor que 0.")
+        return float(tasa_cambio), True, f"Costes convertidos de {origen} a {destino} con el tipo de cambio que indicaste ({tasa_cambio:g})."
+    tasa = float(_fx.get_rate(origen, destino))
+    vivo = bool(_fx.is_rate_live(origen, destino))
+    return tasa, vivo, (f"Costes convertidos de {origen} a {destino} a {tasa:.4f} (cambio de hoy"
+                        + ("" if vivo else "; OJO: no se pudo consultar el cambio en vivo, es el valor de respaldo")
+                        + "). Si tu export ya viene en " + destino + ", elige esa divisa.")
+
+
 def parsear(contenido: bytes, archivo: str = "", tipo: str = "auto", coste_por_unidad: bool = False,
-            formato_fecha: str = "auto") -> Dict[str, Any]:
+            formato_fecha: str = "auto", moneda_coste: Optional[str] = None, moneda_tienda: str = "EUR",
+            tasa_cambio: Optional[float] = None) -> Dict[str, Any]:
     if len(contenido) > MAX_BYTES:
         raise ValueError("El archivo pasa de 10 MB: exporta un periodo más corto.")
     if tipo not in ("auto", "pedidos", "productos"):
         raise ValueError("El tipo debe ser «pedidos», «productos» o «auto».")
+    tasa, tasa_viva, aviso_tasa = _tasa(moneda_coste, moneda_tienda, tasa_cambio)
     filas, formato, coma_decimal = _filas(contenido, archivo)
     if len(filas) > MAX_FILAS:
         raise ValueError(f"Demasiadas filas ({len(filas)}); el máximo es {MAX_FILAS}.")
@@ -201,8 +225,9 @@ def parsear(contenido: bytes, archivo: str = "", tipo: str = "auto", coste_por_u
             fila = {
                 "fecha": fd[0], "pedido_tienda": c(f, "pedido_tienda").lstrip("#"), "titulo": c(f, "titulo"),
                 "sku": c(f, "sku"), "cantidad": cant, "precio_venta": n(f, "precio_venta"),
-                "coste_proveedor": (coste * cant if coste_por_unidad and coste is not None else coste),
-                "coste_envio": envio, "estado": c(f, "estado"), "proveedor": c(f, "proveedor"),
+                "coste_proveedor": (round((coste * cant if coste_por_unidad else coste) * tasa, 4)
+                                    if coste is not None else None),
+                "coste_envio": round(envio * tasa, 4) if envio is not None else None, "estado": c(f, "estado"), "proveedor": c(f, "proveedor"),
                 "tracking": c(f, "tracking"), "pais": c(f, "pais"),
             }
             base = "|".join([fila["pedido_tienda"] or fila["fecha"], fila["sku"] or fila["titulo"],
@@ -214,7 +239,7 @@ def parsear(contenido: bytes, archivo: str = "", tipo: str = "auto", coste_por_u
                 descartadas += 1
                 continue
             stock = n(f, "stock")
-            fila = {"titulo": c(f, "titulo"), "sku": c(f, "sku"), "coste": coste, "precio_venta": n(f, "precio_venta"),
+            fila = {"titulo": c(f, "titulo"), "sku": c(f, "sku"), "coste": round(coste * tasa, 4), "precio_venta": n(f, "precio_venta"),
                     "stock": int(stock) if stock is not None else None, "proveedor": c(f, "proveedor"),
                     "estado": c(f, "estado")}
             base = "|".join([fila["sku"] or fila["titulo"], fila["proveedor"]])
@@ -225,6 +250,8 @@ def parsear(contenido: bytes, archivo: str = "", tipo: str = "auto", coste_por_u
     if not filas_ok:
         raise ValueError("Ninguna fila tiene los datos mínimos (fecha y coste en pedidos; título/SKU y coste en "
                          "productos). Revisa el archivo.")
+    if aviso_tasa:
+        avisos.insert(0, aviso_tasa)
     if descartadas:
         avisos.append(f"{descartadas} fila(s) sin los datos mínimos se han ignorado.")
     if ambiguas:
@@ -248,6 +275,8 @@ def parsear(contenido: bytes, archivo: str = "", tipo: str = "auto", coste_por_u
         "columnas": {k: originales[v] for k, v in mapa.items()},
         "sin_mapear": [o for i, o in enumerate(originales) if i not in reconocidas and o.strip()],
         "coste_por_unidad": coste_por_unidad, "avisos": avisos, "ejemplo": ejemplo,
+        "moneda_coste": (moneda_coste or moneda_tienda).upper(), "moneda_tienda": moneda_tienda.upper(),
+        "tasa_cambio": round(tasa, 6), "tasa_en_vivo": tasa_viva,
         "totales": ({"coste_proveedor": round(sum(r["coste_proveedor"] or 0 for r in filas_ok), 2),
                      "coste_envio": round(sum(r["coste_envio"] or 0 for r in filas_ok), 2),
                      "unidades": sum(r["cantidad"] for r in filas_ok),
@@ -278,7 +307,8 @@ def previsualizar(db_path: str, parsed: Dict[str, Any]) -> Dict[str, Any]:
     claves = [f["clave"] for f in parsed["filas"]]
     nuevas = sum(1 for k in claves if k not in existentes)
     return {k: parsed[k] for k in ("tipo", "archivo", "formato", "filas_leidas", "descartadas", "columnas",
-                                   "sin_mapear", "coste_por_unidad", "avisos", "ejemplo", "totales")} | {
+                                   "sin_mapear", "coste_por_unidad", "avisos", "ejemplo", "totales", "moneda_coste",
+                                   "moneda_tienda", "tasa_cambio", "tasa_en_vivo")} | {
         "filas": len(claves), "nuevas": nuevas, "actualizadas": len(claves) - nuevas,
         "archivo_ya_importado": ya["importado_at"] if ya else None}
 
