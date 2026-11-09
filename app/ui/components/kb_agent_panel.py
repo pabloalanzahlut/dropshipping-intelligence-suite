@@ -226,10 +226,19 @@ class KBAgentPanel(ttk.Frame):
 
     # ─────────────────────────── Display ───────────────────────────
 
+    @staticmethod
+    def _texto_natural(data) -> str:
+        """Lo que lee el operador: la respuesta en texto, no el JSON interno del agente."""
+        if isinstance(data, dict):
+            texto = str(data.get("respuesta") or data.get("output") or "").strip()
+            if texto:
+                return texto
+        return json.dumps(data, ensure_ascii=False, indent=2)
+
     def _show_result(self, raw: str, elapsed: float, con_tienda: bool = False, ruta=None, fuentes=None):
         try:
             data = json.loads(self._sin_fences(raw))
-            formatted = json.dumps(data, ensure_ascii=False, indent=2)
+            formatted = self._texto_natural(data)
             confianza = data.get("confianza", "?")
             tipo = data.get("tipo_consulta", "?")
             meta = f"Tipo: {tipo}  |  Confianza: {confianza}  |  {elapsed:.1f}s"

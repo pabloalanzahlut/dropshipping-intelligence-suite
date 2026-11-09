@@ -1,0 +1,35 @@
+```json
+{
+  "respuesta": "Hola. Ahora mismo no hay pedidos en la tienda en el periodo consultado (últimos 30 días, 2026-10-11 → 2026-11-09) [TIENDA]. El catálogo activo tiene 1 producto, sin ventas en ese periodo [TIENDA]. Puedo consultar la KB sobre productos, estrategias de conversión, operaciones de tráfico o lecciones. Para responder sobre rentabilidad real necesitaría datos que hoy faltan: coste de proveedor y envíos reales [TIENDA: DATA_GAP].",
+  "tipo_consulta": "metrica",
+  "datos": [
+    {
+      "fuente": "[TIENDA]",
+      "pedidos": 0,
+      "pedidos_cancelados": 0,
+      "unidades": 0,
+      "ingresos_netos_eur": 0.00,
+      "ticket_medio": null,
+      "catalogo_activo": 1,
+      "productos_sin_ventas_periodo": 1
+    },
+    {
+      "fuente": "[TIENDA]",
+      "producto": "Electric Vibration Massage Comb Red Light Hai",
+      "pvp_eur": 42.99,
+      "coste_eur": 19.99,
+      "multiplicador_sobre_coste_producto": 2.15,
+      "clasificacion": "COLD",
+      "stock": 20,
+      "nota": "Multiplicador calculado sobre coste de producto sin envío; sobre coste landed será menor. Referencia de reglas: mínimo 2×, objetivo 3×."
+    }
+  ],
+  "fuentes": ["[TIENDA] · Shopify sincronizado 2026-11-09 19:18 UTC"],
+  "data_gaps": [
+    "No hay pedidos en el periodo.",
+    "AutoDS sin importar: no se conoce el coste de proveedor ni los envíos reales."
+  ],
+  "confianza": "Alta",
+  "fecha_consulta": "2026-11-09"
+}
+```
