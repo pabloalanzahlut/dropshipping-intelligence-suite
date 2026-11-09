@@ -76,6 +76,13 @@ def verificar(dist: Path) -> Dict[str, List[str]]:
 
 
 def main(argv: List[str] | None = None) -> int:
+    # La consola de Windows (cp1252) no puede imprimir ✔/✖: sin esto el script fallaba DESPUÉS de pasar
+    # y el build daba una falsa alarma de secretos.
+    for flujo in (sys.stdout, sys.stderr):
+        try:
+            flujo.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
     args = argv if argv is not None else sys.argv[1:]
     dist = Path(args[0]) if args else Path("dist") / "GEM_OS_Suite"
     if not dist.is_dir():

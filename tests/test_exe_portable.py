@@ -357,6 +357,15 @@ class VerificarDistTests(unittest.TestCase):
         self.assertEqual(r["claves"], ["_internal/notas.txt"])
         self.assertEqual(self.v.main([str(self.dist)]), 2)
 
+    def test_imprime_sin_fallar_en_una_consola_cp1252(self):
+        """Regresión: con PYTHONIOENCODING sin definir, el ✔ final lanzaba UnicodeEncodeError (código 1)."""
+        import subprocess
+        entorno = {k: v for k, v in os.environ.items() if k != "PYTHONIOENCODING"}
+        entorno["PYTHONIOENCODING"] = "cp1252"
+        r = subprocess.run([sys.executable, str(REPO / "scripts" / "verificar_dist.py"), str(self.dist)],
+                           capture_output=True, env=entorno, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stderr.decode("utf-8", "replace")[-300:])
+
     def test_los_marcadores_de_la_plantilla_no_son_claves(self):
         (self.dist / "_internal" / ".env.example").write_text(
             "OPENROUTER_API_KEY=sk-or-v1-" + "X" * 64 + "\nSHOPIFY_ACCESS_TOKEN=shpat_" + "X" * 32 + "\n", encoding="utf-8")
