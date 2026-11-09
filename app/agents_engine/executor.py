@@ -9,6 +9,7 @@ Integra las 4 metodologías del agent.md:
 
 import os, json, requests
 from typing import Dict, Any, Optional, Tuple
+from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
 from app.services.validator_rules import RulesValidator
 from app.services.memory_logger import MemoryLogger
