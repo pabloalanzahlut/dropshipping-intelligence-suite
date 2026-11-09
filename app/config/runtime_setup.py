@@ -81,6 +81,63 @@ def sembrar_datos_iniciales() -> Dict[str, int]:
     return resultado
 
 
+_JSON_DE_DATOS = ("youtube_channels.json", "config.json", "queue_state.json", "last_sync.json",
+                  "videos_descartados.json")
+
+
+def importar_datos(origen: Path) -> Dict[str, object]:
+    """Trae tus datos de otra carpeta `data/` (p. ej. la del proyecto) a la carpeta de datos actual.
+
+    · La base de datos se copia con la API de backup de SQLite (segura aunque esté en uso) y se
+      comprueba su integridad ANTES de tocar nada.
+    · Si ya había una base de datos con contenido, antes se guarda una copia en `backups/`.
+    · Los JSON de configuración se copian dejando un `.bak` del que había.
+    Devuelve un resumen. Lanza ValueError / FileNotFoundError con un mensaje legible."""
+    import sqlite3
+    from contextlib import closing
+
+    origen = Path(origen)
+    bd_origen = origen / "dropshipping_suite.db"
+    if not bd_origen.is_file():
+        raise FileNotFoundError("No encuentro «dropshipping_suite.db» en esa carpeta.")
+    rutas = PathManager.get_paths()
+    destino = rutas["db"]
+    if destino.exists() and destino.resolve() == bd_origen.resolve():
+        raise ValueError("Esa ya es la carpeta de datos que estás usando.")
+    uri = f"file:{bd_origen.resolve().as_posix()}?mode=ro"
+    try:
+        with closing(sqlite3.connect(uri, uri=True)) as c:
+            if c.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise ValueError("La base de datos de origen no pasa la comprobación de integridad.")
+    except sqlite3.DatabaseError as exc:
+        raise ValueError(f"El archivo no es una base de datos válida: {exc}") from exc
+
+    respaldo = None
+    if destino.exists() and destino.stat().st_size > 0:
+        from app.services import kb_maintenance
+        respaldo = kb_maintenance.backup_db(str(destino), "antes_de_importar")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    with closing(sqlite3.connect(uri, uri=True)) as src, closing(sqlite3.connect(str(destino))) as dst:
+        src.backup(dst)
+    try:                                   # aplica las migraciones que falten a una BD más antigua
+        from app.database.connection import DatabaseConnection
+        DatabaseConnection(str(destino))
+    except Exception:
+        pass
+
+    copiados: List[str] = []
+    for nombre in _JSON_DE_DATOS:
+        s = origen / nombre
+        if not s.is_file():
+            continue
+        d = rutas["data"] / nombre
+        if d.exists():
+            shutil.copy2(d, d.with_suffix(d.suffix + ".bak"))
+        shutil.copy2(s, d)
+        copiados.append(nombre)
+    return {"bd": str(destino), "respaldo": respaldo, "json": copiados}
+
+
 def iniciar_entorno() -> Dict[str, object]:
     """Ver la descripción del módulo. Devuelve un resumen (útil para registros y pruebas)."""
     _redirigir_salida_sin_consola()
