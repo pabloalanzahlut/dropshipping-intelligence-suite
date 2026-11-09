@@ -139,6 +139,10 @@ class GEMOSApplication:
         
         self._sync_st = StatusIndicator(indicators_frame, status="neutral", text="Inactivo")
         self._sync_st.pack(side=tk.RIGHT, padx=6)
+
+        # Servidor web embebido (alertas, avisos, resumen, mantenimiento y sync corren en él)
+        self._srv_st = StatusIndicator(indicators_frame, status="neutral", text="Servidor: —")
+        self._srv_st.pack(side=tk.RIGHT, padx=6)
         
         # Sync button (neon style)
         sync_btn_frame = tk.Frame(tb, bg=DARK_BASE['bg_secondary'])
@@ -151,7 +155,15 @@ class GEMOSApplication:
                            relief=tk.FLAT, padx=15, pady=6,
                            cursor="hand2")
         sync_btn.pack()
-        
+
+        web_btn = tk.Button(sync_btn_frame, text="🌐 Abrir panel web",
+                            command=self._abrir_panel_web,
+                            bg=DARK_BASE['bg_input'], fg=NEON_COLORS['purple'],
+                            font=("Segoe UI", 9, "bold"),
+                            relief=tk.FLAT, padx=15, pady=6,
+                            cursor="hand2")
+        web_btn.pack(pady=(4, 0))
+
         # Panel container
         pc = tk.Frame(cf, bg=DARK_BASE['bg_primary'])
         pc.grid(row=1, column=0, sticky="nsew", pady=(0, 0))
@@ -300,6 +312,66 @@ class GEMOSApplication:
             status_msg = "\n".join(keys_status)
             self._log(f"🔑 APIs: {status_msg}")
 
+    # ── Servidor web embebido ────────────────────────────────────────────────
+
+    @staticmethod
+    def _puerto_web() -> int:
+        try:
+            return int(os.getenv("DASHBOARD_PORT", "47821"))
+        except ValueError:
+            return 47821
+
+    def _servidor_responde(self) -> bool:
+        import urllib.request
+        try:
+            with urllib.request.urlopen(f"http://127.0.0.1:{self._puerto_web()}/api/status", timeout=1.5) as r:
+                return r.status == 200
+        except Exception:
+            return False
+
+    def iniciar_servidor(self) -> None:
+        """Deja el servidor web funcionando: reutiliza el que ya esté en marcha o arranca uno propio.
+
+        Mientras esté abierto corren sus tareas automáticas (alertas cada 15 min, resumen a las 08:00,
+        copia a las 03:30, mantenimiento semanal, sincronización). Se hace fuera del hilo de Tk."""
+        if os.getenv("GEM_OS_SIN_SERVIDOR") == "1":
+            self._srv_st.set_status("neutral", "Servidor: desactivado")
+            return
+        self._srv_st.set_status("info", "Servidor: arrancando…")
+
+        def _trabajo() -> None:
+            estado, texto = "error", "Servidor: error"
+            try:
+                if self._servidor_responde():
+                    estado, texto = "ok", "Servidor: en marcha"        # ya había uno (p. ej. por script)
+                else:
+                    from app.services import dashboard_server
+                    dashboard_server.start_dashboard(port=self._puerto_web(),
+                                                     host=os.getenv("GEM_OS_HOST", "127.0.0.1"))
+                    import time
+                    for _ in range(60):                                 # hasta 30 s
+                        time.sleep(0.5)
+                        if self._servidor_responde():
+                            estado, texto = "ok", "Servidor: en marcha"
+                            break
+                    else:
+                        texto = "Servidor: no respondió"
+            except Exception as exc:
+                self._log(f"No se pudo arrancar el servidor web: {exc}", level="ERROR")
+            try:
+                self.root.after(0, lambda: self._srv_st.set_status(estado, texto))
+            except Exception:
+                pass
+
+        threading.Thread(target=_trabajo, daemon=True).start()
+
+    def _abrir_panel_web(self) -> None:
+        import webbrowser
+        if not self._servidor_responde():
+            messagebox.showinfo("Panel web", "El servidor web aún no está listo. Espera unos segundos e inténtalo de nuevo.")
+            return
+        webbrowser.open(f"http://127.0.0.1:{self._puerto_web()}/")
+
     def _on_claves_cambiadas(self) -> None:
         """Se guardó o quitó una clave: actualiza el indicador y hace que el Agente IA (que lee la
         clave al crearse) se vuelva a crear la próxima vez que se abra."""
@@ -409,6 +481,11 @@ class GEMOSApplication:
 
     def _on_close(self):
         self._log("GEM OS cerrando sesion...")
+        try:                          # detiene el servidor solo si lo arrancó este programa
+            from app.services import dashboard_server
+            dashboard_server.stop_dashboard()
+        except Exception:
+            pass
         self.root.destroy()
 
 def main():
@@ -425,6 +502,9 @@ def main():
         print(f"[OLLAMA] Error en pre-flight: {exc}. Continuando sin capa local.")
     root = tk.Tk()
     app = GEMOSApplication(root, initial_theme="dark")
+    if "--minimizado" in sys.argv:          # arranque con Windows: sin robar el foco
+        root.iconify()
+    app.iniciar_servidor()
     root.mainloop()
 
 if __name__ == "__main__":
