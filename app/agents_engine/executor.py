@@ -56,9 +56,13 @@ AGENT_TOKENS_MAP = {
 class AgentExecutor:
     """Orquestador determinista con validación de cumplimiento."""
 
-    def __init__(self, workspace_path: str = "ai_workspace",
+    def __init__(self, workspace_path: Optional[str] = None,
                  db_manager: Optional[DatabaseConnection] = None,
-                 agent_md_path: str = "agent.md"):
+                 agent_md_path: Optional[str] = None):
+        # Por defecto se resuelven desde el proyecto / la carpeta del usuario, no desde el cwd:
+        # en el .exe el directorio de trabajo no es el del proyecto y el pre-flight fallaba.
+        workspace_path = workspace_path or PathManager.resolve_resource("ai_workspace")
+        agent_md_path = agent_md_path or PathManager.resolve_resource("agent.md")
         self.workspace_path = workspace_path
         self.db_manager = db_manager if db_manager else DatabaseConnection()
         # NUEVO: Gobernanza centralizada

@@ -23,8 +23,9 @@ class RulesValidator:
         "revolucionario", "milagroso", "sorprendente", "impresionante"
     ]
 
-    def __init__(self, agent_md_path: str = "agent.md", db_manager: Optional[DatabaseConnection] = None):
-        self.agent_md_path = agent_md_path
+    def __init__(self, agent_md_path: Optional[str] = None, db_manager: Optional[DatabaseConnection] = None):
+        from app.config.path_manager import PathManager
+        self.agent_md_path = agent_md_path or PathManager.resolve_resource("agent.md")
         self.db_manager = db_manager if db_manager else DatabaseConnection()
         self.agent_md_hash = None
         self.agent_md_content = None

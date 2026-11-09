@@ -140,6 +140,23 @@ class PathManager:
         return paths
 
     @classmethod
+    def resolve_resource(cls, relative: str) -> str:
+        """Resuelve una ruta relativa del proyecto (p. ej. 'agent.md', 'ai_workspace') sin depender
+        del directorio de trabajo. En el .exe busca primero en la carpeta del usuario (editable) y
+        luego en el bundle; en desarrollo, en la raíz del proyecto. Las rutas absolutas pasan igual."""
+        p = Path(relative)
+        if p.is_absolute():
+            return str(p)
+        if cls._is_executable():
+            candidatos = [cls.user_dir() / p, cls._get_base_dir() / p]
+        else:
+            candidatos = [cls._get_base_dir() / p]
+        for c in candidatos:
+            if c.exists():
+                return str(c)
+        return str(candidatos[0])
+
+    @classmethod
     def get_path_strings(cls) -> Dict[str, str]:
         """Versión string de las rutas para compatibilidad legacy."""
         return {key: str(path) for key, path in cls.get_paths().items()}
