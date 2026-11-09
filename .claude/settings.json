@@ -22,7 +22,7 @@
           {
             "type": "command",
             "shell": "powershell",
-            "command": "cd 'H:\\dropshipping_intelligence_suite'; git add -A; $diff = git diff --cached --quiet 2>&1; if ($LASTEXITCODE -ne 0) { $ts = Get-Date -Format 'yyyy-MM-ddTHH:mm'; git commit -m \"auto: sync cambios GEM OS $ts\"; git push origin master } 2>$null",
+            "command": "cd 'H:\\dropshipping_intelligence_suite'; git add -A; python scripts/precommit_secrets.py; if ($LASTEXITCODE -ne 0) { git reset -q; exit 0 }; $diff = git diff --cached --quiet 2>&1; if ($LASTEXITCODE -ne 0) { $ts = Get-Date -Format 'yyyy-MM-ddTHH:mm'; git commit -m \"auto: sync cambios GEM OS $ts\"; git push origin master } 2>$null",
             "timeout": 30,
             "statusMessage": "Sincronizando con GitHub...",
             "async": true
