@@ -8,20 +8,24 @@ Implementa las 4 metodologías del flujo de skills/agentes:
 [METODOLOGÍA 3] Diferenciación de Datos  → _get_runtime_dir(), get_paths()
 [METODOLOGÍA 4] Manejo de Errores        → get_paths() con auto-creación
 
-ENTORNO WEB (FASE 1 — Refactorización Desktop → Plataforma Web):
-- Elimina detección PyInstaller y referencias a %APPDATA% de Windows.
-- GEM_OS_DATA_DIR (env var) define la ruta de datos en producción Linux
-  (ej: /var/www/gem_os/data). Si no está definida, usa ./data/ relativa
-  a la raíz del proyecto (comportamiento de desarrollo local).
+DOS MODOS (el de desarrollo/servidor no cambia):
+- Desarrollo / servidor: la raíz es el proyecto y los datos van en ./data/
+  (o en GEM_OS_DATA_DIR, p. ej. /var/www/gem_os/data en Linux).
+- .exe de PyInstaller (sys.frozen): la raíz es la carpeta de RECURSOS de solo lectura del
+  bundle (sys._MEIPASS) y todo lo que se escribe (datos, logs, copias, ai_workspace) va a
+  la carpeta del usuario: %APPDATA%\\GEM_OS_Suite\\. Así el .exe funciona desde cualquier
+  carpeta o PC y no arrastra bases de datos ni claves dentro del bundle.
+  GEM_OS_DATA_DIR sigue mandando sobre la carpeta de datos.
 """
 
 import os
+import sys
 from pathlib import Path
 from typing import Dict
 
 
 class PathManager:
-    """Gestor centralizado de rutas — modo web/servidor Linux."""
+    """Gestor centralizado de rutas — desarrollo/servidor y .exe."""
 
     _APP_NAME = "GEM_OS_Suite"
 
@@ -31,8 +35,17 @@ class PathManager:
 
     @staticmethod
     def _is_executable() -> bool:
-        """Siempre False en entorno web/servidor (no hay PyInstaller)."""
-        return False
+        """True cuando corre dentro de un .exe de PyInstaller."""
+        return bool(getattr(sys, "frozen", False))
+
+    @staticmethod
+    def user_dir() -> Path:
+        """Carpeta de escritura del usuario: %APPDATA%\\GEM_OS_Suite (Windows) o ~/.local/share."""
+        if os.name == "nt":
+            raiz = os.environ.get("APPDATA") or str(Path.home() / "AppData" / "Roaming")
+        else:
+            raiz = os.environ.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
+        return Path(raiz) / PathManager._APP_NAME
 
     @staticmethod
     def _verify_structure() -> Dict[str, bool]:
@@ -52,19 +65,25 @@ class PathManager:
 
     @staticmethod
     def _get_base_dir() -> Path:
-        """Raíz del proyecto: 3 niveles arriba desde app/config/."""
+        """Raíz de recursos: el proyecto (3 niveles arriba de app/config/) o, en el .exe,
+        la carpeta del bundle (sys._MEIPASS, solo lectura)."""
+        if PathManager._is_executable():
+            return Path(getattr(sys, "_MEIPASS", None) or Path(sys.executable).parent).resolve()
         return Path(__file__).parent.parent.parent.resolve()
 
     @staticmethod
     def _get_data_dir() -> Path:
         """
         Carpeta de datos:
-        - Si GEM_OS_DATA_DIR está definida → usa esa ruta (producción Linux).
+        - Si GEM_OS_DATA_DIR está definida → usa esa ruta.
+        - En el .exe → <usuario>/data (nunca dentro del bundle).
         - En otro caso → <base>/data/ (desarrollo local).
         """
         env_data = os.environ.get("GEM_OS_DATA_DIR", "").strip()
         if env_data:
             return Path(env_data)
+        if PathManager._is_executable():
+            return PathManager.user_dir() / "data"
         return PathManager._get_base_dir() / "data"
 
     # ══════════════════════════════════════════════════════════════
@@ -73,7 +92,10 @@ class PathManager:
 
     @staticmethod
     def _get_runtime_dir(folder_name: str) -> Path:
-        """Directorios runtime (logs, backups, ai_workspace) siempre en la raíz del proyecto."""
+        """Directorios runtime (logs, backups, ai_workspace): la raíz del proyecto o, en el .exe,
+        la carpeta del usuario (el bundle es de solo lectura)."""
+        if PathManager._is_executable():
+            return PathManager.user_dir() / folder_name
         return PathManager._get_base_dir() / folder_name
 
     @staticmethod

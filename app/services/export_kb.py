@@ -19,8 +19,8 @@ from app.config.path_manager import PathManager
 # ── Constantes usando PathManager ──────────────────────────────────
 _GEM_PATHS = PathManager.get_paths()
 DB_PATH = str(_GEM_PATHS['db'])
-OUTPUT_PATH = str(_GEM_PATHS['base'] / "ai_workspace" / "context" / "manual_tactico_consolidado.md")
-HTML_OUTPUT_PATH = str(_GEM_PATHS['base'] / "ai_workspace" / "context" / "manual_tactico_consolidado.html")
+OUTPUT_PATH = str(_GEM_PATHS['context'] / "manual_tactico_consolidado.md")
+HTML_OUTPUT_PATH = str(_GEM_PATHS['context'] / "manual_tactico_consolidado.html")
 
 SECTION_HEADINGS = {
     "productos": "1. Datos de Producto y Tendencias",
