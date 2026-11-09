@@ -40,6 +40,7 @@ class SettingsPanel(PanelBase):
         self._campos: Dict[str, tk.StringVar] = {}
         self._entradas: List[ttk.Entry] = []
         self._estado_vars: Dict[str, tk.Label] = {}
+        self._grupos: Dict[str, List[str]] = {}
         self._mostrar = tk.BooleanVar(value=False)
         if primer_arranque:
             self._banner()
@@ -65,8 +66,7 @@ class SettingsPanel(PanelBase):
     def _construir_claves(self) -> None:
         c = tarjeta(self.cuerpo, "🔑 Claves e integraciones", COLOR_PRIMARY)
         etiqueta(c, f"Se guardan en: {secrets_store.ruta_env_escritura()}", "tenue", wrap=760).pack(fill=tk.X, pady=(0, 8))
-        grupos = [(n, p, v, para) for _id, n, v, para in business_metrics._INTEGRACIONES for p in [_id]]
-        for nombre, ident, variables, para in grupos:
+        for ident, nombre, variables, para in business_metrics._INTEGRACIONES:
             self._fila_grupo(c, nombre, para, variables, ident)
         for var, nombre, para in _EXTRA:
             self._fila_grupo(c, nombre, para, [var], var.lower())
@@ -104,6 +104,7 @@ class SettingsPanel(PanelBase):
         estado = tk.Label(cab, text="", font=FONT_SM, bg=BG_CARD)
         estado.pack(side=tk.RIGHT)
         self._estado_vars[ident] = estado
+        self._grupos[ident] = list(variables)
         etiqueta(marco, para, "tenue", wrap=740).pack(fill=tk.X, padx=10)
         for var in variables:
             f = tk.Frame(marco, bg=BG_CARD)
@@ -118,7 +119,6 @@ class SettingsPanel(PanelBase):
             actual.pack(side=tk.LEFT)
             setattr(self, f"_act_{var}", actual)
             boton(f, "Quitar", lambda n=var: self._quitar(n), BG_TERTIARY, TXT_2).pack(side=tk.LEFT)
-        marco._variables = variables
 
     def _construir_avisos(self) -> None:
         c = tarjeta(self.cuerpo, "🔔 Avisos fuera de la app", COLOR_WARNING)
@@ -175,7 +175,7 @@ class SettingsPanel(PanelBase):
 
     def _refrescar_estado(self) -> None:
         for ident, lbl in self._estado_vars.items():
-            vars_ = [v for v in self._campos if lbl.master.master._variables.count(v)] if hasattr(lbl.master.master, "_variables") else []
+            vars_ = self._grupos.get(ident, [])
             ok = bool(vars_) and all(os.environ.get(v, "").strip() for v in vars_)
             lbl.config(text="✔ Configurada" if ok else "✖ Falta", fg=COLOR_SUCCESS if ok else COLOR_WARNING)
         for var in self._campos:
