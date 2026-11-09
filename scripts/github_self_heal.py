@@ -38,8 +38,15 @@ def cargar_catalogo(path: Path = CATALOGO) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def limpiar_log(log: str) -> str:
+    """Quita el timestamp ISO y los códigos ANSI que Actions antepone a cada línea."""
+    log = re.sub(r"\x1b\[[0-9;]*m", "", log)
+    return re.sub(r"(?m)^\d{4}-\d\d-\d\dT[\d:.]+Z ", "", log)
+
+
 def parsear_hallazgos_gitleaks(log: str) -> list[dict]:
     """Extrae bloques 'Finding/Secret/RuleID/Entropy/File/Line/Commit' del log de gitleaks."""
+    log = limpiar_log(log)
     hallazgos = []
     for bloque in re.split(r"\n(?=Finding:)", log):
         if "RuleID:" not in bloque:
@@ -73,6 +80,7 @@ def es_fuga_real(h: dict, valor: str | None) -> bool:
 
 def clasificar(log: str, catalogo: dict) -> dict:
     """Devuelve {'tipo': ..., 'fix_id': ..., 'hallazgos': [...]} sin efectos secundarios."""
+    log = limpiar_log(log)
     hallazgos = parsear_hallazgos_gitleaks(log)
     if hallazgos:
         return {"tipo": "gitleaks", "fix_id": None, "hallazgos": hallazgos}
