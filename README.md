@@ -202,8 +202,9 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 
 ### `app/services/financial_validator.py`
 Validador financiero con reglas inmutables:
-- **Regla 3x** (Adrián Sáenz): PVP = Costo × 3
-- **Multiplicador**: mínimo 2x (rechaza) y objetivo 3x (advierte), sobre coste landed (producto + envío)
+- **Multiplicador** (Adrián Sáenz): mínimo 2x (rechaza) y objetivo 3x (advierte), siempre sobre **coste landed** (producto + envío)
+- **Coste de origen** recomendado: 5–15 USD (advierte fuera de rango)
+- **Costes reales del P&L**: fees Shopify + divisa 4,0 % y cancelaciones/devoluciones 10,1 % de la facturación
 - Sin umbral de margen % ni límite de peso: el curso no los fija
 
 ```python
@@ -213,9 +214,10 @@ validator = FinancialValidator()
 resultado = validator.validar_producto(
     sku="PROD-001",
     costo_origen=10.0,
-    peso_kg=0.8
+    costo_envio=2.0,
+    pvp_sugerido=36.0,
 )
-print(resultado)  # {'validado': True, 'pvp_calculado': 30.0, ...}
+print(resultado)  # multiplicador sobre coste landed (12.0) y estado de validación
 ```
 
 ---
@@ -385,29 +387,14 @@ CREATE TABLE guiones_tiktok (
 Copia `.env.example` → `.env` y configura:
 
 ```bash
-# API de OpenRouter (para futura integración IA)
-OPENROUTER_API_KEY=tu_clave_aqui
+# API de OpenRouter (única clave obligatoria)
+OPENROUTER_API_KEY=sk-or-v1-tu_clave
 
 # Ruta a BD (opcional)
 DATABASE_PATH=app/database/dropshipping_suite.db
-
-# API de YouTube (opcional, para descarga automática)
-YOUTUBE_API_KEY=
-
-# Configuración de Transcript Cleaner
-TRANSCRIPT_CLEANER_FILLER_WORDS=ehh,umm,ok,bueno,mira,entonces,además
-TRANSCRIPT_CLEANER_MIN_PAUSE_SECONDS=5
-TRANSCRIPT_CLEANER_TOKEN_REDUCTION_TARGET=0.50
-
-# Configuración de Validación Financiera
-FINANCIAL_VALIDATOR_REGLA_3X_MULTIPLICADOR=3.0
-FINANCIAL_VALIDATOR_MARGEN_BRUTO_MINIMO=0.70
-FINANCIAL_VALIDATOR_PESO_MAXIMO_KG=1.2
-
-# Configuración de Sincronización
-YOUTUBE_MONITOR_SYNC_INTERVAL_HOURS=2
-YOUTUBE_MONITOR_ENABLED=true
 ```
+
+`.env.example` es la lista completa y vigente de variables (Make.com, remove.bg, Higgsfield, Shopify, intervalos de sincronización…). Las reglas financieras no se configuran por entorno: viven en `app/services/financial_validator.py`.
 
 ---
 
