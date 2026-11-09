@@ -1,0 +1,8 @@
+# .gitleaksignore — falsos positivos confirmados
+# Formato: un fingerprint por línea (commit:file:rule:line)
+# Solo suprimir hallazgos confirmados como NO-secretos reales.
+
+# tests/test_exe_portable.py:146 — valor de test "sk-or-v1-SECRETOSECRETOSECRETO1234"
+# Confirmado falso positivo: placeholder en test unitario de secrets_store.
+# Entropy 3.73 (real keys > 4.5). Fecha: 2026-11-09. Commit original del test.
+ef4f8b47c769a3077ed686874eaf204d2b282d58:tests/test_exe_portable.py:generic-api-key:146
