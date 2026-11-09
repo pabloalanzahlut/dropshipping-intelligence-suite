@@ -15,13 +15,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.database.connection import DatabaseConnection
 
+# Una sola raíz Tk para todo el módulo: crear una segunda en el mismo proceso falla en Windows
 try:
-    _root = tk.Tk()
-    _root.withdraw()
-    _root.destroy()
+    _ROOT = tk.Tk()
+    _ROOT.withdraw()
     HAY_PANTALLA = True
 except tk.TclError:
+    _ROOT = None
     HAY_PANTALLA = False
+
+
+def tearDownModule():
+    if _ROOT is not None:
+        _ROOT.destroy()
 
 
 def dia(n):
@@ -32,16 +38,11 @@ def dia(n):
 class Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.root = tk.Tk()
-        cls.root.withdraw()
+        cls.root = _ROOT
         from app.ui.themes import DarkTheme
         from app.ui.themes.jack_styles import apply_jack_styles
         DarkTheme().apply()
         apply_jack_styles(cls.root)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.root.destroy()
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
@@ -212,7 +213,9 @@ class InsightsSistemaTests(Base):
         d = exports.todas_las_filas(self.db.db_path, cfg, "productos")
         csv = exports.a_csv(d["columnas"], d["filas"]).decode("utf-8")
         self.assertIn("'=SUMA", csv)
-        self.assertEqual(exports.todas_las_filas(self.db.db_path, cfg, "canales")["total"], 0)
+        canales = exports.todas_las_filas(self.db.db_path, cfg, "canales")      # la BD siembra 5 mentores por defecto
+        self.assertEqual(len(canales["filas"]), canales["total"])
+        self.assertIn("Última verificación", [c["t"] for c in canales["columnas"]])
         with self.assertRaises(KeyError):
             exports.dataset(self.db.db_path, cfg, "no_existe")
 

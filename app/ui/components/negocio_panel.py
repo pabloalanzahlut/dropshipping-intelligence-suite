@@ -78,8 +78,7 @@ class NegocioPanel(PanelBase):
         cols.pack(fill=tk.X)
         cols.columnconfigure(0, weight=3)
         cols.columnconfigure(1, weight=2)
-        izq = tarjeta(cols, "Registrar el día", COLOR_SUCCESS)
-        izq.master.pack_forget()
+        izq = tarjeta(cols, "Registrar el día", COLOR_SUCCESS, colocar=False)
         izq.master.grid(row=0, column=0, sticky="nsew", padx=(0, 6))
         self._m: Dict[str, tk.StringVar] = {}
         rejilla = tk.Frame(izq, bg=BG_CARD)
@@ -105,8 +104,7 @@ class NegocioPanel(PanelBase):
                 ttk.Entry(marco, textvariable=var, width=12).pack(fill=tk.X)
         boton(izq, "💾 Guardar día", self._guardar_dia, COLOR_SUCCESS).pack(fill=tk.X, pady=(8, 0))
 
-        der = tarjeta(cols, "Caja de hoy", COLOR_WARNING)
-        der.master.pack_forget()
+        der = tarjeta(cols, "Caja de hoy", COLOR_WARNING, colocar=False)
         der.master.grid(row=0, column=1, sticky="nsew", padx=(6, 0))
         self._c: Dict[str, tk.StringVar] = {}
         for k, t in [("saldo_cuenta", "Saldo en cuenta"), ("liberaciones_pasarela", "Liberado por pasarela"),

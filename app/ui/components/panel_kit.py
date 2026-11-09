@@ -70,8 +70,10 @@ def boton(parent, texto: str, comando: Optional[Callable] = None, color: str = C
 
 
 def tarjeta(parent, titulo: str, acento: str = COLOR_PRIMARY, expand: bool = False,
-            lado: Optional[str] = None) -> tk.Frame:
-    """Tarjeta con cabecera de color. Devuelve el marco interior donde añadir contenido."""
+            lado: Optional[str] = None, colocar: bool = True) -> tk.Frame:
+    """Tarjeta con cabecera de color. Devuelve el marco interior donde añadir contenido.
+
+    Con `colocar=False` no se empaqueta: el llamador la coloca (p. ej. con grid) usando `interior.master`."""
     caja = tk.Frame(parent, bg=BG_CARD, highlightthickness=1, highlightbackground=BORDER)
     cab = tk.Frame(caja, bg=BG_TERTIARY)
     cab.pack(fill=tk.X)
@@ -79,10 +81,11 @@ def tarjeta(parent, titulo: str, acento: str = COLOR_PRIMARY, expand: bool = Fal
         fill=tk.X, padx=SPACING.md, pady=SPACING.sm)
     interior = tk.Frame(caja, bg=BG_CARD)
     interior.pack(fill=tk.BOTH, expand=True, padx=SPACING.md, pady=SPACING.md)
-    opciones = dict(fill=tk.BOTH if expand else tk.X, expand=expand, pady=(0, SPACING.md))
-    if lado:
-        opciones.update(side=lado, padx=(0, SPACING.md))
-    caja.pack(**opciones)
+    if colocar:
+        opciones = dict(fill=tk.BOTH if expand else tk.X, expand=expand, pady=(0, SPACING.md))
+        if lado:
+            opciones.update(side=lado, padx=(0, SPACING.md))
+        caja.pack(**opciones)
     return interior
 
 
