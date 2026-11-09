@@ -13,13 +13,19 @@
 .PARAMETER Quitar
   Elimina la tarea.
 
+.PARAMETER Exe
+  Ruta de GEM_OS_Suite.exe. Si se indica, al iniciar sesión se abre el programa (minimizado, con su
+  servidor web y todas las automatizaciones) en lugar de lanzar el servidor con Python.
+
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1
+  powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1 -Exe "C:\GEM_OS_Suite\GEM_OS_Suite.exe"
   powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1 -Quitar
 #>
 param(
     [switch]$SoloMostrar,
-    [switch]$Quitar
+    [switch]$Quitar,
+    [string]$Exe = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,8 +43,16 @@ if ($Quitar) {
     exit 0
 }
 
-$accion = New-ScheduledTaskAction -Execute 'powershell.exe' `
-    -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$script`""
+if ($Exe) {
+    if (-not (Test-Path $Exe -PathType Leaf)) { Write-Error "No existe el programa: $Exe"; exit 1 }
+    $Exe = (Resolve-Path $Exe).Path
+    $accion = New-ScheduledTaskAction -Execute $Exe -Argument '--minimizado' -WorkingDirectory (Split-Path $Exe)
+    $queEjecuta = "`"$Exe`" --minimizado"
+} else {
+    $accion = New-ScheduledTaskAction -Execute 'powershell.exe' `
+        -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$script`""
+    $queEjecuta = "powershell.exe -File `"$script`" (oculto)"
+}
 $disparador = New-ScheduledTaskTrigger -AtLogOn -User $usuario
 $ajustes = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
     -StartWhenAvailable -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) `
@@ -48,8 +62,8 @@ $principal = New-ScheduledTaskPrincipal -UserId $usuario -LogonType Interactive 
 if ($SoloMostrar) {
     Write-Host "Se registraría la tarea «$nombre»:"
     Write-Host "  Usuario:     $usuario (sin administrador)"
-    Write-Host "  Al iniciar sesión ejecuta: powershell.exe -File `"$script`" (oculto)"
-    Write-Host "  Reintentos:  3, cada minuto, si el servidor se cae"
+    Write-Host "  Al iniciar sesión ejecuta: $queEjecuta"
+    Write-Host "  Reintentos:  3, cada minuto, si se cae"
     exit 0
 }
 
