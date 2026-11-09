@@ -335,6 +335,12 @@ class DashboardPanelV3(tk.Frame):
                 lineas.insert(0, "\n".join(bloque))
             else:
                 lineas.insert(0, "Alertas: todo en orden.")
+            # «Hoy toca» del resumen diario (el mismo que la tarjeta de la web)
+            from app.services import daily_brief
+            resumen = daily_brief.ultimo(db)
+            if resumen and resumen.get("prioridades"):
+                lineas.insert(1, "Hoy toca:\n" + "\n".join(
+                    f"• {p['texto']}" for p in resumen["prioridades"][:4]))
         except Exception as exc:       # las alertas nunca deben romper el Dashboard
             lineas.insert(0, f"Alertas no disponibles: {str(exc)[:80]}")
         self.estado_label.config(text="\n\n".join(lineas))
@@ -667,9 +673,54 @@ class DashboardPanelV3(tk.Frame):
                                fill=COLOR_TEXT_PRIMARY, font=FONT_BODY_SM, anchor="w")
 
     def _on_sync(self):
-        """Sincronizar datos."""
-        messagebox.showinfo("Sincronización", "Sincronizando con servidor...")
-        self._load_data()
+        """Sincroniza las transcripciones de los canales de verdad.
+
+        Si el servidor está en marcha se lo pide a él (comparte el límite de YouTube con su sincronización
+        automática y no se pisan); si no, la hace aquí mismo. Después recarga los datos."""
+        import json as _json
+        import threading
+        import urllib.error
+        import urllib.request
+        from app.services.youtube_channel_monitor import YouTubeChannelMonitor
+
+        if getattr(self, "_sync_en_curso", False):
+            messagebox.showinfo("Sincronización", "Ya hay una sincronización en curso.")
+            return
+        self._sync_en_curso = True
+        self.timestamp_label.config(text="⏳ Sincronizando canales…")
+
+        def trabajo():
+            import os
+            puerto = int(os.getenv("DASHBOARD_PORT", "47821") or 47821)
+            try:
+                req = urllib.request.Request(f"http://127.0.0.1:{puerto}/api/transcripciones/sincronizar",
+                                             data=b"{}", method="POST", headers={"Content-Type": "application/json"})
+                with urllib.request.urlopen(req, timeout=5) as r:
+                    return "servidor", _json.loads(r.read().decode("utf-8") or "{}")
+            except urllib.error.HTTPError as exc:
+                if exc.code == 409:
+                    return "servidor", {"mensaje": "Ya había una sincronización en curso."}
+                raise
+            except (urllib.error.URLError, OSError):
+                pass            # sin servidor: se hace localmente
+            res = YouTubeChannelMonitor(db_manager=self.db_manager).sincronizar_canales()
+            return "local", res
+
+        def worker():
+            try:
+                modo, res = trabajo()
+                texto = ("Sincronización lanzada en el servidor (sigue en segundo plano)." if modo == "servidor" else
+                         f"Sincronizado: {res.get('transcripciones_procesadas', 0)} transcripciones nuevas.")
+            except Exception as exc:
+                texto = f"No se pudo sincronizar: {exc}"
+
+            def fin():
+                self._sync_en_curso = False
+                self.timestamp_label.config(text=texto)
+                self._load_data()
+            self.after(0, fin)
+
+        threading.Thread(target=worker, daemon=True).start()
 
     def _refrescar_periodicamente(self):
         """Actualizar periódicamente."""
