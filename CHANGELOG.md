@@ -25,6 +25,13 @@ y el versionado [SemVer](https://semver.org/).
   previsualización, claves estables (reimportar no duplica) y cruce por nº de pedido con Shopify para el
   margen real. Su API oficial exige aprobación y pago de activación, por eso no se inventa una conexión directa.
 - Migración 21 (`tienda_pedidos`, `tienda_lineas`, `tienda_variantes`, `tienda_sync`, `autods_*`).
+- **Divisas en el import de AutoDS:** AutoDS da el coste de compra en USD y la venta en EUR; los costes se
+  convierten a la divisa de la tienda al importar (cambio de `fx_rates` o el que indiques) y la
+  previsualización muestra la divisa, la tasa y si es en vivo. Sin esto el margen real mezclaba USD con EUR.
+
+### Verificado contra servicios reales (2026-11-09)
+- Shopify: canje de token, `shop`, permisos, variantes y pedidos contra la tienda real; el Agente IA de web
+  y escritorio con llamadas reales. `SHOPIFY_STORE_URL` tenía una errata (`jiimqi-ms` → `jiimqj-ms`).
 
 ### Corregido
 - **Shopify:** `SHOPIFY_ACCESS_TOKEN` con un valor `shpss_…` es el secreto de la app, no un token de Admin API:
