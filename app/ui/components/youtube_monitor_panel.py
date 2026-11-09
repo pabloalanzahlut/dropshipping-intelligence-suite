@@ -89,14 +89,26 @@ class YouTubeMonitorPanel(ttk.Frame):
     def _build_tab_canales(self):
         f = self._tab_canales
 
-        cols = ("Nombre", "Handle", "Tags", "Idioma", "Prio", "Videos", "Último video")
-        self.tree_canales = ttk.Treeview(f, columns=cols, show="headings", height=14)
+        # Gestión de canales (misma lógica que la web: app.services.channel_store)
+        barra = ttk.Frame(f)
+        barra.pack(fill=tk.X, padx=4, pady=(4, 2))
+        ttk.Button(barra, text="⏯ Activar / desactivar", command=self._canal_alternar_activo).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(barra, text="🎯 Solo ecommerce sí/no", command=self._canal_alternar_filtro).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(barra, text="✔ Verificar seleccionado", command=lambda: self._canal_verificar(False)).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(barra, text="✔ Verificar todos", command=lambda: self._canal_verificar(True)).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(barra, text="🗑 Quitar canal", command=self._canal_quitar).pack(side=tk.LEFT)
 
-        widths = {"Nombre": 160, "Handle": 140, "Tags": 180, "Idioma": 55,
-                  "Prio": 40, "Videos": 55, "Último video": 145}
+        cols = ("Canal", "URL", "Activo", "Solo ecommerce", "Prio", "Transcr.", "Verificación")
+        self.tree_canales = ttk.Treeview(f, columns=cols, show="headings", height=14, selectmode="browse")
+
+        widths = {"Canal": 170, "URL": 250, "Activo": 55, "Solo ecommerce": 105,
+                  "Prio": 40, "Transcr.": 65, "Verificación": 130}
         for col in cols:
             self.tree_canales.heading(col, text=col)
             self.tree_canales.column(col, width=widths.get(col, 120), anchor=tk.W)
+        self.tree_canales.tag_configure("rojo", foreground=STATUS_COLORS["error"])
+        self.tree_canales.tag_configure("tenue", foreground=TEXT_COLORS["tertiary"])
+        self._canales_urls = []
 
         self.lbl_canales_count = ttk.Label(f, text="")
         self.lbl_canales_count.pack(side=tk.BOTTOM, anchor=tk.W, padx=4, pady=2)
@@ -106,22 +118,101 @@ class YouTubeMonitorPanel(ttk.Frame):
         sb.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree_canales.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+    def _rutas_canales(self):
+        from app.config.path_manager import PathManager
+        return str(PathManager.get_paths()["config"]), self.db_manager.db_path
+
     def _cargar_canales(self):
+        from app.services import channel_store
+        cfg, db = self._rutas_canales()
         for item in self.tree_canales.get_children():
             self.tree_canales.delete(item)
-        datos = self.monitor.obtener_resumen_canales()
-        for r in datos:
-            ultimo = (r.get("ultimo_video_procesado") or "—")[:16]
-            self.tree_canales.insert("", "end", values=(
-                r.get("nombre") or "",
-                r.get("handle") or "",
-                r.get("tags") or "",
-                r.get("idioma") or "",
-                r.get("prioridad") or 5,
-                r.get("videos_descargados") or 0,
-                ultimo,
-            ))
-        self.lbl_canales_count.config(text=f"{len(datos)} canales registrados")
+        datos = channel_store.listar(cfg, db)
+        self._canales_urls = [c["url"] for c in datos]
+        estados = {"ok": "✔ Correcto", "no_encontrado": "✖ No encontrado", "sin_videos": "Sin vídeos"}
+        for c in datos:
+            tags = ("rojo",) if c["ultimo_estado"] == "no_encontrado" else (("tenue",) if not c["activo"] else ())
+            self.tree_canales.insert("", "end", tags=tags, values=(
+                c["nombre"], c["url"], "Sí" if c["activo"] else "No", "Sí" if c["filtro_tema"] else "No",
+                c["prioridad"], c["transcripciones"], estados.get(c["ultimo_estado"], "Sin verificar")))
+        self.lbl_canales_count.config(
+            text=f"{len(datos)} canales · {sum(1 for c in datos if c['activo'])} activos")
+
+    def _canal_seleccionado(self):
+        sel = self.tree_canales.selection()
+        if not sel:
+            messagebox.showinfo("Canales", "Elige primero un canal de la lista.", parent=self)
+            return None
+        idx = self.tree_canales.get_children().index(sel[0])
+        return self._canales_urls[idx] if idx < len(self._canales_urls) else None
+
+    def _canal_cambiar(self, campo):
+        from app.services import channel_store
+        url = self._canal_seleccionado()
+        if not url:
+            return
+        cfg, db = self._rutas_canales()
+        actual = next((c for c in channel_store.listar(cfg, db) if c["url"] == url), None)
+        try:
+            channel_store.actualizar(cfg, db, url, {campo: not actual[campo]})
+        except (KeyError, ValueError) as exc:
+            messagebox.showwarning("Canales", str(exc), parent=self)
+            return
+        self._cargar_canales()
+
+    def _canal_alternar_activo(self):
+        self._canal_cambiar("activo")
+
+    def _canal_alternar_filtro(self):
+        self._canal_cambiar("filtro_tema")
+
+    def _canal_quitar(self):
+        from app.services import channel_store
+        url = self._canal_seleccionado()
+        if not url:
+            return
+        if not messagebox.askyesno("Quitar canal", "Se quitará de la lista (no se borran sus transcripciones ni su KB).\n\n¿Continuar?",
+                                   parent=self):
+            return
+        cfg, db = self._rutas_canales()
+        channel_store.eliminar(cfg, db, url)
+        self._cargar_canales()
+
+    def _canal_verificar(self, todos):
+        """Comprueba en YouTube que el canal existe (≈10 s por canal; los 'todos' van en segundo plano)."""
+        from app.services import channel_store, mantenimiento
+        cfg, db = self._rutas_canales()
+        if todos:
+            self.lbl_estado.config(text="●  Verificando canales…", foreground=STATUS_COLORS["warning"])
+
+            def trabajo():
+                try:
+                    return mantenimiento.verificar_canales(cfg, db, solo_pendientes=False), None
+                except Exception as exc:
+                    return None, exc
+        else:
+            url = self._canal_seleccionado()
+            if not url:
+                return
+            self.lbl_estado.config(text="●  Verificando…", foreground=STATUS_COLORS["warning"])
+
+            def trabajo():
+                try:
+                    return channel_store.verificar(db, url), None
+                except Exception as exc:
+                    return None, exc
+
+        def worker():
+            res, err = trabajo()
+
+            def fin():
+                self.lbl_estado.config(text="●  Listo", foreground=STATUS_COLORS["success"])
+                self._cargar_canales()
+                if err:
+                    messagebox.showerror("Canales", f"No se pudo verificar: {err}", parent=self)
+            self.after(0, fin)
+
+        threading.Thread(target=worker, daemon=True).start()
 
     # ──────────────────────────── Tab: Videos ────────────────────────────────
 
