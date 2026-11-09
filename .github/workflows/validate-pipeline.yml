@@ -11,6 +11,7 @@ on:
       - '.continue/**'
       - '.github/workflows/validate-pipeline.yml'
       - '.gitleaks.toml'
+      - '.gitleaksignore'
   workflow_dispatch:
     inputs:
       runner:
