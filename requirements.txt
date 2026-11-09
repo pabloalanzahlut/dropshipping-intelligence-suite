@@ -10,7 +10,7 @@ yt-dlp==2026.10.26
 youtube-transcript-api==0.6.2
 
 # --- Utilities para IA y Prompts ---
-openai==1.54.3
+openai==3.46.0
 
 # --- Backend Web Principal (FastAPI + servidor ASGI) ---
 fastapi==0.162.0
