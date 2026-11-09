@@ -3,7 +3,7 @@
 
 > Cada incidencia resuelta se registra aquí automáticamente por el skill `resolver_github`.
 > La segunda vez que aparezca el mismo patrón de error → resolución automática sin intervención.
-> **No editar manualmente.** Usar `/resolver-github` para agregar registros.
+> Los registros los añade el agente `scripts/github_self_heal.py` (o `/resolver-github`). Las filas F-xxx se espejan en `ai_workspace/config/github_fixes.json`.
 
 ---
 
@@ -22,6 +22,7 @@
 | F-009 | SECRETS_SECURITY/COOKIES_TRACKED | cookies de sesión (auth_token jwt) versionadas en git | git rm --cached + .gitignore *cookies*.json | 1 |
 | F-010 | SECRETS_SECURITY/PLAYWRIGHT_DATA | grabaciones playwright de sesiones autenticadas en git | git rm --cached .playwright-mcp/ + .gitignore | 1 |
 | F-011 | SECRETS_SECURITY/HISTORY_LEAK | secret en historial de git (cualquier archivo) | git filter-repo --path <archivo> --invert-paths --force + force push | 2 |
+| F-012 | SECRETS_SECURITY/FALSE_POSITIVE | gitleaks generic-api-key con entropía < 4.0 sobre valor placeholder (test) | Regex exacta en allowlist de .gitleaks.toml (nunca allowlist por commit) | 1 |
 
 ---
 

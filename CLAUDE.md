@@ -157,6 +157,7 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 - `ai_workspace/knowledge_base/skool_productos.json` — Base de datos de productos extraídos de Skool
 - `ai_workspace/config/openrouter_setup.md` — Modelos económicos para volumen alto
 - `ai_workspace/knowledge_base/jack_roberts_strategies.md` — Estrategias AntiGravity/Claude Code
+- `ai_workspace/config/github_fixes.json` — Catálogo máquina-legible de fixes (espeja la tabla de la KB; lo lee el agente `self-heal`)
 - `ai_workspace/knowledge_base/github_kb.md` — KB de incidencias GitHub resueltas (auto-alimentada por resolver_github)
 - `ai_workspace/memory/` — Memoria de decisiones y aprendizajes
 - `ai_workspace/projects/producto_01/` — Proyecto activo actual
@@ -191,7 +192,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/hook-matrix` | Genera matriz ≥10 hooks TikTok/Meta Ads por fórmula (Story, Shock, Curiosity, Before/After, POV, Urgencia) |
 | `/importar-masivo` | Pega URLs de AliExpress/CJ/Temu → valida regla 3x → crea borradores en Shopify |
 | `/gestionar-meta-ads` | Genera naming de campañas Business Manager + 3 hooks s0–s3 estilo Roger Viladrosa |
-| `/resolver-github` | Diagnostica y resuelve problemas GitHub (CI, PRs, Dependabot, secretos) + auto-documenta en KB |
+| `/resolver-github` | Agente GitHub autónomo: `scripts/github_self_heal.py` + workflow `self-heal.yml` resuelven CI/Dependabot solos (PR + merge), abren Issue ante firma nueva o fuga real, sincronizan el README y documentan en la KB |
 | `/monitorear-skool` | Dr. Marcus Chen analiza posts de Comunidad Ecommerce Skool → extrae productos ganadores → KB |
 | `/generar-video-ia` | Imagen producto → Gemini Vision analiza → Higgsfield genera video TikTok 9:16 sin filmar |
 | `/refutar-producto` | 8 intentos de demoler la tesis antes de invertir (método Pavel: 74 tests para refutarse) |
@@ -309,6 +310,7 @@ El pipeline corre **sin intervención manual** vía `app/services/autonomous_sch
 | `transcript_cleaner` | cada 2h | Limpia e ingesta en KB |
 | `classify_products` | cada 6h | Clasifica HOT/WARM/COLD automáticamente |
 | `daily_report` | 08:00 UTC | Actualiza Google Sheets Dashboard |
+| `self_improve` | 03:00 | Propone ajustes en `propuestas_ajuste.md` (no aplica) |
 
 **Arrancar el agente autónomo:**
 ```bash

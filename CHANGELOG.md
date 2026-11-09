@@ -44,6 +44,17 @@ y el versionado [SemVer](https://semver.org/).
   («Próximamente»): ahora funcionan.
 - Git: `dist_anterior_20261105/` (con un `.env` embebido) se sacó de los 59 commits locales sin subir,
   que bloqueaban el push automático a GitHub (archivos > 100 MB); `dist*/` queda ignorado.
+- Una variable de entorno definida pero **vacía** (`OPENROUTER_API_KEY=`) impedía cargar la clave guardada;
+  ahora cuenta como no definida. `verificar_dist.py` fallaba en consolas cp1252 (✔) tras pasar y daba una
+  falsa alarma en el build, y marcaba como clave los marcadores `XXXX` de `.env.example`.
+- La KB de incidencias de GitHub (`github_kb.md`) había recogido un valor de prueba con forma de clave;
+  se redactó y el procedimiento `resolver_github` ahora prohíbe copiar valores detectados.
+
+### Nota para el `.exe`
+- Es un ejecutable **sin firmar**. Con **Smart App Control** activo en Windows (Seguridad de Windows →
+  Control de aplicaciones y del navegador), el sistema puede bloquearlo («Un criterio de control de
+  aplicaciones ha bloqueado el archivo»). Soluciones: firmarlo con un certificado de firma de código,
+  o usar `scripts\windows\abrir_gem_os.bat` (arranca desde Python y no se ve afectado).
 
 ## [Sin versionar] — 2026-11-08 (Conexión con Shopify y AutoDS)
 

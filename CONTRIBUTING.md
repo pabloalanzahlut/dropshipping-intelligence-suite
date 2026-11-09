@@ -8,7 +8,7 @@ Antes de cualquier cambio, leer [`CLAUDE.md`](CLAUDE.md). Las siguientes reglas 
 |-------|-------|
 | Margen mínimo | ≥ 3× costo origen |
 | Baterías de litio sueltas | Prohibido |
-| Tiempo de envío en copy | 6-12 días laborables (nunca 24-48h) |
+| Tiempo de envío en copy | días reales del proveedor: 2-5 hábiles (Shopify) o 5-7 (TikTok Shop); nunca 24-48h sin confirmación |
 
 ## Flujo de trabajo
 
@@ -36,6 +36,6 @@ refactor: refactorización sin cambio de funcionalidad
 
 - ❌ Commitear `.env` o API keys
 - ❌ Hardcodear precios o costos (usar variables)
-- ❌ Prometer envío en menos de 6 días en copy
-- ❌ Push directo a `master` (usar PR)
+- ❌ Prometer plazos de envío que el proveedor no confirma
+- ❌ Cambios a reglas financieras, `CLAUDE.md` o workflows sin revisión (el hook de auto-sync y el agente `self-heal` sí empujan a `master`; el resto de cambios por PR)
 - ❌ Modificar reglas financieras sin revisión del owner

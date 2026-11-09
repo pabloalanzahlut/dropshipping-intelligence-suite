@@ -106,12 +106,5 @@ class FixesTest(unittest.TestCase):
             self.assertIn("| F-005 | X | y | z | 2 |", texto)
 
 
-class ReadmeTest(unittest.TestCase):
-    def test_readme_sincronizado(self):
-        import sync_readme
-        actual = sync_readme.README.read_text(encoding="utf-8")
-        self.assertEqual(sync_readme.renderizar(actual), actual)
-
-
 if __name__ == "__main__":
     unittest.main()

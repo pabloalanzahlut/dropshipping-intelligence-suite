@@ -1,12 +1,31 @@
 # Skill: GitHub Expert Agent — Resolución Automática con Memoria
 
 **ID:** `resolver_github`
-**Versión:** 2.0.0
+**Versión:** 3.0.0
 **Propósito:** Agente experto en GitHub con 30+ años de experiencia simulada. Hace relevamiento completo del repositorio, detecta todos los problemas, los almacena en KB y los resuelve automáticamente. Segunda vez que aparece el mismo patrón → resolución en < 2 min sin intervención.
 
 **Trigger:** `/resolver-github`
 **Input:** Ninguno requerido (hace relevamiento automático) | Opcional: descripción específica
 **Output:** Todos los problemas resueltos + KB actualizada + informe de estado
+
+---
+
+## MODO AUTÓNOMO (v3.0) — no requiere invocación
+
+El agente corre solo en GitHub Actions (`.github/workflows/self-heal.yml`): ante un CI fallido, PR de Dependabot, o a diario.
+Código: `scripts/github_self_heal.py` (Python puro, sin LLM). Catálogo: `ai_workspace/config/github_fixes.json`.
+
+| Situación | Acción automática |
+|-----------|-------------------|
+| Firma con fix `auto` (F-002, F-004, F-005/F-012, F-007, F-008, F-009, F-010) | Rama `selfheal/*` → gitleaks local → PR → merge squash → INC en KB, contador +1 |
+| Falso positivo gitleaks (entropía < 4.0 y valor placeholder) | Regex exacta en `.gitleaks.toml` (F-012) |
+| **Fuga real** (entropía ≥ 4.0, regla específica o valor no verificable) | Issue crítico. **Nunca reescribe el historial**: rotar la credencial |
+| Firma desconocida | Issue `selfheal:nuevo`; al resolverlo, añadir fila F-xxx a la KB **y** a `github_fixes.json` |
+| Dependabot obsoleto (requirements ya ≥ versión) | Cierra el PR |
+| README desfasado | `scripts/sync_readme.py` lo regenera y lo commitea |
+
+Límites: máx. 2 PRs automáticos/día; nunca toca `CLAUDE.md`, `.claude/memory/`, validador/gate financiero ni `validate-pipeline.yml`.
+Local: `python scripts/github_self_heal.py --dry-run [--log-file run.log]`.
 
 ---
 

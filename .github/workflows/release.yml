@@ -44,8 +44,7 @@ jobs:
             - ✅ Media Buyer (redactar_guiones)
 
             ### Reglas financieras vigentes
-            - Regla 3x: PVP ≥ 3× costo origen
-            - Margen Bruto ≥ 70%
-            - Peso máximo: < 1.2 kg
+            - Multiplicador mínimo 2x y objetivo 3x sobre coste landed (producto + envío)
+            - Fees Shopify + divisa 4,0 % y cancelaciones 10,1 % de la facturación
           draft: false
           prerelease: false
