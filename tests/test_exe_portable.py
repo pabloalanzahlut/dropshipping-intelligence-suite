@@ -142,6 +142,18 @@ class AlmacenDeClavesTests(Congelado):
         self.assertEqual(os.environ["GEMTEST_B"], "de_a")                # el primer .env manda
         self.assertEqual(os.environ["GEMTEST_C"], "de_b")
 
+    def test_una_variable_vacia_no_bloquea_la_clave_guardada(self):
+        """Con «OPENROUTER_API_KEY=» vacío en el entorno, el .exe ignoraba la clave del .env."""
+        a = Path(self.tmp.name) / "a.env"
+        a.write_text("GEMTEST_A=del_archivo\nGEMTEST_B=otro\nGEMTEST_C=\n", encoding="utf-8")
+        os.environ["GEMTEST_A"] = ""
+        os.environ["GEMTEST_B"] = "   "
+        with mock.patch.object(secrets_store, "rutas_env", return_value=[a]):
+            secrets_store.cargar_entorno()
+        self.assertEqual(os.environ["GEMTEST_A"], "del_archivo")
+        self.assertEqual(os.environ["GEMTEST_B"], "otro")
+        self.assertNotIn("GEMTEST_C", os.environ)                     # una entrada vacía en el archivo no crea nada
+
     def test_nunca_revela_ni_registra_el_valor(self):
         secreto = "sk-or-v1-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         with self.assertLogs(level=logging.DEBUG) as logs:

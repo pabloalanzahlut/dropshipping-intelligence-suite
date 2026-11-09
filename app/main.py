@@ -55,9 +55,11 @@ class GEMOSApplication:
             apply_jack_styles(self.root)
         # Claves y carpetas: en el .exe siembra la carpeta del usuario y lee el .env de ahí
         # (nunca de dentro del programa); en desarrollo lee el .env del proyecto.
-        iniciar_entorno()
+        info_entorno = iniciar_entorno()
         self.console_view = None
         self._sin_claves = False
+        self._log("📁 Entorno: " + ("programa instalado" if info_entorno["exe"] else "desarrollo")
+                  + " · claves leídas de: " + (", ".join(info_entorno["env"]) or "ningún .env"))
         self._verify_environment()
         self.db_manager = DatabaseConnection()
         self._panels = []

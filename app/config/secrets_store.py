@@ -63,7 +63,9 @@ def cargar_entorno() -> List[Path]:
             if not ruta.is_file():
                 continue
             for nombre, valor in dotenv_values(ruta).items():
-                if valor is not None and nombre not in os.environ:
+                # Una variable definida pero VACÍA cuenta como no definida: si no, bastaba un
+                # «OPENROUTER_API_KEY=» vacío en el entorno para ignorar la clave guardada.
+                if valor and not (os.environ.get(nombre) or "").strip():
                     os.environ[nombre] = valor
             leidos.append(ruta)
         except OSError:
