@@ -32,6 +32,17 @@ PATRONES_CLAVE = [
 NECESARIOS = ["agent.md", "app/templates/base.html", ".env.example"]
 
 
+def _contiene_clave_real(datos: bytes) -> bool:
+    """True si hay una clave con aspecto real. Los marcadores de las plantillas (`sk-or-v1-XXXX…`,
+    un solo carácter repetido) no cuentan: una clave de verdad tiene muchos caracteres distintos."""
+    for patron in PATRONES_CLAVE:
+        for m in patron.finditer(datos):
+            cuerpo = m.group(0).rsplit(b"-", 1)[-1].rsplit(b"_", 1)[-1]
+            if m.group(0).startswith(b"-----BEGIN") or len(set(cuerpo)) > 4:
+                return True
+    return False
+
+
 def _es_env_prohibido(nombre: str) -> bool:
     n = nombre.lower()
     return (n == ".env" or n.endswith(".env") or (n.startswith(".env.") and n != ".env.example")) and n != ".env.example"
@@ -57,7 +68,7 @@ def verificar(dist: Path) -> Dict[str, List[str]]:
                 datos = ruta.read_bytes()
             except OSError:
                 continue
-            if any(p.search(datos) for p in PATRONES_CLAVE):
+            if _contiene_clave_real(datos):
                 claves.append(rel)
     raices = [dist, dist / "_internal"]
     faltan = [n for n in NECESARIOS if not any((r / n).is_file() for r in raices)]

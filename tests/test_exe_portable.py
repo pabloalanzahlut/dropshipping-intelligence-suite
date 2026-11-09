@@ -345,6 +345,14 @@ class VerificarDistTests(unittest.TestCase):
         self.assertEqual(r["claves"], ["_internal/notas.txt"])
         self.assertEqual(self.v.main([str(self.dist)]), 2)
 
+    def test_los_marcadores_de_la_plantilla_no_son_claves(self):
+        (self.dist / "_internal" / ".env.example").write_text(
+            "OPENROUTER_API_KEY=sk-or-v1-" + "X" * 64 + "\nSHOPIFY_ACCESS_TOKEN=shpat_" + "X" * 32 + "\n", encoding="utf-8")
+        self.assertEqual(self.v.verificar(self.dist)["claves"], [])
+        (self.dist / "_internal" / ".env.example").write_text(
+            "SHOPIFY_ACCESS_TOKEN=shpat_" + "a1b2c3d4e5f6" * 3 + "\n", encoding="utf-8")        # una clave de verdad sí
+        self.assertEqual(self.v.verificar(self.dist)["claves"], ["_internal/.env.example"])
+
     def test_el_example_no_cuenta_pero_los_recursos_si_hacen_falta(self):
         (self.dist / "_internal" / "agent.md").unlink()
         r = self.v.verificar(self.dist)
