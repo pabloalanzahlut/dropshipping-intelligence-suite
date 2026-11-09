@@ -3,13 +3,26 @@
   "fuente": "sqlite",
   "nota": "Generado automáticamente desde SQLite. No editar manualmente.",
   "ultima_actualizacion": "2026-11-09",
-  "total_entradas": 220,
+  "total_entradas": 223,
   "por_tipo": {
-    "productos": 68,
-    "conversion": 71,
-    "operaciones": 81
+    "productos": 69,
+    "conversion": 72,
+    "operaciones": 82
   },
   "entradas": [
+    {
+      "tipo": "producto",
+      "tabla": "product_trends",
+      "id": 114,
+      "video_id": "S4K0AiochwE",
+      "video_title": "How to Go From DROPSHIPPING to PRIVATE LABEL: How I Would Find My Supplier",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "2026-11-09",
+      "nombre": "Producto Extraído por IA",
+      "nicho": "Dropshipping",
+      "wow_factor": "Transición de dropshipping a marca privada con branding propio",
+      "margen_estimado": 3.0
+    },
     {
       "tipo": "producto",
       "tabla": "product_trends",
@@ -893,6 +906,19 @@
       "nicho": "Seguridad en bicicletas y patinetes eléctricos",
       "wow_factor": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
       "margen_estimado": 3.0
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 114,
+      "video_id": "S4K0AiochwE",
+      "video_title": "How to Go From DROPSHIPPING to PRIVATE LABEL: How I Would Find My Supplier",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "categoria": "landing_page",
+      "framework": "AIDA",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: No especificado  \nFramework: No especificado  \nApps: Made in China  \n\n- Importancia de utilizar Secure Trading en Made in China para asegurar transacciones.  \n- Proceso de pedido incluye solicitud de muestras, negociación ",
+      "triggers": "Gatillos detectados en pauta"
     },
     {
       "tipo": "conversion",
@@ -1816,6 +1842,19 @@
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Cloud, OpenAI  \n\n- Conectar Shopify con Cloud para automatizar la selección y carga de productos.  \n- Usar OpenAI para mejorar imágenes del producto y generar contenido visual profesional.  \n- C",
       "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 114,
+      "video_id": "S4K0AiochwE",
+      "video_title": "How to Go From DROPSHIPPING to PRIVATE LABEL: How I Would Find My Supplier",
+      "canal": "Vic Ecomilions",
+      "fecha_indexacion": "",
+      "fuente_trafico": "TikTok/Meta Ads",
+      "estrategia_escalado": "Transición de dropshipping a marca privada con stock propio",
+      "logistica": "Uso de Made in China para gestionar pedidos y asegurar envíos",
+      "peso_kg": 0.0
     },
     {
       "tipo": "operaciones",

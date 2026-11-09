@@ -206,18 +206,11 @@ class KBAgentPanel(ttk.Frame):
             bloque = store_context.bloque_para_prompt(db_path)
             enriquecida = (
                 f"{bloque}"
-                f"CONTEXTO KB (insights más relevantes, numerados):
----
-{kb_context}
----
-
-"
-                f"{insights_service.INSTRUCCION_FUENTES}
-"
-                f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}
-"
-                f"PREGUNTA DEL OPERADOR:
-{query}"
+                f"CONTEXTO KB (insights más relevantes, numerados):\n"
+                f"---\n{kb_context}\n---\n\n"
+                f"{insights_service.INSTRUCCION_FUENTES}\n"
+                f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}\n"
+                f"PREGUNTA DEL OPERADOR:\n{query}"
             )
             result = self.executor.execute_agent_task(
                 agent_name=ruta["agente"],
@@ -249,13 +242,9 @@ class KBAgentPanel(ttk.Frame):
         if con_tienda:
             meta += "  |  con datos de la tienda"
         if fuentes:
-            formatted += "
-
-── Fuentes de la KB ──
-" + "
-".join(
-                f"[{f['n']}] {f['titulo']} — «{f['video_title'] or '?'}» · {f['canal']}" + (f"
-     {f['url']}" if f["url"] else "")
+            formatted += "\n\n── Fuentes de la KB ──\n" + "\n".join(
+                f"[{f['n']}] {f['titulo']} — «{f['video_title'] or '?'}» · {f['canal']}"
+                + (f"\n     {f['url']}" if f["url"] else "")
                 for f in fuentes)
         self.after(0, lambda: (
             self._set_response(formatted),
@@ -265,7 +254,7 @@ class KBAgentPanel(ttk.Frame):
         ))
 
     def _show_error(self, error: str):
-        msg = f"[ERROR]\n{error}\n\nVerifica que OPENROUTER_API_KEY esté configurada en .env"
+        msg = f"[ERROR]\n{error}\n\nSi falta la clave, pégala en Configuración (menú lateral → Sistema)."
         self.after(0, lambda: (
             self._set_response(msg),
             self._set_status("● Error", NEON_COLORS["pink"]),

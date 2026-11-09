@@ -45,8 +45,8 @@
     {
       "nombre": "Adrián Sáenz",
       "url": "https://www.youtube.com/@adriansaenz",
-      "status": "Completado",
-      "last_scan": "2026-11-06T04:12:34.591383+00:00",
+      "status": "Procesando",
+      "last_scan": "2026-11-09T05:45:43.109168+00:00",
       "total_videos": 50,
       "processed_count": 50,
       "failed_count": 0,
@@ -804,9 +804,9 @@
       "nombre": "Vic Ecomilions",
       "url": "https://www.youtube.com/@ecomilions",
       "status": "Completado",
-      "last_scan": "2026-11-09T05:45:18.547467+00:00",
+      "last_scan": "2026-11-09T05:45:43.095580+00:00",
       "total_videos": 10,
-      "processed_count": 9,
+      "processed_count": 10,
       "failed_count": 0,
       "videos": [
         {
@@ -875,8 +875,8 @@
         {
           "video_id": "S4K0AiochwE",
           "title": "How to Go From DROPSHIPPING to PRIVATE LABEL: How I Would Find My Supplier",
-          "status": "Procesando",
-          "timestamp": "2026-11-09T05:45:18.554522+00:00",
+          "status": "Completado",
+          "timestamp": "2026-11-09T05:45:43.095580+00:00",
           "error": ""
         }
       ]
@@ -884,6 +884,6 @@
   ],
   "metadata": {
     "last_load": "2026-11-08T21:43:26.330176+00:00",
-    "last_updated": "2026-11-09T05:45:18.554522+00:00"
+    "last_updated": "2026-11-09T05:45:43.095580+00:00"
   }
 }
