@@ -6,6 +6,45 @@ y el versionado [SemVer](https://semver.org/).
 
 ---
 
+## [Sin versionar] — 2026-11-09 (.exe portable y escritorio al nivel de la web)
+
+### Añadido
+- **`.exe` portable y sin secretos.** `PathManager` tiene ahora modo congelado (recursos de solo lectura
+  en el bundle; datos, registros, copias y `ai_workspace` en `%APPDATA%\GEM_OS_Suite`, respetando
+  `GEM_OS_DATA_DIR`). `secrets_store` lee/guarda las claves (`.env` junto al `.exe` → del usuario →
+  del proyecto; nunca pisa el entorno del sistema; escritura atómica; nunca registra valores) y
+  `runtime_setup` siembra la carpeta del usuario, fija el directorio de trabajo y redirige la salida
+  cuando no hay consola. El build ya **no empaqueta** `.env`, `google_credentials.json`,
+  `skool_cookies.json` ni bases de datos, excluye librerías pesadas sin uso (torch…), y
+  `scripts/verificar_dist.py` hace fallar el build si encuentra alguno de esos archivos o una clave real.
+- **Pantalla Configuración** (escritorio): claves e integraciones (campos enmascarados, «Probar
+  OpenRouter»), avisos externos, otras variables, carpeta de datos y «Traer mis datos desde…» (copia segura
+  de la BD con comprobación de integridad y copia previa). Asistente de primer arranque si no hay claves.
+- **Servidor web embebido:** el `.exe` arranca el servidor (o reutiliza el que ya esté en marcha) y
+  detiene el suyo al cerrar; indicador «Servidor» y botón «🌐 Abrir panel web». `--minimizado` para el
+  arranque con Windows (`instalar_autoarranque.ps1 -Exe`).
+- **Escritorio con paridad de funciones con la web:** paneles **Productos** (recorrido y refutaciones),
+  **Negocio** (ROAS, caja, escalado, registro diario, importar CSV de Meta/Shopify con vista previa),
+  **Insights KB**, **Sistema** (alertas, resumen del día, historial con exportación CSV, registros,
+  mantenimiento), **campana de alertas** en la barra, gestión de canales en YouTube (activar, solo
+  ecommerce, verificar, quitar) y **Agente IA con enrutado automático por tipo de pregunta, contexto de la
+  KB con citas y fuentes**. Menú lateral agrupado por secciones y con scroll.
+- `insights_service` (la lógica de insights y de contexto del agente sale de `dashboard_server.py` y la
+  comparten web y escritorio) y `exports.dataset()/todas_las_filas()` (historial unificado).
+- Pruebas: `test_exe_portable.py` (22) y `test_escritorio_paneles.py` (14); suite total 349.
+
+### Corregido
+- **El Agente IA fallaba en el `.exe`**: `agent.md` y `ai_workspace` se buscaban en el directorio de
+  trabajo y `agent.md` no estaba en el bundle (el pre-flight daba FAIL). Ahora se resuelven desde el
+  proyecto o la carpeta del usuario (`PathManager.resolve_resource`).
+- Los `load_dotenv()` sueltos buscaban el `.env` en el cwd: el `.exe` solo encontraba las claves por
+  estar dentro del repo.
+- `get_paths()` intentaba crear carpetas dentro del bundle (de solo lectura al instalar).
+- Botón «Sincronizar» del Dashboard de escritorio (mostraba un aviso falso) y «Añadir manual» del Validador
+  («Próximamente»): ahora funcionan.
+- Git: `dist_anterior_20261105/` (con un `.env` embebido) se sacó de los 59 commits locales sin subir,
+  que bloqueaban el push automático a GitHub (archivos > 100 MB); `dist*/` queda ignorado.
+
 ## [Sin versionar] — 2026-11-08 (Conexión con Shopify y AutoDS)
 
 ### Añadido

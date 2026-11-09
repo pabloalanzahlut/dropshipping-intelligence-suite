@@ -51,6 +51,20 @@ python build_exe.py --onefile    # Ejecutable único portable
 # Genera: dist/GEM_OS_Suite/GEM_OS_Suite.exe
 ```
 
+**El .exe no lleva tus claves dentro** (ni `.env`, ni credenciales, ni cookies, ni bases de datos; el build
+lo comprueba con `scripts/verificar_dist.py` y falla si encuentra alguno). Cómo usarlo con tus agentes:
+
+1. Copia la carpeta `dist/GEM_OS_Suite/` donde quieras (es portable) y abre `GEM_OS_Suite.exe`.
+2. Primer arranque → se abre **Configuración**: pega tu clave de OpenRouter y pulsa «Probar OpenRouter».
+   Se guarda en `%APPDATA%\GEM_OS_Suite\.env` (también se lee un `.env` junto al `.exe`, si lo prefieres).
+3. ¿Vienes del proyecto? Configuración → «Traer mis datos desde…» y elige la carpeta `data/` del proyecto
+   (se comprueba la base de datos y se guarda copia de lo que hubiera).
+4. El `.exe` arranca por sí mismo el servidor web: alertas, avisos, resumen diario, mantenimiento y
+   sincronización funcionan mientras esté abierto, y **🌐 Abrir panel web** te lleva a la web.
+5. Para que arranque con Windows: `powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1 -Exe "C:\ruta\GEM_OS_Suite.exe"`.
+
+Datos, registros y copias del `.exe` viven en `%APPDATA%\GEM_OS_Suite\` (`GEM_OS_DATA_DIR` lo cambia).
+
 ---
 
 ## 📋 Fases de Implementación
