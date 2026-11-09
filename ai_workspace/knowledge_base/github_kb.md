@@ -181,3 +181,18 @@ git push --force origin master
 **Veces visto:** 2 (veces totales del patrón F-007)
 **Tags:** [SECRETS_SECURITY, INJECTION_RISK, auto-sync, CI]
 **Notas:** Patrón recurrente. El auto-sync que genera workflows tiende a interpolarlo directamente. Revisar cada nuevo workflow antes del primer push.
+
+---
+
+## INC-20261109-011 | SECRETS_SCAN/FALSE_POSITIVE | ALTO
+
+**Fecha:** 2026-11-09
+**Repositorio:** pabloalanzahlut/dropshipping-intelligence-suite
+**Firma del error:** `gitleaks: RuleID generic-api-key, File tests/test_exe_portable.py, Line 146, Commit ef4f8b47` (valor `sk-or-v1-SECRETOSECRETOSECRETO1234`, entropía 3.73)
+**Causa raíz:** Valor de prueba con forma de clave OpenRouter en un test; el escaneo de historial completo lo marca aunque no sea secreto real.
+**Fix aplicado:** F-012 variante regex — ampliar allowlist de `.gitleaks.toml` con `[A-Z]{8,}[0-9]+`; valor de test cambiado a `X{64}` y aserción `…XXXX`. NO usar allowlist por commit (bloqueado por política de seguridad) ni `.gitleaksignore` (gitleaks v8 no lo lee sin `--baseline-path`).
+**Resultado:** ✅ RESUELTO — runs #301 y #302 en verde
+**Tiempo total:** ~40 min (primera vez)
+**Veces visto:** 1
+**Tags:** [SECRETS_SCAN, FALSE_POSITIVE, gitleaks, tests]
+**Notas:** Segunda vez → aplicar directamente la regex de allowlist. Valores de test deben usar `X{8,}` desde el inicio.

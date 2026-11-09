@@ -12,6 +12,8 @@ on:
       - '.github/workflows/validate-pipeline.yml'
       - '.gitleaks.toml'
       - '.gitleaksignore'
+  schedule:
+    - cron: '17 6 * * *'
   workflow_dispatch:
     inputs:
       runner:
