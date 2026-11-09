@@ -68,6 +68,17 @@ y el versionado [SemVer](https://semver.org/).
   convierten a la divisa de la tienda al importar (cambio de `fx_rates` o el que indiques) y la
   previsualización muestra la divisa, la tasa y si es en vivo. Sin esto el margen real mezclaba USD con EUR.
 
+- **Economía del catálogo (automática, sin API de AutoDS):** AutoDS escribe en Shopify el «coste por artículo»; GEM OS
+  lo sincroniza cada hora y calcula el multiplicador de cada producto activo con las reglas (HOT/WARM/COLD/DISCARD).
+  Se avisa de que es sobre el coste del producto SIN envío (el de las reglas es sobre coste landed) y de los productos
+  sin coste. Esa línea llega también al Agente IA.
+
+### Aclarado sobre AutoDS (2026-11-09)
+- El «AutoDS TOKEN» (UUID) es el *AutoDS Store Token* —la credencial que conecta AutoDS con la tienda («Copy AutoDS
+  Token»)—, no una clave de API de datos; no se guarda en `.env`. El centro de ayuda de AutoDS no documenta una API
+  para desarrolladores. Vías reales: el coste que AutoDS sincroniza en Shopify, el export CSV/Excel y el conector
+  oficial «Claude MCP» de AutoDS (se conecta desde Claude, no desde GEM OS).
+
 ### Verificado contra servicios reales (2026-11-09)
 - Shopify: canje de token, `shop`, permisos, variantes y pedidos contra la tienda real; el Agente IA de web
   y escritorio con llamadas reales. `SHOPIFY_STORE_URL` tenía una errata (`jiimqi-ms` → `jiimqj-ms`).
