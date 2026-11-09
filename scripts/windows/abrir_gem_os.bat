@@ -1,8 +1,10 @@
 @echo off
-rem Doble clic: arranca GEM OS (si no esta en marcha) y abre el panel en el navegador.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0iniciar_gem_os.ps1" -Abrir
+rem Doble clic: abre GEM OS (escritorio). El programa arranca solo su servidor web y todas las
+rem automatizaciones; el boton "Abrir panel web" de la barra superior abre la web.
+rem Usa Python (no el .exe), asi que no le afecta el bloqueo de Windows a los ejecutables sin firmar.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0iniciar_escritorio.ps1"
 if errorlevel 1 (
   echo.
-  echo No se pudo arrancar GEM OS. Revisa logs\elite\arranque.log
+  echo No se pudo abrir GEM OS. Revisa logs\elite\escritorio.err
   pause
 )
