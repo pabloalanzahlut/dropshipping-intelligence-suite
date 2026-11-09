@@ -47,6 +47,14 @@ cp .env.example .env
 python app/main.py
 ```
 
+### Abrir GEM OS en Windows (recomendado: doble clic)
+- `scripts\windows\abrir_gem_os.bat` — abre el **escritorio** desde Python (sin consola y sin depender del
+  `.exe`). Arranca por sí mismo el servidor web y todas las automatizaciones; si ya estaba abierto, no abre otro.
+- `scripts\windows\abrir_web.bat` — solo el servidor web y el panel en el navegador.
+- Arranque con Windows: `powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1 -Escritorio`
+  (quitar con `-Quitar`; `-SoloMostrar` enseña qué haría sin instalar nada).
+- Los errores de arranque quedan en `logs\elite\escritorio.err`.
+
 ### Ejecutable Windows (.exe)
 ```bash
 python build_exe.py              # Modo carpeta (rápido)

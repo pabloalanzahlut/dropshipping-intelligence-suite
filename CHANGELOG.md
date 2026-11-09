@@ -50,6 +50,11 @@ y el versionado [SemVer](https://semver.org/).
 - La KB de incidencias de GitHub (`github_kb.md`) había recogido un valor de prueba con forma de clave;
   se redactó y el procedimiento `resolver_github` ahora prohíbe copiar valores detectados.
 
+### Lanzadores de Windows
+- `abrir_gem_os.bat` ahora abre el **escritorio** desde Python (`iniciar_escritorio.ps1`: sin consola, detecta si
+  ya está abierto, errores en `logs\elite\escritorio.err`); `abrir_web.bat` conserva el comportamiento anterior
+  (solo servidor + navegador). `instalar_autoarranque.ps1 -Escritorio` lo abre minimizado al iniciar sesión.
+
 ### Nota para el `.exe`
 - Es un ejecutable **sin firmar**. Con **Smart App Control** activo en Windows (Seguridad de Windows →
   Control de aplicaciones y del navegador), el sistema puede bloquearlo («Un criterio de control de
