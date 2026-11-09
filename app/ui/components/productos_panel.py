@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 
 from app.services import business_metrics, product_catalog as pc
 from app.ui.components.panel_kit import (
-    BG_CARD, BG_TERTIARY, COLOR_ERROR, COLOR_PRIMARY, COLOR_SECONDARY, COLOR_SUCCESS, COLOR_WARNING,
+    Dialogo, BG_CARD, BG_TERTIARY, COLOR_ERROR, COLOR_PRIMARY, COLOR_SECONDARY, COLOR_SUCCESS, COLOR_WARNING,
     FONT_BODY, FONT_SECTION, FONT_SM, PanelBase, TXT, TXT_2, TXT_3, boton, etiqueta, importe, llenar_tabla,
     tabla, tarjeta,
 )
@@ -191,7 +191,7 @@ class ProductosPanel(PanelBase):
         self._dialogo_datos(p)
 
     def _dialogo_datos(self, p: Optional[Dict[str, Any]]) -> None:
-        d = _Dialogo(self, "Editar producto" if p else "Nuevo producto candidato")
+        d = Dialogo(self, "Editar producto" if p else "Nuevo producto candidato")
         campos = [("nombre", "Nombre del producto", 40), ("categoria", "Categoría", 24), ("url_proveedor", "URL del proveedor", 40),
                   ("costo_origen", "Coste de origen (5–15 recomendado)", 12), ("costo_envio", "Coste de envío", 12),
                   ("pvp", "PVP", 12), ("notas", "Notas", 40)]
@@ -217,7 +217,7 @@ class ProductosPanel(PanelBase):
         d.botones("Guardar", guardar)
 
     def _refutar(self, p: Dict[str, Any]) -> None:
-        d = _Dialogo(self, "Refutar el producto — 8 intentos de matar la tesis", ancho=760)
+        d = Dialogo(self, "Refutar el producto — 8 intentos de matar la tesis", ancho=760)
         previas = p.get("refutaciones") or {}
         resultados: Dict[int, tk.StringVar] = {}
         datos: Dict[int, tk.StringVar] = {}
@@ -250,7 +250,7 @@ class ProductosPanel(PanelBase):
         d.botones("Guardar respuestas", guardar)
 
     def _demanda(self, p: Dict[str, Any]) -> None:
-        d = _Dialogo(self, "Demanda (fake door) y creativo")
+        d = Dialogo(self, "Demanda (fake door) y creativo")
         dem = p.get("demanda") or {}
         vars_ = {k: tk.StringVar(value=str(dem.get(k, ""))) for k in ("visitantes", "clics_comprar", "emails", "dias_test")}
         nombres = {"visitantes": "Visitantes del pop-up", "clics_comprar": "Clics en «comprar»", "emails": "Emails capturados",
@@ -271,38 +271,3 @@ class ProductosPanel(PanelBase):
             self.aviso("Demanda y creativo guardados.", "ok")
 
         d.botones("Guardar", guardar)
-
-
-class _Dialogo(tk.Toplevel):
-    """Ventana modal sencilla con el aspecto de la app."""
-
-    def __init__(self, padre, titulo: str, ancho: int = 520):
-        super().__init__(padre)
-        self.title(titulo)
-        self.configure(bg=BG_CARD)
-        self.transient(padre.winfo_toplevel())
-        self.geometry(f"{ancho}x1")
-        self.cuerpo = tk.Frame(self, bg=BG_CARD)
-        self.cuerpo.pack(fill=tk.BOTH, expand=True, padx=16, pady=12)
-        self._ancho = ancho
-        self.after(10, self._ajustar)
-        try:
-            self.grab_set()
-        except tk.TclError:
-            pass
-
-    def _ajustar(self) -> None:
-        self.update_idletasks()
-        self.geometry(f"{self._ancho}x{min(self.winfo_reqheight(), 760)}")
-
-    def fila(self, texto: str, var: tk.StringVar, ancho: int = 30) -> None:
-        f = tk.Frame(self.cuerpo, bg=BG_CARD)
-        f.pack(fill=tk.X, pady=3)
-        tk.Label(f, text=texto, font=FONT_SM, fg=TXT_2, bg=BG_CARD, width=30, anchor="w").pack(side=tk.LEFT)
-        ttk.Entry(f, textvariable=var, width=ancho).pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-    def botones(self, texto_ok: str, comando) -> None:
-        f = tk.Frame(self.cuerpo, bg=BG_CARD)
-        f.pack(fill=tk.X, pady=(10, 0))
-        boton(f, texto_ok, comando, COLOR_SUCCESS).pack(side=tk.RIGHT)
-        boton(f, "Cancelar", self.destroy, BG_TERTIARY, TXT_2).pack(side=tk.RIGHT, padx=6)

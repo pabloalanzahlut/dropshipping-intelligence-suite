@@ -245,3 +245,38 @@ class PanelBase(tk.Frame):
         ent = ttk.Entry(marco, textvariable=var, width=ancho, show=mostrar)
         ent.pack(fill=tk.X)
         return marco, var, ent
+
+
+class Dialogo(tk.Toplevel):
+    """Ventana modal sencilla con el aspecto de la app."""
+
+    def __init__(self, padre, titulo: str, ancho: int = 520):
+        super().__init__(padre)
+        self.title(titulo)
+        self.configure(bg=BG_CARD)
+        self.transient(padre.winfo_toplevel())
+        self.geometry(f"{ancho}x1")
+        self.cuerpo = tk.Frame(self, bg=BG_CARD)
+        self.cuerpo.pack(fill=tk.BOTH, expand=True, padx=16, pady=12)
+        self._ancho = ancho
+        self.after(10, self._ajustar)
+        try:
+            self.grab_set()
+        except tk.TclError:
+            pass
+
+    def _ajustar(self) -> None:
+        self.update_idletasks()
+        self.geometry(f"{self._ancho}x{min(self.winfo_reqheight(), 760)}")
+
+    def fila(self, texto: str, var: tk.StringVar, ancho: int = 30) -> None:
+        f = tk.Frame(self.cuerpo, bg=BG_CARD)
+        f.pack(fill=tk.X, pady=3)
+        tk.Label(f, text=texto, font=FONT_SM, fg=TXT_2, bg=BG_CARD, width=30, anchor="w").pack(side=tk.LEFT)
+        ttk.Entry(f, textvariable=var, width=ancho).pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+    def botones(self, texto_ok: str, comando) -> None:
+        f = tk.Frame(self.cuerpo, bg=BG_CARD)
+        f.pack(fill=tk.X, pady=(10, 0))
+        boton(f, texto_ok, comando, COLOR_SUCCESS).pack(side=tk.RIGHT)
+        boton(f, "Cancelar", self.destroy, BG_TERTIARY, TXT_2).pack(side=tk.RIGHT, padx=6)
