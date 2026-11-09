@@ -66,6 +66,7 @@ class GEMOSApplication:
         self._log("💎 GEM OS v3.0 iniciado correctamente.")
         if self._sin_claves:           # primer arranque: lleva a Configuración en vez de un aviso suelto
             self.root.after(300, lambda: self._show(IDX_CONFIG))
+        self.root.after(1500, self._refrescar_campana)
 
     def _build_main_layout(self):
         """Sidebar premium + toolbar neon + contenedor de paneles."""
@@ -393,6 +394,45 @@ class GEMOSApplication:
             messagebox.showinfo("Panel web", "El servidor web aún no está listo. Espera unos segundos e inténtalo de nuevo.")
             return
         webbrowser.open(f"http://127.0.0.1:{self._puerto_web()}/")
+
+    # ── Campana de alertas ───────────────────────────────────────────────────
+
+    def _pintar_campana(self, datos) -> None:
+        """Muestra en la barra cuántas alertas hay sin ver (rojo si alguna es crítica)."""
+        try:
+            sin_ver, criticas = datos["sin_ver"], datos["criticas"]
+            self._campana.config(text=f"🔔 {sin_ver}" if sin_ver else "🔔",
+                                 fg=(ERROR_COLOR if criticas else NEON_COLORS["yellow"]) if sin_ver else TEXT_COLORS['secondary'])
+        except Exception:
+            pass
+
+    def _abrir_alertas(self) -> None:
+        self._show(IDX_SISTEMA)
+        panel = getattr(self._panels[IDX_SISTEMA], "panel_ref", None)
+        if panel is not None:
+            panel.mostrar_pestana("alertas")
+            panel.cargar_alertas()
+        else:                              # el panel aún se está cargando: abrir la pestaña al terminar
+            self.root.after(300, self._abrir_alertas)
+
+    def _refrescar_campana(self) -> None:
+        """Cada minuto relee las alertas; las recalcula como mucho cada 5 min (las evalúa también el servidor)."""
+        import time
+        from app.services import alerts
+        from app.config.path_manager import PathManager
+
+        def trabajo():
+            try:
+                db = self.db_manager.db_path
+                if time.time() - getattr(self, "_ult_eval_campana", 0) > 300:
+                    self._ult_eval_campana = time.time()
+                    alerts.evaluar(db, str(PathManager.get_paths()["config"]))
+                datos = alerts.listar(db)
+                self.root.after(0, lambda: self._pintar_campana(datos))
+            except Exception:
+                pass
+        threading.Thread(target=trabajo, daemon=True).start()
+        self.root.after(60000, self._refrescar_campana)
 
     def _on_claves_cambiadas(self) -> None:
         """Se guardó o quitó una clave: actualiza el indicador y hace que el Agente IA (que lee la
