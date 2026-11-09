@@ -17,7 +17,12 @@
   Ruta de GEM_OS_Suite.exe. Si se indica, al iniciar sesión se abre el programa (minimizado, con su
   servidor web y todas las automatizaciones) en lugar de lanzar el servidor con Python.
 
+.PARAMETER Escritorio
+  Al iniciar sesión abre el escritorio desde Python (minimizado, con su servidor web y todas las
+  automatizaciones). Es la opción recomendada si Windows bloquea el .exe (Smart App Control).
+
 .EXAMPLE
+  powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1 -Escritorio
   powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1
   powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1 -Exe "C:\GEM_OS_Suite\GEM_OS_Suite.exe"
   powershell -ExecutionPolicy Bypass -File scripts\windows\instalar_autoarranque.ps1 -Quitar
@@ -25,7 +30,8 @@
 param(
     [switch]$SoloMostrar,
     [switch]$Quitar,
-    [string]$Exe = ''
+    [string]$Exe = '',
+    [switch]$Escritorio
 )
 
 $ErrorActionPreference = 'Stop'
@@ -43,7 +49,15 @@ if ($Quitar) {
     exit 0
 }
 
-if ($Exe) {
+if ($Escritorio) {
+    # Escritorio desde Python (sin el .exe): lo abre minimizado y arranca su propio servidor web
+    $raiz = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    $python = (Get-Command python -ErrorAction Stop).Source
+    $pythonw = Join-Path (Split-Path $python) 'pythonw.exe'
+    if (-not (Test-Path $pythonw)) { $pythonw = $python }
+    $accion = New-ScheduledTaskAction -Execute $pythonw -Argument '-m app.main --minimizado' -WorkingDirectory $raiz
+    $queEjecuta = "`"$pythonw`" -m app.main --minimizado  (en $raiz)"
+} elseif ($Exe) {
     if (-not (Test-Path $Exe -PathType Leaf)) { Write-Error "No existe el programa: $Exe"; exit 1 }
     $Exe = (Resolve-Path $Exe).Path
     $accion = New-ScheduledTaskAction -Execute $Exe -Argument '--minimizado' -WorkingDirectory (Split-Path $Exe)
