@@ -648,3 +648,40 @@ def mig_0023_propuestas_ajuste(conn: sqlite3.Connection):
         )
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_propuestas_estado ON propuestas_ajuste(estado)")
+
+
+@migration(24, "Informes de investigación de nicho (skill investigar-nicho)")
+def mig_0024_nicho_investigaciones(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS nicho_investigaciones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nicho TEXT NOT NULL,
+            resumen TEXT DEFAULT '',
+            angulos_json TEXT NOT NULL DEFAULT '[]',
+            ranking_json TEXT NOT NULL DEFAULT '[]',
+            producto_id INTEGER,
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE SET NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_nicho_investigaciones_nicho ON nicho_investigaciones(nicho)")
+
+
+@migration(25, "Matrices de hooks TikTok/Meta Ads (skill hook-matrix)")
+def mig_0025_hook_matrices(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS hook_matrices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            producto_id INTEGER,
+            hooks_json TEXT NOT NULL DEFAULT '[]',
+            total_hooks INTEGER NOT NULL DEFAULT 0,
+            validacion_json TEXT NOT NULL DEFAULT '[]',
+            recomendacion_test TEXT DEFAULT '',
+            gate_pass INTEGER NOT NULL DEFAULT 0,
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE SET NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_hook_matrices_producto ON hook_matrices(producto_id)")
