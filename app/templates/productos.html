@@ -131,6 +131,30 @@
           <p style="font-size:10px;color:#4a5080;margin:8px 0 0;">0 refutadas: invertir · 1–2: solo presupuesto test de 15 €/día · 3 o más, o la 1 o la 6: descartar.</p>
         </div>
 
+        <!-- Hook Matrix -->
+        <div x-show="tab === 'hooks'">
+          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">≥12 hooks TikTok/Meta Ads, 2 por cada fórmula (Story, Shock, Curiosity, Before/After, POV, Urgencia).</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input x-model="hookContexto" class="input-field" placeholder="Ángulo o contexto (opcional, usa el nombre del producto si se deja vacío)" style="flex:1;">
+            <button @click="generarHookMatrix()" :disabled="hookCargando" class="btn-primary" style="white-space:nowrap;">
+              <span x-text="hookCargando ? 'Generando…' : '✨ Generar'"></span>
+            </button>
+          </div>
+          <template x-for="m in hookMatrices" :key="m.id">
+            <div style="border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#08091a;">
+              <p style="font-size:11px;margin:0 0 8px;">
+                <span :style="m.gate_pass ? 'color:#34d399;' : 'color:#fb7185;'" x-text="m.gate_pass ? '✓ Gate OK' : '✗ Gate falló'"></span>
+                <span style="color:#7880b0;"> · <span x-text="m.total_hooks"></span> hooks · <span x-text="(m.creado_at || '').slice(0,16)"></span></span>
+              </p>
+              <template x-for="h in m.hooks" :key="h.id">
+                <p style="font-size:11px;color:#c8d0f0;margin:0 0 4px;"><strong x-text="h.formula + ':'"></strong> <span x-text="h.texto"></span></p>
+              </template>
+              <p x-show="!m.gate_pass" style="font-size:10px;color:#fb7185;margin:6px 0 0;" x-text="(m.gate_violations || []).join(' · ')"></p>
+            </div>
+          </template>
+          <p x-show="!hookMatrices.length" style="font-size:12px;color:#4a5080;">Sin matrices generadas todavía.</p>
+        </div>
+
         <!-- Demanda y creativo -->
         <div x-show="tab === 'demanda'">
           <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Test de demanda (fake door): mide el interés sin stock ni ads. Registra lo que midió.</p>
