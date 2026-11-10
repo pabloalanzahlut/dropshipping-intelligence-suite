@@ -893,62 +893,63 @@ async def api_pipeline_status() -> Dict[str, Any]:
         return dict(_PIPELINE_STATE)
 
 
-@app.get("/api/kb/stream")
-async def api_kb_stream(request: Request, pregunta: str = "", agente: str = "auto"):
-    """SSE: emite la respuesta del agente KB carácter a carácter (simulado streaming).
-    Con agente="auto" (por defecto) reconoce el tipo de pregunta y elige el agente;
-    el primer evento ({"route": ...}) dice cuál se eligió y por qué."""
+def _sse(evento: Dict[str, Any]) -> str:
+    return f"data: {json.dumps(evento, ensure_ascii=False)}\n\n"
+
+
+def _chat_sse(request: Request, pregunta: str, agente: str,
+              historial: List[Dict[str, Any]], proyecto: str = "kb_chat") -> StreamingResponse:
+    """Una vuelta de conversación con el Agente IA, emitida como eventos SSE:
+
+      {"route": …}   qué agente atiende y por qué (llega antes de que el modelo conteste)
+      {"token": …}   la respuesta en TEXTO NATURAL, a trozos (nunca el JSON interno del motor)
+      {"done": true, "texto", "fuentes", "datos", "confianza", "con_tienda", "rapida", "segundos"}
+      {"error": …}   frase que explica qué ha pasado y qué hacer
+
+    El motor contesta de una vez (no hay streaming real del proveedor); trocear el texto evita que una
+    respuesta larga aparezca de golpe."""
     async def _generator() -> AsyncGenerator[str, None]:
         if not pregunta.strip():
-            yield f"data: {json.dumps({'error': 'La pregunta está vacía.'})}\n\n"
+            yield _sse({"error": "Escribe una pregunta para empezar."})
             return
         try:
-            from app.agents_engine.executor import AgentExecutor
-            ruta = agent_router.elegir_agente(pregunta, agente)
-            yield f"data: {json.dumps({'route': ruta}, ensure_ascii=False)}\n\n"
-            executor = AgentExecutor()
+            yield _sse({"route": agent_chat.elegir_ruta(pregunta, agente, historial)})
             loop = asyncio.get_running_loop()
-            # Los insights MÁS RELEVANTES para esta pregunta (no los 30 últimos)
-            kb_context, fuentes = await loop.run_in_executor(
-                None, lambda: _contexto_kb_para(pregunta, ruta["tipo"]))
-            # Cifras reales de la tienda (Shopify + AutoDS), solo desde SQLite: no depende de la red
-            bloque_tienda = await loop.run_in_executor(None, lambda: store_context.bloque_para_prompt(DB_PATH))
-            pregunta_enriquecida = (
-                f"{bloque_tienda}"
-                f"CONTEXTO KB (insights más relevantes, numerados):\n"
-                f"---\n{kb_context}\n---\n\n"
-                f"{_INSTRUCCION_FUENTES}\n"
-                f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}\n"
-                f"PREGUNTA DEL OPERADOR:\n{pregunta}"
-            )
-            # Ejecutar en hilo (es síncrono) y emitir por chunks
-            resultado = await loop.run_in_executor(
-                None,
-                lambda: executor.execute_agent_task(
-                    agent_name=ruta["agente"],
-                    skill_name="consultar_kb_agente",
-                    project_name="kb_stream",
-                    user_request=pregunta_enriquecida,
-                )
-            )
-            resultado = _strip_md_fences(resultado)
-            # Emitir chunk a chunk para efecto streaming
-            chunk_size = 8
-            for i in range(0, len(resultado), chunk_size):
+            r = await loop.run_in_executor(
+                None, lambda: agent_chat.responder(DB_PATH, pregunta, agente, historial, proyecto=proyecto))
+            for trozo in agent_chat.trocear(r["texto"]):
                 if await request.is_disconnected():
-                    break
-                chunk = resultado[i:i + chunk_size]
-                yield f"data: {json.dumps({'token': chunk}, ensure_ascii=False)}\n\n"
-                await asyncio.sleep(0.015)
-            yield f"data: {json.dumps({'done': True, 'raw': resultado, 'route': ruta, 'fuentes': _fuentes_citadas(resultado, fuentes)}, ensure_ascii=False)}\n\n"
+                    return
+                yield _sse({"token": trozo})
+                await asyncio.sleep(0.008 if r["rapida"] else 0.02)
+            yield _sse({"done": True, **{k: r[k] for k in (
+                "texto", "ruta", "fuentes", "datos", "confianza", "con_tienda", "rapida", "segundos")}})
+        except agent_chat.AgenteNoDisponible as exc:
+            yield _sse({"error": str(exc)})
         except Exception as exc:
-            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+            log.exception("[KB CHAT] Error en la conversación")
+            yield _sse({"error": agent_chat.explicar_error(exc)})
 
     return StreamingResponse(
         _generator(),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+@app.post("/api/kb/chat")
+async def api_kb_chat(request: Request, body: ChatIn):
+    """Chat con el Agente IA: la pregunta más los turnos anteriores (el agente recuerda la conversación)."""
+    if len(body.pregunta) > agent_chat.MAX_PREGUNTA:
+        raise HTTPException(status_code=422, detail=f"La pregunta supera los {agent_chat.MAX_PREGUNTA} caracteres.")
+    historial = [t.model_dump() for t in body.historial[-agent_chat.MAX_TURNOS:]]
+    return _chat_sse(request, body.pregunta, body.agente, historial)
+
+
+@app.get("/api/kb/stream")
+async def api_kb_stream(request: Request, pregunta: str = Query("", max_length=2000), agente: str = "auto"):
+    """Igual que /api/kb/chat pero por GET y sin memoria de conversación (compatibilidad)."""
+    return _chat_sse(request, pregunta, agente, [], proyecto="kb_stream")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1221,33 +1222,20 @@ async def api_kb_sync(background_tasks: BackgroundTasks) -> Dict[str, Any]:
 
 @app.post("/api/kb/query")
 async def api_kb_query(data: KBQueryIn) -> Dict[str, Any]:
-    """Envía una pregunta al AgentExecutor con contexto KB inyectado desde SQLite."""
+    """Una pregunta suelta al agente (sin streaming ni memoria). `texto` es la respuesta en lenguaje
+    natural y `datos` sus datos de apoyo ya legibles; `resultado` conserva el JSON del motor."""
     try:
-        from app.agents_engine.executor import AgentExecutor
-        ruta = agent_router.elegir_agente(data.pregunta, data.agente)
-        executor = AgentExecutor()
-        kb_context, fuentes = _contexto_kb_para(data.pregunta, ruta["tipo"])
-        pregunta_enriquecida = (
-            f"{store_context.bloque_para_prompt(DB_PATH)}"
-            f"CONTEXTO KB (insights más relevantes, numerados):\n"
-            f"---\n{kb_context}\n---\n\n"
-            f"{_INSTRUCCION_FUENTES}\n"
-            f"TIPO DE CONSULTA DETECTADO: {ruta['tipo_etiqueta']}\n"
-            f"PREGUNTA DEL OPERADOR:\n{data.pregunta}"
-        )
-        resultado = executor.execute_agent_task(
-            agent_name=ruta["agente"],
-            skill_name="consultar_kb_agente",
-            project_name=data.proyecto,
-            user_request=pregunta_enriquecida,
-        )
+        loop = asyncio.get_running_loop()
+        r = await loop.run_in_executor(
+            None, lambda: agent_chat.responder(DB_PATH, data.pregunta, data.agente, proyecto=data.proyecto))
         try:
-            parsed = json.loads(_strip_md_fences(resultado))
+            parsed = json.loads(agent_chat.sin_fences(r["bruto"]))
         except (json.JSONDecodeError, TypeError):
-            parsed = {"respuesta": resultado}
-        return {"status": "ok", "agente": ruta["agente"], "ruta": ruta, "resultado": parsed,
-                "fuentes": _fuentes_citadas(resultado, fuentes)}
-    except RuntimeError as exc:
+            parsed = {"respuesta": r["texto"]}
+        return {"status": "ok", "agente": r["ruta"]["agente"], "ruta": r["ruta"], "resultado": parsed,
+                "texto": r["texto"], "datos": r["datos"], "confianza": r["confianza"],
+                "con_tienda": r["con_tienda"], "fuentes": r["fuentes"]}
+    except (ValueError, RuntimeError) as exc:
         raise HTTPException(status_code=422, detail=str(exc))
     except Exception as exc:
         log.error(f"[KB QUERY] Error: {exc}")
