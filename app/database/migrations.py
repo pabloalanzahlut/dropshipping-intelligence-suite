@@ -626,3 +626,25 @@ def mig_0021_tienda_shopify_autods(conn: sqlite3.Connection):
             correlation_id TEXT
         )
     """)
+
+
+@migration(22, "Marca de promoción de candidatos de product_trends al catálogo de productos")
+def mig_0022_product_trends_promocion(conn: sqlite3.Connection):
+    columnas = {r[1] for r in conn.execute("PRAGMA table_info(product_trends)")}
+    if "promovido_a_producto_id" not in columnas:
+        conn.execute("ALTER TABLE product_trends ADD COLUMN promovido_a_producto_id INTEGER")
+
+
+@migration(23, "Propuestas de self_improve en SQLite (antes solo en un Markdown append-only)")
+def mig_0023_propuestas_ajuste(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS propuestas_ajuste (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            resumen TEXT NOT NULL,
+            analisis_md TEXT NOT NULL,
+            estado TEXT NOT NULL DEFAULT 'pendiente',
+            revisado_at TEXT
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_propuestas_estado ON propuestas_ajuste(estado)")
