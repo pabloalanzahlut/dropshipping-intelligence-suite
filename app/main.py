@@ -225,6 +225,7 @@ class GEMOSApplication:
                                                     al_cambiar_alertas=self._pintar_campana)),
             ("Imágenes", lambda parent: ImagenesPanel(parent, db_manager=self.db_manager)),
             ("Propuestas IA", lambda parent: PropuestasPanel(parent, db_manager=self.db_manager)),
+            ("Investigar nicho", lambda parent: NichoPanel(parent, db_manager=self.db_manager)),
         ]
         self._panel_factories = specs
         self._panel_loaded = [False] * len(specs)
