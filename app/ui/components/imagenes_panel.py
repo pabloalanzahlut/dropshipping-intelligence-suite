@@ -12,7 +12,7 @@ import subprocess
 import sys
 import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, ttk
+from tkinter import filedialog
 from typing import Optional
 
 from app.ui.components.panel_kit import (
