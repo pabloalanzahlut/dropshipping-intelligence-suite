@@ -107,6 +107,7 @@ class GEMOSApplication:
             _item("📋", "Gobernanza", 5),
             _item("🔗", "Enrutador", 6),
             _item("⚙️", "Configuración", IDX_CONFIG),
+            _item("📝", "Propuestas IA", IDX_PROPUESTAS),
         ])
         self.sidebar.grid(row=0, column=0, sticky="ns")
         
