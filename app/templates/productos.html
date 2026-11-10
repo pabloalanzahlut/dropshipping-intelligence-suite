@@ -310,7 +310,18 @@ function productos() {
         if (!r.ok) throw new Error(await this.mensaje(r, 'Error ' + r.status));
         this.tab = 'datos'; this.cargarForm(await r.json());
         this.cargarHookMatrices();
+        this.cargarFakeDoor();
       } catch (e) { this.toast.error('No se pudo abrir el producto: ' + e.message); }
+    },
+    async cargarFakeDoor() {
+      try {
+        const r = await fetch('/api/productos/' + this.det.id + '/fake-door');
+        this.fd = r.ok ? await r.json() : null;
+      } catch (e) { this.fd = null; }
+    },
+    async calcularFakeDoor() {
+      const p = await this.enviar('/api/productos/' + this.det.id + '/fake-door/calcular', 'POST', {}, 'Demanda calculada desde los eventos.');
+      if (p) { const t = this.tab; this.cargarForm(p); this.tab = t; await this.cargarFakeDoor(); }
     },
     async cargarHookMatrices() {
       try {
