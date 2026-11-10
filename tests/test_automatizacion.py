@@ -9,6 +9,7 @@ import unittest
 from datetime import date, timedelta
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -16,6 +17,7 @@ from app.database.connection import DatabaseConnection
 from app.services import alerts, daily_brief
 from app.services import business_metrics as bm
 from app.services import product_catalog as pc
+from app.services import product_trends_promoter, propuestas_review
 from app.services.provider_monitor_engine import ProviderMonitorEngine
 from app.services.queue_state_manager import STATUS_COMPLETED, STATUS_FAILED
 
