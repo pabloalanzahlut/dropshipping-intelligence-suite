@@ -43,9 +43,10 @@ class TokenTests(unittest.TestCase):
         web_auth.limpiar_fallos(ip)
 
     def test_rutas_libres(self):
-        for r in ("/login", "/api/login", "/static/x.css", "/webhooks/shopify"):
+        for r in ("/login", "/api/login", "/static/x.css", "/webhooks/shopify", "/fd/1", "/fd/1/evento"):
             self.assertTrue(web_auth.es_libre(r), r)
-        for r in ("/", "/api/transcripciones", "/productos"):
+        for r in ("/", "/api/transcripciones", "/productos", "/api/productos/1/fake-door",
+                  "/api/productos/1/fake-door/calcular"):
             self.assertFalse(web_auth.es_libre(r), r)
 
 
