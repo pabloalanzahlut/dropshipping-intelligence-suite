@@ -187,6 +187,48 @@ def fix_pin_version(paquete: str) -> list[str]:
     return ["requirements.txt"]
 
 
+def mayor_mas_reciente_action(repo_action: str, token: str | None = None) -> str | None:
+    """Devuelve 'vN' del último release publicado de la action, o None si no se puede saber."""
+    cab = {"Accept": "application/vnd.github+json"}
+    if token:
+        cab["Authorization"] = f"Bearer {token}"
+    try:
+        r = urllib.request.Request(f"https://api.github.com/repos/{repo_action}/releases/latest", headers=cab)
+        with urllib.request.urlopen(r, timeout=20) as resp:
+            m = re.match(r"v?(\d+)", json.load(resp)["tag_name"])
+        return f"v{m.group(1)}" if m else None
+    except (urllib.error.URLError, KeyError, ValueError):
+        return None
+
+
+def fix_bump_actions(catalogo: dict, token: str | None = None, consulta=mayor_mas_reciente_action) -> list[str]:
+    """Sube `uses: owner/repo@vN` al último major publicado. Nunca baja de versión."""
+    tocados = []
+    for wf in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        if ruta_prohibida(f".github/workflows/{wf.name}", catalogo):
+            continue
+        texto = wf.read_text(encoding="utf-8")
+
+        def subir(m: re.Match) -> str:
+            ultimo = consulta(m.group(1), token)
+            if ultimo and int(ultimo[1:]) > int(m.group(2)):
+                return f"{m.group(1)}@{ultimo}"
+            return m.group(0)
+
+        nuevo = re.sub(r"(?<=uses: )([\w.-]+/[\w.-]+)@v(\d+)", subir, texto)
+        if nuevo != texto:
+            wf.write_text(nuevo, encoding="utf-8")
+            tocados.append(str(wf.relative_to(ROOT)).replace("\\", "/"))
+    return tocados
+
+
+SENSIBLES = re.compile(r"(^|/)([^/]*cookies[^/]*\.json|\.playwright-mcp/.*)$", re.I)
+
+
+def toca_workflows(archivos: list[str]) -> bool:
+    return any(a.replace("\\", "/").startswith(".github/workflows/") for a in archivos)
+
+
 # ---------------------------------------------------------------- KB (aprendizaje)
 def registrar_kb(fix_id: str, tipo: str, firma: str, resultado: str, fecha: dt.date | None = None) -> str:
     fecha = fecha or dt.date.today()
@@ -248,15 +290,45 @@ def prs_hoy(gh: GitHub) -> int:
     return sum(1 for p in prs if p["head"]["ref"].startswith("selfheal/") and p["created_at"].startswith(hoy))
 
 
+def git_ok(*args: str) -> bool:
+    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True).returncode == 0
+
+
 def abrir_pr_y_fusionar(gh: GitHub, rama: str, titulo: str, cuerpo: str, archivos: list[str]) -> str:
-    """Rama -> commit -> push -> PR -> chequeo local (gitleaks) -> merge squash."""
+    """Rama -> commit -> push -> PR -> chequeo local (gitleaks) -> merge squash.
+
+    El GITHUB_TOKEN no puede empujar cambios a .github/workflows/: si el fix los toca y no hay
+    SELF_HEAL_TOKEN (PAT con scope workflow), se abre un Issue con el parche en vez de fallar.
+    """
+    pat = os.getenv("SELF_HEAL_TOKEN") or None
+    if toca_workflows(archivos) and not pat:
+        parche = subprocess.run(["git", "diff", "--", *[a for a in archivos if a.startswith(".github/workflows/")]],
+                                cwd=ROOT, capture_output=True, text=True).stdout
+        gh.issue(f"Parche listo para workflow: {titulo}",
+                 "El GITHUB_TOKEN no puede modificar `.github/workflows/`. Aplicar este parche a mano o crear el "
+                 "secreto `SELF_HEAL_TOKEN` (PAT con scope `workflow`) para que el agente lo haga solo.\n\n"
+                 f"```diff\n{parche[:6000]}\n```", ["selfheal", "workflow"])
+        git("checkout", "--", ".github/workflows")
+        return "Fix de workflow NO empujado (falta SELF_HEAL_TOKEN) -> Issue con parche"
     git("config", "user.name", "gem-os-self-heal")
     git("config", "user.email", "self-heal@users.noreply.github.com")
     git("checkout", "-b", rama)
-    git("add", "--", *archivos)
+    for a in archivos:  # un archivo ignorado ya tiene su borrado en el índice (git rm --cached)
+        if not git_ok("check-ignore", "-q", "--", a):
+            git("add", "--", a)
     git("commit", "-m", f"fix(self-heal): {titulo}")
-    git("push", "origin", rama)
-    pr = gh.req("POST", "/pulls", {"title": f"fix(self-heal): {titulo}", "head": rama, "base": "master", "body": cuerpo})
+    destino = f"https://x-access-token:{pat}@github.com/{gh.repo}.git" if pat else "origin"
+    git("push", destino, rama)
+    try:
+        pr = gh.req("POST", "/pulls", {"title": f"fix(self-heal): {titulo}", "head": rama, "base": "master", "body": cuerpo})
+    except urllib.error.HTTPError as e:
+        if e.code in (401, 403, 422):
+            gh.issue("Self-heal no puede abrir PRs",
+                     f"La rama `{rama}` ya está empujada con el fix. Activar en Settings > Actions > General > "
+                     "'Allow GitHub Actions to create and approve pull requests' para que el agente cierre el ciclo solo.",
+                     ["selfheal", "config"])
+            return f"Rama {rama} empujada pero PR rechazado (HTTP {e.code}) -> Issue de configuración"
+        raise
     chequeo = subprocess.run(
         ["gitleaks", "git", ".", "--config", ".gitleaks.toml", "--redact", "--no-banner", "--exit-code", "1"],
         cwd=ROOT, capture_output=True, text=True)
@@ -286,6 +358,13 @@ def resolver(log: str, catalogo: dict, dry_run: bool, gh: GitHub | None = None) 
             informe.append(f"Falso positivo {h['file']}:{h['line']} -> allowlist exacta (F-012)")
             if not dry_run:
                 archivos += fix_allowlist_gitleaks(valor)
+        for h in resultado["hallazgos"]:
+            if SENSIBLES.search(h["file"].replace("\\", "/")):
+                id_untrack = "F-010" if ".playwright-mcp/" in h["file"] else "F-009"
+                fix_usado = fix_usado or id_untrack
+                informe.append(f"Archivo sensible rastreado {h['file']} -> git rm --cached + .gitignore ({id_untrack})")
+                if not dry_run:
+                    archivos += fix_untrack(h["file"])
     elif resultado["tipo"] == "catalogo":
         fix = fix_por_id(catalogo, resultado["fix_id"])
         fix_usado = fix["id"]
@@ -298,6 +377,10 @@ def resolver(log: str, catalogo: dict, dry_run: bool, gh: GitHub | None = None) 
                 for wf in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
                     if not ruta_prohibida(f".github/workflows/{wf.name}", catalogo):
                         archivos += fix_secrets_a_env(wf)
+            elif fix["accion"] == "bump_actions":
+                archivos += fix_bump_actions(catalogo, os.getenv("GITHUB_TOKEN"))
+            elif fix["accion"] == "cerrar_dependabot_obsoleto" and gh is not None:
+                informe += cerrar_dependabot_obsoletos(gh, dry_run=False)
     else:
         informe.append("Firma desconocida -> Issue selfheal:nuevo (aprendizaje pendiente)")
 
