@@ -31,7 +31,8 @@ Zonas prohibidas, sin excepción:
 import os
 import json
 import logging
-from typing import Dict, List
+import sqlite3
+from typing import Dict, List, Optional
 from datetime import datetime, timezone
 
 from app.services.metrics_aggregator import MetricsAggregator
