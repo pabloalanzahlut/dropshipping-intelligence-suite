@@ -321,15 +321,19 @@ class MenuYAgenteTests(Base):
         p.pack()
         self.paneles.append(p)
 
+        import time
         bruto = '{"respuesta": "Hola, no hay pedidos todavía.", "tipo_consulta": "metrica", "datos": []}'
         with patch.object(p.executor, "execute_agent_task", return_value=bruto):
             p.entrada.insert("1.0", "¿cómo va mi tienda?")
             p._on_enviar()
-            # en_hilo() lanza un thread; se espera a que termine y se entregue por self.after
+            # en_hilo() lanza un thread aparte; hace falta tiempo real (no solo procesar la cola de
+            # Tk) para que termine y entregue el resultado con self.after()
             for _ in range(200):
                 self.root.update()
                 if not p._cargando:
                     break
+                time.sleep(0.01)
+            self.root.update()
         contenido = p.texto.get("1.0", "end")
         self.assertIn("¿cómo va mi tienda?", contenido)
         self.assertIn("Hola, no hay pedidos todavía.", contenido)

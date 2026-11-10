@@ -1,0 +1,21 @@
+```json
+{
+  "respuesta": "Ahora mismo no puedo decirte cómo va la tienda, porque no tengo ninguna cifra real de ella.\n- Shopify no está sincronizado [TIENDA: DATA_GAP].\n- AutoDS todavía no ha importado productos [TIENDA: DATA_GAP].\n\nConecta la tienda desde la pantalla Tienda. Con eso podré darte ventas, márgenes, ROAS, costes, cancelaciones y productos con sus datos reales.\n\nTampoco tengo la base de conocimiento cargada, así que no puedo comparar tu tienda con insights de los canales. Si quieres esa comparación, hay que ingerir primero los videos de YouTube.",
+  "tipo_consulta": "metrica",
+  "datos": [
+    {
+      "dato_faltante": "ventas, márgenes, ROAS, costes, cancelaciones y productos de la tienda",
+      "motivo": "Shopify sin sincronizar y AutoDS sin importar",
+      "accion_requerida": "Conectar la tienda en la pantalla Tienda"
+    },
+    {
+      "dato_faltante": "insights de la base de conocimiento",
+      "motivo": "Base de conocimiento vacía",
+      "accion_requerida": "Ingestar videos de YouTube"
+    }
+  ],
+  "fuentes": [],
+  "confianza": "Baja",
+  "fecha_consulta": "[DATA_GAP: fecha_consulta]"
+}
+```
