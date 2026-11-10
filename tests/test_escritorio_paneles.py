@@ -303,15 +303,48 @@ class MenuYAgenteTests(Base):
         p = KBAgentPanel(self.root, db_manager=self.db)
         p.pack()
         self.paneles.append(p)
-        p.query_text.delete("1.0", "end")
-        p.query_text.insert("1.0", "Si lo compro a 5 dólares y lo vendo a 12, ¿cuál es el margen?")
+        p.entrada.delete("1.0", "end")
+        p.entrada.insert("1.0", "Si lo compro a 5 dólares y lo vendo a 12, ¿cuál es el margen?")
         p._actualizar_ruta()
-        self.assertIn("gem-qa-validation", p._ruta_lbl.cget("text"))
-        p._agente_var.set(next(k for k in p._agentes_opc if "backend" in k))
+        self.assertIn("Validación", p._ruta_lbl.cget("text"))
+        p._agente_var.set("Técnico")
         p._actualizar_ruta()
-        self.assertIn("fijado", p._ruta_lbl.cget("text"))
+        self.assertIn("Fijado:", p._ruta_lbl.cget("text"))
         self.assertEqual(p._agente_elegido(), "gem-backend-core")
-        self.assertEqual(p._sin_fences('```json\n{"a": 1}\n```'), '{"a": 1}')
+
+    def test_el_chat_pinta_la_pregunta_y_no_ensena_json(self):
+        """Regresión del fallo que reportó el usuario: la respuesta del agente se veía como JSON
+        crudo en el panel de escritorio; ahora debe verse como texto natural, en la conversación."""
+        from unittest.mock import patch
+        from app.ui.components.kb_agent_panel import KBAgentPanel
+        p = KBAgentPanel(self.root, db_manager=self.db)
+        p.pack()
+        self.paneles.append(p)
+
+        bruto = '{"respuesta": "Hola, no hay pedidos todavía.", "tipo_consulta": "metrica", "datos": []}'
+        with patch.object(p.executor, "execute_agent_task", return_value=bruto):
+            p.entrada.insert("1.0", "¿cómo va mi tienda?")
+            p._on_enviar()
+            # en_hilo() lanza un thread; se espera a que termine y se entregue por self.after
+            for _ in range(200):
+                self.root.update()
+                if not p._cargando:
+                    break
+        contenido = p.texto.get("1.0", "end")
+        self.assertIn("¿cómo va mi tienda?", contenido)
+        self.assertIn("Hola, no hay pedidos todavía.", contenido)
+        self.assertNotIn('"respuesta"', contenido)
+        self.assertNotIn("tipo_consulta", contenido)
+
+    def test_lineas_formato_reconoce_vinetas_titulos_y_citas(self):
+        from app.ui.components.kb_agent_panel import _lineas_formato, _segmentos_en_linea
+        bloques = _lineas_formato("# Resumen\n\n- Primer punto [1]\n- Segundo punto\n\nUna frase con **negrita**.")
+        tipos = [b["tipo"] for b in bloques]
+        self.assertEqual(tipos, ["titulo", "vineta", "parrafo"])
+        self.assertEqual(len(bloques[1]["lineas"]), 2)
+        self.assertEqual(_segmentos_en_linea("texto [3] final"),
+                         [("texto ", ()), ("3", ("cita", "cita_3")), (" final", ())])
+        self.assertEqual(_segmentos_en_linea("**ojo**: dato"), [("ojo", ("bold",)), (": dato", ())])
 
 
 if __name__ == "__main__":
