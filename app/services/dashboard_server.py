@@ -1372,6 +1372,36 @@ async def api_producto_refutaciones(producto_id: int, body: RefutacionesIn) -> D
     return _producto_o_error(lambda: product_catalog.guardar_refutaciones(DB_PATH, producto_id, body.respuestas))
 
 
+@app.post("/api/productos/{producto_id}/refutaciones/borrador")
+async def api_producto_refutaciones_borrador(producto_id: int) -> Dict[str, Any]:
+    """Borrador por IA de las 8 refutaciones — nunca se guarda solo; el humano lo revisa
+    y lo confirma con el PUT de arriba."""
+    from app.services import refutacion_debate
+    return _producto_o_error(lambda: refutacion_debate.redactar_debate(DB_PATH, producto_id))
+
+
+class HookMatrixIn(BaseModel):
+    angulo_contexto: str = ""
+
+
+@app.post("/api/productos/{producto_id}/hook-matrix")
+async def api_producto_hook_matrix_generar(producto_id: int, body: HookMatrixIn) -> Dict[str, Any]:
+    from app.services import hook_matrix_service
+    p = product_catalog.obtener(DB_PATH, producto_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    contexto = body.angulo_contexto.strip() or f"{p['nombre']} ({p.get('categoria') or 'sin categoría'})"
+    resultado = hook_matrix_service.generar(contexto)
+    resultado["id"] = hook_matrix_service.guardar(DB_PATH, producto_id, resultado)
+    return resultado
+
+
+@app.get("/api/productos/{producto_id}/hook-matrix")
+async def api_producto_hook_matrix_listar(producto_id: int) -> List[Dict[str, Any]]:
+    from app.services import hook_matrix_service
+    return hook_matrix_service.listar(DB_PATH, producto_id)
+
+
 @app.put("/api/productos/{producto_id}/demanda")
 async def api_producto_demanda(producto_id: int, body: DemandaIn) -> Dict[str, Any]:
     return _producto_o_error(lambda: product_catalog.guardar_demanda(DB_PATH, producto_id, body.demanda, body.creativo_ok))
