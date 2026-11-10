@@ -661,6 +661,11 @@ async def configuracion_page(request: Request):
     return _render(request, "configuracion.html")
 
 
+@app.get("/propuestas", response_class=HTMLResponse)
+async def propuestas_page(request: Request):
+    return _render(request, "propuestas.html")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # API — MÉTRICAS Y ESTADO
 # ═══════════════════════════════════════════════════════════════════════════════
