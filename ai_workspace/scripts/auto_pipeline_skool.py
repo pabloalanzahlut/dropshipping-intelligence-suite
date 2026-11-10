@@ -277,7 +277,7 @@ def generar_reporte(kb: list[dict]) -> str:
     lineas += [
         "",
         "ANALISIS DR. MARCUS CHEN:",
-        f"  {len(kb)} productos validados por mentores del curso Adrián Sáenz.",
+        f"  {len(kb)} productos curados (no validados financieramente) por mentores del curso Adrián Sáenz.",
         "  Todos SIN_VALIDAR hasta pasar /validar-financiero (HOT exige >=5x coste landed).",
         "  Fuente: posts mensuales Vic Ecomilions — Comunidad Ecommerce.",
         "  Recomendación: validar regla 3x con /validar-financiero antes de lanzar.",
