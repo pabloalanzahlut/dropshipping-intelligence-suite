@@ -148,6 +148,8 @@ class ProductosPanel(PanelBase):
                 boton(botones, "⚔ Refutar (8 intentos)", lambda: self._refutar(p), COLOR_SECONDARY).pack(fill=tk.X, pady=2)
             if p["estado"] in ("validado", "creativo"):
                 boton(botones, "🎯 Demanda y creativo", lambda: self._demanda(p), COLOR_SECONDARY).pack(fill=tk.X, pady=2)
+            if p["estado"] in ("validado", "creativo", "tienda", "escalado"):
+                boton(botones, "✨ Hook Matrix", lambda: self._hook_matrix(p), COLOR_SECONDARY).pack(fill=tk.X, pady=2)
             boton(botones, "✏ Editar datos", lambda: self._editar(p), BG_TERTIARY, TXT_2).pack(fill=tk.X, pady=2)
             boton(botones, "✖ Descartar", lambda: self._mover(p["id"], "descartado", pedir_nota=True),
                   BG_TERTIARY, COLOR_ERROR).pack(fill=tk.X, pady=2)
