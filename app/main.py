@@ -93,6 +93,7 @@ class GEMOSApplication:
             _item("▶️", "YouTube", 2),
             _item("✍️", "Copys", 3),
             _item("🎵", "TikTok", 4),
+            _item("🖼️", "Imágenes", IDX_IMAGENES),
             _item("📥", "Ingesta", 7),
             (SECCION, "Inteligencia", None),
             _item("⚡", "Insights KB", IDX_INSIGHTS),
