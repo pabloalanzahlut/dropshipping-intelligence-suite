@@ -1666,8 +1666,9 @@ class InvestigarNichoIn(BaseModel):
 @app.post("/api/nicho/investigar")
 async def api_nicho_investigar(body: InvestigarNichoIn) -> Dict[str, Any]:
     from app.services import nicho_research
+    loop = asyncio.get_running_loop()
     try:
-        resultado = nicho_research.investigar(body.nicho, body.contexto)
+        resultado = await loop.run_in_executor(None, lambda: nicho_research.investigar(body.nicho, body.contexto))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
     resultado["id"] = nicho_research.guardar_investigacion(
