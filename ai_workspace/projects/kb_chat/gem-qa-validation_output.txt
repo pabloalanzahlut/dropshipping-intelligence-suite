@@ -1,0 +1,43 @@
+```json
+{
+  "respuesta": "Con los datos que me das, sí cumple el mínimo y roza el objetivo.\n\n- Coste landed: 6 + 2 = 8 $. Con PVP de 24 $, el multiplicador es 3,0× sobre el coste landed. Eso alcanza el objetivo de 3× y supera el mínimo de 2×.\n- Sobre solo el coste del producto (6 $) serían 4×, pero la regla se calcula sobre el landed, así que no uses ese número.\n- El coste de 6 $ está dentro del rango de 5-15 $ que marca Adrián Sáenz.\n- Te queda poco margen: si el precio baja o el envío sube, bajas de 3×.\n\nNo puedo validar el ROAS mínimo de 2 porque no tengo datos de pauta para este producto. Tampoco tengo comisiones de pasarela, impuestos ni devoluciones, así que el beneficio real será menor que 16 $.\n\nConfírmame si las cifras están en dólares o en euros. La tienda trabaja en EUR y no voy a convertir sin que me lo digas.",
+  "tipo_consulta": "metrica",
+  "datos": [
+    {
+      "concepto": "coste_landed",
+      "valor": "8 USD (producto 6 + envío 2)",
+      "fuente": "dato aportado por el operador"
+    },
+    {
+      "concepto": "multiplicador_sobre_landed",
+      "valor": "3,0×",
+      "referencia": "mínimo 2×, objetivo 3× (reglas internas GEM OS, Product Hunter)"
+    },
+    {
+      "concepto": "multiplicador_sobre_coste_producto",
+      "valor": "4,0×",
+      "nota": "solo informativo; la regla usa coste landed"
+    },
+    {
+      "concepto": "coste_producto_en_rango",
+      "valor": "sí (6 dentro de 5-15)",
+      "referencia": "regla de Adrián Sáenz (fuente primaria)"
+    },
+    {
+      "concepto": "ROAS",
+      "valor": "DATA_GAP: sin datos de pauta"
+    },
+    {
+      "concepto": "comisiones_impuestos_devoluciones",
+      "valor": "DATA_GAP: no informados"
+    },
+    {
+      "concepto": "moneda",
+      "valor": "DATA_GAP: USD o EUR por confirmar"
+    }
+  ],
+  "fuentes": ["reglas internas GEM OS (Product Hunter) · jerarquía Adrián Sáenz · no proceden del CONTEXTO KB"],
+  "confianza": "Media",
+  "fecha_consulta": "2026-11-10"
+}
+```

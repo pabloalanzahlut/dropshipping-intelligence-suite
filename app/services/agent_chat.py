@@ -197,6 +197,8 @@ def _bloque(d: Dict[str, Any], n: int) -> Optional[Dict[str, Any]]:
     clave_titulo = next((k for k in _CLAVES_TITULO if isinstance(d.get(k), (str, int, float)) and str(d.get(k)).strip()), None)
     if clave_titulo:
         titulo = valor(d[clave_titulo])
+        if re.fullmatch(r"[a-z0-9]+(_[a-z0-9]+)+", titulo):   # el modelo puso un identificador, no un título
+            titulo = etiqueta(titulo)
     elif "TIENDA" in str(d.get("fuente", "")).upper():
         titulo = "Tu tienda"
     else:
