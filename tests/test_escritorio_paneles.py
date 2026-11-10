@@ -312,6 +312,18 @@ class MenuYAgenteTests(Base):
         self.assertIn("Fijado:", p._ruta_lbl.cget("text"))
         self.assertEqual(p._agente_elegido(), "gem-backend-core")
 
+    @staticmethod
+    def _en_hilo_sincrono(trabajo, al_terminar=None, al_fallar=None):
+        """Sustituye PanelBase.en_hilo (hilo + self.after) por una llamada directa: el resultado se
+        entrega al momento y el test no depende de tiempos reales ni de llamar a Tk desde otro hilo."""
+        try:
+            resultado = trabajo()
+        except Exception as exc:                 # noqa: BLE001 — se entrega como en el hilo real
+            (al_fallar or (lambda e: None))(exc)
+        else:
+            if al_terminar:
+                al_terminar(resultado)
+
     def test_el_chat_pinta_la_pregunta_y_no_ensena_json(self):
         """Regresión del fallo que reportó el usuario: la respuesta del agente se veía como JSON
         crudo en el panel de escritorio; ahora debe verse como texto natural, en la conversación."""
@@ -320,25 +332,62 @@ class MenuYAgenteTests(Base):
         p = KBAgentPanel(self.root, db_manager=self.db)
         p.pack()
         self.paneles.append(p)
+        p.en_hilo = self._en_hilo_sincrono
 
-        import time
         bruto = '{"respuesta": "Hola, no hay pedidos todavía.", "tipo_consulta": "metrica", "datos": []}'
         with patch.object(p.executor, "execute_agent_task", return_value=bruto):
             p.entrada.insert("1.0", "¿cómo va mi tienda?")
             p._on_enviar()
-            # en_hilo() lanza un thread aparte; hace falta tiempo real (no solo procesar la cola de
-            # Tk) para que termine y entregue el resultado con self.after()
-            for _ in range(200):
-                self.root.update()
-                if not p._cargando:
-                    break
-                time.sleep(0.01)
             self.root.update()
         contenido = p.texto.get("1.0", "end")
         self.assertIn("¿cómo va mi tienda?", contenido)
         self.assertIn("Hola, no hay pedidos todavía.", contenido)
         self.assertNotIn('"respuesta"', contenido)
         self.assertNotIn("tipo_consulta", contenido)
+        self.assertFalse(p._cargando)
+
+    def test_el_chat_recuerda_la_conversacion_anterior(self):
+        """El historial que se envía al motor incluye los turnos previos (memoria de la conversación)."""
+        from unittest.mock import patch
+        from app.ui.components.kb_agent_panel import KBAgentPanel
+        p = KBAgentPanel(self.root, db_manager=self.db)
+        p.pack()
+        self.paneles.append(p)
+        p.en_hilo = self._en_hilo_sincrono
+
+        with patch.object(p.executor, "execute_agent_task",
+                          return_value='{"respuesta": "Primero: X e Y."}') as mock_exec:
+            p.entrada.insert("1.0", "¿qué productos hay?")
+            p._on_enviar()
+            self.root.update()
+        self.assertEqual(len(p._mensajes), 2)
+
+        with patch.object(p.executor, "execute_agent_task",
+                          return_value='{"respuesta": "El segundo es Y."}') as mock_exec2:
+            p.entrada.insert("1.0", "¿y el segundo?")
+            p._on_enviar()
+            self.root.update()
+            peticion = mock_exec2.call_args.kwargs["user_request"]
+        self.assertIn("¿qué productos hay?", peticion)
+        self.assertIn("Primero: X e Y.", peticion)
+        self.assertIn("CONVERSACIÓN HASTA AHORA", peticion)
+
+    def test_el_fallo_del_motor_se_explica_y_permite_reintentar(self):
+        from unittest.mock import patch
+        from app.ui.components.kb_agent_panel import KBAgentPanel
+        p = KBAgentPanel(self.root, db_manager=self.db)
+        p.pack()
+        self.paneles.append(p)
+        p.en_hilo = self._en_hilo_sincrono
+
+        with patch.object(p.executor, "execute_agent_task", side_effect=RuntimeError("401 Unauthorized")):
+            p.entrada.insert("1.0", "¿qué productos hay?")
+            p._on_enviar()
+            self.root.update()
+        contenido = p.texto.get("1.0", "end")
+        self.assertIn("clave", contenido)
+        self.assertFalse(p._cargando)
+        self.assertEqual(p._mensajes, [])     # la pregunta fallida no queda "contestada" a medias
 
     def test_lineas_formato_reconoce_vinetas_titulos_y_citas(self):
         from app.ui.components.kb_agent_panel import _lineas_formato, _segmentos_en_linea
