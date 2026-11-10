@@ -75,6 +75,70 @@ def ffmpeg_exe() -> str:
         raise PipelineError("Falta imageio-ffmpeg: pip install imageio-ffmpeg") from e
 
 
+def clip_desde_imagenes(imagenes: List[Path], salida: Path, seg_por_imagen: float = 3.0,
+                        variante: int = 0) -> Path:
+    """Clip vertical a partir de fotos reales con zoom suave (gratis, local, sin IA de pago).
+    variante par = zoom in, impar = zoom out, para que los vídeos no queden idénticos."""
+    if not imagenes:
+        raise PipelineError("Hacen falta fotos del producto.")
+    for im in imagenes:
+        if not Path(im).exists():
+            raise PipelineError(f"No existe la imagen: {im}")
+    fps = 30
+    frames = int(seg_por_imagen * fps)
+    if variante % 2 == 0:
+        z = "min(zoom+0.0015,1.25)"
+    else:
+        z = "if(eq(on,0),1.25,max(zoom-0.0015,1.0))"
+    cmd = [ffmpeg_exe(), "-y"]
+    for im in imagenes:
+        cmd += ["-i", str(Path(im).resolve())]
+    partes = []
+    for i in range(len(imagenes)):
+        partes.append(
+            f"[{i}:v]scale=1296:2304:force_original_aspect_ratio=increase,crop=1296:2304,"
+            f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s=1080x1920:fps={fps},"
+            f"setsar=1[v{i}]"
+        )
+    union = "".join(f"[v{i}]" for i in range(len(imagenes)))
+    filtro = ";".join(partes) + f";{union}concat=n={len(imagenes)}:v=1:a=0[out]"
+    salida.parent.mkdir(parents=True, exist_ok=True)
+    cmd += ["-filter_complex", filtro, "-map", "[out]", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-t", str(MAX_DURACION_S), str(salida.resolve())]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0 or not salida.exists() or salida.stat().st_size == 0:
+        raise PipelineError("ffmpeg (clip desde imágenes) falló:\n" + r.stderr[-800:])
+    return salida
+
+
+def generar_lote(imagenes: List[Path], hooks: Dict[str, List[str]], carpeta: Path, inicio: date,
+                 producto: str, caption_base: str, hashtags: List[str]) -> Path:
+    """Renderiza un master por cada slot de la cola y deja el JSON listo para programar.
+    hooks: {'DEM': [...], 'REA': [...], ...}. Todo texto pasa por validar_textos."""
+    todos = [h for lista in hooks.values() for h in lista] + [caption_base]
+    violaciones = validar_textos(todos)
+    if violaciones:
+        raise PipelineError("Hooks/caption rechazados:\n- " + "\n- ".join(violaciones))
+    cola = generar_cola(inicio, producto, {}, {p: caption_base for p in PLATAFORMAS},
+                        {p: hashtags for p in PLATAFORMAS})
+    uso: Dict[str, int] = {}
+    for n, slot in enumerate(cola):
+        f = slot["formula"]
+        lista = hooks.get(f) or [caption_base]
+        k = uso.get(f, 0)
+        uso[f] = k + 1
+        hook = lista[k % len(lista)]
+        # rotar subconjunto de fotos para que cada vídeo sea distinto
+        fotos = [imagenes[(n + j) % len(imagenes)] for j in range(min(3, len(imagenes)))]
+        clip = clip_desde_imagenes(fotos, carpeta / "clips" / f"{n:02d}.mp4", variante=n)
+        job = VideoJob(producto, f, clip, [Segmento(hook, 0, 2.5)], caption=caption_base, hashtags=hashtags)
+        master = renderizar(job, carpeta / "masters" / f"d{slot['dia']:02d}_{n:02d}_{f}.mp4")
+        slot.update(hook=hook, archivo_master=str(master), estado="listo_para_programar")
+    ruta = carpeta / "cola_publicacion.json"
+    guardar_cola(cola, ruta)
+    return ruta
+
+
 def validar_textos(textos: List[str]) -> List[str]:
     """Devuelve violaciones; lista vacía = aprobado."""
     violaciones: List[str] = []
