@@ -113,42 +113,29 @@ def descargar_doc(doc_id: str, session: requests.Session) -> str | None:
         return None
 
 
+AUTODS_RE = re.compile(
+    r"([^\n:]{6,140}?)\s*:?\s*(https://platform\.autods\.com/marketplace/\S+)"
+)
+
+
 def parsear_productos(texto: str, mes: str) -> list[dict]:
-    """Extrae pares (nombre, link_autods) de un texto de Google Doc."""
-    lineas = [l.strip().lstrip("﻿") for l in texto.split("\n") if l.strip()]
+    """Extrae (nombre, link_autods) admitiendo 'Nombre: URL' y 'Nombre:<salto>URL'."""
+    texto = texto.replace("﻿", "")
     productos = []
-    i = 0
-    while i < len(lineas):
-        linea = lineas[i]
-        # Saltar cabeceras, notas, URLs sueltas
-        if (
-            linea.upper().startswith("PRODUCTOS GANADORES")
-            or linea.startswith("Nota:")
-            or linea.startswith("Utiliza")
-            or linea.startswith("http")
-            or len(linea) > 150
-        ):
-            i += 1
+    for m in AUTODS_RE.finditer(texto):
+        nombre = m.group(1).strip().strip(":").strip()
+        if not nombre or nombre.upper().startswith("PRODUCTOS GANADORES"):
             continue
-
-        nombre = linea.rstrip(":")
-        link = ""
-        if i + 1 < len(lineas) and lineas[i + 1].startswith("https://"):
-            link = lineas[i + 1]
-            i += 2
-        else:
-            i += 1
-
-        if len(nombre) >= 8 and not nombre.startswith("https"):
-            productos.append({
-                "mes": mes,
-                "fecha_extraccion": datetime.now().isoformat(),
-                "fuente": "Vic Ecomilions — Comunidad Ecommerce Skool",
-                "nombre": nombre,
-                "link_autods": link,
-                "clasificacion_gem": "HOT",
-                "validado_por": "Vic Ecomilions (mentor Adrián Sáenz)",
-            })
+        productos.append({
+            "mes": mes,
+            "fecha_extraccion": datetime.now().isoformat(),
+            "fuente": "Vic Ecomilions — Comunidad Ecommerce Skool",
+            "nombre": nombre,
+            "link_autods": m.group(2).strip(),
+            "clasificacion_gem": "SIN_VALIDAR",
+            "multiplicador_landed": None,
+            "validado_por": "Pendiente: /validar-financiero + deterministic_gate",
+        })
     return productos
 
 
@@ -291,7 +278,7 @@ def generar_reporte(kb: list[dict]) -> str:
         "",
         "ANALISIS DR. MARCUS CHEN:",
         f"  {len(kb)} productos validados por mentores del curso Adrián Sáenz.",
-        "  Todos clasificados HOT (curación humana experta).",
+        "  Todos SIN_VALIDAR hasta pasar /validar-financiero (HOT exige >=5x coste landed).",
         "  Fuente: posts mensuales Vic Ecomilions — Comunidad Ecommerce.",
         "  Recomendación: validar regla 3x con /validar-financiero antes de lanzar.",
         "",
