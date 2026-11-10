@@ -157,7 +157,26 @@
 
         <!-- Demanda y creativo -->
         <div x-show="tab === 'demanda'">
-          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Test de demanda (fake door): mide el interés sin stock ni ads. Registra lo que midió.</p>
+          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Test de demanda (fake door): mide el interés sin stock ni ads. Registra lo que midió, o usa la página pública de abajo y calcula automáticamente.</p>
+
+          <div style="border:1px solid #1a1d35;border-radius:8px;padding:12px;margin-bottom:16px;background:#08091a;">
+            <p style="font-size:12px;color:#c8d0f0;margin:0 0 8px;">Página pública para compartir en el anuncio/historia de prueba:</p>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <code style="font-size:11px;color:#22d3ee;background:#0d0f1f;padding:4px 8px;border-radius:6px;" x-text="origenFd + '/fd/' + det.id"></code>
+              <button @click="navigator.clipboard.writeText(origenFd + '/fd/' + det.id)" class="btn-ghost" style="font-size:11px;">Copiar</button>
+              <button @click="cargarFakeDoor()" class="btn-ghost" style="font-size:11px;">🔄 Refrescar eventos</button>
+            </div>
+            <div x-show="fd" style="margin-top:10px;font-size:12px;color:#a8b0d8;">
+              <span x-text="(fd?.visitas || 0) + ' visitas · ' + (fd?.clics_comprar || 0) + ' clics · ' + (fd?.emails || 0) + ' emails · CTR ' + ((fd?.ctr || 0) * 100).toFixed(1) + '%'"></span>
+              <p x-show="fd?.gate?.veredicto" style="margin:6px 0 0;">
+                Veredicto: <strong :style="fd?.gate?.veredicto === 'producir' ? 'color:#34d399' : fd?.gate?.veredicto === 'descartar' ? 'color:#fb7185' : 'color:#fbbf24'" x-text="fd?.gate?.veredicto"></strong>
+                <span x-show="fd?.gate?.mediana_global" style="color:#7880b0;"> (mediana global <span x-text="((fd.gate.mediana_global || 0) * 100).toFixed(1) + '%'"></span>)</span>
+              </p>
+              <p x-show="(fd?.gate?.violations || []).length" style="color:#fbbf24;margin:4px 0 0;" x-text="(fd?.gate?.violations || []).join(' · ')"></p>
+              <button @click="calcularFakeDoor()" class="btn-ghost" style="margin-top:8px;font-size:11px;">⬇ Volcar estos números a Demanda</button>
+            </div>
+          </div>
+
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
             <div><label class="form-label" for="d-vis">Visitantes</label><input id="d-vis" x-model.number="dem.visitantes" type="number" min="0" class="input-field"></div>
             <div><label class="form-label" for="d-clic">Clics en «Comprar»</label><input id="d-clic" x-model.number="dem.clics_comprar" type="number" min="0" class="input-field"></div>
