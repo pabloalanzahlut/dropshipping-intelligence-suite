@@ -102,6 +102,32 @@ class ServidorConContrasenaTests(unittest.TestCase):
         self.assertEqual(self.c.get("/api/registros").status_code, 401)
         self.assertEqual(self.c.get("/api/exportar/copys.csv").status_code, 401)
 
+    def test_fake_door_es_publico_pero_el_resto_de_productos_no(self):
+        """Chequeo crítico de la Fase 3: con contraseña activa, /fd/{id} responde sin pedir
+        sesión (ni redirige a /login), mientras que todo lo demás de /productos sigue
+        exigiéndola — el bypass de RUTAS_LIBRES no se amplió más de lo previsto."""
+        from app.services import product_catalog
+        p = product_catalog.crear(self.db, {"nombre": "Producto de prueba"})
+
+        pagina = self.c.get(f"/fd/{p['id']}", headers={"accept": "text/html"})
+        self.assertEqual(pagina.status_code, 200)
+        self.assertNotIn("location", pagina.headers)
+
+        evento = self.c.post(f"/fd/{p['id']}/evento", json={"tipo": "clic_comprar"})
+        self.assertEqual(evento.status_code, 200)
+        self.assertEqual(evento.json(), {"ok": True})
+
+        # Pero la versión autenticada (el resumen interno) sigue exigiendo sesión.
+        self.assertEqual(self.c.get(f"/api/productos/{p['id']}/fake-door").status_code, 401)
+        self.assertEqual(self.c.post(f"/api/productos/{p['id']}/fake-door/calcular").status_code, 401)
+        # Y la propia página de productos tampoco se coló por el bypass.
+        self.assertEqual(self.c.get("/productos", headers={"accept": "text/html"}).status_code, 303)
+
+    def test_fake_door_inexistente_da_404_sin_redirigir(self):
+        r = self.c.get("/fd/999999", headers={"accept": "text/html"})
+        self.assertEqual(r.status_code, 404)
+        self.assertNotIn("location", r.headers)
+
 
 class RegistrosTests(unittest.TestCase):
     def test_parseo_filtro_y_orden(self):
