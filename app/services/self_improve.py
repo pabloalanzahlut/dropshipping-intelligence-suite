@@ -85,7 +85,7 @@ def analizar_y_proponer(dias: int = 21, db_path: Optional[str] = None) -> Dict:
     if db_path is None:
         from app.config.path_manager import PathManager
         db_path = str(PathManager.get_paths()["db"])
-    agg = MetricsAggregator()
+    agg = MetricsAggregator(db_path)
     resumen = agg.resumen(dias)
 
     if resumen["productos_medibles"] < 5:
