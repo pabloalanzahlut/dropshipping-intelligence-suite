@@ -266,6 +266,26 @@ def guardar_demanda(db_path: str, producto_id: int, demanda: Dict[str, Any], cre
     return obtener(db_path, producto_id)
 
 
+def guardar_demanda_desde_eventos(db_path: str, producto_id: int) -> Dict[str, Any]:
+    """Calcula visitantes/clics/emails desde `fake_door_eventos` (en vez de que el operador
+    los teclee a mano) y reutiliza `guardar_demanda` tal cual — el veredicto del gate
+    (`deterministic_gate.check_fake_door_ctr`) se añade como nota, pero `creativo_ok` se deja
+    sin tocar: la confirmación del creativo la sigue dando el humano en `mover()`."""
+    from app.services import fake_door_service
+    from app.services import deterministic_gate
+
+    resumen = fake_door_service.resumen_producto(db_path, producto_id)
+    mediana = fake_door_service.mediana_ctr(db_path, excluir_producto_id=producto_id)
+    gate = deterministic_gate.check_fake_door_ctr(
+        resumen["ctr"], mediana, resumen["visitas"], resumen["concentracion"])
+
+    demanda = {"visitantes": resumen["visitas"], "clics_comprar": resumen["clics_comprar"],
+              "emails": resumen["emails"], "notas": f"Calculado desde fake-door · {gate}"}
+    resultado = guardar_demanda(db_path, producto_id, demanda, creativo_ok=None)
+    resultado["fake_door_gate"] = {"passed": gate.passed, "violations": gate.violations, **gate.evidence}
+    return resultado
+
+
 def borrar(db_path: str, producto_id: int) -> bool:
     with _db(db_path) as conn:
         n = conn.execute("DELETE FROM productos WHERE id = ?", (producto_id,)).rowcount
