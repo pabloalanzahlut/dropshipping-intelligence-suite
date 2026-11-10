@@ -112,7 +112,10 @@
 
         <!-- Refutación -->
         <div x-show="tab === 'refutacion'">
-          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Intenta demostrar que el producto <strong>no</strong> funciona. Responde con datos, no con opinión.</p>
+          <p style="font-size:12px;color:#7880b0;margin:0 0 8px;">Intenta demostrar que el producto <strong>no</strong> funciona. Responde con datos, no con opinión.</p>
+          <button @click="generarBorradorRefutaciones()" :disabled="borradorCargando" class="btn-ghost" style="margin-bottom:12px;">
+            <span x-text="borradorCargando ? 'Generando…' : '🤖 Generar borrador'"></span>
+          </button>
           <template x-for="n in [1,2,3,4,5,6,7,8]" :key="n">
             <div style="border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;margin-bottom:8px;background:#08091a;">
               <p style="font-size:12px;color:#c8d0f0;margin:0 0 8px;" x-text="n + '. ' + refutaciones[n]"></p>
