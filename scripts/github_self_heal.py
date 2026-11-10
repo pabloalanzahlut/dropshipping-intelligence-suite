@@ -215,7 +215,7 @@ def fix_bump_actions(catalogo: dict, token: str | None = None, consulta=mayor_ma
                 return f"{m.group(1)}@{ultimo}"
             return m.group(0)
 
-        nuevo = re.sub(r"(?<=uses: )([\w.-]+/[\w.-]+)@v(\d+)", subir, texto)
+        nuevo = re.sub(r"(?<=uses: )([\w.-]+/[\w.-]+)@v(\d+)\b", subir, texto)
         if nuevo != texto:
             wf.write_text(nuevo, encoding="utf-8")
             tocados.append(str(wf.relative_to(ROOT)).replace("\\", "/"))

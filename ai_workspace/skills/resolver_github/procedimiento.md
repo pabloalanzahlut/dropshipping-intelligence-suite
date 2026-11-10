@@ -347,3 +347,15 @@ git filter-repo --path ai_workspace/scripts/skool_cookies.json --invert-paths --
 git remote add origin https://github.com/pabloalanzahlut/dropshipping-intelligence-suite.git
 git push --force origin master
 ```
+
+---
+
+## Requisitos de GitHub para el ciclo autónomo (v3.1)
+
+| Requisito | Dónde | Sin él |
+|-----------|-------|--------|
+| "Allow GitHub Actions to create and approve pull requests" | Settings → Actions → General | El agente empuja la rama `selfheal/*` y abre un Issue "Self-heal no puede abrir PRs" |
+| Secreto `SELF_HEAL_TOKEN` (PAT con scope `workflow`) — opcional | Settings → Secrets → Actions | Los fixes que tocan `.github/workflows/` (F-004, F-007) se entregan como Issue con parche; el `GITHUB_TOKEN` no puede modificar workflows |
+
+Acciones automáticas cableadas en `resolver()`: allowlist gitleaks (F-005/F-012), `pin_version_existente` (F-008), `secrets_a_env` (F-007), `bump_actions` (F-004), `untrack_archivo` (F-009/F-010), `cerrar_dependabot_obsoleto` (F-002).
+Prueba controlada: Actions → Self-Heal GEM OS → Run workflow → campo `log_simulado` con un log de fallo.
