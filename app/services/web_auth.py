@@ -19,8 +19,11 @@ DIAS_SESION = 30
 MAX_FALLOS = 5
 BLOQUEO_SEGUNDOS = 60
 
-# Rutas sin sesión: el login, los estáticos y los webhooks (que se autentican con su firma HMAC)
-RUTAS_LIBRES = ("/login", "/api/login", "/static/", "/webhooks/")
+# Rutas sin sesión: el login, los estáticos, los webhooks (que se autentican con su firma
+# HMAC) y /fd/ — la página pública de fake-door (fase 3), la única pensada para un
+# visitante real sin cuenta. Todo lo demás bajo /fd/ (incluida /api/productos/{id}/fake-door
+# y su /calcular) sigue exigiendo sesión: solo el prefijo exacto "/fd/" es público.
+RUTAS_LIBRES = ("/login", "/api/login", "/static/", "/webhooks/", "/fd/")
 
 _fallos: Dict[str, Tuple[int, float]] = {}
 
