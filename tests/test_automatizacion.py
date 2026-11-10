@@ -360,5 +360,118 @@ class MantenimientoTests(Base):
         self.assertEqual(r["estado"], "indeterminado")
 
 
+class ProductTrendsPromoterTests(Base):
+    """job_classify_products reescrito: columnas reales de product_trends, promueve o
+    descarta candidatos sin volver a tocar los ya evaluados."""
+
+    def _insertar_trend(self, product_name="Lámpara LED", niche="hogar", wow_factor="cambia de color",
+                         competitor_weaknesses="envío lento"):
+        with sqlite3.connect(self.db) as conn:
+            cur = conn.execute(
+                "INSERT INTO product_trends (product_name, niche, wow_factor, competitor_weaknesses) "
+                "VALUES (?,?,?,?)", (product_name, niche, wow_factor, competitor_weaknesses))
+            return cur.lastrowid
+
+    def test_candidatos_pendientes_ignora_los_ya_evaluados(self):
+        a, b = self._insertar_trend(), self._insertar_trend("Otro")
+        with sqlite3.connect(self.db) as conn:
+            conn.execute("UPDATE product_trends SET promovido_a_producto_id = -1 WHERE id = ?", (a,))
+        pendientes = product_trends_promoter.candidatos_pendientes(self.db)
+        self.assertEqual([p["id"] for p in pendientes], [b])
+
+    def test_promover_crea_candidato_y_marca_la_fila(self):
+        tid = self._insertar_trend()
+        with mock.patch.object(product_trends_promoter, "chat",
+                               return_value='{"veredicto": "promover", "motivo": "wow factor claro"}'):
+            r = product_trends_promoter.job_classify_products(self.db)
+        self.assertEqual(r, {"evaluados": 1, "promovidos": 1, "descartados": 0, "sin_respuesta": 0})
+        productos = pc.listar(self.db)
+        self.assertEqual(len(productos), 1)
+        self.assertEqual(productos[0]["estado"], "candidato")
+        self.assertIn("Promovido automáticamente", productos[0]["notas"])
+        with sqlite3.connect(self.db) as conn:
+            marca = conn.execute("SELECT promovido_a_producto_id FROM product_trends WHERE id = ?", (tid,)).fetchone()[0]
+        self.assertEqual(marca, productos[0]["id"])
+
+    def test_descartar_no_crea_producto_y_marca_sentinela(self):
+        tid = self._insertar_trend()
+        with mock.patch.object(product_trends_promoter, "chat",
+                               return_value='{"veredicto": "descartar", "motivo": "nicho saturado"}'):
+            r = product_trends_promoter.job_classify_products(self.db)
+        self.assertEqual(r["descartados"], 1)
+        self.assertEqual(pc.listar(self.db), [])
+        with sqlite3.connect(self.db) as conn:
+            marca = conn.execute("SELECT promovido_a_producto_id FROM product_trends WHERE id = ?", (tid,)).fetchone()[0]
+        self.assertEqual(marca, -1)
+
+    def test_sin_respuesta_del_modelo_se_reintenta_despues(self):
+        self._insertar_trend()
+        with mock.patch.object(product_trends_promoter, "chat", return_value=None):
+            r = product_trends_promoter.job_classify_products(self.db)
+        self.assertEqual(r["sin_respuesta"], 1)
+        # Sigue pendiente: no se marcó, así que el próximo ciclo la vuelve a intentar.
+        self.assertEqual(len(product_trends_promoter.candidatos_pendientes(self.db)), 1)
+
+    def test_sin_candidatos_no_llama_al_modelo(self):
+        with mock.patch.object(product_trends_promoter, "chat") as llamada:
+            r = product_trends_promoter.job_classify_products(self.db)
+        llamada.assert_not_called()
+        self.assertEqual(r["evaluados"], 0)
+
+
+class PropuestasReviewTests(Base):
+    """Contraparte estructurada de self_improve.py: listar y marcar sin ejecutar nada."""
+
+    def _insertar_propuesta(self, resumen='{"productos_evaluados": 7, "roas_global": 2.1}'):
+        with sqlite3.connect(self.db) as conn:
+            cur = conn.execute(
+                "INSERT INTO propuestas_ajuste (resumen, analisis_md) VALUES (?, ?)",
+                (resumen, "## Análisis\nBaja el umbral de X en 1 punto."))
+            conn.commit()
+            return cur.lastrowid
+
+    def test_listar_vacio_al_principio(self):
+        self.assertEqual(propuestas_review.listar(self.db), [])
+
+    def test_nueva_propuesta_queda_pendiente(self):
+        pid = self._insertar_propuesta()
+        items = propuestas_review.listar(self.db)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["id"], pid)
+        self.assertEqual(items[0]["estado"], "pendiente")
+        self.assertIsNone(items[0]["revisado_at"])
+
+    def test_marcar_aprobada_persiste_y_filtra(self):
+        pid = self._insertar_propuesta()
+        resultado = propuestas_review.marcar(self.db, pid, "aprobada")
+        self.assertEqual(resultado["estado"], "aprobada")
+        self.assertIsNotNone(resultado["revisado_at"])
+        self.assertEqual(propuestas_review.listar(self.db, "pendiente"), [])
+        self.assertEqual(len(propuestas_review.listar(self.db, "aprobada")), 1)
+
+    def test_marcar_estado_invalido_o_inexistente(self):
+        pid = self._insertar_propuesta()
+        with self.assertRaises(ValueError):
+            propuestas_review.marcar(self.db, pid, "ejecutada")
+        with self.assertRaises(KeyError):
+            propuestas_review.marcar(self.db, 99999, "aprobada")
+
+    def test_self_improve_escribe_fila_estructurada(self):
+        from app.services import self_improve
+        with mock.patch.object(self_improve, "chat", return_value="Sube el umbral de X."), \
+             mock.patch.object(self_improve, "MetricsAggregator") as Agg:
+            instancia = Agg.return_value
+            instancia.resumen.return_value = {
+                "productos_medibles": 6, "periodo_dias": 21, "productos_evaluados": 6,
+                "precision_clasificador": 0.8, "roas_global": 2.2, "tasa_cancelacion_global": 0.09,
+            }
+            instancia.construir_vista.return_value = []
+            r = self_improve.analizar_y_proponer(dias=21, db_path=self.db)
+        self.assertTrue(r["propuestas_generadas"])
+        fila = propuestas_review.obtener(self.db, r["propuesta_id"])
+        self.assertEqual(fila["estado"], "pendiente")
+        self.assertIn("Sube el umbral", fila["analisis_md"])
+
+
 if __name__ == "__main__":
     unittest.main()
