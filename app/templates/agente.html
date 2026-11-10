@@ -34,12 +34,15 @@
 
   .msg { display: flex; gap: 10px; align-items: flex-start; }
   .msg-user { justify-content: flex-end; }
+  /* Bloque bloque (no flex-column anidado: un flex en columna sin "stretch" + overflow-wrap hace
+     que algunos navegadores encojan la burbuja a su ancho mínimo, partiendo el texto letra a letra) */
+  .msg-user .burbuja-wrap { margin-left: auto; width: fit-content; max-width: min(72%, 620px); }
   /* overflow-wrap:break-word (no "anywhere"): "anywhere" cuenta como si cualquier letra pudiera
      partir la línea también para el cálculo del ancho mínimo, así que dentro de un flex en columna
      (la burbuja del usuario) el navegador encoge la caja al ancho de una sola letra y el texto corto
      queda partido letra a letra. "break-word" evita ese cálculo y solo parte palabras largas (URLs) */
   .burbuja { border-radius: 14px; padding: 11px 15px; font-size: 13.5px; line-height: 1.65; overflow-wrap: break-word; }
-  .msg-user .burbuja { max-width: min(72%, 620px); background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(34,211,238,.10)); border: 1px solid rgba(167,139,250,.28); color: #e8ecff; border-bottom-right-radius: 4px; white-space: pre-wrap; }
+  .msg-user .burbuja { background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(34,211,238,.10)); border: 1px solid rgba(167,139,250,.28); color: #e8ecff; border-bottom-right-radius: 4px; white-space: pre-wrap; }
   .msg-hora { font-size: 10px; color: #4a5080; margin: 4px 4px 0; text-align: right; }
   .avatar { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; color: #fff; }
   .msg-agente .cuerpo, .msg-error .cuerpo { flex: 1; min-width: 0; max-width: min(86%, 740px); }
@@ -94,7 +97,7 @@
   @media (max-width: 767px) {
     .chat-page { height: calc(100dvh - 86px); min-height: 420px; }
     .chat-msgs { padding: 14px 12px 8px; }
-    .msg-user .burbuja { max-width: 88%; }
+    .msg-user .burbuja-wrap { max-width: 88%; }
     .msg-agente .cuerpo, .msg-error .cuerpo { max-width: 100%; }
     .msg-agente .avatar, .msg-error .avatar { display: none; }
     .sugerencias { grid-template-columns: 1fr; }
@@ -149,11 +152,9 @@
 
           <!-- Tú -->
           <template x-if="m.rol === 'user'">
-            <div style="max-width:100%;display:contents;">
-              <div style="display:flex;flex-direction:column;align-items:flex-end;min-width:0;max-width:100%;">
-                <div class="burbuja" x-text="m.texto"></div>
-                <div class="msg-hora" x-text="m.hora"></div>
-              </div>
+            <div class="burbuja-wrap">
+              <div class="burbuja" x-text="m.texto"></div>
+              <div class="msg-hora" x-text="m.hora"></div>
             </div>
           </template>
 
