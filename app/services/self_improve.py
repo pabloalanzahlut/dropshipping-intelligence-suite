@@ -189,6 +189,24 @@ def _escribir_propuestas(analisis: str, resumen: Dict) -> str:
     return PROPUESTAS
 
 
+def _guardar_propuesta_estructurada(db_path: str, analisis: str, resumen: Dict) -> int:
+    """Además del Markdown (rastro de auditoría), deja una fila en SQLite para que una
+    pantalla de revisión pueda listar/marcar propuestas — el Markdown no tiene forma de
+    hacerlo. Sigue sin aplicar nada: «estado» es solo un apunte de revisión humana."""
+    resumen_corto = json.dumps({k: resumen.get(k) for k in (
+        "periodo_dias", "productos_evaluados", "productos_medibles",
+        "precision_clasificador", "roas_global", "tasa_cancelacion_global")}, ensure_ascii=False)
+    conn = sqlite3.connect(db_path)
+    try:
+        cur = conn.execute(
+            "INSERT INTO propuestas_ajuste (resumen, analisis_md, estado) VALUES (?, ?, 'pendiente')",
+            (resumen_corto, analisis))
+        conn.commit()
+        return cur.lastrowid
+    finally:
+        conn.close()
+
+
 def _verificar_destino_permitido(ruta: str) -> None:
     """Cortafuegos: aborta si alguien apunta este módulo a una zona protegida."""
     normalizada = ruta.replace("\\", "/")
