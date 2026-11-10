@@ -288,6 +288,20 @@ function productos() {
       const p = await this.enviar('/api/productos/' + this.det.id + '/refutaciones', 'PUT', { respuestas }, 'Refutaciones guardadas');
       if (p) { const t = this.tab; this.cargarForm(p); this.tab = t; }
     },
+    async generarBorradorRefutaciones() {
+      this.borradorCargando = true;
+      try {
+        const r = await fetch('/api/productos/' + this.det.id + '/refutaciones/borrador', { method: 'POST' });
+        if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo generar el borrador.')); return; }
+        const d = await r.json();
+        for (const item of (d.refutaciones || [])) {
+          const resultado = item.veredicto === 'sin_datos' ? '' : item.veredicto;
+          this.ref[item.numero] = { resultado, dato: item.evidencia || '' };
+        }
+        this.toast.ok(d.generado ? 'Borrador generado — revísalo antes de guardar.' : 'El modelo no respondió; revisa a mano.');
+      } catch (e) { this.toast.error('Error de conexión con el servidor.'); }
+      finally { this.borradorCargando = false; }
+    },
     async guardarDemanda() {
       const demanda = Object.fromEntries(Object.entries(this.dem).filter(([k, v]) => v !== null && v !== ''));
       const p = await this.enviar('/api/productos/' + this.det.id + '/demanda', 'PUT', { demanda, creativo_ok: this.creativoOk }, 'Demanda guardada');
