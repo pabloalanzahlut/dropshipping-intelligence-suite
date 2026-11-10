@@ -101,6 +101,7 @@ class GEMOSApplication:
             (SECCION, "Inteligencia", None),
             _item("⚡", "Insights KB", IDX_INSIGHTS),
             _item("🤖", "Agente IA", 8),
+            _item("🧭", "Investigar nicho", IDX_NICHO),
             (SECCION, "Tienda", None),
             _item("🛒", "Tienda", 9),
             (SECCION, "Sistema", None),
