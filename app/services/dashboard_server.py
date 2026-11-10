@@ -709,7 +709,7 @@ async def fake_door_evento(producto_id: int, body: FakeDoorEventoIn, request: Re
 @app.get("/api/productos/{producto_id}/fake-door")
 async def api_producto_fake_door_resumen(producto_id: int) -> Dict[str, Any]:
     """Autenticada (vive bajo /api/, no bajo /fd/): resumen + vista previa del gate, sin guardar nada."""
-    from app.services import fake_door_service
+    from app.services import fake_door_service, deterministic_gate
     if not product_catalog.obtener(DB_PATH, producto_id):
         raise HTTPException(status_code=404, detail="Producto no encontrado.")
     resumen = fake_door_service.resumen_producto(DB_PATH, producto_id)
