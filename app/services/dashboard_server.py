@@ -672,6 +672,61 @@ async def nicho_page(request: Request):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# FAKE-DOOR — página PÚBLICA (ver web_auth.RUTAS_LIBRES: "/fd/" no exige sesión).
+# No hereda base.html a propósito: nada de barra lateral, nada de datos internos
+# (coste, margen), ningún enlace de vuelta al panel autenticado.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/fd/{producto_id}", response_class=HTMLResponse)
+async def fake_door_captura_page(producto_id: int, request: Request, titulo: str = "", hook: str = ""):
+    p = product_catalog.obtener(DB_PATH, producto_id)
+    if not p:
+        return HTMLResponse(content="<h1>Página no encontrada</h1>", status_code=404)
+    ip = request.client.host if request.client else None
+    from app.services import fake_door_service
+    fake_door_service.registrar_evento(DB_PATH, producto_id, "visita", ip=ip)
+    if _jinja_env is None:
+        return HTMLResponse(content=_FALLBACK_HTML)
+    tmpl = _jinja_env.get_template("fake_door_captura.html")
+    return HTMLResponse(content=tmpl.render(
+        producto_id=producto_id, titulo=titulo or p["nombre"], hook=hook))
+
+
+class FakeDoorEventoIn(BaseModel):
+    tipo: str
+    email: Optional[str] = None
+
+
+@app.post("/fd/{producto_id}/evento")
+async def fake_door_evento(producto_id: int, body: FakeDoorEventoIn, request: Request) -> Dict[str, Any]:
+    """Siempre responde «ok»: un visitante anónimo nunca debe ver un error interno."""
+    ip = request.client.host if request.client else None
+    from app.services import fake_door_service
+    fake_door_service.registrar_evento(DB_PATH, producto_id, body.tipo, email=body.email, ip=ip)
+    return {"ok": True}
+
+
+@app.get("/api/productos/{producto_id}/fake-door")
+async def api_producto_fake_door_resumen(producto_id: int) -> Dict[str, Any]:
+    """Autenticada (vive bajo /api/, no bajo /fd/): resumen + vista previa del gate, sin guardar nada."""
+    from app.services import fake_door_service
+    if not product_catalog.obtener(DB_PATH, producto_id):
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    resumen = fake_door_service.resumen_producto(DB_PATH, producto_id)
+    mediana = fake_door_service.mediana_ctr(DB_PATH, excluir_producto_id=producto_id)
+    gate = deterministic_gate.check_fake_door_ctr(
+        resumen["ctr"], mediana, resumen["visitas"], resumen["concentracion"])
+    return {**resumen, "mediana_global": mediana, "gate": {"passed": gate.passed, "violations": gate.violations,
+                                                           **gate.evidence}}
+
+
+@app.post("/api/productos/{producto_id}/fake-door/calcular")
+async def api_producto_fake_door_calcular(producto_id: int) -> Dict[str, Any]:
+    """Autenticada: aplica el resumen a `productos.demanda` (reutiliza guardar_demanda)."""
+    return _producto_o_error(lambda: product_catalog.guardar_demanda_desde_eventos(DB_PATH, producto_id))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # API — MÉTRICAS Y ESTADO
 # ═══════════════════════════════════════════════════════════════════════════════
 
