@@ -1463,6 +1463,97 @@ async def api_integraciones() -> List[Dict[str, Any]]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# GOBERNANZA — cumplimiento de reglas, memoria de agentes (equivalente web del
+# panel de escritorio GovernancePanel)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/gobernanza")
+async def api_gobernanza() -> Dict[str, Any]:
+    try:
+        from app.services.validator_rules import RulesValidator
+        from app.services.memory_logger import MemoryLogger
+
+        validator = RulesValidator(db_manager=DatabaseConnection())
+        pre = validator.pre_execution_check()
+        memoria = MemoryLogger(db_manager=DatabaseConnection())
+        return {
+            "pre_execution": pre,
+            "compliance": validator.compliance_score(),
+            "memoria": memoria.get_all_memory(limit=100),
+            "memoria_stats": memoria.memory_stats(),
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ENRUTADOR LLM — estado del pool híbrido (equivalente web de OllamaPanel)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/enrutador")
+async def api_enrutador() -> Dict[str, Any]:
+    try:
+        from app.core.ollama_pool import HybridInferencePool
+        pool = HybridInferencePool()
+        return {
+            "activa": pool.get_active_layer(),
+            "disponibles": pool.get_available_layers(),
+            "stats": pool.get_hybrid_stats(),
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/enrutador/health-check")
+async def api_enrutador_health_check() -> Dict[str, Any]:
+    try:
+        from app.core.ollama_pool import HybridInferencePool
+        pool = HybridInferencePool()
+        disponible = pool.is_ollama_available(force_check=True)
+        return {"ollama_disponible": disponible, "timestamp": datetime.now().isoformat()}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CONFIGURACIÓN (solo lectura) — estado de claves, nunca el valor completo.
+# La edición real de claves se queda solo en la app de escritorio (settings_panel.py):
+# web_auth.py no tiene protección CSRF ni reautenticación para escrituras sensibles.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_CONFIG_EXTRA = [
+    ("GEM_OS_PASSWORD", "Contraseña de la web (opcional)"),
+    ("FREELLM_API_KEY", "FreeLLMAPI (opcional)"),
+    ("ANTHROPIC_API_KEY", "Anthropic directa (opcional)"),
+]
+
+
+@app.get("/api/config/estado")
+async def api_config_estado() -> List[Dict[str, Any]]:
+    try:
+        from app.config import secrets_store
+        out = []
+        for item in business_metrics.estado_integraciones():
+            variables = item.get("faltan") or []
+            # business_metrics no expone la lista completa de variables cuando ya están
+            # configuradas; para esas, usamos la clave tal cual (basta con enmascarar si existe).
+            out.append({
+                "id": item["id"], "nombre": item["nombre"], "para": item["para"],
+                "configurada": item["configurada"], "nota": item.get("nota", ""),
+            })
+        for nombre_var, etiqueta in _CONFIG_EXTRA:
+            valor = os.getenv(nombre_var, "")
+            out.append({
+                "id": nombre_var.lower(), "nombre": etiqueta, "para": "",
+                "configurada": bool(valor.strip()),
+                "ultimos4": secrets_store.enmascarar(valor) if valor.strip() else None,
+            })
+        return out
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # CENTRO DE ALERTAS Y RESUMEN DIARIO (automáticos, sin IA)
 # ═══════════════════════════════════════════════════════════════════════════════
 
