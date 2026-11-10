@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Propuestas IA{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Propuestas IA</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="propuestas()" x-init="cargar()">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+      Propuestas de <span style="background:linear-gradient(90deg,#a78bfa,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Auto-Mejora</span>
+    </h1>
+    <p style="font-size:12px;color:#4a5080;margin:0;">
+      El loop nocturno (03:00) analiza métricas reales de 21 días y propone ajustes aquí.
+      Nunca aplica nada solo — las reglas financieras y el gate determinista quedan fuera de su alcance.
+    </p>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:16px;">
+    <template x-for="f in ['', 'pendiente', 'aprobada', 'rechazada']" :key="f">
+      <button @click="filtro = f; cargar()" class="btn-ghost" :class="filtro === f ? 'btn-primary' : ''"
+              style="font-size:11px;padding:6px 12px;" x-text="f || 'Todas'"></button>
+    </template>
+  </div>
+
+  <div x-show="error" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+    <p style="font-size:12px;color:#fb7185;margin:0;" x-text="error"></p>
+  </div>
+
+  <p x-show="!items.length" style="font-size:12px;color:#4a5080;">Sin propuestas todavía.</p>
+
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    <template x-for="p in items" :key="p.id">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <p style="font-size:12px;font-weight:700;color:#e8ecff;margin:0;" x-text="'Propuesta #' + p.id + ' · ' + p.creado_at"></p>
+            <p style="font-size:11px;color:#7880b0;margin:4px 0 0;" x-text="resumenCorto(p.resumen)"></p>
+          </div>
+          <span :style="estiloEstado(p.estado)" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;" x-text="p.estado"></span>
+        </div>
+        <details>
+          <summary style="font-size:11px;color:#22d3ee;cursor:pointer;">Ver análisis completo</summary>
+          <pre style="white-space:pre-wrap;font-size:11px;color:#a8b0d8;background:#08091a;border:1px solid #1a1d35;border-radius:8px;padding:12px;margin-top:8px;" x-text="p.analisis_md"></pre>
+        </details>
+        <div style="display:flex;gap:8px;margin-top:10px;" x-show="p.estado === 'pendiente'">
+          <button @click="marcar(p.id, 'aprobada')" class="btn-primary" style="font-size:11px;padding:6px 12px;">✓ Aprobar</button>
+          <button @click="marcar(p.id, 'rechazada')" class="btn-ghost" style="font-size:11px;padding:6px 12px;">✗ Rechazar</button>
+        </div>
+      </div>
+    </template>
+  </div>
+</div>
+
+<script>
+function propuestas() {
+  return {
+    items: [], error: '', filtro: '',
+    estiloEstado(e) {
+      if (e === 'aprobada') return 'background:rgba(52,211,153,0.12);color:#34d399;';
+      if (e === 'rechazada') return 'background:rgba(251,113,133,0.12);color:#fb7185;';
+      return 'background:rgba(251,191,36,0.12);color:#fbbf24;';
+    },
+    resumenCorto(r) {
+      try { const d = JSON.parse(r); return `${d.productos_evaluados ?? '—'} productos evaluados · ROAS global ${d.roas_global ?? '—'}`; }
+      catch(e) { return r; }
+    },
+    async cargar() {
+      this.error = '';
+      try {
+        const res = await fetch('/api/propuestas' + (this.filtro ? '?estado=' + this.filtro : ''));
+        if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al cargar propuestas.'; return; }
+        this.items = await res.json();
+      } catch(e) { this.error = 'Error de conexión con el servidor.'; }
+    },
+    async marcar(id, estado) {
+      try {
+        const res = await fetch(`/api/propuestas/${id}/marcar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado }) });
+        if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al marcar.'; return; }
+        await this.cargar();
+      } catch(e) { this.error = 'Error de conexión con el servidor.'; }
+    }
+  }
+}
+</script>
+{% endblock %}
