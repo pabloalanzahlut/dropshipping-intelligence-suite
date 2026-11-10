@@ -284,6 +284,42 @@ def verificar_hook_matrix(resultado: Dict) -> Dict:
     }
 
 
+# ── Fake-door (.claude/commands/fake-door.md) ────────────────────────────────
+_CONCENTRACION_AVISO = 0.8   # >80% de las visitas desde una sola IP: muestra poco fiable
+
+
+def check_fake_door_ctr(ctr: float, mediana_global: float, visitas: int, concentracion: float = 0.0) -> GateResult:
+    """
+    Aritmética pura (sin LLM): ≥2× la mediana global → producir; ~mediana (0,5×–2×) →
+    repetir; <0,5× → descartar. Sin visitas o sin mediana de referencia, no hay base para
+    decidir — se marca como tal en vez de forzar un veredicto.
+    """
+    if visitas <= 0:
+        return GateResult(passed=False, check_name="fake_door_ctr",
+                          violations=["Sin visitas registradas — nada que evaluar"],
+                          evidence={"veredicto": "sin_datos"})
+    if mediana_global <= 0:
+        return GateResult(passed=True, check_name="fake_door_ctr", violations=[],
+                          evidence={"veredicto": "sin_referencia_historica", "ctr": ctr,
+                                    "motivo": "Todavía no hay otros productos probados con los que comparar."})
+
+    ratio = ctr / mediana_global
+    if ratio >= 2:
+        veredicto = "producir"
+    elif ratio < 0.5:
+        veredicto = "descartar"
+    else:
+        veredicto = "repetir"
+
+    avisos = []
+    if concentracion >= _CONCENTRACION_AVISO:
+        avisos.append(f"{concentracion:.0%} de las visitas vienen de una sola IP — la muestra puede no ser fiable")
+
+    return GateResult(passed=True, check_name="fake_door_ctr", violations=avisos,
+                      evidence={"veredicto": veredicto, "ctr": ctr, "mediana_global": mediana_global,
+                                "ratio": round(ratio, 2), "concentracion": concentracion})
+
+
 def check_estructura_json(data: Dict, campos_requeridos: List[str]) -> GateResult:
     """Verifica que la salida traiga todos los campos del contrato."""
     faltantes = [c for c in campos_requeridos if c not in data or data[c] is None]
