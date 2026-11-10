@@ -666,6 +666,11 @@ async def propuestas_page(request: Request):
     return _render(request, "propuestas.html")
 
 
+@app.get("/nicho", response_class=HTMLResponse)
+async def nicho_page(request: Request):
+    return _render(request, "nicho.html")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # API — MÉTRICAS Y ESTADO
 # ═══════════════════════════════════════════════════════════════════════════════
