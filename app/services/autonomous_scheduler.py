@@ -4,11 +4,21 @@ Autonomous Scheduler — Agentes autónomos GEM OS.
 Implementa el capítulo "Agentes autónomos" (8:15) del video Xavier Mitjana
 "Así se usa la IA en 2027 (15 usos que casi nadie conoce)".
 
-El pipeline corre solo sin intervención manual:
-  - Cada 2h: YouTube Monitor → detecta nuevos videos de los mentores
-  - Cada 2h: Transcript Cleaner → limpia e ingesta en KB
-  - Cada 6h: Clasificador automático → HOT/WARM/COLD en SQLite
-  - Cada 24h: Reporte diario → Google Sheets Dashboard
+YA NO ES NECESARIO PARA QUE LA AUTOMATIZACIÓN FUNCIONE: desde que se descubrió que
+`job_classify_products`/`job_daily_report` consultaban columnas inexistentes (nunca
+funcionaron) y que nada lanzaba este proceso nunca, `classify_products` y `self_improve`
+se registraron directamente en el APScheduler que ya corre dentro de
+`dashboard_server.py` (arranca solo con la web, sin terminal aparte). `youtube_monitor`/
+`transcript_cleaner` son redundantes con `_scheduled_ingest`/`_scheduled_transcripts`,
+que la web también ejecuta sola.
+
+Este script queda como herramienta de CLI para disparar los mismos jobs a mano
+(pruebas, depuración, o si se quiere correr fuera del proceso web):
+  - YouTube Monitor → detecta nuevos videos de los mentores
+  - Transcript Cleaner → limpia e ingesta en KB
+  - Clasificador automático → promueve/descarta candidatos de product_trends
+  - Reporte diario → Google Sheets Dashboard
+  - Self-improve → propuestas de ajuste (ver `self_improve.py`)
 
 Uso:
     python -m app.services.autonomous_scheduler        # corre en foreground
