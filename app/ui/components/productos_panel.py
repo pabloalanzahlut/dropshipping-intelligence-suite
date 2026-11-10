@@ -269,6 +269,44 @@ class ProductosPanel(PanelBase):
 
         d.botones("Guardar respuestas", guardar)
 
+    def _hook_matrix(self, p: Dict[str, Any]) -> None:
+        d = Dialogo(self, f"Hook Matrix — {p['nombre']}", ancho=720)
+        _, contexto_var, _ = self.campo(d.cuerpo, "Ángulo o contexto (opcional)", ancho=50,
+                                        valor=p.get("categoria") or "")
+        resultados_frame = tk.Frame(d.cuerpo, bg=BG_CARD)
+        resultados_frame.pack(fill=tk.BOTH, expand=True, pady=(8, 0))
+
+        def pintar_historico():
+            for w in resultados_frame.winfo_children():
+                w.destroy()
+            from app.services import hook_matrix_service
+            for m in hook_matrix_service.listar(self.db, p["id"]):
+                cab = etiqueta(resultados_frame,
+                              f"{'✓ Gate OK' if m['gate_pass'] else '✗ Gate falló'} · {m['total_hooks']} hooks · {m['creado_at']}",
+                              "ok" if m["gate_pass"] else "error")
+                cab.pack(anchor="w", pady=(6, 0))
+                for h in m["hooks"]:
+                    etiqueta(resultados_frame, f"{h.get('formula', '?')}: {h.get('texto', '')}",
+                            "suave", wrap=680).pack(anchor="w")
+
+        def generar():
+            def trabajo():
+                from app.services import hook_matrix_service
+                contexto = contexto_var.get().strip() or f"{p['nombre']} ({p.get('categoria') or 'sin categoría'})"
+                resultado = hook_matrix_service.generar(contexto)
+                hook_matrix_service.guardar(self.db, p["id"], resultado)
+                return resultado
+
+            def listo(resultado):
+                self.aviso("Hook matrix generada." if resultado.get("generado") else "El modelo no respondió.",
+                          "ok" if resultado.get("gate_pass") else "aviso")
+                pintar_historico()
+
+            self.en_hilo(trabajo, listo, lambda e: self.aviso(f"Error al generar: {e}", "error"))
+
+        boton(d.cuerpo, "✨ Generar", generar, COLOR_PRIMARY).pack(anchor="w", pady=(8, 0))
+        pintar_historico()
+
     def _demanda(self, p: Dict[str, Any]) -> None:
         d = Dialogo(self, "Demanda (fake door) y creativo")
         dem = p.get("demanda") or {}
