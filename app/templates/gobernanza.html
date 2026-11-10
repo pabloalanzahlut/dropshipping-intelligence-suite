@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Gobernanza{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Gobernanza</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="gobernanza()" x-init="cargar()">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+      Panel de <span style="background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Gobernanza</span>
+    </h1>
+    <p style="font-size:12px;color:#4a5080;margin:0;">Cumplimiento de reglas, violaciones de protocolo y memoria de agentes — equivalente web del panel de escritorio.</p>
+  </div>
+
+  <div x-show="error" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+    <p style="font-size:12px;color:#fb7185;margin:0;" x-text="error"></p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="g-resp" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+    <div class="card" style="padding:14px;">
+      <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Score de cumplimiento</p>
+      <p style="font-size:20px;font-weight:700;margin:0;font-family:'Space Grotesk',sans-serif;"
+         :style="estadoColor(d?.compliance?.status)" x-text="(d?.compliance?.compliance_score ?? '—') + '%'"></p>
+    </div>
+    <div class="card" style="padding:14px;">
+      <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Checks pasados / totales</p>
+      <p style="font-size:20px;font-weight:700;color:#e8ecff;margin:0;font-family:'Space Grotesk',sans-serif;"
+         x-text="(d?.compliance?.passed ?? '—') + ' / ' + (d?.compliance?.total_checks ?? '—')"></p>
+    </div>
+    <div class="card" style="padding:14px;">
+      <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Violaciones activas</p>
+      <p style="font-size:20px;font-weight:700;margin:0;font-family:'Space Grotesk',sans-serif;"
+         :style="(d?.compliance?.violaciones_activas || 0) > 0 ? 'color:#fb7185' : 'color:#34d399'"
+         x-text="d?.compliance?.violaciones_activas ?? '—'"></p>
+    </div>
+    <div class="card" style="padding:14px;">
+      <p style="font-size:10px;color:#7880b0;margin:0 0 4px;">Memoria activa</p>
+      <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;font-family:'Space Grotesk',sans-serif;"
+         x-text="d?.memoria_stats?.total_entries ?? '—'"></p>
+    </div>
+  </div>
+
+  <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <!-- Metodologías -->
+    <div class="card">
+      <div class="section-title">Metodologías (pre-flight)</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <template x-for="(v, k) in (d?.pre_execution?.resultados || {})" :key="k">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
+            <span :style="v.status ? 'color:#34d399' : 'color:#fb7185'" style="font-size:14px;font-weight:700;" x-text="v.status ? '✓' : '✗'"></span>
+            <div>
+              <p style="font-size:12px;color:#a8b0d8;margin:0;" x-text="k"></p>
+              <p style="font-size:11px;color:#7880b0;margin:0;" x-text="v.detail"></p>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Memoria de agentes -->
+    <div class="card">
+      <div class="section-title">Bitácora de memoria (últimas 100)</div>
+      <div style="max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+        <template x-for="(m, i) in (d?.memoria || [])" :key="i">
+          <div style="padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
+            <p style="font-size:11px;color:#a8b0d8;margin:0;" x-text="(m.agent_name || '—') + ' · ' + (m.timestamp || '')"></p>
+            <p style="font-size:11px;color:#7880b0;margin:4px 0 0;" x-text="m.event_type || m.category || ''"></p>
+          </div>
+        </template>
+        <p x-show="!(d?.memoria || []).length" style="font-size:12px;color:#4a5080;">Sin entradas de memoria todavía.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function gobernanza() {
+  return {
+    d: null, error: '',
+    estadoColor(s) { return s === 'GREEN' ? 'color:#34d399' : s === 'YELLOW' ? 'color:#fbbf24' : 'color:#fb7185'; },
+    async cargar() {
+      this.error = '';
+      try {
+        const res = await fetch('/api/gobernanza');
+        if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al cargar gobernanza.'; return; }
+        this.d = await res.json();
+      } catch(e) { this.error = 'Error de conexión con el servidor.'; }
+    }
+  }
+}
+</script>
+{% endblock %}
