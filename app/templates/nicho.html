@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Investigar Nicho{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Investigar Nicho</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="nichoApp()" x-init="cargarHistorial()">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+      Investigar <span style="background:linear-gradient(90deg,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Nicho</span>
+    </h1>
+    <p style="font-size:12px;color:#4a5080;margin:0;">10 ángulos de ataque por nicho, con ranking ponderado (urgencia 40% · facilidad ≥3x 30% · targeting 20% · riesgo logístico 10%).</p>
+  </div>
+
+  <div class="card card-glow-cyan" style="margin-bottom:20px;">
+    <form @submit.prevent="investigar()" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:220px;">
+        <label class="form-label">Nicho</label>
+        <input x-model="nicho" type="text" class="input-field" placeholder="ej: organización del hogar" required>
+      </div>
+      <div style="flex:2;min-width:260px;">
+        <label class="form-label">Contexto adicional (opcional)</label>
+        <input x-model="contexto" type="text" class="input-field" placeholder="señales que ya tengas, canal, mercado...">
+      </div>
+      <button type="submit" :disabled="cargando" class="btn-primary">
+        <span x-text="cargando ? 'Investigando…' : '🔍 Investigar'"></span>
+      </button>
+    </form>
+  </div>
+
+  <div x-show="error" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+    <p style="font-size:12px;color:#fb7185;margin:0;" x-text="error"></p>
+  </div>
+
+  <div x-show="resultado" x-cloak class="card" style="margin-bottom:20px;">
+    <div class="section-title">Resultado</div>
+    <p style="font-size:12px;color:#a8b0d8;margin:0 0 14px;" x-text="resultado?.resumen"></p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <template x-for="r in (resultado?.ranking || [])" :key="r.angulo_id">
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:#08091a;border:1px solid #1a1d35;border-radius:8px;">
+          <span style="font-size:14px;font-weight:700;color:#22d3ee;min-width:28px;" x-text="r.score"></span>
+          <div>
+            <p style="font-size:12px;color:#e8ecff;margin:0;" x-text="'Ángulo #' + r.angulo_id + ': ' + (anguloPor(r.angulo_id)?.problema || '')"></p>
+            <p style="font-size:11px;color:#7880b0;margin:4px 0 0;" x-text="r.motivo"></p>
+            <p style="font-size:11px;color:#a8b0d8;margin:4px 0 0;" x-show="anguloPor(r.angulo_id)?.hook">
+              <strong>Hook:</strong> <span x-text="anguloPor(r.angulo_id)?.hook"></span>
+            </p>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Historial</div>
+    <table class="data-table" style="width:100%;">
+      <thead><tr><th style="text-align:left;">Nicho</th><th style="text-align:left;">Fecha</th><th style="text-align:left;">Resumen</th></tr></thead>
+      <tbody>
+        <template x-for="h in historial" :key="h.id">
+          <tr style="cursor:pointer;" @click="resultado = h">
+            <td style="font-size:12px;color:#e8ecff;" x-text="h.nicho"></td>
+            <td style="font-size:11px;color:#7880b0;" x-text="h.creado_at"></td>
+            <td style="font-size:11px;color:#a8b0d8;" x-text="(h.resumen || '').slice(0, 80)"></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+    <p x-show="!historial.length" style="font-size:12px;color:#4a5080;">Sin investigaciones todavía.</p>
+  </div>
+</div>
+
+<script>
+function nichoApp() {
+  return {
+    nicho: '', contexto: '', resultado: null, historial: [], error: '', cargando: false,
+    anguloPor(id) { return (this.resultado?.angulos || []).find(a => a.id === id) || {}; },
+    async investigar() {
+      this.cargando = true; this.error = ''; this.resultado = null;
+      try {
+        const res = await fetch('/api/nicho/investigar', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nicho: this.nicho, contexto: this.contexto }) });
+        if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al investigar.'; return; }
+        this.resultado = await res.json();
+        await this.cargarHistorial();
+      } catch(e) { this.error = 'Error de conexión con el servidor.'; }
+      finally { this.cargando = false; }
+    },
+    async cargarHistorial() {
+      try {
+        const res = await fetch('/api/nicho');
+        if (res.ok) this.historial = await res.json();
+      } catch(e) {}
+    }
+  }
+}
+</script>
+{% endblock %}
