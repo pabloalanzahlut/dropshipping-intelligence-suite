@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Enrutador LLM{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Enrutador LLM</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="enrutador()" x-init="cargar()">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+      Enrutador <span style="background:linear-gradient(90deg,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Híbrido</span>
+    </h1>
+    <p style="font-size:12px;color:#4a5080;margin:0;">Qué capa de inferencia está activa (FreeLLMAPI → OpenRouter → Ollama) y sus estadísticas de uso.</p>
+  </div>
+
+  <div x-show="error" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+    <p style="font-size:12px;color:#fb7185;margin:0;" x-text="error"></p>
+  </div>
+
+  <!-- 3 capas -->
+  <div class="g-resp" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+    <template x-for="capa in ['freellm','openrouter','ollama']" :key="capa">
+      <div class="card" :class="d?.activa === capa ? 'card-glow-emerald' : ''" style="padding:14px;">
+        <p style="font-size:10px;color:#7880b0;margin:0 0 6px;text-transform:uppercase;" x-text="capa"></p>
+        <p style="font-size:14px;font-weight:700;margin:0;"
+           :style="(d?.disponibles || {})[capa] ? 'color:#34d399' : 'color:#4a5080'"
+           x-text="(d?.disponibles || {})[capa] ? 'Disponible' : 'No disponible'"></p>
+        <p x-show="d?.activa === capa" style="font-size:11px;color:#22d3ee;margin:4px 0 0;">● Capa activa</p>
+      </div>
+    </template>
+  </div>
+
+  <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="card">
+      <div class="section-title">Uso por capa</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <template x-for="(v, k) in (d?.stats?.by_layer || {})" :key="k">
+          <div style="display:flex;justify-content:space-between;padding:8px 10px;background:#08091a;border:1px solid #1a1d35;border-radius:7px;">
+            <span style="font-size:12px;color:#a8b0d8;" x-text="k"></span>
+            <span style="font-size:12px;font-weight:700;color:#e8ecff;" x-text="v"></span>
+          </div>
+        </template>
+      </div>
+      <p style="font-size:11px;color:#7880b0;margin:10px 0 0;" x-text="'Total de consultas: ' + (d?.stats?.total_queries ?? '—')"></p>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Comprobación manual</div>
+      <p style="font-size:12px;color:#a8b0d8;margin:0 0 12px;">Fuerza una comprobación de disponibilidad de Ollama en localhost (ignora la caché de 30s).</p>
+      <button @click="healthCheck()" :disabled="comprobando" class="btn-primary">
+        <span x-text="comprobando ? 'Comprobando…' : '🔍 Health Check Ollama'"></span>
+      </button>
+      <p x-show="resultado" style="font-size:12px;margin:12px 0 0;" :style="resultado?.ollama_disponible ? 'color:#34d399' : 'color:#fb7185'"
+         x-text="resultado ? (resultado.ollama_disponible ? 'Ollama disponible' : 'Ollama no disponible') + ' · ' + resultado.timestamp : ''"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+function enrutador() {
+  return {
+    d: null, error: '', comprobando: false, resultado: null,
+    async cargar() {
+      this.error = '';
+      try {
+        const res = await fetch('/api/enrutador');
+        if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al cargar el enrutador.'; return; }
+        this.d = await res.json();
+      } catch(e) { this.error = 'Error de conexión con el servidor.'; }
+    },
+    async healthCheck() {
+      this.comprobando = true;
+      try {
+        const res = await fetch('/api/enrutador/health-check', { method: 'POST' });
+        this.resultado = await res.json();
+        await this.cargar();
+      } catch(e) { this.error = 'Error de conexión con el servidor.'; }
+      finally { this.comprobando = false; }
+    }
+  }
+}
+</script>
+{% endblock %}
