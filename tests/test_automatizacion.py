@@ -464,6 +464,7 @@ class PropuestasReviewTests(Base):
             instancia.resumen.return_value = {
                 "productos_medibles": 6, "periodo_dias": 21, "productos_evaluados": 6,
                 "precision_clasificador": 0.8, "roas_global": 2.2, "tasa_cancelacion_global": 0.09,
+                "hot_que_vendieron": 2, "hot_total": 3,
             }
             instancia.construir_vista.return_value = []
             r = self_improve.analizar_y_proponer(dias=21, db_path=self.db)
