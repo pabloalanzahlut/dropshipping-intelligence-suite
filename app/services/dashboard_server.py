@@ -1586,6 +1586,31 @@ async def api_config_estado() -> List[Dict[str, Any]]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# PROPUESTAS DE AJUSTE (self_improve) — solo revisión humana, nunca se aplican solas.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class MarcarPropuestaIn(BaseModel):
+    estado: str
+
+
+@app.get("/api/propuestas")
+async def api_propuestas_listar(estado: str = "") -> List[Dict[str, Any]]:
+    from app.services import propuestas_review
+    return propuestas_review.listar(DB_PATH, estado)
+
+
+@app.post("/api/propuestas/{propuesta_id}/marcar")
+async def api_propuestas_marcar(propuesta_id: int, data: MarcarPropuestaIn) -> Dict[str, Any]:
+    from app.services import propuestas_review
+    try:
+        return propuestas_review.marcar(DB_PATH, propuesta_id, data.estado)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # CENTRO DE ALERTAS Y RESUMEN DIARIO (automáticos, sin IA)
 # ═══════════════════════════════════════════════════════════════════════════════
 
