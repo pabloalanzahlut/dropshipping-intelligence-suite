@@ -170,7 +170,7 @@
               <span x-text="(fd?.visitas || 0) + ' visitas · ' + (fd?.clics_comprar || 0) + ' clics · ' + (fd?.emails || 0) + ' emails · CTR ' + ((fd?.ctr || 0) * 100).toFixed(1) + '%'"></span>
               <p x-show="fd?.gate?.veredicto" style="margin:6px 0 0;">
                 Veredicto: <strong :style="fd?.gate?.veredicto === 'producir' ? 'color:#34d399' : fd?.gate?.veredicto === 'descartar' ? 'color:#fb7185' : 'color:#fbbf24'" x-text="fd?.gate?.veredicto"></strong>
-                <span x-show="fd?.gate?.mediana_global" style="color:#7880b0;"> (mediana global <span x-text="((fd.gate.mediana_global || 0) * 100).toFixed(1) + '%'"></span>)</span>
+                <span x-show="fd?.mediana_global" style="color:#7880b0;"> (mediana global <span x-text="((fd.mediana_global || 0) * 100).toFixed(1) + '%'"></span>)</span>
               </p>
               <p x-show="(fd?.gate?.violations || []).length" style="color:#fbbf24;margin:4px 0 0;" x-text="(fd?.gate?.violations || []).join(' · ')"></p>
               <button @click="calcularFakeDoor()" class="btn-ghost" style="margin-top:8px;font-size:11px;">⬇ Volcar estos números a Demanda</button>
