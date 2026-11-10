@@ -685,3 +685,21 @@ def mig_0025_hook_matrices(conn: sqlite3.Connection):
         )
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_hook_matrices_producto ON hook_matrices(producto_id)")
+
+
+@migration(26, "Eventos de fake-door (skill fake-door): visitas, clics y emails por producto")
+def mig_0026_fake_door_eventos(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS fake_door_eventos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            producto_id INTEGER NOT NULL,
+            slug TEXT NOT NULL,
+            tipo TEXT NOT NULL CHECK(tipo IN ('visita', 'clic_comprar', 'email')),
+            email TEXT,
+            ip_hash TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_fake_door_producto_tipo ON fake_door_eventos(producto_id, tipo)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_fake_door_slug ON fake_door_eventos(slug)")
