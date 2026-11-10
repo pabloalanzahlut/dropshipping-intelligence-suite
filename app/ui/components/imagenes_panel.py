@@ -16,8 +16,7 @@ from tkinter import filedialog, ttk
 from typing import Optional
 
 from app.ui.components.panel_kit import (
-    BG_CARD, COLOR_ERROR, COLOR_PRIMARY, COLOR_SUCCESS, COLOR_WARNING,
-    FONT_BODY, PanelBase, boton, etiqueta, tarjeta,
+    COLOR_PRIMARY, COLOR_SUCCESS, COLOR_WARNING, PanelBase, boton, etiqueta, tarjeta,
 )
 
 
