@@ -75,13 +75,16 @@ Si no hay evidencia suficiente para una propuesta, dilo claramente. No inventes
 tendencias con pocos datos."""
 
 
-def analizar_y_proponer(dias: int = 21) -> Dict:
+def analizar_y_proponer(dias: int = 21, db_path: Optional[str] = None) -> Dict:
     """
     Lee métricas reales y genera propuestas de ajuste en un fichero aparte.
 
     Returns:
         dict con el resumen de métricas y la ruta del fichero de propuestas.
     """
+    if db_path is None:
+        from app.config.path_manager import PathManager
+        db_path = str(PathManager.get_paths()["db"])
     agg = MetricsAggregator()
     resumen = agg.resumen(dias)
 
