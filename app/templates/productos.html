@@ -265,7 +265,24 @@ function productos() {
         const r = await fetch('/api/productos/' + id);
         if (!r.ok) throw new Error(await this.mensaje(r, 'Error ' + r.status));
         this.tab = 'datos'; this.cargarForm(await r.json());
+        this.cargarHookMatrices();
       } catch (e) { this.toast.error('No se pudo abrir el producto: ' + e.message); }
+    },
+    async cargarHookMatrices() {
+      try {
+        const r = await fetch('/api/productos/' + this.det.id + '/hook-matrix');
+        this.hookMatrices = r.ok ? await r.json() : [];
+      } catch (e) { this.hookMatrices = []; }
+    },
+    async generarHookMatrix() {
+      this.hookCargando = true;
+      try {
+        const r = await fetch('/api/productos/' + this.det.id + '/hook-matrix', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ angulo_contexto: this.hookContexto }) });
+        if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo generar la matriz.')); return; }
+        this.toast.ok('Hook matrix generada.'); await this.cargarHookMatrices();
+      } catch (e) { this.toast.error('Error de conexión con el servidor.'); }
+      finally { this.hookCargando = false; }
     },
     abrirNuevo() { this.nuevo = { abierto: true, nombre: '', costo_origen: null, costo_envio: null, pvp: null, categoria: '' }; },
 
