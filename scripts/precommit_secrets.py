@@ -4,6 +4,7 @@
 Solo mira líneas AÑADIDAS y nombres de archivo; nunca imprime el valor encontrado.
 """
 import re
+import shutil
 import subprocess
 import sys
 
@@ -37,6 +38,11 @@ def main() -> int:
                 m = patron.search(linea)
                 if m and not PLACEHOLDER.search(m.group(0)):
                     hallazgos.append(f"{nombre} en {archivo}")
+    if shutil.which("gitleaks"):  # red extra: si gitleaks está instalado, también escanea lo staged
+        g = subprocess.run(["gitleaks", "protect", "--staged", "--config", ".gitleaks.toml", "--redact", "--no-banner"],
+                           capture_output=True, text=True)
+        if g.returncode == 1:
+            hallazgos.append("gitleaks detecta un secreto en lo staged")
     for h in dict.fromkeys(hallazgos):
         print(f"BLOQUEADO: {h}", file=sys.stderr)
     return 1 if hallazgos else 0
