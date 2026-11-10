@@ -178,6 +178,112 @@ def check_aritmetica_financiera(
     )
 
 
+# ── Refutar-producto (.claude/commands/refutar-producto.md) ─────────────────
+# Constantes propias, independientes de `product_catalog.py`: la gracia de una
+# verificación en profundidad es no recalcular con la misma función que se
+# quiere auditar — si el skill cambiara, aquí haría falta tocarlo a mano.
+_REFUTACIONES_TOTAL = 8
+_REFUTACIONES_ELIMINATORIAS = (1, 6)
+
+
+def check_refutacion_tally(respuestas: Dict) -> GateResult:
+    """
+    Recalcula el veredicto de refutar-producto desde las 8 respuestas crudas.
+
+    `respuestas` es {numero: {"resultado": "pasa"|"refutada", ...}} (o {numero: "pasa"...}).
+    No confía en ningún veredicto que venga ya calculado — solo en el conteo de
+    "refutada" por número y en si alguna es eliminatoria (#1 margen, #6 legal).
+    """
+    estado: Dict[int, str] = {}
+    for k, v in (respuestas or {}).items():
+        try:
+            n = int(k)
+        except (TypeError, ValueError):
+            continue
+        resultado = (v.get("resultado") if isinstance(v, dict) else v) or ""
+        if resultado in ("pasa", "refutada"):
+            estado[n] = resultado
+
+    faltan = [n for n in range(1, _REFUTACIONES_TOTAL + 1) if n not in estado]
+    if faltan:
+        return GateResult(
+            passed=False, check_name="refutacion_tally",
+            violations=[f"Faltan respuestas: {faltan}"],
+            evidence={"faltan": faltan, "respondidas": len(estado)},
+        )
+
+    refutadas = sorted(n for n, r in estado.items() if r == "refutada")
+    eliminatorias = [n for n in refutadas if n in _REFUTACIONES_ELIMINATORIAS]
+    if eliminatorias:
+        accion = "descartar"
+    elif len(refutadas) >= 3:
+        accion = "descartar"
+    elif refutadas:
+        accion = "invertir_test"
+    else:
+        accion = "invertir"
+
+    return GateResult(
+        passed=True, check_name="refutacion_tally", violations=[],
+        evidence={"refutadas": refutadas, "eliminatorias": eliminatorias, "accion": accion},
+    )
+
+
+# ── Hook-matrix (.claude/commands/hook-matrix.md) ────────────────────────────
+FORMULAS_HOOK = ("Story", "Shock", "Curiosity", "Before/After", "POV", "Urgencia")
+_HOOKS_MINIMO_TOTAL = 12
+_HOOKS_MINIMO_POR_FORMULA = 2
+
+
+def check_hook_count(hooks: List[Dict]) -> GateResult:
+    """Exige ≥12 hooks totales y ≥2 por cada una de las 6 fórmulas — nunca confía en
+    el `total_hooks` que declare el propio LLM."""
+    violaciones: List[str] = []
+    por_formula: Dict[str, int] = {f: 0 for f in FORMULAS_HOOK}
+    desconocidas = []
+    for h in (hooks or []):
+        formula = str((h or {}).get("formula", "")).strip()
+        coincidencia = next((f for f in FORMULAS_HOOK if f.lower() == formula.lower()), None)
+        if coincidencia:
+            por_formula[coincidencia] += 1
+        else:
+            desconocidas.append(formula)
+
+    if len(hooks or []) < _HOOKS_MINIMO_TOTAL:
+        violaciones.append(f"Solo {len(hooks or [])} hooks; mínimo {_HOOKS_MINIMO_TOTAL}")
+    for formula, n in por_formula.items():
+        if n < _HOOKS_MINIMO_POR_FORMULA:
+            violaciones.append(f"Fórmula '{formula}': {n} hooks; mínimo {_HOOKS_MINIMO_POR_FORMULA}")
+    if desconocidas:
+        violaciones.append(f"Fórmulas no reconocidas: {sorted(set(desconocidas))}")
+
+    return GateResult(
+        passed=not violaciones, check_name="hook_count", violations=violaciones,
+        evidence={"total": len(hooks or []), "por_formula": por_formula},
+    )
+
+
+def verificar_hook_matrix(resultado: Dict) -> Dict:
+    """`check_hook_count` + `verificar_copy` (superlativos/envío) sobre cada hook."""
+    hooks = (resultado or {}).get("hook_matrix") or []
+    conteo = check_hook_count(hooks)
+    resultados = [conteo]
+    violaciones_copy: List[str] = []
+    for h in hooks:
+        r = verificar_copy(str((h or {}).get("texto", "")))
+        if not r["passed"]:
+            violaciones_copy.extend(f"Hook #{h.get('id', '?')}: {v}" for v in r["violations"])
+
+    todas = list(conteo.violations) + violaciones_copy
+    passed = conteo.passed and not violaciones_copy
+    return {
+        "passed": passed,
+        "checks": [str(conteo), f"copy_por_hook: {len(violaciones_copy)} violación(es)"],
+        "violations": todas,
+        "detail": {conteo.check_name: conteo.evidence},
+    }
+
+
 def check_estructura_json(data: Dict, campos_requeridos: List[str]) -> GateResult:
     """Verifica que la salida traiga todos los campos del contrato."""
     faltantes = [c for c in campos_requeridos if c not in data or data[c] is None]
