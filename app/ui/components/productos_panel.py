@@ -308,11 +308,39 @@ class ProductosPanel(PanelBase):
         pintar_historico()
 
     def _demanda(self, p: Dict[str, Any]) -> None:
+        import os
         d = Dialogo(self, "Demanda (fake door) y creativo")
+        puerto = os.getenv("DASHBOARD_PORT", "47821")
+        url = f"http://localhost:{puerto}/fd/{p['id']}"
+        etiqueta(d.cuerpo, f"Página pública para compartir: {url}", "suave", wrap=480).pack(anchor="w", pady=(0, 4))
+        fd_resumen = etiqueta(d.cuerpo, "", "suave", wrap=480)
+        fd_resumen.pack(anchor="w")
+
         dem = p.get("demanda") or {}
         vars_ = {k: tk.StringVar(value=str(dem.get(k, ""))) for k in ("visitantes", "clics_comprar", "emails", "dias_test")}
         nombres = {"visitantes": "Visitantes del pop-up", "clics_comprar": "Clics en «comprar»", "emails": "Emails capturados",
                    "dias_test": "Días de test"}
+
+        def calcular_desde_eventos() -> None:
+            def trabajo():
+                from app.services import fake_door_service, deterministic_gate
+                resumen = fake_door_service.resumen_producto(self.db, p["id"])
+                mediana = fake_door_service.mediana_ctr(self.db, excluir_producto_id=p["id"])
+                gate = deterministic_gate.check_fake_door_ctr(
+                    resumen["ctr"], mediana, resumen["visitas"], resumen["concentracion"])
+                return resumen, gate
+
+            def listo(resultado):
+                resumen, gate = resultado
+                vars_["visitantes"].set(str(resumen["visitas"]))
+                vars_["clics_comprar"].set(str(resumen["clics_comprar"]))
+                vars_["emails"].set(str(resumen["emails"]))
+                fd_resumen.config(text=f"CTR {resumen['ctr']:.1%} · veredicto: {gate.evidence.get('veredicto', '—')}")
+
+            self.en_hilo(trabajo, listo, lambda e: self.aviso(f"Error: {e}", "error"))
+
+        boton(d.cuerpo, "🔄 Calcular desde eventos", calcular_desde_eventos, COLOR_PRIMARY).pack(anchor="w", pady=(0, 10))
+
         for k, v in vars_.items():
             d.fila(nombres[k], v, 12)
         ok = tk.BooleanVar(value=bool(p.get("creativo_ok")))
