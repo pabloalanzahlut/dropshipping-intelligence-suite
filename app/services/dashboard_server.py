@@ -37,7 +37,7 @@ from pydantic import BaseModel
 from app.config.path_manager import PathManager
 from app.database.connection import DatabaseConnection
 from app.services import insights_service
-from app.services import (agent_router, alerts, business_metrics, channel_store, daily_brief,
+from app.services import (agent_chat, agent_router, alerts, business_metrics, channel_store, daily_brief,
                           exports, log_viewer, mantenimiento, metrics_import, notifier,
                           product_catalog, store_context, tienda_store, transcript_store, web_auth)
 
@@ -385,6 +385,18 @@ class KBQueryIn(BaseModel):
     pregunta: str
     agente: str = "auto"      # "auto" = el router elige según el tipo de pregunta
     proyecto: str = "kb_consulta"
+
+
+class ChatTurnoIn(BaseModel):
+    rol: str = "user"         # "user" o "agente"
+    texto: str = ""
+
+
+class ChatIn(BaseModel):
+    """Una vuelta de conversación: la pregunta y los turnos anteriores que le dan contexto."""
+    pregunta: str = ""
+    agente: str = "auto"
+    historial: List[ChatTurnoIn] = []
 
 
 class PublicarTikTokIn(BaseModel):

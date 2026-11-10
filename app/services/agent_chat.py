@@ -265,8 +265,9 @@ def _rescatar_respuesta(texto: str) -> str:
 def a_natural(bruto: str) -> Dict[str, Any]:
     """Salida cruda del motor → {texto, datos, confianza, usa_tienda}. `texto` nunca es JSON."""
     limpio = sin_fences(bruto)
+    parece_json = limpio.startswith(("{", "["))
     try:
-        data: Any = json.loads(limpio) if limpio[:1] in "{[" else None
+        data: Any = json.loads(limpio) if parece_json else None
     except json.JSONDecodeError:
         data = None
     confianza, bloques, texto = None, [], ""
@@ -282,7 +283,7 @@ def a_natural(bruto: str) -> Dict[str, Any]:
         bloques = datos_legibles(data)
         texto = bloques_a_texto(bloques) or SIN_TEXTO
         bloques = []
-    elif limpio[:1] in "{[":                              # parecía JSON pero no se pudo leer
+    elif parece_json:                                     # parecía JSON pero no se pudo leer
         texto = _rescatar_respuesta(limpio) or INCOMPLETA
     else:
         texto = limpio or SIN_TEXTO
