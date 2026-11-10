@@ -379,14 +379,15 @@ class KBAgentPanel(PanelBase):
         self._al_final()
 
     def _insertar_segmentos(self, segmentos: Sequence[Tuple[str, Tuple[str, ...]]], tag_base: str,
-                            fuentes_por_n: Dict[str, Dict[str, Any]]) -> None:
+                            fuentes_por_n: Dict[str, Dict[str, Any]], contador: List[int]) -> None:
         for fragmento, tags in segmentos:
             if not fragmento:
                 continue
             if tags and tags[0] == "cita":
                 n = tags[1].split("_", 1)[1]
                 f = fuentes_por_n.get(n)
-                tag_cita = f"cita_{id(segmentos)}_{n}"
+                contador[0] += 1
+                tag_cita = f"cita_{contador[0]}_{n}"
                 self.texto.tag_configure(tag_cita, foreground=COLOR_PRIMARY, underline=bool(f and f.get("url")))
                 self.texto.insert(tk.END, f"[{n}]", (tag_base, tag_cita))
                 if f and f.get("url"):
@@ -407,6 +408,7 @@ class KBAgentPanel(PanelBase):
         self.texto.config(state=tk.NORMAL)
         cab = r["ruta"]["rol"] if not r.get("rapida") else "Agente"
         self.texto.insert(tk.END, f"🤖 {cab}\n", "cab_agente")
+        contador_citas = [0]
         for bloque in _lineas_formato(r["texto"]) or [{"tipo": "parrafo", "lineas": [[("—", ())]]}]:
             tag = {"vineta": "vineta_agente", "numerada": "vineta_agente",
                   "titulo": "titulo_agente"}.get(bloque["tipo"], "burbuja_agente")
@@ -418,7 +420,7 @@ class KBAgentPanel(PanelBase):
                     prefijo = f"{i + 1}. "
                 if prefijo:
                     self.texto.insert(tk.END, prefijo, tag)
-                self._insertar_segmentos(linea, tag, fuentes_por_n)
+                self._insertar_segmentos(linea, tag, fuentes_por_n, contador_citas)
                 self.texto.insert(tk.END, "\n", tag)
 
         partes_meta = [_hora()]
