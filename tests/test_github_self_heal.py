@@ -106,5 +106,48 @@ class FixesTest(unittest.TestCase):
             self.assertIn("| F-005 | X | y | z | 2 |", texto)
 
 
+class AccionesCableadasTest(unittest.TestCase):
+    """Cada acción 'auto' del catálogo debe tener implementación en resolver()."""
+
+    def test_toda_accion_auto_esta_cableada(self):
+        fuente = (ROOT / "scripts" / "github_self_heal.py").read_text(encoding="utf-8")
+        cat = gsh.cargar_catalogo()
+        for fix in cat["fixes"]:
+            if fix["auto"]:
+                self.assertTrue(
+                    fix["accion"] in fuente or fix["accion"] in ("allowlist_gitleaks", "untrack_archivo"),
+                    f"{fix['id']} -> {fix['accion']} sin implementar")
+        for accion in ("bump_actions", "cerrar_dependabot_obsoleto", "pin_version_existente", "secrets_a_env"):
+            self.assertIn(f'"{accion}"', fuente)
+
+    def test_untrack_se_planifica_en_dry_run(self):
+        log = ("Finding: x\nSecret: REDACTED\nRuleID: generic-api-key\nEntropy: 4.9\n"
+               "File: .playwright-mcp/sesion.json\nLine: 3\nCommit: abc1234\n")
+        informe = gsh.resolver(log, gsh.cargar_catalogo(), dry_run=True)
+        self.assertTrue(any("git rm --cached" in l and "F-010" in l for l in informe))
+
+    def test_bump_actions_solo_sube(self):
+        with tempfile.TemporaryDirectory() as d:
+            wfdir = Path(d) / ".github" / "workflows"
+            wfdir.mkdir(parents=True)
+            wf = wfdir / "a.yml"
+            wf.write_text("steps:\n  - uses: actions/checkout@v4\n  - uses: foo/bar@v9\n", encoding="utf-8")
+            original = gsh.ROOT
+            gsh.ROOT = Path(d)
+            try:
+                tocados = gsh.fix_bump_actions(
+                    gsh.cargar_catalogo(), None, consulta=lambda repo, tok: {"actions/checkout": "v7", "foo/bar": "v3"}[repo])
+            finally:
+                gsh.ROOT = original
+            texto = wf.read_text(encoding="utf-8")
+            self.assertEqual(tocados, [".github/workflows/a.yml"])
+            self.assertIn("actions/checkout@v7", texto)
+            self.assertIn("foo/bar@v9", texto)  # nunca baja de versión
+
+    def test_toca_workflows(self):
+        self.assertTrue(gsh.toca_workflows([".github/workflows/x.yml"]))
+        self.assertFalse(gsh.toca_workflows(["requirements.txt"]))
+
+
 if __name__ == "__main__":
     unittest.main()
