@@ -95,6 +95,17 @@ class DatosLegiblesTests(unittest.TestCase):
         self.assertIn(["Clasificacion", "COLD"], bloques[0]["filas"])
         self.assertNotIn(["Producto", "Peine láser"], bloques[0]["filas"])     # el título no se repite como fila
 
+    def test_un_identificador_como_concepto_se_lee_como_titulo(self):
+        """Pasó de verdad con un modelo real: puso "concepto": "coste_landed" en vez de un título
+        legible. El bloque debe mostrar «Coste landed», no el identificador en bruto."""
+        data = {"respuesta": "...", "datos": [
+            {"concepto": "coste_landed", "valor": "8 USD", "origen": "dato aportado por el operador"},
+            {"concepto": "margen bruto", "valor": "16 USD"},
+        ]}
+        bloques = agent_chat.datos_legibles(data)
+        self.assertEqual(bloques[0]["titulo"], "Coste landed")
+        self.assertEqual(bloques[1]["titulo"], "margen bruto")     # ya era legible: no se toca
+
     def test_nunca_se_cuela_json_crudo_en_los_valores(self):
         data = {"respuesta": "ok", "detalle": {"a": 1, "b": [1, 2, 3]}}
         bloques = agent_chat.datos_legibles(data)
