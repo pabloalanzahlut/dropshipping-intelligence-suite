@@ -133,9 +133,11 @@ def analizar_y_proponer(dias: int = 21, db_path: Optional[str] = None) -> Dict:
         return {"propuestas_generadas": False, "motivo": "sin respuesta del modelo"}
 
     ruta = _escribir_propuestas(analisis, resumen)
+    propuesta_id = _guardar_propuesta_estructurada(db_path, analisis, resumen)
     return {
         "propuestas_generadas": True,
         "ruta": ruta,
+        "propuesta_id": propuesta_id,
         "resumen": resumen,
     }
 
