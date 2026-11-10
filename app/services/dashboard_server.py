@@ -1534,9 +1534,6 @@ async def api_config_estado() -> List[Dict[str, Any]]:
         from app.config import secrets_store
         out = []
         for item in business_metrics.estado_integraciones():
-            variables = item.get("faltan") or []
-            # business_metrics no expone la lista completa de variables cuando ya están
-            # configuradas; para esas, usamos la clave tal cual (basta con enmascarar si existe).
             out.append({
                 "id": item["id"], "nombre": item["nombre"], "para": item["para"],
                 "configurada": item["configurada"], "nota": item.get("nota", ""),
