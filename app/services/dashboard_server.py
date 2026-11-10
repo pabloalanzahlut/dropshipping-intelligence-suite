@@ -1646,6 +1646,44 @@ async def api_propuestas_marcar(propuesta_id: int, data: MarcarPropuestaIn) -> D
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# INVESTIGAR NICHO — informe de 10 ángulos (ver ai_workspace/skills/investigar_nicho)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class InvestigarNichoIn(BaseModel):
+    nicho: str
+    contexto: str = ""
+    producto_id: Optional[int] = None
+
+
+@app.post("/api/nicho/investigar")
+async def api_nicho_investigar(body: InvestigarNichoIn) -> Dict[str, Any]:
+    from app.services import nicho_research
+    try:
+        resultado = nicho_research.investigar(body.nicho, body.contexto)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    resultado["id"] = nicho_research.guardar_investigacion(
+        DB_PATH, resultado["nicho"], resultado["resumen"], resultado["angulos"],
+        resultado["ranking"], body.producto_id)
+    return resultado
+
+
+@app.get("/api/nicho")
+async def api_nicho_listar(nicho: str = "") -> List[Dict[str, Any]]:
+    from app.services import nicho_research
+    return nicho_research.listar(DB_PATH, nicho)
+
+
+@app.get("/api/nicho/{investigacion_id}")
+async def api_nicho_detalle(investigacion_id: int) -> Dict[str, Any]:
+    from app.services import nicho_research
+    r = nicho_research.obtener(DB_PATH, investigacion_id)
+    if not r:
+        raise HTTPException(status_code=404, detail="Investigación no encontrada.")
+    return r
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # CENTRO DE ALERTAS Y RESUMEN DIARIO (automáticos, sin IA)
 # ═══════════════════════════════════════════════════════════════════════════════
 
