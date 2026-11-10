@@ -244,6 +244,29 @@ async def lifespan(app: FastAPI):
         except Exception as exc:
             log.warning(f"[SERVER] Mantenimiento semanal falló: {exc}")
 
+    def _scheduled_classify_products() -> None:
+        """Cada 6h: promueve candidatos prometedores de product_trends al catálogo de
+        productos, o los descarta. Sustituye a autonomous_scheduler.py, que nunca llegó a
+        arrancar solo y además consultaba columnas que no existen (ver product_trends_promoter.py)."""
+        try:
+            from app.services import product_trends_promoter
+            r = product_trends_promoter.job_classify_products(DB_PATH)
+            log.info(f"[SERVER] Clasificación automática: {r}")
+        except Exception as exc:
+            log.warning(f"[SERVER] Clasificación automática falló: {exc}")
+
+    def _scheduled_self_improve() -> None:
+        """03:00: propone ajustes a partir de métricas reales (nunca los aplica)."""
+        try:
+            from app.services import self_improve
+            r = self_improve.analizar_y_proponer(dias=21, db_path=DB_PATH)
+            if r.get("propuestas_generadas"):
+                log.info(f"[SERVER] Self-improve: nueva propuesta #{r.get('propuesta_id')} pendiente de revisión.")
+            else:
+                log.info(f"[SERVER] Self-improve: sin propuestas ({r.get('motivo')}).")
+        except Exception as exc:
+            log.warning(f"[SERVER] Self-improve falló: {exc}")
+
     if _scheduler_available and _scheduler is not None and engine is not None:
         _scheduler.add_job(_scheduled_mantenimiento, "cron", day_of_week="sun", hour=4, minute=0,
                            id="mantenimiento_semanal", replace_existing=True, misfire_grace_time=24 * 3600,
