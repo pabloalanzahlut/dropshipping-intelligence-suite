@@ -6,341 +6,491 @@
 <span style="font-size:12px;font-weight:600;color:#c8d0f0;">Agente IA · KB</span>
 {% endblock %}
 
+{% block head %}
+<style>
+  /* ── Chat del Agente IA ── */
+  .chat-page { display: flex; flex-direction: column; gap: 14px; height: calc(100vh - 118px); min-height: 460px; max-width: 1000px; margin: 0 auto; }
+  .chat-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; }
+  .chat-head h1 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #e8ecff; margin: 0 0 4px; }
+  .chat-head h1 span { background: linear-gradient(90deg, #a78bfa, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .chat-head p { font-size: 12px; color: #7880b0; margin: 0; max-width: 560px; line-height: 1.5; }
+  .chat-head-acc { display: flex; align-items: center; gap: 12px; }
+  .chat-kb { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; color: #7880b0; white-space: nowrap; }
+  .chat-kb i { width: 7px; height: 7px; border-radius: 50%; background: #4a5080; }
+  .chat-kb i.ok { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,.6); }
+  .btn-ghost:disabled { opacity: .45; cursor: not-allowed; }
+
+  .chat-box { flex: 1; min-height: 0; display: flex; flex-direction: column; background: #08091a; border: 1px solid #1a1d35; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+  .chat-msgs { flex: 1; min-height: 0; overflow-y: auto; padding: 22px 22px 12px; display: flex; flex-direction: column; gap: 18px; }
+
+  .chat-vacio { margin: auto; text-align: center; max-width: 560px; padding: 12px; }
+  .chat-vacio .logo { width: 54px; height: 54px; margin: 0 auto 14px; border-radius: 16px; background: linear-gradient(135deg, rgba(167,139,250,.18), rgba(34,211,238,.12)); border: 1px solid rgba(167,139,250,.25); display: flex; align-items: center; justify-content: center; color: #a78bfa; }
+  .chat-vacio h2 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #e8ecff; margin: 0 0 6px; }
+  .chat-vacio p { font-size: 12.5px; color: #7880b0; margin: 0 0 16px; line-height: 1.6; }
+  .sugerencias { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: left; }
+  .sugerencia { background: #0d0f1f; border: 1px solid #1a1d35; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #a8b0d8; cursor: pointer; line-height: 1.45; transition: border-color .15s, background .15s, color .15s; }
+  .sugerencia:hover { border-color: rgba(34,211,238,.35); background: #111328; color: #e8ecff; }
+  .sugerencia small { display: block; font-size: 9.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #22d3ee; margin-bottom: 3px; }
+
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg-user { justify-content: flex-end; }
+  .burbuja { border-radius: 14px; padding: 11px 15px; font-size: 13.5px; line-height: 1.65; overflow-wrap: anywhere; }
+  .msg-user .burbuja { max-width: min(72%, 620px); background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(34,211,238,.10)); border: 1px solid rgba(167,139,250,.28); color: #e8ecff; border-bottom-right-radius: 4px; white-space: pre-wrap; }
+  .msg-hora { font-size: 10px; color: #4a5080; margin: 4px 4px 0; text-align: right; }
+  .avatar { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; color: #fff; }
+  .msg-agente .cuerpo, .msg-error .cuerpo { flex: 1; min-width: 0; max-width: min(86%, 740px); }
+  .msg-agente .burbuja { background: #0d0f1f; border: 1px solid #1a1d35; color: #d7dcf5; border-top-left-radius: 4px; }
+  .msg-error .burbuja { background: rgba(244,63,94,.06); border: 1px solid rgba(251,113,133,.3); color: #fecdd3; border-top-left-radius: 4px; }
+  .msg-error .avatar { background: rgba(244,63,94,.18); color: #fb7185; }
+  .burbuja p { margin: 0 0 9px; }
+  .burbuja p:last-child, .burbuja ul:last-child, .burbuja ol:last-child { margin-bottom: 0; }
+  .burbuja p.tit { font-weight: 600; color: #e8ecff; }
+  .burbuja ul, .burbuja ol { margin: 0 0 9px; padding-left: 20px; }
+  .burbuja ul { list-style: disc; } .burbuja ol { list-style: decimal; }
+  .burbuja li { margin: 3px 0; } .burbuja li::marker { color: #22d3ee; }
+  .burbuja strong { color: #e8ecff; font-weight: 600; }
+  .burbuja code { background: #111328; border: 1px solid #252844; border-radius: 4px; padding: 0 5px; font-size: 12px; color: #a8b0d8; }
+  .cita { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px; padding: 0 4px; margin: 0 1px; border-radius: 9px; background: rgba(34,211,238,.12); border: 1px solid rgba(34,211,238,.3); color: #22d3ee; font-size: 10px; font-weight: 700; text-decoration: none; vertical-align: 1px; line-height: 1; }
+  a.cita:hover { background: rgba(34,211,238,.28); }
+  .cursor { display: inline-block; width: 2px; height: 14px; background: #a78bfa; margin-left: 2px; vertical-align: text-bottom; animation: blink-cursor .7s step-end infinite; }
+  .escribiendo { display: inline-flex; gap: 4px; align-items: center; padding: 5px 0; }
+  .escribiendo span { width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; animation: dot-bounce 1.2s ease-in-out infinite; }
+  .escribiendo span:nth-child(2) { animation-delay: .2s; } .escribiendo span:nth-child(3) { animation-delay: .4s; }
+
+  .msg-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 10.5px; color: #4a5080; margin: 7px 2px 0; }
+  .msg-meta .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; background: rgba(167,139,250,.10); color: #a78bfa; border: 1px solid rgba(167,139,250,.22); }
+  .msg-meta .chip.tienda { background: rgba(52,211,153,.10); color: #34d399; border-color: rgba(52,211,153,.22); }
+  .msg-meta button { background: none; border: 0; color: #7880b0; font-size: 10.5px; font-weight: 600; cursor: pointer; padding: 2px 0; }
+  .msg-meta button:hover { color: #22d3ee; }
+  .msg-extra { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .fuente { display: flex; gap: 8px; align-items: baseline; font-size: 11.5px; color: #a8b0d8; text-decoration: none; padding: 7px 10px; background: #0d0f1f; border: 1px solid #1a1d35; border-radius: 8px; transition: border-color .15s; }
+  a.fuente:hover { border-color: rgba(34,211,238,.35); }
+  .fuente b { color: #22d3ee; font-weight: 700; }
+  .fuente span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fuente em { margin-left: auto; color: #4a5080; font-style: normal; }
+  .datos-bloque { background: #0d0f1f; border: 1px solid #1a1d35; border-radius: 8px; padding: 10px 12px; }
+  .datos-tit { font-size: 12px; font-weight: 600; color: #e8ecff; margin: 0 0 6px; }
+  .datos-fila { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; border-top: 1px solid rgba(26,29,53,.7); font-size: 11.5px; }
+  .datos-fila dt { color: #7880b0; } .datos-fila dd { margin: 0; color: #d7dcf5; text-align: right; overflow-wrap: anywhere; }
+
+  .chat-input { border-top: 1px solid #1a1d35; background: #0d0f1f; padding: 14px 16px 10px; }
+  .chat-input-fila { display: flex; gap: 10px; align-items: flex-end; }
+  .chat-input textarea { resize: none; line-height: 1.5; min-height: 44px; max-height: 168px; }
+  .chat-enviar { height: 44px; padding: 0 18px; white-space: nowrap; justify-content: center; }
+  .chat-parar { height: 44px; padding: 0 16px; white-space: nowrap; color: #fb7185; border-color: rgba(251,113,133,.3); }
+  .chat-pie { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin-top: 8px; font-size: 11px; color: #4a5080; }
+  .chat-pie label { display: inline-flex; align-items: center; gap: 6px; }
+  .chat-pie select { background: #08091a; border: 1px solid #1a1d35; border-radius: 6px; color: #a8b0d8; font-size: 11px; padding: 3px 8px; cursor: pointer; }
+  .chat-pie .ruta { color: #7880b0; } .chat-pie .ruta strong { color: #a78bfa; font-weight: 600; }
+  .chat-pie .atajo { margin-left: auto; }
+  .chat-pie kbd { background: #111328; border: 1px solid #252844; border-radius: 4px; padding: 0 5px; font-size: 10px; color: #a8b0d8; }
+
+  @keyframes dot-bounce { 0%, 80%, 100% { transform: translateY(0); opacity: .4; } 40% { transform: translateY(-4px); opacity: 1; } }
+  @keyframes blink-cursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @media (max-width: 767px) {
+    .chat-page { height: calc(100dvh - 86px); min-height: 420px; }
+    .chat-msgs { padding: 14px 12px 8px; }
+    .msg-user .burbuja { max-width: 88%; }
+    .msg-agente .cuerpo, .msg-error .cuerpo { max-width: 100%; }
+    .msg-agente .avatar, .msg-error .avatar { display: none; }
+    .sugerencias { grid-template-columns: 1fr; }
+    .chat-pie .atajo { display: none; }
+    .chat-enviar span, .chat-parar span { display: none; }
+    .chat-enviar, .chat-parar { padding: 0 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .escribiendo span, .cursor { animation: none; } }
+</style>
+{% endblock %}
+
 {% block content %}
-<div x-data="agente()">
+<div x-data="agenteChat()" class="chat-page">
 
-  <!-- Header -->
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+  <!-- Cabecera -->
+  <div class="chat-head">
     <div>
-      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
-        Agente IA · <span style="background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">consultar_kb_agente</span>
-      </h1>
-      <p style="font-size:12px;color:#4a5080;margin:0;">Consulta directa a la Knowledge Base con contexto SQLite inyectado automáticamente</p>
+      <h1>Agente <span>IA</span></h1>
+      <p>Habla con él como con un compañero: recuerda la conversación y contesta con tu base de conocimiento y los datos reales de tu tienda.</p>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span style="font-size:11px;color:#4a5080;" x-text="kbCount > 0 ? kbCount + ' insights en KB' : 'KB vacía'"></span>
-      <div :class="kbCount > 0 ? 'pulse-dot' : ''" style="width:8px;height:8px;border-radius:50%;background:#34d399;" x-show="kbCount > 0"></div>
-    </div>
-  </div>
-
-  <!-- Selector de agente + stats -->
-  <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
-    <div style="background:#0d0f1f;border:1px solid rgba(167,139,250,0.15);border-radius:10px;padding:14px;">
-      <label class="form-label" for="agente-sel">Agente</label>
-      <select id="agente-sel" x-model="agenteSeleccionado" @change="detectar()" class="input-field">
-        <option value="auto">Automático · elige según tu pregunta</option>
-        <template x-for="a in agentes" :key="a.nombre">
-          <option :value="a.nombre" x-text="a.rol + ' · ' + a.nombre"></option>
-        </template>
-      </select>
-      <p style="font-size:10px;color:#4a5080;margin:6px 0 0;"
-         x-text="agenteSeleccionado === 'auto' ? 'Reconoce el tipo de pregunta y cambia de agente solo.' : 'Agente fijado a mano: no cambiará solo.'"></p>
-    </div>
-    <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
-      <p style="font-size:20px;font-weight:700;color:#a78bfa;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="historial.length"></p>
-      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Consultas sesión</p>
-    </div>
-    <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:10px;padding:14px;text-align:center;">
-      <p style="font-size:20px;font-weight:700;color:#22d3ee;margin:0;font-family:'Space Grotesk',sans-serif;" x-text="kbCount"></p>
-      <p style="font-size:10px;color:#4a5080;margin:4px 0 0;">Entradas KB</p>
+    <div class="chat-head-acc">
+      <span class="chat-kb"><i :class="kbCount > 0 ? 'ok' : ''"></i>
+        <span x-text="kbCount > 0 ? kbCount + ' apuntes en la KB' : 'KB vacía'"></span></span>
+      <button type="button" class="btn-ghost" @click="nueva()" :disabled="!mensajes.length || cargando">
+        <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nueva conversación
+      </button>
     </div>
   </div>
 
-  <!-- Chat window -->
-  <div style="background:#08091a;border:1px solid #1a1d35;border-radius:12px;overflow:hidden;">
+  <section class="chat-box" aria-label="Conversación con el agente">
 
-    <!-- Messages area -->
-    <div id="chat-msgs" style="height:420px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;">
+    <!-- Mensajes -->
+    <div id="chat-msgs" class="chat-msgs" role="log" aria-live="polite" aria-relevant="additions" tabindex="0" aria-label="Mensajes">
 
-      <!-- Welcome message -->
-      <div x-show="historial.length === 0"
-           style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:24px;">
-        <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,rgba(167,139,250,0.15),rgba(34,211,238,0.1));border:1px solid rgba(167,139,250,0.2);display:flex;align-items:center;justify-content:center;">
-          <svg style="width:24px;height:24px;color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
+      <!-- Conversación vacía -->
+      <div x-show="!mensajes.length" class="chat-vacio">
+        <div class="logo">
+          <svg style="width:26px;height:26px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
         </div>
-        <div style="text-align:center;">
-          <p style="font-size:13px;font-weight:600;color:#7880b0;margin:0 0 4px;">Agente listo para consultas</p>
-          <p style="font-size:11px;color:#4a5080;margin:0;">El contexto KB se inyecta automáticamente en cada pregunta.</p>
-        </div>
-        <!-- Quick prompts -->
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:4px;">
-          <template x-for="q in quickPrompts" :key="q">
-            <button @click="pregunta = q" class="btn-ghost" style="font-size:11px;padding:5px 10px;" x-text="q"></button>
+        <h2>¿En qué te ayudo?</h2>
+        <p>Pregunta con tus palabras. Si me falta un dato te lo pido; no me lo invento.</p>
+        <div class="sugerencias">
+          <template x-for="s in sugerencias" :key="s.texto">
+            <button type="button" class="sugerencia" @click="enviar(s.texto)"><small x-text="s.tema"></small><span x-text="s.texto"></span></button>
           </template>
         </div>
       </div>
 
-      <!-- Messages -->
-      <template x-for="(msg, idx) in historial" :key="idx">
-        <div>
-          <!-- Usuario -->
-          <div x-show="msg.rol === 'user'" style="display:flex;justify-content:flex-end;">
-            <div style="max-width:72%;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(34,211,238,0.08));border:1px solid rgba(167,139,250,0.2);border-radius:12px 12px 4px 12px;padding:10px 14px;">
-              <p style="font-size:13px;color:#e8ecff;margin:0;line-height:1.5;" x-text="msg.texto"></p>
-              <p style="font-size:10px;color:#4a5080;margin:4px 0 0;text-align:right;" x-text="msg.hora"></p>
+      <template x-for="m in mensajes" :key="m.id">
+        <div class="msg" :class="'msg-' + m.rol">
+
+          <!-- Tú -->
+          <template x-if="m.rol === 'user'">
+            <div style="max-width:100%;display:contents;">
+              <div style="display:flex;flex-direction:column;align-items:flex-end;min-width:0;max-width:100%;">
+                <div class="burbuja" x-text="m.texto"></div>
+                <div class="msg-hora" x-text="m.hora"></div>
+              </div>
             </div>
-          </div>
+          </template>
+
           <!-- Agente -->
-          <div x-show="msg.rol === 'agente'" style="display:flex;gap:10px;align-items:flex-start;">
-            <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
-              <svg style="width:14px;height:14px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-              </svg>
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                <span style="font-size:10px;font-weight:700;color:#a78bfa;" x-text="msg.agente || 'gem-orchestrator-core'"></span>
-                <span x-show="msg.ruta" class="badge badge-info" x-text="msg.ruta?.tipo_etiqueta"></span>
-                <span x-show="msg.ruta?.automatico" class="badge badge-done">Auto</span>
-                <span style="font-size:10px;color:#4a5080;" x-text="msg.hora"></span>
+          <template x-if="m.rol === 'agente'">
+            <div style="display:contents;">
+              <div class="avatar" aria-hidden="true">
+                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
               </div>
-              <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:4px 12px 12px 12px;padding:12px 14px;">
-                <!-- Muestra respuesta estructurada o texto plano -->
-                <template x-if="typeof msg.resultado === 'object' && msg.resultado !== null">
-                  <div>
-                    <!-- La respuesta primero y bien legible; el resto, plegado -->
-                    <p x-show="msg.resultado.respuesta" style="font-size:13px;color:#e8ecff;margin:0 0 10px;line-height:1.7;white-space:pre-wrap;" x-text="msg.resultado.respuesta"></p>
-                    <details x-show="Object.keys(msg.resultado).some(k => k !== 'respuesta')">
-                      <summary style="font-size:11px;color:#7880b0;cursor:pointer;">Ver el detalle</summary>
-                      <template x-for="[k, v] in Object.entries(msg.resultado).filter(([k]) => k !== 'respuesta')" :key="k">
-                        <div style="margin-top:8px;" x-show="v && String(v).trim()">
-                          <p style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4a5080;margin:0 0 3px;" x-text="k"></p>
-                          <p style="font-size:12px;color:#c8d0f0;margin:0;line-height:1.6;white-space:pre-wrap;" x-text="typeof v === 'object' ? JSON.stringify(v, null, 2) : v"></p>
-                        </div>
-                      </template>
-                    </details>
-                  </div>
-                </template>
-                <template x-if="typeof msg.resultado !== 'object' || msg.resultado === null">
-                  <p style="font-size:12px;color:#c8d0f0;margin:0;line-height:1.6;white-space:pre-wrap;">
-                    <span x-text="msg.texto"></span><span x-show="msg.streaming" style="display:inline-block;width:2px;height:13px;background:#a78bfa;margin-left:2px;animation:blink-cursor .7s step-end infinite;vertical-align:text-bottom;"></span>
-                  </p>
-                </template>
-              </div>
-              <!-- Fuentes: vídeos de origen de lo que cita el agente -->
-              <div x-show="msg.fuentes && msg.fuentes.length" style="margin-top:8px;">
-                <p style="font-size:10px;font-weight:700;color:#4a5080;margin:0 0 4px;letter-spacing:.5px;">FUENTES</p>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                  <template x-for="f in (msg.fuentes || [])" :key="f.n">
-                    <a :href="f.url" target="_blank" rel="noopener"
-                       style="display:flex;gap:8px;align-items:baseline;font-size:11px;color:#7880b0;text-decoration:none;padding:5px 8px;background:#08091a;border:1px solid #1a1d35;border-radius:6px;">
-                      <span style="color:#22d3ee;font-weight:700;" x-text="'[' + f.n + ']'"></span>
-                      <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-                            x-text="f.titulo + ' · ' + f.canal + ' · ' + (f.video_title || 'vídeo')"></span>
-                      <span style="margin-left:auto;color:#4a5080;">↗</span>
+              <div class="cuerpo">
+                <div class="burbuja">
+                  <div x-show="m.esperando" class="escribiendo" role="status" aria-label="El agente está escribiendo"><span></span><span></span><span></span></div>
+                  <div x-show="!m.esperando" x-html="formato(m)"></div>
+                </div>
+                <div class="msg-meta" x-show="!m.streaming">
+                  <span class="chip" x-show="m.ruta && !m.rapida" x-text="m.ruta?.tipo_etiqueta" :title="'Lo ha atendido ' + (m.ruta?.agente || '')"></span>
+                  <span class="chip tienda" x-show="m.conTienda">Con datos de tu tienda</span>
+                  <span x-show="m.confianza" x-text="'Confianza ' + (m.confianza || '').toLowerCase()"></span>
+                  <span x-text="m.hora"></span>
+                  <span x-show="m.detenida">· detenida</span>
+                  <button type="button" @click="copiar(m)">Copiar</button>
+                  <button type="button" x-show="m.fuentes && m.fuentes.length" @click="m.verFuentes = !m.verFuentes" :aria-expanded="!!m.verFuentes"
+                          x-text="(m.verFuentes ? 'Ocultar fuentes' : 'Fuentes') + ' (' + (m.fuentes || []).length + ')'"></button>
+                  <button type="button" x-show="m.datos && m.datos.length" @click="m.verDatos = !m.verDatos" :aria-expanded="!!m.verDatos"
+                          x-text="m.verDatos ? 'Ocultar datos' : 'Ver datos'"></button>
+                </div>
+                <!-- Fuentes: los vídeos de donde sale lo que cita -->
+                <div class="msg-extra" x-show="m.verFuentes && m.fuentes && m.fuentes.length">
+                  <template x-for="f in (m.fuentes || [])" :key="f.n">
+                    <a class="fuente" :href="f.url || null" target="_blank" rel="noopener">
+                      <b x-text="f.n"></b>
+                      <span x-text="f.titulo + ' · ' + f.canal + (f.video_title ? ' · ' + f.video_title : '')"></span>
+                      <em x-show="f.url" aria-hidden="true">↗</em>
                     </a>
+                  </template>
+                </div>
+                <!-- Datos de apoyo, legibles -->
+                <div class="msg-extra" x-show="m.verDatos && m.datos && m.datos.length">
+                  <template x-for="(b, bi) in (m.datos || [])" :key="bi">
+                    <div class="datos-bloque">
+                      <p class="datos-tit" x-text="b.titulo"></p>
+                      <dl style="margin:0;">
+                        <template x-for="(f, fi) in b.filas" :key="fi">
+                          <div class="datos-fila"><dt x-text="f[0]"></dt><dd x-text="f[1]"></dd></div>
+                        </template>
+                      </dl>
+                    </div>
                   </template>
                 </div>
               </div>
             </div>
-          </div>
-          <!-- Error -->
-          <div x-show="msg.rol === 'error'" style="display:flex;gap:10px;align-items:flex-start;">
-            <div style="background:#0d0f1f;border:1px solid rgba(251,113,133,0.3);border-radius:8px;padding:10px 14px;flex:1;">
-              <p style="font-size:11px;color:#fb7185;margin:0;" x-text="'⚠ ' + msg.texto"></p>
+          </template>
+
+          <!-- No ha podido contestar -->
+          <template x-if="m.rol === 'error'">
+            <div style="display:contents;">
+              <div class="avatar" aria-hidden="true">
+                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+              </div>
+              <div class="cuerpo">
+                <div class="burbuja" role="alert" x-text="m.texto"></div>
+                <div class="msg-meta">
+                  <span x-text="m.hora"></span>
+                  <button type="button" x-show="m.pregunta" @click="reintentar(m)" :disabled="cargando">Reintentar</button>
+                </div>
+              </div>
             </div>
-          </div>
+          </template>
+
         </div>
       </template>
-
-      <!-- Typing indicator -->
-      <div x-show="cargando" style="display:flex;gap:10px;align-items:center;">
-        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg style="width:14px;height:14px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
-        </div>
-        <div style="background:#0d0f1f;border:1px solid #1a1d35;border-radius:4px 12px 12px 12px;padding:10px 16px;display:flex;gap:4px;align-items:center;">
-          <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:dot-bounce 1.2s ease-in-out infinite;" ></span>
-          <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:dot-bounce 1.2s ease-in-out 0.2s infinite;"></span>
-          <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:dot-bounce 1.2s ease-in-out 0.4s infinite;"></span>
-        </div>
-      </div>
-
     </div>
 
-    <!-- Input area -->
-    <div style="border-top:1px solid #1a1d35;padding:16px 20px;background:#0d0f1f;">
-      <div style="display:flex;gap:10px;align-items:flex-end;">
-        <div style="flex:1;">
-          <!-- Agente detectado en vivo -->
-          <p x-show="pregunta.trim() && ruta" x-cloak role="status"
-             style="font-size:11px;margin:0 0 6px;color:#7880b0;">
-            <span x-text="agenteSeleccionado === 'auto' ? 'Se enviará a ' : 'Agente fijado: '"></span>
-            <strong style="color:#a78bfa;" x-text="ruta?.agente"></strong>
-            <span> · </span><span style="color:#22d3ee;" x-text="ruta?.tipo_etiqueta"></span>
-            <span x-show="agenteSeleccionado !== 'auto' && ruta?.sugerido && ruta.sugerido !== ruta.agente" style="color:#fbbf24;">
-              · esta pregunta encaja mejor con <span x-text="ruta?.sugerido"></span>
-              <button type="button" @click="agenteSeleccionado = 'auto'; detectar()" class="btn-ghost" style="font-size:10px;padding:2px 8px;margin-left:4px;">Usar automático</button>
-            </span>
-          </p>
-          <textarea
-            x-model="pregunta"
-            @input.debounce.350ms="detectar()"
-            @keydown.enter.prevent="if(!$event.shiftKey) enviar()"
-            placeholder="Escribe tu consulta... (Enter para enviar, Shift+Enter para nueva línea)"
-            aria-label="Pregunta para el agente"
-            rows="2"
-            :disabled="cargando"
-            class="input-field"
-            style="resize:none;line-height:1.5;"></textarea>
-        </div>
-        <button @click="enviar()" :disabled="cargando || !pregunta.trim()" class="btn-primary" style="height:52px;padding:0 20px;white-space:nowrap;">
-          <svg x-show="!cargando" style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-          </svg>
-          <svg x-show="cargando" class="spin" style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          <span x-text="cargando ? 'Consultando...' : 'Consultar'"></span>
+    <!-- Entrada -->
+    <form class="chat-input" @submit.prevent="enviar()">
+      <div class="chat-input-fila">
+        <textarea x-ref="entrada" x-model="pregunta" rows="1" class="input-field" maxlength="2000"
+                  placeholder="Escribe tu mensaje…" aria-label="Mensaje para el agente"
+                  @input="ajustar(); detectarLuego()"
+                  @keydown.enter="if (!$event.shiftKey && !$event.isComposing) { $event.preventDefault(); enviar(); }"></textarea>
+        <button type="submit" x-show="!cargando" class="btn-primary chat-enviar" :disabled="!pregunta.trim()" aria-label="Enviar mensaje">
+          <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          <span>Enviar</span>
+        </button>
+        <button type="button" x-show="cargando" x-cloak class="btn-ghost chat-parar" @click="detener()" aria-label="Detener la respuesta">
+          <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+          <span>Detener</span>
         </button>
       </div>
-      <p style="font-size:10px;color:#4a5080;margin:6px 0 0;">
-        El agente recibe automáticamente los últimos <span style="color:#a78bfa;" x-text="kbCount"></span> insights de la KB como contexto.
-        · Modelo: <span style="color:#22d3ee;" x-text="modeloActivo"></span> (<span x-text="ruta?.agente || 'se elige al preguntar'"></span>)
-      </p>
-    </div>
-  </div>
+      <div class="chat-pie">
+        <label>Responde
+          <select x-model="agenteSel" @change="detectar()" aria-label="Quién responde">
+            <option value="auto">Automático</option>
+            <template x-for="a in agentes" :key="a.nombre">
+              <option :value="a.nombre" x-text="a.rol" :title="a.descripcion"></option>
+            </template>
+          </select>
+        </label>
+        <span class="ruta" x-show="pregunta.trim() && ruta" x-cloak role="status">
+          <span x-text="agenteSel === 'auto' ? 'Lo atenderá ' : 'Fijado: '"></span><strong x-text="ruta?.rol || ruta?.agente"></strong>
+          <span x-text="' · ' + (ruta?.tipo_etiqueta || '')"></span>
+          <template x-if="agenteSel !== 'auto' && ruta?.sugerido && ruta.sugerido !== ruta.agente">
+            <span style="color:#fbbf24;"> · encaja mejor con otro agente
+              <button type="button" @click="agenteSel = 'auto'; detectar()" style="background:none;border:0;color:#22d3ee;cursor:pointer;font-size:11px;padding:0 0 0 4px;">usar automático</button>
+            </span>
+          </template>
+        </span>
+        <span class="atajo"><kbd>Enter</kbd> envía · <kbd>Mayús</kbd>+<kbd>Enter</kbd> salto de línea</span>
+      </div>
+    </form>
+  </section>
 
 </div>
 
-<style>
-@keyframes dot-bounce {
-  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-  40% { transform: translateY(-4px); opacity: 1; }
-}
-@keyframes blink-cursor {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-</style>
-
 <script>
-function agente() {
+const CHAT_CLAVE = 'gemos.agente.chat.v1';
+
+// Texto del agente → HTML. Primero se escapa TODO; después solo se añaden etiquetas fijas
+// (párrafos, listas, negrita y las citas [n]), así que nada de lo que escriba el modelo se ejecuta.
+function chatEscapar(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function chatEnLinea(texto, fuentes) {
+  let h = chatEscapar(texto);
+  h = h.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  return h.replace(/\[(\d{1,2})\]/g, (todo, n) => {
+    const f = (fuentes || []).find(x => String(x.n) === n);
+    if (f && /^https:\/\/www\.youtube\.com\/watch\?v=[\w-]+$/.test(f.url || '')) {
+      return `<a class="cita" href="${chatEscapar(f.url)}" target="_blank" rel="noopener" title="${chatEscapar(f.titulo + ' · ' + f.canal)}" aria-label="Fuente ${n}">${n}</a>`;
+    }
+    return `<span class="cita">${n}</span>`;
+  });
+}
+function chatAHtml(texto, fuentes) {
+  let html = '', lista = null, parrafo = [];
+  const cerrarP = () => { if (parrafo.length) { html += '<p>' + parrafo.join('<br>') + '</p>'; parrafo = []; } };
+  const cerrarL = () => { if (lista) { html += `</${lista}>`; lista = null; } };
+  for (const cruda of String(texto || '').replace(/\r/g, '').split('\n')) {
+    const l = cruda.trim();
+    if (!l) { cerrarP(); cerrarL(); continue; }
+    const v = l.match(/^[-•*]\s+(.*)$/), o = l.match(/^(\d{1,2})[.)]\s+(.*)$/), t = l.match(/^#{1,4}\s+(.*)$/);
+    if (v || o) {
+      cerrarP();
+      const tipo = v ? 'ul' : 'ol';
+      if (lista !== tipo) { cerrarL(); html += `<${tipo}>`; lista = tipo; }
+      html += '<li>' + chatEnLinea(v ? v[1] : o[2], fuentes) + '</li>';
+    } else if (t) {
+      cerrarP(); cerrarL(); html += '<p class="tit">' + chatEnLinea(t[1], fuentes) + '</p>';
+    } else {
+      cerrarL(); parrafo.push(chatEnLinea(l, fuentes));
+    }
+  }
+  cerrarP(); cerrarL();
+  return html;
+}
+
+function agenteChat() {
   return {
     pregunta: '',
-    agenteSeleccionado: 'auto',
-    agentes: [],          // [{nombre, rol, modelo, ...}] desde /api/kb/agentes
-    ruta: null,           // última clasificación {agente, tipo_etiqueta, ...}
-    historial: [],
+    agenteSel: 'auto',
+    agentes: [],           // [{nombre, rol, descripcion, modelo}] desde /api/kb/agentes
+    ruta: null,            // quién atendería lo que se está escribiendo
+    mensajes: [],          // {id, rol: user|agente|error, texto, hora, …}
     cargando: false,
     kbCount: 0,
-    quickPrompts: [
-      '¿Qué productos HOT han aparecido en la KB?',
-      '¿Cuáles son las mejores fórmulas de conversión registradas?',
-      '¿Qué estrategias de tráfico menciona la base de conocimiento?',
-      'Dame un resumen de las últimas tendencias de producto',
+    seq: 0,
+    _abort: null,
+    _temp: null,
+    sugerencias: [
+      { tema: 'Tu tienda', texto: '¿Cómo va mi tienda este mes?' },
+      { tema: 'Productos', texto: '¿Qué productos recomiendan mis mentores ahora mismo?' },
+      { tema: 'Cuentas', texto: 'Coste 6 $, envío 2 $ y lo vendo a 24 $: ¿cumple las reglas?' },
+      { tema: 'Creativos', texto: '¿Qué hooks de TikTok funcionan según la KB?' },
     ],
-    // Modelo REAL configurado en el motor para el agente que atenderá la pregunta
-    get modeloActivo() {
-      const nombre = this.ruta?.agente || (this.agenteSeleccionado !== 'auto' ? this.agenteSeleccionado : null);
-      const a = this.agentes.find(x => x.nombre === nombre) || this.agentes[0];
-      return a ? a.modelo.split('/').pop() : '—';
+
+    async init() {
+      this.restaurar();
+      this.alFinal(true);
+      this.$nextTick(() => this.$refs.entrada?.focus());
+      try { this.kbCount = (await (await fetch('/api/metrics')).json()).kb_count || 0; } catch (e) {}
+      try { const r = await fetch('/api/kb/agentes'); if (r.ok) this.agentes = await r.json(); } catch (e) {}
     },
+
+    // ── utilidades ──
+    hora() { return new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); },
+    formato(m) {
+      let html = chatAHtml(m.texto, m.fuentes);
+      if (m.streaming) {
+        const cursor = '<span class="cursor"></span>';
+        html = /<\/(p|li)>(<\/(ul|ol)>)?$/.test(html) ? html.replace(/(<\/(p|li)>)((<\/(ul|ol)>)?)$/, cursor + '$1$3') : html + cursor;
+      }
+      return html;
+    },
+    ajustar() {
+      const el = this.$refs.entrada;
+      if (!el) return;
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight + 2, 168) + 'px';
+    },
+    alFinal(forzar = false) {
+      this.$nextTick(() => {
+        const el = document.getElementById('chat-msgs');
+        if (!el) return;
+        // Solo sigue el texto si ya estabas abajo: no te arranca de lo que estés releyendo
+        if (forzar || el.scrollHeight - el.scrollTop - el.clientHeight < 140) el.scrollTop = el.scrollHeight;
+      });
+    },
+    guardar() {
+      try {
+        const limpios = this.mensajes.filter(m => !m.streaming && m.texto).slice(-80)
+          .map(({ esperando, streaming, ...resto }) => resto);
+        localStorage.setItem(CHAT_CLAVE, JSON.stringify(limpios));
+      } catch (e) { /* almacenamiento lleno o bloqueado: la conversación sigue en pantalla */ }
+    },
+    restaurar() {
+      try {
+        const guardados = JSON.parse(localStorage.getItem(CHAT_CLAVE) || '[]');
+        if (Array.isArray(guardados)) {
+          this.mensajes = guardados.filter(m => m && m.id && m.rol && m.texto);
+          this.seq = this.mensajes.reduce((mx, m) => Math.max(mx, m.id), 0);
+        }
+      } catch (e) { this.mensajes = []; }
+    },
+    nueva() {
+      if (this.cargando) return;
+      this.mensajes = [];
+      this.ruta = null;
+      try { localStorage.removeItem(CHAT_CLAVE); } catch (e) {}
+      this.$nextTick(() => this.$refs.entrada?.focus());
+    },
+    async copiar(m) {
+      try {
+        await navigator.clipboard.writeText(m.texto);
+        Alpine.store('toast').ok('Respuesta copiada.');
+      } catch (e) { Alpine.store('toast').error('No se pudo copiar: selecciona el texto y usa Ctrl+C.'); }
+    },
+
+    // ── quién atendería lo que se escribe ──
+    detectarLuego() { clearTimeout(this._temp); this._temp = setTimeout(() => this.detectar(), 350); },
     async detectar() {
       const q = this.pregunta.trim();
       if (!q) { this.ruta = null; return; }
       try {
-        const r = await fetch('/api/kb/ruta?pregunta=' + encodeURIComponent(q) + '&agente=' + encodeURIComponent(this.agenteSeleccionado));
-        if (r.ok) this.ruta = await r.json();
+        const r = await fetch('/api/kb/ruta?pregunta=' + encodeURIComponent(q) + '&agente=' + encodeURIComponent(this.agenteSel));
+        if (r.ok && this.pregunta.trim() === q) this.ruta = await r.json();
       } catch (e) { /* el aviso es opcional */ }
     },
-    hora() {
-      return new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+    // ── conversación ──
+    detener() { if (this._abort) this._abort.abort(); },
+    reintentar(m) {
+      if (this.cargando || !m.pregunta) return;
+      const i = this.mensajes.findIndex(x => x.id === m.id);
+      if (i < 0) return;
+      // Quita el aviso y la pregunta que lo provocó: enviar() la vuelve a poner
+      const desde = i > 0 && this.mensajes[i - 1].rol === 'user' ? i - 1 : i;
+      this.mensajes.splice(desde, i - desde + 1);
+      this.enviar(m.pregunta);
     },
-    async init() {
-      try {
-        const r = await fetch('/api/metrics');
-        const d = await r.json();
-        this.kbCount = d.kb_count || 0;
-      } catch(e) {}
-      try {
-        const r = await fetch('/api/kb/agentes');
-        if (r.ok) this.agentes = await r.json();
-      } catch(e) {}
+    fallo(msg, texto, q) {
+      Object.assign(msg, { rol: 'error', texto, pregunta: q, esperando: false, streaming: false });
     },
-    scrollToBottom() {
-      this.$nextTick(() => {
-        const el = document.getElementById('chat-msgs');
-        if (el) el.scrollTop = el.scrollHeight;
-      });
-    },
-    async enviar() {
-      const q = this.pregunta.trim();
-      if (!q || this.cargando) return;
-      this.historial.push({ rol: 'user', texto: q, hora: this.hora() });
-      this.pregunta = '';
-      this.cargando = true;
-      this.scrollToBottom();
-
-      // Placeholder de respuesta en streaming
-      const idx = this.historial.length;
-      this.historial.push({ rol: 'agente', texto: '', resultado: null, agente: this.ruta?.agente || this.agenteSeleccionado, ruta: this.ruta, hora: this.hora(), streaming: true });
-      this.scrollToBottom();
-
-      try {
-        const url = `/api/kb/stream?pregunta=${encodeURIComponent(q)}&agente=${encodeURIComponent(this.agenteSeleccionado)}`;
-        const sse = new EventSource(url);
-        let buffer = '';
-
-        sse.onmessage = (e) => {
-          try {
-            const d = JSON.parse(e.data);
-            if (d.route) {                      // el servidor confirma qué agente atiende
-              this.ruta = d.route;
-              this.historial[idx].agente = d.route.agente;
-              this.historial[idx].ruta = d.route;
-            }
-            if (d.token) {
-              buffer += d.token;
-              this.historial[idx].texto = buffer;
-              this.scrollToBottom();
-            }
-            if (d.done) {
-              sse.close();
-              this.cargando = false;
-              this.historial[idx].streaming = false;
-              this.historial[idx].fuentes = d.fuentes || [];
-              // Intentar parsear JSON final
-              try {
-                const parsed = JSON.parse(d.raw || buffer);
-                this.historial[idx].resultado = parsed;
-                this.historial[idx].texto = parsed.respuesta || parsed.output || buffer;
-              } catch {}
-              this.scrollToBottom();
-            }
-            if (d.error) {
-              sse.close();
-              this.cargando = false;
-              this.historial[idx] = { rol: 'error', texto: d.error, hora: this.hora() };
-              this.scrollToBottom();
-            }
-          } catch {}
-        };
-
-        sse.onerror = () => {
-          sse.close();
-          if (this.cargando) {
-            this.cargando = false;
-            if (!buffer) {
-              this.historial[idx] = { rol: 'error', texto: 'Error de conexión SSE', hora: this.hora() };
-            } else {
-              this.historial[idx].streaming = false;
-            }
-            this.scrollToBottom();
-          }
-        };
-      } catch(e) {
-        this.cargando = false;
-        this.historial[idx] = { rol: 'error', texto: 'Error: ' + e.message, hora: this.hora() };
-        this.scrollToBottom();
+    evento(msg, d, q) {
+      if (d.route) msg.ruta = d.route;
+      if (d.token) { msg.esperando = false; msg.texto += d.token; this.alFinal(); }
+      if (d.done) {
+        Object.assign(msg, {
+          texto: d.texto || msg.texto, ruta: d.ruta || msg.ruta, fuentes: d.fuentes || [], datos: d.datos || [],
+          confianza: d.confianza || null, conTienda: !!d.con_tienda, rapida: !!d.rapida,
+          esperando: false, streaming: false,
+        });
+        this.alFinal();
       }
-    }
-  }
+      if (d.error) this.fallo(msg, d.error, q);
+    },
+    async enviar(directa) {
+      const q = (typeof directa === 'string' ? directa : this.pregunta).trim();
+      if (!q || this.cargando) return;
+      // Lo que el agente recuerda: los últimos turnos ya terminados
+      const historial = this.mensajes.filter(m => m.rol !== 'error' && m.texto).slice(-6)
+        .map(m => ({ rol: m.rol, texto: m.texto }));
+      this.mensajes.push({ id: ++this.seq, rol: 'user', texto: q, hora: this.hora() });
+      this.mensajes.push({ id: ++this.seq, rol: 'agente', texto: '', hora: this.hora(), ruta: null, fuentes: [], datos: [],
+                           confianza: null, conTienda: false, rapida: false, esperando: true, streaming: true,
+                           verFuentes: false, verDatos: false, detenida: false });
+      const msg = this.mensajes[this.mensajes.length - 1];
+      if (typeof directa !== 'string') { this.pregunta = ''; this.ruta = null; }
+      this.cargando = true;
+      this.$nextTick(() => this.ajustar());
+      this.alFinal(true);
+      this._abort = new AbortController();
+      try {
+        const r = await fetch('/api/kb/chat', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: this._abort.signal,
+          body: JSON.stringify({ pregunta: q, agente: this.agenteSel, historial }),
+        });
+        if (r.status === 401) throw new Error('Tu sesión ha caducado. Recarga la página y vuelve a entrar.');
+        if (!r.ok || !r.body) {
+          let detalle = '';
+          try { detalle = (await r.json()).detail || ''; } catch (e) {}
+          throw new Error(detalle || ('El servidor ha respondido con un error (' + r.status + ').'));
+        }
+        const lector = r.body.getReader(), deco = new TextDecoder();
+        let buf = '';
+        while (true) {
+          const { value, done } = await lector.read();
+          if (done) break;
+          buf += deco.decode(value, { stream: true });
+          let corte;
+          while ((corte = buf.indexOf('\n\n')) >= 0) {
+            const bloque = buf.slice(0, corte);
+            buf = buf.slice(corte + 2);
+            for (const linea of bloque.split('\n')) {
+              if (!linea.startsWith('data: ')) continue;
+              try { this.evento(msg, JSON.parse(linea.slice(6)), q); } catch (e) { /* evento incompleto */ }
+            }
+          }
+        }
+        if (msg.rol === 'agente' && msg.streaming) {           // se cortó sin llegar al final
+          if (msg.texto) Object.assign(msg, { streaming: false, esperando: false });
+          else this.fallo(msg, 'La respuesta se ha cortado antes de llegar. Vuelve a intentarlo.', q);
+        }
+      } catch (e) {
+        if (e.name === 'AbortError') {
+          if (msg.texto) Object.assign(msg, { streaming: false, esperando: false, detenida: true });
+          else this.mensajes.splice(this.mensajes.findIndex(x => x.id === msg.id), 1);
+        } else {
+          this.fallo(msg, e instanceof TypeError
+            ? 'No consigo hablar con el servidor de GEM OS. Comprueba que sigue en marcha y vuelve a intentarlo.'
+            : e.message, q);
+        }
+      } finally {
+        this.cargando = false;
+        this._abort = null;
+        this.guardar();
+        this.alFinal();
+        this.$nextTick(() => this.$refs.entrada?.focus());
+      }
+    },
+  };
 }
 </script>
 {% endblock %}

@@ -1188,7 +1188,7 @@ def _build_kb_context(limit: int = 30) -> str:
 async def api_kb_ruta(pregunta: str = Query("", max_length=2000),
                       agente: str = "auto") -> Dict[str, Any]:
     """Qué agente atenderá la pregunta y por qué (se muestra en vivo mientras se escribe)."""
-    return agent_router.elegir_agente(pregunta, agente)
+    return agent_chat.elegir_ruta(pregunta, agente)
 
 
 @app.get("/api/kb/agentes")
