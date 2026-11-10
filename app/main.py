@@ -25,6 +25,7 @@ from app.ui.components.negocio_panel import NegocioPanel
 from app.ui.components.insights_panel import InsightsPanel
 from app.ui.components.sistema_panel import SistemaPanel
 from app.ui.components.imagenes_panel import ImagenesPanel
+from app.ui.components.propuestas_panel import PropuestasPanel
 from app.database.connection import DatabaseConnection
 from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 from app.ui.themes.jack_styles import apply_jack_styles
