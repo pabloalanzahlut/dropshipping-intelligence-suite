@@ -116,14 +116,17 @@ def job_daily_report() -> None:
         db_path = os.getenv("DATABASE_PATH", "app/database/dropshipping_suite.db")
         today = datetime.utcnow().date().isoformat()
 
+        # «clasificación» real vive en `productos` (migración 17), escrita por
+        # `product_catalog.mover()` al pasar a «clasificado» — nunca en `product_trends`,
+        # que no tiene datos de coste/PVP para calcular el multiplicador.
         conn = sqlite3.connect(db_path)
         hot = conn.execute(
-            "SELECT COUNT(*) FROM product_trends WHERE clasificacion LIKE '%HOT%' "
-            "AND DATE(clasificado_at) = ?", (today,)
+            "SELECT COUNT(*) FROM productos WHERE clasificacion = 'HOT' "
+            "AND DATE(actualizado_at) = ?", (today,)
         ).fetchone()[0]
         warm = conn.execute(
-            "SELECT COUNT(*) FROM product_trends WHERE clasificacion LIKE '%WARM%' "
-            "AND DATE(clasificado_at) = ?", (today,)
+            "SELECT COUNT(*) FROM productos WHERE clasificacion = 'WARM' "
+            "AND DATE(actualizado_at) = ?", (today,)
         ).fetchone()[0]
         conn.close()
 
