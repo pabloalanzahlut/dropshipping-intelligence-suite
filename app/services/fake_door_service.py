@@ -81,6 +81,22 @@ def registrar_evento(db_path: str, producto_id: int, tipo: str, slug: str = "",
         return False
 
 
+def _concentracion_visitas(conn: sqlite3.Connection, producto_id: int) -> float:
+    """Proporción de visitas que vienen del `ip_hash` más repetido — una concentración alta
+    (ej. 80 %+ desde una sola IP) avisa de que la muestra no es representativa, aunque el
+    CTR en sí no cambie."""
+    filas = conn.execute(
+        "SELECT ip_hash, COUNT(*) AS n FROM fake_door_eventos "
+        "WHERE producto_id = ? AND tipo = 'visita' AND ip_hash IS NOT NULL "
+        "GROUP BY ip_hash ORDER BY n DESC LIMIT 1", (producto_id,)).fetchone()
+    total = conn.execute(
+        "SELECT COUNT(*) AS n FROM fake_door_eventos WHERE producto_id = ? AND tipo = 'visita'",
+        (producto_id,)).fetchone()["n"]
+    if not total or not filas:
+        return 0.0
+    return round(filas["n"] / total, 4)
+
+
 def resumen_producto(db_path: str, producto_id: int) -> Dict[str, Any]:
     with _db(db_path) as conn:
         fila = conn.execute(
@@ -89,11 +105,13 @@ def resumen_producto(db_path: str, producto_id: int) -> Dict[str, Any]:
             "SUM(CASE WHEN tipo='clic_comprar' THEN 1 ELSE 0 END) AS clics_comprar, "
             "SUM(CASE WHEN tipo='email' THEN 1 ELSE 0 END) AS emails "
             "FROM fake_door_eventos WHERE producto_id = ?", (producto_id,)).fetchone()
+        concentracion = _concentracion_visitas(conn, producto_id)
     visitas = fila["visitas"] or 0
     clics = fila["clics_comprar"] or 0
     emails = fila["emails"] or 0
     ctr = round(clics / visitas, 4) if visitas else 0.0
-    return {"producto_id": producto_id, "visitas": visitas, "clics_comprar": clics, "emails": emails, "ctr": ctr}
+    return {"producto_id": producto_id, "visitas": visitas, "clics_comprar": clics, "emails": emails,
+            "ctr": ctr, "concentracion": concentracion}
 
 
 def resumen_global(db_path: str) -> List[Dict[str, Any]]:
