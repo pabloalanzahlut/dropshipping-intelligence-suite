@@ -34,7 +34,11 @@
 
   .msg { display: flex; gap: 10px; align-items: flex-start; }
   .msg-user { justify-content: flex-end; }
-  .burbuja { border-radius: 14px; padding: 11px 15px; font-size: 13.5px; line-height: 1.65; overflow-wrap: anywhere; }
+  /* overflow-wrap:break-word (no "anywhere"): "anywhere" cuenta como si cualquier letra pudiera
+     partir la línea también para el cálculo del ancho mínimo, así que dentro de un flex en columna
+     (la burbuja del usuario) el navegador encoge la caja al ancho de una sola letra y el texto corto
+     queda partido letra a letra. "break-word" evita ese cálculo y solo parte palabras largas (URLs) */
+  .burbuja { border-radius: 14px; padding: 11px 15px; font-size: 13.5px; line-height: 1.65; overflow-wrap: break-word; }
   .msg-user .burbuja { max-width: min(72%, 620px); background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(34,211,238,.10)); border: 1px solid rgba(167,139,250,.28); color: #e8ecff; border-bottom-right-radius: 4px; white-space: pre-wrap; }
   .msg-hora { font-size: 10px; color: #4a5080; margin: 4px 4px 0; text-align: right; }
   .avatar { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; color: #fff; }
@@ -71,7 +75,7 @@
   .datos-bloque { background: #0d0f1f; border: 1px solid #1a1d35; border-radius: 8px; padding: 10px 12px; }
   .datos-tit { font-size: 12px; font-weight: 600; color: #e8ecff; margin: 0 0 6px; }
   .datos-fila { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; border-top: 1px solid rgba(26,29,53,.7); font-size: 11.5px; }
-  .datos-fila dt { color: #7880b0; } .datos-fila dd { margin: 0; color: #d7dcf5; text-align: right; overflow-wrap: anywhere; }
+  .datos-fila dt { color: #7880b0; } .datos-fila dd { margin: 0; color: #d7dcf5; text-align: right; overflow-wrap: break-word; }
 
   .chat-input { border-top: 1px solid #1a1d35; background: #0d0f1f; padding: 14px 16px 10px; }
   .chat-input-fila { display: flex; gap: 10px; align-items: flex-end; }
