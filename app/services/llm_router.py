@@ -59,6 +59,7 @@ TASK_MODEL_MAP = {
     # ── Razonamiento complejo ────────────────────────────────────────────────
     "investigar_nicho":      MODEL_ROUTING["reasoning"],
     "analizar_competencia":  MODEL_ROUTING["reasoning"],
+    "refutar_producto":      MODEL_ROUTING["reasoning"],   # 8 ángulos adversariales — no es volumen
 }
 
 
