@@ -302,6 +302,13 @@ async def lifespan(app: FastAPI):
                 id="shopify_sync", max_instances=1, misfire_grace_time=600, replace_existing=True,
                 next_run_time=datetime.now() + timedelta(minutes=3),
             )
+        # Candidatos de product_trends → catálogo de productos, cada 6h.
+        _scheduler.add_job(_scheduled_classify_products, "interval", hours=6, id="classify_products_auto",
+                           max_instances=1, misfire_grace_time=1800, replace_existing=True,
+                           next_run_time=datetime.now() + timedelta(minutes=5))
+        # Self-improve: propuestas de ajuste a las 03:00 (nunca aplica nada).
+        _scheduler.add_job(_scheduled_self_improve, "cron", hour=3, minute=0, id="self_improve_auto",
+                           replace_existing=True, misfire_grace_time=3 * 3600, coalesce=True)
         # Copia de seguridad diaria (03:30) y una al arrancar si la última tiene más de 24 h
         _scheduler.add_job(_scheduled_backup, "cron", hour=3, minute=30, id="backup_auto",
                            replace_existing=True, misfire_grace_time=3600)
