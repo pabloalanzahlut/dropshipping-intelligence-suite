@@ -221,6 +221,24 @@ class ProductosPanel(PanelBase):
         previas = p.get("refutaciones") or {}
         resultados: Dict[int, tk.StringVar] = {}
         datos: Dict[int, tk.StringVar] = {}
+
+        def generar_borrador() -> None:
+            def trabajo():
+                from app.services import refutacion_debate
+                return refutacion_debate.redactar_debate(self.db, p["id"])
+
+            def listo(resultado):
+                for item in resultado.get("refutaciones", []):
+                    n = item["numero"]
+                    resultados[n].set("" if item["veredicto"] == "sin_datos" else item["veredicto"])
+                    datos[n].set(item.get("evidencia", ""))
+                self.aviso("Borrador generado — revísalo antes de guardar." if resultado.get("generado")
+                          else "El modelo no respondió; revisa a mano.", "info")
+
+            self.en_hilo(trabajo, listo, lambda e: self.aviso(f"Error al generar el borrador: {e}", "error"))
+
+        boton(d.cuerpo, "🤖 Generar borrador", generar_borrador, COLOR_PRIMARY).pack(anchor="w", pady=(0, 8))
+
         for n, texto in pc.REFUTACIONES.items():
             marco = tk.Frame(d.cuerpo, bg=BG_CARD)
             marco.pack(fill=tk.X, pady=3)
