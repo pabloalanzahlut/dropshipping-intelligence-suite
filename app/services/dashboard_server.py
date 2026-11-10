@@ -616,6 +616,21 @@ async def transcripciones_page(request: Request):
     return _render(request, "transcripciones.html")
 
 
+@app.get("/gobernanza", response_class=HTMLResponse)
+async def gobernanza_page(request: Request):
+    return _render(request, "gobernanza.html")
+
+
+@app.get("/enrutador", response_class=HTMLResponse)
+async def enrutador_page(request: Request):
+    return _render(request, "enrutador.html")
+
+
+@app.get("/configuracion", response_class=HTMLResponse)
+async def configuracion_page(request: Request):
+    return _render(request, "configuracion.html")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # API — MÉTRICAS Y ESTADO
 # ═══════════════════════════════════════════════════════════════════════════════
