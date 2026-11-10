@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Configuración{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Configuración</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="configuracion()" x-init="cargar()">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+      Configuración <span style="background:linear-gradient(90deg,#fbbf24,#fb7185);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">(solo lectura)</span>
+    </h1>
+    <p style="font-size:12px;color:#4a5080;margin:0;">
+      Esta pantalla solo muestra si cada clave está configurada — nunca el valor completo.
+      Para añadir o cambiar una clave, usa la app de escritorio (⚙️ Configuración).
+    </p>
+  </div>
+
+  <div x-show="error" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+    <p style="font-size:12px;color:#fb7185;margin:0;" x-text="error"></p>
+  </div>
+
+  <div class="card">
+    <table class="data-table" style="width:100%;">
+      <thead>
+        <tr>
+          <th style="text-align:left;">Clave / integración</th>
+          <th style="text-align:left;">Para qué se usa</th>
+          <th style="text-align:right;">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="(item, i) in items" :key="i">
+          <tr>
+            <td style="font-size:12px;color:#e8ecff;" x-text="item.nombre"></td>
+            <td style="font-size:11px;color:#7880b0;" x-text="item.para || '—'"></td>
+            <td style="text-align:right;">
+              <span :style="item.configurada ? 'color:#34d399' : 'color:#4a5080'" style="font-size:12px;font-weight:600;"
+                    x-text="item.configurada ? ('Configurada' + (item.ultimos4 ? ' (' + item.ultimos4 + ')' : '')) : 'Falta'"></span>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function configuracion() {
+  return {
+    items: [], error: '',
+    async cargar() {
+      this.error = '';
+      try {
+        const res = await fetch('/api/config/estado');
+        if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al cargar configuración.'; return; }
+        this.items = await res.json();
+      } catch(e) { this.error = 'Error de conexión con el servidor.'; }
+    }
+  }
+}
+</script>
+{% endblock %}
