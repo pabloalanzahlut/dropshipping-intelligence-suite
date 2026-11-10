@@ -87,50 +87,20 @@ def job_transcript_cleaner() -> None:
 
 def job_classify_products() -> None:
     """
-    Clasifica automáticamente productos nuevos en la KB: HOT / WARM / COLD.
-    Usa el LLM router → Claude Sonnet para clasificación crítica.
+    Evalúa candidatos nuevos de `product_trends` y promueve los prometedores al catálogo
+    de productos (`productos`, el pipeline de CLAUDE.md) o los descarta.
+
+    NOTA: esta lógica vive en `app/services/product_trends_promoter.py` desde que se
+    descubrió que esta función consultaba columnas que no existen en `product_trends`
+    (titulo, transcripcion_limpia, clasificacion — las reales son product_name, niche,
+    wow_factor, competitor_weaknesses) y por eso nunca llegó a funcionar. Además,
+    `dashboard_server.py` ya la ejecuta sola cada 6h dentro de su propio scheduler — este
+    job solo queda aquí para disparar el mismo trabajo a mano desde la CLI.
     """
     try:
-        from app.services.llm_router import chat
-
-        # Leer transcripciones no clasificadas desde la KB
-        import sqlite3
-        db_path = os.getenv("DATABASE_PATH", "app/database/dropshipping_suite.db")
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT id, titulo, transcripcion_limpia FROM product_trends "
-            "WHERE clasificacion IS NULL LIMIT 10"
-        )
-        rows = cursor.fetchall()
-        conn.close()
-
-        if not rows:
-            logger.info("[CLASSIFY] Sin productos pendientes de clasificación")
-            return
-
-        from app.services.validator_rules import SYSTEM_PROMPT_CLASIFICACION
-        classified = 0
-        for row_id, titulo, transcripcion in rows:
-            result = chat(
-                task="clasificar_producto",
-                system_prompt=SYSTEM_PROMPT_CLASIFICACION,
-                user_message=f"Título: {titulo}\n\nTranscripción:\n{transcripcion[:3000]}",
-                max_tokens=512,
-                temperature=0.0,
-            )
-            if result:
-                conn = sqlite3.connect(db_path)
-                conn.execute(
-                    "UPDATE product_trends SET clasificacion=?, clasificado_at=? WHERE id=?",
-                    (result[:50], datetime.utcnow().isoformat(), row_id),
-                )
-                conn.commit()
-                conn.close()
-                classified += 1
-
-        logger.info(f"[CLASSIFY] {classified}/{len(rows)} productos clasificados")
-
+        from app.services.product_trends_promoter import job_classify_products as _promover
+        resultado = _promover()
+        logger.info(f"[CLASSIFY] {resultado}")
     except Exception as e:
         logger.error(f"[CLASSIFY] {e}")
 
