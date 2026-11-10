@@ -1380,9 +1380,12 @@ async def api_producto_refutaciones(producto_id: int, body: RefutacionesIn) -> D
 @app.post("/api/productos/{producto_id}/refutaciones/borrador")
 async def api_producto_refutaciones_borrador(producto_id: int) -> Dict[str, Any]:
     """Borrador por IA de las 8 refutaciones — nunca se guarda solo; el humano lo revisa
-    y lo confirma con el PUT de arriba."""
+    y lo confirma con el PUT de arriba. Va a un hilo aparte: el LLM puede tardar bastante
+    y esto no debe congelar el resto de la web mientras responde."""
     from app.services import refutacion_debate
-    return _producto_o_error(lambda: refutacion_debate.redactar_debate(DB_PATH, producto_id))
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(
+        None, lambda: _producto_o_error(lambda: refutacion_debate.redactar_debate(DB_PATH, producto_id)))
 
 
 class HookMatrixIn(BaseModel):
@@ -1396,9 +1399,14 @@ async def api_producto_hook_matrix_generar(producto_id: int, body: HookMatrixIn)
     if not p:
         raise HTTPException(status_code=404, detail="Producto no encontrado.")
     contexto = body.angulo_contexto.strip() or f"{p['nombre']} ({p.get('categoria') or 'sin categoría'})"
-    resultado = hook_matrix_service.generar(contexto)
-    resultado["id"] = hook_matrix_service.guardar(DB_PATH, producto_id, resultado)
-    return resultado
+
+    def _trabajo():
+        resultado = hook_matrix_service.generar(contexto)
+        resultado["id"] = hook_matrix_service.guardar(DB_PATH, producto_id, resultado)
+        return resultado
+
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(None, _trabajo)
 
 
 @app.get("/api/productos/{producto_id}/hook-matrix")
