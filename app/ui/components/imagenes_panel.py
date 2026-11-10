@@ -110,8 +110,7 @@ class ImagenesPanel(PanelBase):
         if not ruta:
             return
         self._ruta_actual = Path(ruta)
-        self._lbl_archivo.config(text=self._ruta_actual.name, fg=self.cuerpo.winfo_toplevel().cget("bg"))
-        self._lbl_archivo.config(fg="#e8ecff")
+        self._lbl_archivo.config(text=self._ruta_actual.name, fg="#e8ecff")
         self._btn_procesar.config(state=tk.NORMAL)
         for w in self._resultado.winfo_children():
             w.destroy()
