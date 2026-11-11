@@ -1872,6 +1872,48 @@ async def api_nicho_detalle(investigacion_id: int) -> Dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# CANALES PAGADOS (Fase 6, opcional) — checklist estático + copy guiado por IA.
+# Sin integración de API en vivo con Google/TikTok/Amazon: solo checklist + copy.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/canales-pagados/checklist/{canal}")
+async def api_canal_checklist(canal: str) -> Dict[str, Any]:
+    from app.services import canal_checklist_service
+    try:
+        return {"canal": canal, "checklist": canal_checklist_service.checklist(canal)}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+class CanalGenerarIn(BaseModel):
+    canal: str
+    contexto_producto: str = ""
+    producto_id: Optional[int] = None
+
+
+@app.post("/api/canales-pagados/generar")
+async def api_canal_generar(body: CanalGenerarIn) -> Dict[str, Any]:
+    from app.services import canal_checklist_service
+
+    def _trabajo():
+        resultado = canal_checklist_service.generar(body.canal, body.contexto_producto)
+        resultado["id"] = canal_checklist_service.guardar(DB_PATH, body.producto_id, resultado)
+        return resultado
+
+    loop = asyncio.get_running_loop()
+    try:
+        return await loop.run_in_executor(None, _trabajo)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.get("/api/canales-pagados")
+async def api_canal_listar(canal: str = "", producto_id: Optional[int] = None) -> List[Dict[str, Any]]:
+    from app.services import canal_checklist_service
+    return canal_checklist_service.listar(DB_PATH, producto_id, canal)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # CENTRO DE ALERTAS Y RESUMEN DIARIO (automáticos, sin IA)
 # ═══════════════════════════════════════════════════════════════════════════════
 
