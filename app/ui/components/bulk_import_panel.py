@@ -7,12 +7,10 @@ mide sobre coste landed). Lo que falte se marca como DATA_GAP y no se crea nada 
 from __future__ import annotations
 
 import tkinter as tk
-from tkinter import ttk
 from typing import Any, Dict, List
 
 from app.ui.components.panel_kit import (
-    BG_CARD, BG_TERTIARY, COLOR_SUCCESS, FONT_BODY, PanelBase, TXT, TXT_2, boton, etiqueta, llenar_tabla, tabla,
-    tarjeta,
+    BG_CARD, BG_TERTIARY, COLOR_SUCCESS, FONT_BODY, PanelBase, TXT, boton, etiqueta, llenar_tabla, tabla, tarjeta,
 )
 
 COLUMNAS = ("Estado", "Plataforma", "URL", "PVP", "Borrador Shopify", "Detalle")
