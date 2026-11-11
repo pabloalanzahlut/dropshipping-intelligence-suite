@@ -229,10 +229,16 @@ async def lifespan(app: FastAPI):
         """Resumen del día (08:00)."""
         try:
             alerts.evaluar(DB_PATH, CHANNELS_JSON_PATH)
-            daily_brief.generar(DB_PATH, CHANNELS_JSON_PATH)
+            resumen = daily_brief.generar(DB_PATH, CHANNELS_JSON_PATH)
             log.info("[SERVER] Resumen diario generado.")
         except Exception as exc:
             log.warning(f"[SERVER] Resumen diario falló: {exc}")
+            return
+        try:
+            r = notifier.enviar_resumen(resumen)
+            log.info(f"[SERVER] Resumen diario enviado: ok={r.get('ok')}")
+        except Exception as exc:
+            log.warning(f"[SERVER] Envío del resumen falló: {exc}")
 
     def _scheduled_mantenimiento() -> None:
         """Domingo 04:00 (tras la copia de las 03:30): integridad, optimización, temporales, canales."""

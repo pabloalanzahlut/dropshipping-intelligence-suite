@@ -209,6 +209,28 @@ def enviar_pendientes(db_path: str, ahora: Optional[datetime] = None) -> Dict[st
         return {"enviadas": 0, "canales": resultado}
 
 
+def enviar_resumen(resumen: Dict[str, Any]) -> Dict[str, Any]:
+    """Empuja el resumen diario por los canales activos (Make y toast). Ignora nivel y silencio."""
+    cfg = configuracion()
+    if not cfg["habilitado"]:
+        return {"ok": False, "motivo": "avisos desactivados"}
+    prioridades = resumen.get("prioridades", [])
+    criticas = sum(1 for p in prioridades if p["nivel"] == "critico")
+    resultado: Dict[str, Dict[str, Any]] = {}
+    if cfg["windows"]["activo"]:
+        top = "; ".join(p["texto"] for p in prioridades[:2]) or "Sin urgencias."
+        resultado["windows"] = enviar_toast(f"Resumen GEM OS {resumen.get('fecha', '')}", top, "/resumen")
+    if cfg["make"]["activo"]:
+        resultado["make"] = enviar_webhook({
+            "origen": "GEM OS", "tipo": "resumen_diario", "fecha": resumen.get("fecha"),
+            "asunto": f"GEM OS resumen {resumen.get('fecha', '')}" + (f" · {criticas} CRÍTICA(S)" if criticas else ""),
+            "mensaje": resumen.get("texto", ""), "panel": _url_panel("/resumen"),
+        })
+    if not resultado:
+        return {"ok": False, "motivo": "sin canal activo"}
+    return {"ok": any(r["ok"] for r in resultado.values()), "canales": resultado}
+
+
 def enviar_prueba() -> Dict[str, Any]:
     """Aviso de prueba por los canales activos (ignora silencio y nivel)."""
     cfg = configuracion()
