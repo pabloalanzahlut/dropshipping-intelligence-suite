@@ -400,15 +400,44 @@ class ShopifyClient:
     def _rest(self, metodo: str, ruta: str, payload: Optional[dict] = None) -> dict:
         return _json(self._llamar(metodo, f"{self._base}{ruta}", payload))
 
+    MAX_OPCIONES = 3
+    MAX_VARIANTES = 100
+
+    @classmethod
+    def _variantes(cls, precio: float, opciones: Optional[Dict[str, List[str]]]) -> Tuple[List[dict], List[dict]]:
+        """(options, variants) del payload. Sin opciones: una única variante «Default Title»."""
+        base = {"price": f"{precio:.2f}", "inventory_management": None}
+        if not opciones:
+            return [], [base]
+        if len(opciones) > cls.MAX_OPCIONES:
+            raise ValueError(f"Shopify admite como máximo {cls.MAX_OPCIONES} opciones por producto")
+        nombres = list(opciones)
+        combinaciones: List[Tuple[str, ...]] = [()]
+        for n in nombres:
+            valores = list(dict.fromkeys(v for v in opciones[n] if v))
+            if not valores:
+                raise ValueError(f"La opción «{n}» no tiene valores")
+            combinaciones = [c + (v,) for c in combinaciones for v in valores]
+        if len(combinaciones) > cls.MAX_VARIANTES:
+            raise ValueError(f"{len(combinaciones)} variantes: el máximo por importación es {cls.MAX_VARIANTES}")
+        options = [{"name": n} for n in nombres]
+        variants = [{**base, **{f"option{i + 1}": v for i, v in enumerate(c)}} for c in combinaciones]
+        return options, variants
+
     def create_draft_product(self, titulo: str, descripcion: str, precio: float,
                              imagenes: list[str] | None = None,
                              vendor: str = "GEM OS Import",
-                             tags: str = "") -> str:
+                             tags: str = "",
+                             opciones: Optional[Dict[str, List[str]]] = None) -> str:
         """Crea un producto como borrador en Shopify (necesita el scope write_products).
+
+        `opciones`: {«Color»: [«Rojo», «Azul»], …}, hasta 3 opciones; se crea una variante por combinación,
+        todas al mismo precio. Las imágenes las descarga Shopify desde la URL (máximo 10).
 
         Returns:
             ID del producto creado (string)
         """
+        options, variants = self._variantes(precio, opciones)
         payload = {
             "product": {
                 "title": titulo,
@@ -416,16 +445,22 @@ class ShopifyClient:
                 "vendor": vendor,
                 "tags": tags,
                 "status": "draft",
-                "variants": [{"price": f"{precio:.2f}", "inventory_management": None}],
+                "variants": variants,
             }
         }
+        if options:
+            payload["product"]["options"] = options
         if imagenes:
             payload["product"]["images"] = [{"src": url} for url in imagenes[:10]]
 
         resp = self._rest("POST", "/products.json", payload)
         product_id = str(resp["product"]["id"])
-        logger.info(f"[SHOPIFY] Borrador creado: id={product_id} titulo='{titulo}'")
+        logger.info(f"[SHOPIFY] Borrador creado: id={product_id} titulo='{titulo}' variantes={len(variants)}")
         return product_id
+
+    def eliminar_producto(self, product_id: str) -> None:
+        """Borra un producto (necesita write_products). Úsalo solo con productos creados por GEM OS."""
+        self._rest("DELETE", f"/products/{product_id}.json")
 
     def get_product(self, product_id: str) -> dict:
         """Obtiene metadatos de un producto existente."""
