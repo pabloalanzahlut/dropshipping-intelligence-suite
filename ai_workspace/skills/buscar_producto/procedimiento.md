@@ -43,12 +43,11 @@ Un coste $5 vendido a $15 aparenta 3× cuando es 2,14× sobre landed.
 
 ## Nichos objetivo
 
-Fuente: `Q4Ykcwh5Osc 17:04:27`
+Fuente: `Q4Ykcwh5Osc 17:04:27` — confirmado por el usuario 2026-11-12
 
-1. **Mascotas**
-2. **Bebés**
-3. **Fitness**
-4. **Cocina**
+1. **Salud**
+2. **Cuidado de las personas**
+3. **Belleza**
 
 Priorizar productos con factor WOW visual (se demuestran solos en video) y precio de venta < $40 para compra por impulso.
 
