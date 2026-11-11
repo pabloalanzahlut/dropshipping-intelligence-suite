@@ -671,6 +671,11 @@ async def nicho_page(request: Request):
     return _render(request, "nicho.html")
 
 
+@app.get("/canales", response_class=HTMLResponse)
+async def canales_page(request: Request):
+    return _render(request, "canales.html")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # FAKE-DOOR — página PÚBLICA (ver web_auth.RUTAS_LIBRES: "/fd/" no exige sesión).
 # No hereda base.html a propósito: nada de barra lateral, nada de datos internos
