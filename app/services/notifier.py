@@ -219,12 +219,12 @@ def enviar_resumen(resumen: Dict[str, Any]) -> Dict[str, Any]:
     resultado: Dict[str, Dict[str, Any]] = {}
     if cfg["windows"]["activo"]:
         top = "; ".join(p["texto"] for p in prioridades[:2]) or "Sin urgencias."
-        resultado["windows"] = enviar_toast(f"Resumen GEM OS {resumen.get('fecha', '')}", top, "/resumen")
+        resultado["windows"] = enviar_toast(f"Resumen GEM OS {resumen.get('fecha', '')}", top, "/")
     if cfg["make"]["activo"]:
         resultado["make"] = enviar_webhook({
             "origen": "GEM OS", "tipo": "resumen_diario", "fecha": resumen.get("fecha"),
             "asunto": f"GEM OS resumen {resumen.get('fecha', '')}" + (f" · {criticas} CRÍTICA(S)" if criticas else ""),
-            "mensaje": resumen.get("texto", ""), "panel": _url_panel("/resumen"),
+            "mensaje": resumen.get("texto", ""), "panel": _url_panel("/"),
         })
     if not resultado:
         return {"ok": False, "motivo": "sin canal activo"}

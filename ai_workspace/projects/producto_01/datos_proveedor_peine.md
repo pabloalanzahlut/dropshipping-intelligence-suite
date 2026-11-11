@@ -51,3 +51,31 @@ Con la regla de clasificación (3–5× = WARM) el producto queda en WARM **solo
 - «Il mio negozio», jiimqj-ms.myshopify.com, plan **Basic**, EUR, zona Europe/Rome. API operativa (client credentials). Scopes: read_checkouts, read_customers, read_inventory, read_orders, read_products, write_orders, write_products.
 - Producto activo: «Masajeador Capilar Eléctrico con Luz Roja 3 en 1», 2 variantes (Red, Purple), PVP €94,16, stock 10 cada una. **0 pedidos** desde 2026-01-01.
 - Idioma: la tienda se publica en **español** por defecto, con traducción automática a otros idiomas (ver `memory/project_tienda_shopify_autods.md`).
+
+---
+
+## Búsqueda en internet (2026-11-11): qué apareció y qué no
+
+**Envío a Italia del proveedor real: NO obtenido.** AliExpress y AutoDS no lo muestran sin pasar un control anti-robot o sin cuenta con destino Italia, y no se elude. Referencias de OTROS vendedores (no valen como dato del proveedor, solo como contexto):
+- Revendedor UE-friendly (morgenfreude.com): anuncia entrega con seguimiento en 7-14 días, aranceles pagados y devolución de 14 días. Es su promesa, no la de nuestro proveedor.
+- Otra publicación social habla de 3-5 semanas de entrega.
+- Para cerrar el DATA_GAP: «Create Sample Order» con dirección italiana o pregunta directa al vendedor.
+
+**Batería (revendedores de la misma marca Hailicare, no confirmado para este listing):** litio 3,7 V 1500 mAh (≈5,55 Wh), carga USB Type-C 5 V 1 A. Modelos citados: S18 (vibración + LED) y H-GO1 (EMS + luz roja). El listing de AutoDS dice «EMS Electric Massage Comb», probablemente el H-GO1, sin confirmar.
+
+**CE:** no apareció ninguna declaración de conformidad ni informe de ensayo de Hailicare. Una tienda cita «CE, FCC, RoHS» para un producto similar, sin documento. Sigue sin verificar.
+
+## REFUTACIÓN (`/refutar-producto`, 2026-11-11)
+
+| # | Refutación | Veredicto | Evidencia |
+|---|-----------|-----------|-----------|
+| 1 | Margen no aguanta | SOBREVIVE (justo) | Neto antes de ads €52,88/ud; ROAS de equilibrio 1,78 (< mínimo 2); con ROAS 2 quedan €5,80/ud. Sin devoluciones de la UE ni envío a Italia. |
+| 2 | Estacionalidad | SIN DATOS | No hay curva de demanda. Cuenta como pendiente. |
+| 3 | Saturación oculta | REFUTADO | Saturación 80; la misma marca está en AliExpress, eBay, Amazon, Walmart, Shein y varios revendedores. |
+| 4 | Devoluciones | REFUTADO | Electrónico dependiente de expectativa; el proveedor prohíbe devoluciones y la UE obliga a 14 días de desistimiento. |
+| 5 | Envío | REFUTADO | 15 días hábiles (≈21 naturales) con dato solo de EE. UU.; otros vendedores prometen 7-14 días. |
+| 6 | Barrera legal | REFUTADO (eliminatoria) | Sin declaración de conformidad CE; batería de litio integrada; claims de crecimiento capilar no permitidos sin evidencia. |
+| 7 | Wow factor | SOBREVIVE (con reserva) | Luz, vibración y aplicador de aceite se ven en 3 s. El antes/después de crecimiento capilar no es mostrable ni permitido. |
+| 8 | Ventaja del competidor | SIN DATOS | Hay publicaciones de Amazon con stock local; falta comprobar Amazon.it. Cuenta como pendiente. |
+
+**Pasan 6 de 8** (4 refutadas + 2 sin datos). **VEREDICTO: DESCARTAR** (3+ refutaciones y una de tipo 6). Es reversible solo si el proveedor entrega CE documentado y el envío a Italia baja de 15 días.
