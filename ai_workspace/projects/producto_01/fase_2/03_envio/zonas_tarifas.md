@@ -19,11 +19,13 @@
 
 **Umbral envío gratuito:** `[IMPORTE_GRATIS]` (ej. 35€)
 
+> El curso (`Q4Ykcwh5Osc` 03:47:15 y 22:28:09) recomienda envío **siempre gratuito** (mejor un precio algo mayor que un coste de envío en el pago; a Google también le gusta). Decisión pendiente del operador: umbral o gratis siempre. En ambos casos el envío entra en el coste landed.
+
 ---
 
 ## Reglas GEM OS
 
-- ✅ Nunca prometer entrega < 6 días laborables
+- ✅ Nunca prometer menos días que los reales del proveedor (CLAUDE.md, Funnel Builder)
 - ✅ Siempre incluir "laborables" (no días naturales)
 - ✅ Mencionar código de rastreo disponible
 - ❌ No prometer plazos de envío más cortos que los reales del proveedor
@@ -43,5 +45,5 @@ Verificar coherencia entre:
 
 - [ ] Zona principal creada con tarifa real del proveedor
 - [ ] Envío gratuito configurado a partir de `[IMPORTE_GRATIS]`
-- [ ] Plazo mínimo 6 días en todas las zonas
+- [ ] Plazo = días reales del proveedor en todas las zonas
 - [ ] Coherente con política de envío (Fase 1)
