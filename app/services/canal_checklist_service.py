@@ -57,21 +57,47 @@ _CHECKLISTS: Dict[str, List[str]] = {
 _NOMBRES = {"google_ads": "Google Ads", "tiktok_ads": "TikTok Ads", "amazon": "Amazon",
            "tiktok_shop": "TikTok Shop"}
 
+# Un contrato de JSON distinto y autocontenido por canal — nunca se mencionan los otros 3
+# canales en el prompt, para que el modelo no devuelva una clave por canal (ya pasó: con los
+# 4 descritos a la vez, el modelo generaba {"Google Ads": {...}, "TikTok Ads": {...}, ...}
+# en vez de responder solo sobre el canal pedido).
+_CONTRATOS: Dict[str, str] = {
+    "google_ads": (
+        "Genera 3 títulos (máx 30 caracteres cada uno) y 2 descripciones (máx 90 caracteres "
+        "cada una) con intención de compra, a partir del producto que recibas.\n"
+        'Responde EXCLUSIVAMENTE con este JSON, sin texto antes ni después:\n'
+        '{"copy": {"titulo_1": "...", "titulo_2": "...", "titulo_3": "...", '
+        '"descripcion_1": "...", "descripcion_2": "..."}}'
+    ),
+    "tiktok_ads": (
+        "Genera 1 hook de vídeo (lo que se dice o se muestra en los primeros 3 segundos) y "
+        "1 texto de anuncio corto, a partir del producto que recibas.\n"
+        'Responde EXCLUSIVAMENTE con este JSON, sin texto antes ni después:\n'
+        '{"copy": {"hook_video": "...", "texto_anuncio": "..."}}'
+    ),
+    "amazon": (
+        "Genera 1 título de listado (formato Marca + Producto + Característica clave) y "
+        "3 bullets de ficha de producto, a partir del producto que recibas.\n"
+        'Responde EXCLUSIVAMENTE con este JSON, sin texto antes ni después:\n'
+        '{"copy": {"titulo_listado": "...", "bullet_1": "...", "bullet_2": "...", "bullet_3": "..."}}'
+    ),
+    "tiktok_shop": (
+        "Genera 1 caption de vídeo con producto etiquetado y 1 llamada a la acción para un "
+        "TikTok LIVE, a partir del producto que recibas.\n"
+        'Responde EXCLUSIVAMENTE con este JSON, sin texto antes ni después:\n'
+        '{"copy": {"caption_video": "...", "cta_live": "..."}}'
+    ),
+}
+
 SYSTEM_PROMPT_TPL = """Eres un redactor de copy para {nombre_canal} en GEM OS (dropshipping).
 
-Genera un copy breve y específico para este canal a partir del producto que recibas:
-- Google Ads: 3 títulos (máx 30 caracteres) + 2 descripciones (máx 90 caracteres) con intención de compra.
-- TikTok Ads: 1 hook de vídeo (primeros 3 segundos) + 1 texto de anuncio corto.
-- Amazon: 1 título de listado (sigue el formato Marca + Producto + Característica clave) + 3 bullets de ficha.
-- TikTok Shop: 1 caption de vídeo con producto etiquetado + 1 llamada a la acción para LIVE.
+{contrato}
 
 Reglas (las mismas de siempre en GEM OS):
 - Prohibido superlativos vacíos (increíble, el mejor, revolucionario, etc.).
 - Prohibido prometer envío en menos de 6 días sin confirmación del proveedor.
 - No inventes especificaciones del producto que no te den.
-
-Responde EXCLUSIVAMENTE con este JSON, sin texto antes ni después:
-{{"copy": {{...campos según el canal indicado arriba...}}}}"""
+- Todos los valores del JSON deben ser texto plano (nunca otro objeto JSON anidado)."""
 
 
 def _db(db_path: str) -> sqlite3.Connection:
