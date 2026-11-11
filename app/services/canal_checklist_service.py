@@ -142,11 +142,11 @@ def _texto_plano(valor: Any) -> List[str]:
 def generar(canal: str, contexto_producto: str) -> Dict[str, Any]:
     if canal not in CANALES:
         raise ValueError(f"Canal desconocido: {canal}")
-    system_prompt = SYSTEM_PROMPT_TPL.format(nombre_canal=_NOMBRES[canal])
+    system_prompt = SYSTEM_PROMPT_TPL.format(nombre_canal=_NOMBRES[canal], contrato=_CONTRATOS[canal])
     bruto = chat(task="copy_canal_pagado", system_prompt=system_prompt,
                  user_message=f"Producto:\n{contexto_producto.strip()[:2000]}", max_tokens=1024, temperature=0.4)
     copy = _parsear(bruto)
-    texto_gate = " ".join(str(v) for v in copy.values() if isinstance(v, (str, int, float)))
+    texto_gate = " ".join(_texto_plano(copy))
     gate = deterministic_gate.verificar_copy(texto_gate)
     return {
         "canal": canal, "checklist": checklist(canal), "copy": copy,
