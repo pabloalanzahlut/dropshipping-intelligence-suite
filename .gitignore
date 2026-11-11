@@ -96,3 +96,4 @@ ai_workspace/config/*secret*.json
 # Screenshots de sesiones autenticadas
 skool_page.png
 *_page.png
+.playwright-mcp/_selfheal_probe.json

@@ -22,13 +22,25 @@
 | F-009 | SECRETS_SECURITY/COOKIES_TRACKED | cookies de sesión (auth_token jwt) versionadas en git | git rm --cached + .gitignore *cookies*.json | 1 |
 | F-010 | SECRETS_SECURITY/PLAYWRIGHT_DATA | grabaciones playwright de sesiones autenticadas en git | git rm --cached .playwright-mcp/ + .gitignore | 1 |
 | F-011 | SECRETS_SECURITY/HISTORY_LEAK | secret en historial de git (cualquier archivo) | git filter-repo --path <archivo> --invert-paths --force + force push | 2 |
-| F-012 | SECRETS_SECURITY/FALSE_POSITIVE | gitleaks generic-api-key con entropía < 4.0 sobre valor placeholder (test) | Regex exacta en allowlist de .gitleaks.toml (nunca allowlist por commit) | 1 |
+| F-012 | SECRETS_SECURITY/FALSE_POSITIVE | gitleaks generic-api-key con entropía < 4.0 sobre valor placeholder (test) | Regex exacta en allowlist de .gitleaks.toml (nunca allowlist por commit) | 2 |
 
 ---
 
 ## Incidencias Registradas
 
 <!-- Las nuevas incidencias se agregan debajo de esta línea -->
+
+---
+
+## INC-20261111-012 | AUTO | AUTO
+
+**Fecha:** 2026-11-11
+**Repositorio:** pabloalanzahlut/dropshipping-intelligence-suite
+**Firma del error:** `leaks found: 1`
+**Fix aplicado:** F-012 (agente github_self_heal)
+**Resultado:** ✅ PR automático
+**Tags:** [AUTO, F-012]
+
 
 ## INC-20261105-001 | SECRETS_SCAN | ALTO
 
