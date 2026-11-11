@@ -76,7 +76,7 @@ def _get_sheet(tab_name: str):
 
 PIPELINE_HEADERS = [
     "Fecha", "SKU", "Nombre", "Costo Origen", "PVP",
-    "Multiplicador", "Clasificación", "Peso KG", "Categoría", "Notas",
+    "Multiplicador", "Clasificacion", "Peso KG", "Categoria", "ROAS",
 ]
 
 
@@ -107,7 +107,7 @@ def upsert_producto_pipeline(producto: Dict) -> bool:
         clasificacion,
         producto.get("peso_kg", 0),
         producto.get("categoria", ""),
-        producto.get("notas", ""),
+        producto.get("roas", ""),
     ]
 
     # Buscar SKU existente
@@ -126,7 +126,7 @@ def get_productos_por_clasificacion(clasificacion: str) -> List[Dict]:
     """Devuelve todos los productos HOT, WARM o COLD del Pipeline."""
     sheet = _get_sheet("Pipeline")
     rows = sheet.get_all_records()
-    return [r for r in rows if r.get("Clasificación", "").upper() == clasificacion.upper()]
+    return [r for r in rows if str(r.get("Clasificacion", "")).upper() == clasificacion.upper()]
 
 
 # ─── ROAS Diario ──────────────────────────────────────────────────────────────
