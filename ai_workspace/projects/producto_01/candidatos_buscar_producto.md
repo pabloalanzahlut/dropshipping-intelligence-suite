@@ -15,6 +15,26 @@
 
 Nicho **Mascotas**: sin revisar todavía (el filtro de categoría del marketplace no respondió bien).
 
+## Verificado a petición del usuario: Octopus Head Massager Comb (AliExpress 1005010219253463)
+
+Ficha AutoDS `marketplace/all-products/699c8d5b2a4a6100012077fa`, tienda DKSHETOY CHOICE Store, marca DKSHETOY.
+
+| Criterio | Dato | ¿Cumple? |
+|---|---|---|
+| Valoración ≥ 4,5 | 4,7 (928 reseñas) | Sí |
+| Ventas > 70 | 5000 pedidos | Sí |
+| Sin batería | Resina, manual, «Electronic: No» | Sí |
+| Nicho | Cuidado personal | Sí |
+| Coste $5–15 | **$2,75** | **No** (por debajo del rango del curso) |
+| Envío | $1,99 · 12 días hábiles desde CN, **destino EE. UU.**; el almacén US aparece desactivado | Italia sin dato |
+| Devoluciones | «Returns are prohibited for this product» | La UE exige 14 días de desistimiento |
+
+**Cálculo preliminar (USD→EUR 0,89174; no sustituye a `/validar-financiero`):** landed ($2,75 + $1,99) = €4,23.
+PVP para 2× = €8,45 · 3× = €12,68 · 5× = €21,14. A €14,99 → 3,55× (WARM); a €19,99 → 4,73× (WARM).
+Neto por unidad tras fees 4% y cancelaciones 10,1%, antes de anuncios: ≈ €8,65 a €14,99 (ROAS de equilibrio 1,73) y ≈ €12,94 a €19,99 (ROAS de equilibrio 1,54). Con ROAS 2 quedan solo ≈ €1,15 y ≈ €2,94 por unidad: ticket bajo, poco margen absoluto.
+
+**Riesgos:** producto muy replicado (5000 pedidos, vendido en muchas tiendas); la ficha habla de «promoting hair growth», claim que no se puede usar en copy; la venta en la UE exige operador económico en la UE y etiquetado de seguridad (GPSR); plazo real a Italia por confirmar.
+
 ## Candidato principal: set de cepillos para botellas
 
 Datos de la ficha AutoDS: 1078 reseñas, 4,6/5, coste $7,99, competidores en Shopify a $54,95 y $76,12, saturación 20, engagement 70.
