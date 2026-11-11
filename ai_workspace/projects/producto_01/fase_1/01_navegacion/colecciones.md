@@ -1,5 +1,6 @@
 # COLECCIONES (CATEGORÍAS) — [MARCA]
 > Crear en Shopify Admin → Products → Collections
+> AVISO: el curso (`Q4Ykcwh5Osc` 03:37:47) no usa colecciones en la estrategia de un solo producto: "para esta estrategia no lo vamos a utilizar". Esta estructura solo aplica si la tienda pasa a varios productos. Verificado 2026-11-11: la tienda solo tiene la colección por defecto `frontpage`; `mas-vendidos` y las demás no existen.
 
 ---
 
