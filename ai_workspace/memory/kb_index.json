@@ -2,14 +2,27 @@
   "kb_version": "2.0.0",
   "fuente": "sqlite",
   "nota": "Generado automáticamente desde SQLite. No editar manualmente.",
-  "ultima_actualizacion": "2026-11-10",
-  "total_entradas": 253,
+  "ultima_actualizacion": "2026-11-11",
+  "total_entradas": 256,
   "por_tipo": {
-    "productos": 78,
-    "conversion": 82,
-    "operaciones": 93
+    "productos": 79,
+    "conversion": 83,
+    "operaciones": 94
   },
   "entradas": [
+    {
+      "tipo": "producto",
+      "tabla": "product_trends",
+      "id": 124,
+      "video_id": "N5fS3PlRvKY",
+      "video_title": "I make $55,000 in dropshipping with free videos from Ecuador",
+      "canal": "Marc Verdú",
+      "fecha_indexacion": "2026-11-11",
+      "nombre": "Pulsera charms con figuras de marcas de autos",
+      "nicho": "Accesorios de moda",
+      "wow_factor": "Diseño único con figuras de marcas de autos, atractivo para entusiastas de automóviles",
+      "margen_estimado": 50.0
+    },
     {
       "tipo": "producto",
       "tabla": "product_trends",
@@ -1023,6 +1036,19 @@
       "nicho": "Seguridad en bicicletas y patinetes eléctricos",
       "wow_factor": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
       "margen_estimado": 3.0
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 125,
+      "video_id": "N5fS3PlRvKY",
+      "video_title": "I make $55,000 in dropshipping with free videos from Ecuador",
+      "canal": "Marc Verdú",
+      "fecha_indexacion": "",
+      "categoria": "landingpage",
+      "framework": "AIDA",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify Payments  \n\n",
+      "triggers": "Gatillos detectados en pauta"
     },
     {
       "tipo": "conversion",
@@ -2089,6 +2115,19 @@
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Cloud, OpenAI  \n\n- Conectar Shopify con Cloud para automatizar la selección y carga de productos.  \n- Usar OpenAI para mejorar imágenes del producto y generar contenido visual profesional.  \n- C",
       "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 126,
+      "video_id": "N5fS3PlRvKY",
+      "video_title": "I make $55,000 in dropshipping with free videos from Ecuador",
+      "canal": "Marc Verdú",
+      "fecha_indexacion": "",
+      "fuente_trafico": "Orgánico (Instagram, YouTube Shorts)",
+      "estrategia_escalado": "Enfoque en mercados de habla inglesa utilizando IA",
+      "logistica": "Proveedor privado para reducir costos y estrés de gestión",
+      "peso_kg": 0.0
     },
     {
       "tipo": "operaciones",

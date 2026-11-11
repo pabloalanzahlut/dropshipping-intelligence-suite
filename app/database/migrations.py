@@ -703,3 +703,42 @@ def mig_0026_fake_door_eventos(conn: sqlite3.Connection):
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_fake_door_producto_tipo ON fake_door_eventos(producto_id, tipo)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_fake_door_slug ON fake_door_eventos(slug)")
+
+
+@migration(27, "Anuncios Meta estáticos generados por IA (skill redactar-anuncios-meta)")
+def mig_0027_anuncios_meta(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS anuncios_meta (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            producto_id INTEGER,
+            formato_a_json TEXT NOT NULL DEFAULT '{}',
+            formato_b_json TEXT NOT NULL DEFAULT '{}',
+            formato_c_json TEXT NOT NULL DEFAULT '{}',
+            gate_pass INTEGER NOT NULL DEFAULT 0,
+            gate_violations_json TEXT NOT NULL DEFAULT '[]',
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE SET NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_anuncios_meta_producto ON anuncios_meta(producto_id)")
+
+
+@migration(28, "Jobs de video TikTok con IA (skill generar-video-ia: Gemini Vision + Higgsfield)")
+def mig_0028_video_jobs(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS video_jobs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            producto_id INTEGER,
+            imagen_url TEXT NOT NULL,
+            specs_json TEXT DEFAULT '{}',
+            prompt_movimiento TEXT DEFAULT '',
+            video_url TEXT,
+            proveedor TEXT DEFAULT '',
+            estado TEXT NOT NULL DEFAULT 'pendiente',
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE SET NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_video_jobs_producto ON video_jobs(producto_id)")
