@@ -266,8 +266,12 @@ function productos() {
     // las 8 refutaciones existen desde el principio (si no, el formulario falla al pintarse)
     ref: Object.fromEntries([1,2,3,4,5,6,7,8].map(n => [n, { resultado: '', dato: '' }])),
     nuevo: { abierto: false, nombre: '', costo_origen: null, costo_envio: null, pvp: null, categoria: '' },
-    tabs: [{ v: 'datos', t: 'Datos y costes' }, { v: 'refutacion', t: 'Refutación' }, { v: 'hooks', t: 'Hook Matrix' }, { v: 'demanda', t: 'Demanda y creativo' }, { v: 'escalado', t: 'Escalado' }, { v: 'historial', t: 'Historial' }],
+    tabs: [{ v: 'datos', t: 'Datos y costes' }, { v: 'refutacion', t: 'Refutación' }, { v: 'hooks', t: 'Hook Matrix' },
+           { v: 'meta', t: 'Anuncios Meta' }, { v: 'video', t: 'Vídeo IA' },
+           { v: 'demanda', t: 'Demanda y creativo' }, { v: 'escalado', t: 'Escalado' }, { v: 'historial', t: 'Historial' }],
     hookMatrices: [], hookContexto: '', hookCargando: false,
+    anunciosMeta: [], metaCargando: false,
+    videoJobs: [], videoImagenUrl: '', videoHook: '', videoCargando: false,
     fd: null, origenFd: window.location.origin,
     NOMBRES: { candidato: 'Candidato', clasificado: 'Clasificado', refutado: 'Refutado', validado: 'Validado', creativo: 'Creativo', tienda: 'Tienda', escalado: 'Escalado', descartado: 'Descartados' },
 
