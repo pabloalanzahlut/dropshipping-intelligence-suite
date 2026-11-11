@@ -125,7 +125,7 @@ def upsert_producto_pipeline(producto: Dict) -> bool:
 def get_productos_por_clasificacion(clasificacion: str) -> List[Dict]:
     """Devuelve todos los productos HOT, WARM o COLD del Pipeline."""
     sheet = _get_sheet("Pipeline")
-    rows = sheet.get_all_records()
+    rows = sheet.get_all_records(value_render_option=gspread.utils.ValueRenderOption.unformatted)
     return [r for r in rows if str(r.get("Clasificacion", "")).upper() == clasificacion.upper()]
 
 
@@ -161,7 +161,7 @@ def get_roas_hoy() -> List[Dict]:
     """Devuelve todas las campañas registradas hoy."""
     sheet = _get_sheet("ROAS_Diario")
     hoy = datetime.now().strftime("%Y-%m-%d")
-    rows = sheet.get_all_records()
+    rows = sheet.get_all_records(value_render_option=gspread.utils.ValueRenderOption.unformatted)
     return [r for r in rows if r.get("Fecha") == hoy]
 
 
