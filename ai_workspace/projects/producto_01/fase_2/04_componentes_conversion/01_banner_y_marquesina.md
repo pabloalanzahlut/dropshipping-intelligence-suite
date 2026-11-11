@@ -26,12 +26,12 @@ Texto corto en movimiento horizontal continuo, debajo del header o del banner. S
 ```html
 <div style="overflow:hidden; background:[HEX_SECUNDARIO]; color:#fff; padding:8px 0;">
   <div style="display:inline-block; white-space:nowrap; animation: gem-marquee 22s linear infinite;">
-    <span style="margin:0 32px;">🚚 Envío 6-12 días laborables</span>
+    <span style="margin:0 32px;">🚚 Envío {{DIAS_ENVIO_PROVEEDOR}} días laborables</span>
     <span style="margin:0 32px;">🔒 Pago 100% seguro</span>
     <span style="margin:0 32px;">↩️ Devolución 30 días</span>
     <span style="margin:0 32px;">⭐ [N_CLIENTES] clientes satisfechos</span>
     <!-- bloque duplicado para loop continuo sin salto visual -->
-    <span style="margin:0 32px;">🚚 Envío 6-12 días laborables</span>
+    <span style="margin:0 32px;">🚚 Envío {{DIAS_ENVIO_PROVEEDOR}} días laborables</span>
     <span style="margin:0 32px;">🔒 Pago 100% seguro</span>
     <span style="margin:0 32px;">↩️ Devolución 30 días</span>
     <span style="margin:0 32px;">⭐ [N_CLIENTES] clientes satisfechos</span>
@@ -47,6 +47,6 @@ Texto corto en movimiento horizontal continuo, debajo del header o del banner. S
 ## Notas de Implementación
 
 - `[N_CLIENTES]`: usar el número real de pedidos completados (Shopify Analytics). Si aún no hay ventas, omitir ese `<span>` por completo — no inventar cifra (Regla Suprema NO INVENTAR).
-- Nunca sustituir "6-12 días laborables" por "24-48h" ni similares.
+- Nunca sustituir los días reales del proveedor por plazos más cortos sin confirmación del proveedor.
 - Sin JS: funciona con CSS puro en cualquier tema Shopify que permita bloque "Custom Liquid"/"Custom HTML".
 - Verificar contraste de color (texto blanco sobre `[HEX_SECUNDARIO]`) — si el color secundario es claro, usar texto oscuro en su lugar.

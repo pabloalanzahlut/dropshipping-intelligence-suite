@@ -33,7 +33,7 @@ Generado con `/redactar-ficha-shopify`:
 Archivo: [03_envio/zonas_tarifas.md](03_envio/zonas_tarifas.md)
 
 - Zonas geográficas
-- Tarifa estándar (6-12 días laborables)
+- Tarifa estándar ({{DIAS_ENVIO_PROVEEDOR}} días laborables)
 - Umbral de envío gratuito
 - Perfil de envío en Shopify
 

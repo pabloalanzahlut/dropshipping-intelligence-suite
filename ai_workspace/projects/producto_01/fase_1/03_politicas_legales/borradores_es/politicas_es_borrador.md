@@ -64,6 +64,6 @@ Titular: [TITULAR LEGAL] · NIF/ID fiscal: [ID] · Domicilio: [DOMICILIO] · Ema
 ---
 ## Cambios en la tienda al publicar
 - Enlazar las 4 políticas + Contacto en el pie de página (hoy solo hay Home, Catalogo, Contatti).
-- Sustituir la política de envío actual (italiano, 6–12 días).
+- Sustituir la política de envío actual (italiano; sustituir los días por los reales del proveedor).
 - Revisar la privacidad generica de Shopify: "Il mio negozio" aparece como titular.
 - Opcional: añadir inglés/italiano en Idiomas (Translate & Adapt ya instalado) si vendes fuera de España.

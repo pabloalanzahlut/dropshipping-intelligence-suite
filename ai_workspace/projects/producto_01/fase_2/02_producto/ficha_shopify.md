@@ -63,4 +63,4 @@
 - [ ] PVP ≥ 2× coste landed (mínimo) y, si es posible, 3× → calculado con `/validar-financiero`
 - [ ] Margen neto positivo tras fees 4,0 % y cancelaciones 10,1 %
 - [ ] Sin superlativos vacíos en el copy
-- [ ] Tiempo de envío: "6-12 días laborables"
+- [ ] Tiempo de envío: "{{DIAS_ENVIO_PROVEEDOR}} días laborables" (real del proveedor)

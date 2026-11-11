@@ -32,7 +32,7 @@ Es normal que el tracking tarde 3-5 días en actualizarse desde el envío. Si pa
 | Fase | Tiempo |
 |---|---|
 | Procesamiento del pedido | 1-3 días laborables |
-| Tránsito internacional | 6-12 días laborables |
+| Tránsito internacional | {{DIAS_ENVIO_PROVEEDOR}} días laborables |
 | **Total estimado** | **7-15 días laborables** |
 
 ---

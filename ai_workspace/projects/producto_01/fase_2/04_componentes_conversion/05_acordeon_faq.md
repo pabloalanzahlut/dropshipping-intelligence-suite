@@ -11,7 +11,7 @@ Convierte el contenido ya validado de [../../fase_1/02_paginas_confianza/faq.md]
 
   <details style="border-bottom:1px solid #e5e5e5; padding:12px 0;">
     <summary style="cursor:pointer; font-weight:600;">¿Cuánto tarda en llegar mi pedido?</summary>
-    <p style="font-size:14px; margin-top:8px;">Los pedidos se procesan en 1-3 días laborables. El tiempo de tránsito es de 6 a 12 días laborables adicionales. Recibirás un email con el número de seguimiento una vez que tu paquete haya salido de nuestro almacén.</p>
+    <p style="font-size:14px; margin-top:8px;">Los pedidos se procesan en 1-3 días laborables. El tiempo de tránsito es de {{DIAS_ENVIO_PROVEEDOR}} días laborables adicionales. Recibirás un email con el número de seguimiento una vez que tu paquete haya salido de nuestro almacén.</p>
   </details>
 
   <details style="border-bottom:1px solid #e5e5e5; padding:12px 0;">

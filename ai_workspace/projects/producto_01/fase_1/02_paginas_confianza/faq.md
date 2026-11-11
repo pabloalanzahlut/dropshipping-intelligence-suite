@@ -11,7 +11,7 @@
 ### ENVÍOS
 
 **¿Cuánto tarda en llegar mi pedido?**
-Los pedidos se procesan en 1-3 días laborables. El tiempo de tránsito es de 6 a 12 días laborables adicionales. Recibirás un email con el número de seguimiento una vez que tu paquete haya salido de nuestro almacén.
+Los pedidos se procesan en 1-3 días laborables. El tiempo de tránsito es de {{DIAS_ENVIO_PROVEEDOR}} días laborables adicionales. Recibirás un email con el número de seguimiento una vez que tu paquete haya salido de nuestro almacén.
 
 **¿Puedo hacer seguimiento de mi pedido?**
 Sí. Una vez enviado, recibirás un número de tracking por email. Puedes consultar el estado en tiempo real en nuestra página de [Seguimiento de Pedido](/pages/seguimiento-pedido).
@@ -60,6 +60,6 @@ Ofrecemos garantía de satisfacción de 30 días. Para garantías de fabricante 
 ## Notas de Implementación
 
 - Sustituir todos los `[PLACEHOLDER]` antes de publicar
-- Las respuestas de envío **deben coincidir** con la Política de Envío (siempre 6-12 días, nunca menos)
+- Las respuestas de envío **deben coincidir** con la Política de Envío (siempre los días reales del proveedor, nunca menos)
 - Actualizar sección de pagos según los métodos que actives en Shopify Payments
 - Formato recomendado: acordeón (FAQ accordion) si el tema lo soporta — mejora UX

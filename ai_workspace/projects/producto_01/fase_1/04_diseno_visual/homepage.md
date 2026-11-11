@@ -41,11 +41,11 @@
 **Subtítulo (1 línea — beneficio emocional):**
 ```
 [RESULTADO CONCRETO] sin [FRICCIÓN PRINCIPAL].
-Envío en 6-12 días. Garantía de 30 días.
+Envío en {{DIAS_ENVIO_PROVEEDOR}} días. {{GARANTIA_REAL_DE_LA_TIENDA}}.
 ```
 *Ejemplos:*
-- "Ahorra tiempo en la cocina sin complicaciones. Envío en 6-12 días. Garantía de 30 días."
-- "Tu mascota feliz, tú tranquilo. Envío en 6-12 días. Garantía de 30 días."
+- "Ahorra tiempo en la cocina sin complicaciones. Envío en {{DIAS_ENVIO_PROVEEDOR}} días. {{GARANTIA_REAL_DE_LA_TIENDA}}."
+- "Tu mascota feliz, tú tranquilo. Envío en {{DIAS_ENVIO_PROVEEDOR}} días. {{GARANTIA_REAL_DE_LA_TIENDA}}."
 
 **CTA (botón principal):**
 ```
@@ -71,7 +71,7 @@ Ver productos →
 
 | # | Icono | Título | Subtítulo |
 |---|---|---|---|
-| 1 | 🚀 (o SVG flecha) | **Envío Garantizado** | Seguimiento en tiempo real. Recibes tu pedido en 6-12 días laborables. |
+| 1 | 🚀 (o SVG flecha) | **Envío con seguimiento** | Seguimiento en tiempo real. Recibes tu pedido en {{DIAS_ENVIO_PROVEEDOR}} días laborables. |
 | 2 | ⭐ (o SVG estrella) | **Calidad Verificada** | Cada producto pasa por nuestro control de calidad antes de llegar a ti. |
 | 3 | 🔄 (o SVG ciclo) | **Garantía 30 Días** | Si hay cualquier problema, lo resolvemos. Sin preguntas, sin complicaciones. |
 
@@ -105,7 +105,7 @@ La sección Featured Product en el homepage muestra automáticamente:
 ```
 [BENEFICIO PRINCIPAL EN 1 FRASE]. [DATO CONCRETO O GARANTÍA].
 ```
-*Ejemplo: "El limpiador ultrasónico que elimina el 99% de bacterias en 60 segundos. Garantía de 30 días."*
+*Ejemplo de estructura: "{{BENEFICIO_SEGUN_PROVEEDOR}}. {{GARANTIA_REAL_DE_LA_TIENDA}}."*
 
 ---
 
@@ -132,7 +132,7 @@ Para cambiar el texto: Online Store → Themes → Actions → Edit languages �
 
 ## Checklist completo
 
-- [ ] Hero creado con imagen, título y subtítulo (cumple regla 6-12 días)
+- [ ] Hero creado con imagen, título y subtítulo (días de envío = los reales del proveedor)
 - [ ] 3 beneficios configurados con íconos
 - [ ] Producto estrella seleccionado y conectado
 - [ ] Vista móvil revisada y correcta

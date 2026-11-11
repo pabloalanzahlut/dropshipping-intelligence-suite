@@ -1,5 +1,5 @@
 {
-  "fecha_sincronizacion": "2026-11-11T11:22:05",
+  "fecha_sincronizacion": "2026-11-11T14:22:05",
   "canales_procesados": 3,
   "videos_descargados": 0,
   "transcripciones_procesadas": 0,
@@ -11,5 +11,5 @@
   "cancelado": false,
   "limitado": true,
   "lote_completo": false,
-  "reintentar_a": "2026-11-11T12:18:20"
+  "reintentar_a": "2026-11-11T15:18:19"
 }

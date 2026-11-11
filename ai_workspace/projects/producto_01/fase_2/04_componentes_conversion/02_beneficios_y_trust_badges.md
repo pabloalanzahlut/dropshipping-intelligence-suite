@@ -16,7 +16,7 @@ Expande la sección "¿Por qué nosotros?" de [../01_tema/configuracion_tema.md]
     <div style="max-width:220px;">
       <div style="font-size:32px;">🚚</div>
       <h3 style="font-size:16px; margin:8px 0 4px;">Envío rastreado</h3>
-      <p style="font-size:14px; opacity:.8;">6-12 días laborables, con número de seguimiento.</p>
+      <p style="font-size:14px; opacity:.8;">{{DIAS_ENVIO_PROVEEDOR}} días laborables, con número de seguimiento.</p>
     </div>
     <div style="max-width:220px;">
       <div style="font-size:32px;">🔒</div>

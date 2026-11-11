@@ -52,7 +52,7 @@ Renombra estas colecciones según tu nicho. Ejemplos por vertical:
 ```
 Título SEO: [Nombre Colección] | [MARCA]
 Meta descripción: Descubre nuestra selección de [nombre colección]. 
-Envío en 6-12 días laborables. Garantía de satisfacción.
+Envío en {{DIAS_ENVIO_PROVEEDOR}} días laborables. {{GARANTIA_REAL_DE_LA_TIENDA}}.
 URL handle: [handle-coleccion]
 ```
 

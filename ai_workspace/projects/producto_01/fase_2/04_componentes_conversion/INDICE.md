@@ -29,7 +29,7 @@ El documento complementario enlaza una serie de GPTs de ChatGPT (Constructor de 
 
 ## Reglas GEM OS aplicadas en todo el módulo
 
-- Ningún componente promete envío en 24-48h → siempre "6-12 días laborables"
+- Ningún componente promete envío en 24-48h → siempre los días reales del proveedor ({{DIAS_ENVIO_PROVEEDOR}})
 - Ningún componente usa superlativos vacíos ("el mejor", "increíble", "revolucionario")
 - Reviews e influencers: **nunca fabricados** — solo contenido real o el bloque se deja vacío
 - Comparador: nunca nombra marcas de competidores reales (riesgo legal de publicidad comparativa)

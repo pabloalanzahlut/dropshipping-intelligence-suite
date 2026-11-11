@@ -29,7 +29,7 @@
       </tr>
       <tr>
         <td style="padding:12px;">Envío</td>
-        <td style="padding:12px; text-align:center;">✅ Rastreado, 6-12 días</td>
+        <td style="padding:12px; text-align:center;">✅ Rastreado, {{DIAS_ENVIO_PROVEEDOR}} días</td>
         <td style="padding:12px; text-align:center; opacity:.6;">❌ Sin seguimiento</td>
       </tr>
       <tr>

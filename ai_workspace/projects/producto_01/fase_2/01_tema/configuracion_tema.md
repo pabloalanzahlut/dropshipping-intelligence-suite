@@ -34,7 +34,7 @@
 ## Sección "¿Por qué nosotros?"
 
 Usar 3 iconos + texto corto. Sugerencias:
-1. 🚚 Envíos rastreados (6-12 días laborables)
+1. 🚚 Envíos rastreados ({{DIAS_ENVIO_PROVEEDOR}} días laborables)
 2. 🔒 Pago seguro (Shopify Payments / PayPal)
 3. ✅ Garantía de satisfacción (reembolso si no cumple)
 
