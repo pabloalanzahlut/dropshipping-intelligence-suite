@@ -124,6 +124,21 @@ def _parsear(bruto: Optional[str]) -> Dict[str, Any]:
     return copy if isinstance(copy, dict) else {}
 
 
+def _texto_plano(valor: Any) -> List[str]:
+    """Aplana cualquier valor (string, o un dict/list anidado que el modelo no debía
+    devolver) en una lista de textos, para que el gate nunca se salte nada por un anidado
+    inesperado."""
+    if isinstance(valor, str):
+        return [valor]
+    if isinstance(valor, (int, float)):
+        return [str(valor)]
+    if isinstance(valor, dict):
+        return [t for v in valor.values() for t in _texto_plano(v)]
+    if isinstance(valor, list):
+        return [t for v in valor for t in _texto_plano(v)]
+    return []
+
+
 def generar(canal: str, contexto_producto: str) -> Dict[str, Any]:
     if canal not in CANALES:
         raise ValueError(f"Canal desconocido: {canal}")
