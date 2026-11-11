@@ -1,22 +1,27 @@
 # /importar-masivo
 
-Lee `ai_workspace/skills/importar_masivo/procedimiento.md` y procesa URLs de AliExpress/CJ/Temu → valida regla 3x → crea borradores en Shopify.
+Lee `ai_workspace/skills/importar_masivo/procedimiento.md` y procesa productos de AliExpress/CJ/Temu → valida sobre coste landed → crea BORRADORES en Shopify (Admin API, `shopify_client.py`).
+
+## Datos que debe dar el usuario (regla suprema: no inventar)
+Una línea por producto: `URL  coste  envío`. Si falta el coste o el envío de cualquier producto → `DATA_GAP_REQUEST`: pedirlo, no estimarlo (envío `0` solo si el proveedor lo da gratis).
 
 ## Conectores a activar automáticamente
-- **Google Sheets** (`mcp__69f3b6ec`): escribir resultados de la importación masiva en Dashboard tab "Pipeline" — columnas: URL, producto, coste_landed, PVP_mínimo (2x), PVP_objetivo (3x), estado (VÁLIDO/RECHAZADO/REVISAR)
-- **Stripe** (`mcp__1cc6d3ec`): si ya hay productos activos, consultar `stripe_analytics` para comparar márgenes reales vs proyectados
+- **Google Sheets** (`mcp__69f3b6ec`): tras la importación, escribir en Dashboard tab "Pipeline" — URL, coste_landed, PVP_mínimo (2x), PVP_objetivo (3x), estado, borrador Shopify
+- **Stripe** (`mcp__1cc6d3ec`): si ya hay productos activos, `stripe_analytics` para comparar márgenes reales vs proyectados
 
 ## Skills Claude a cargar
-- `dataviz` → generar tabla visual con los resultados de la importación (válidos vs rechazados)
-- `artifact-design` → si se genera un reporte de importación como artefacto
+- `dataviz` → tabla visual válidos vs omitidos
+- `artifact-design` → si se genera un informe como artefacto
 
-## Flujo automático
-1. Recibir lista de URLs (una por línea)
-2. Para cada URL: extraer precio proveedor + coste envío estimado = coste landed
-3. Validar regla 3x: PVP_mínimo = 2× coste_landed; PVP_objetivo = 3× coste_landed
-4. Verificar restricciones: sin litio suelto, envío ≤12 días (sin límite de peso: el curso no lo fija)
-5. VÁLIDO → crear borrador en Shopify vía AutoDS API | RECHAZADO → registrar motivo
+## Flujo
+1. `BulkUrlImporter.importar_lote(items, moneda_costo, etiqueta_lote)` (`app/services/bulk_url_importer.py`)
+2. Por producto: coste landed = (producto + envío) × tipo de cambio del día → divisa REAL de la tienda (se lee de Shopify, no se asume)
+3. Mínimo x2 rechaza; x3 es el objetivo (Adrián Sáenz `Q4Ykcwh5Osc 24:40`)
+4. `deterministic_gate` recalcula el multiplicador; si no cuadra → error, no se crea nada
+5. Borrador con descripción neutra (sin proveedor ni URL de origen); la ficha real va después con `/redactar-ficha-shopify`
+6. URLs ya importadas se omiten (duplicado); todo queda en `importaciones_masivas`
 
-## Regla financiera (Adrián Sáenz `Q4Ykcwh5Osc 24:40`)
-El multiplicador es sobre **coste landed** (producto + envío), nunca sobre el producto solo.
-Ejemplo: $5 producto + $2 envío = $7 landed → PVP mínimo $14, objetivo $21.
+Pantalla de escritorio: **Tienda → Importación masiva**.
+
+## Antes de importar (pipeline, sin saltar pasos)
+El producto debe haber pasado `/clasificar-producto` → `/refutar-producto` → `/validar-financiero` → creativo validado.
