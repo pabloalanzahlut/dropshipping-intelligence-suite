@@ -42,7 +42,7 @@ class AnunciosMetaServiceTests(Base):
         self.assertIn("resultado", r["formato_c"])
 
     def test_superlativo_en_cualquier_formato_falla_el_gate(self):
-        sucio = _RESPUESTA_LIMPIA.replace("Organiza tu cocina hoy", "El mejor organizador del mundo")
+        sucio = _RESPUESTA_LIMPIA.replace("Organiza tu cocina hoy", "Un organizador increible")
         with mock.patch.object(anuncios_meta_service, "chat", return_value=sucio):
             r = anuncios_meta_service.generar("Organizador de cocina")
         self.assertFalse(r["gate_pass"])
