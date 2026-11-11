@@ -309,6 +309,87 @@ class ProductosPanel(PanelBase):
         boton(d.cuerpo, "✨ Generar", generar, COLOR_PRIMARY).pack(anchor="w", pady=(8, 0))
         pintar_historico()
 
+    def _anuncios_meta(self, p: Dict[str, Any]) -> None:
+        d = Dialogo(self, f"Anuncios Meta — {p['nombre']}", ancho=720)
+        resultados_frame = tk.Frame(d.cuerpo, bg=BG_CARD)
+        resultados_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
+
+        def pintar_historico():
+            for w in resultados_frame.winfo_children():
+                w.destroy()
+            from app.services import anuncios_meta_service
+            for m in anuncios_meta_service.listar(self.db, p["id"]):
+                etiqueta(resultados_frame, f"{'✓ Gate OK' if m['gate_pass'] else '✗ Gate falló'} · {m['creado_at']}",
+                        "ok" if m["gate_pass"] else "error").pack(anchor="w", pady=(6, 0))
+                a = m.get("formato_a", {})
+                etiqueta(resultados_frame, f"A: {a.get('primary_text', '')} — {a.get('headline', '')}",
+                        "suave", wrap=680).pack(anchor="w")
+                b = m.get("formato_b", {})
+                etiqueta(resultados_frame,
+                        f"B: 1) {b.get('problema', {}).get('headline', '')} · "
+                        f"2) {b.get('solucion', {}).get('headline', '')} · "
+                        f"3) {b.get('oferta', {}).get('headline', '')}", "suave", wrap=680).pack(anchor="w")
+                c = m.get("formato_c", {})
+                etiqueta(resultados_frame, f"C: {c.get('dolor', '')} / {c.get('resultado', '')}",
+                        "suave", wrap=680).pack(anchor="w")
+
+        def generar():
+            def trabajo():
+                from app.services import anuncios_meta_service
+                contexto = (f"Nombre: {p['nombre']}\nCategoría: {p.get('categoria') or '—'}\n"
+                           f"PVP: {p.get('pvp') or '—'}\nNotas: {p.get('notas') or '—'}")
+                resultado = anuncios_meta_service.generar(contexto)
+                anuncios_meta_service.guardar(self.db, p["id"], resultado)
+                return resultado
+
+            def listo(resultado):
+                self.aviso("Anuncios generados." if resultado.get("generado") else "El modelo no respondió.",
+                          "ok" if resultado.get("gate_pass") else "aviso")
+                pintar_historico()
+
+            self.en_hilo(trabajo, listo, lambda e: self.aviso(f"Error al generar: {e}", "error"))
+
+        boton(d.cuerpo, "✨ Generar", generar, COLOR_PRIMARY).pack(anchor="w")
+        pintar_historico()
+
+    def _video_ia(self, p: Dict[str, Any]) -> None:
+        d = Dialogo(self, f"Vídeo IA — {p['nombre']}", ancho=720)
+        _, imagen_var, _ = self.campo(d.cuerpo, "URL pública de la imagen del producto", ancho=60)
+        _, hook_var, _ = self.campo(d.cuerpo, "Hook visual (opcional)", ancho=60)
+        resultados_frame = tk.Frame(d.cuerpo, bg=BG_CARD)
+        resultados_frame.pack(fill=tk.BOTH, expand=True, pady=(8, 0))
+
+        def pintar_historico():
+            for w in resultados_frame.winfo_children():
+                w.destroy()
+            from app.services import video_generator_service
+            for v in video_generator_service.listar(self.db, p["id"]):
+                color = "ok" if v["estado"] == "generado" else "error" if v["estado"] == "error" else "aviso"
+                etiqueta(resultados_frame, f"{v['estado']} · {v['creado_at']}", color).pack(anchor="w", pady=(6, 0))
+                if v.get("video_url"):
+                    etiqueta(resultados_frame, f"Vídeo: {v['video_url']}", "suave", wrap=680).pack(anchor="w")
+                etiqueta(resultados_frame, v.get("prompt_movimiento", ""), "suave", wrap=680).pack(anchor="w")
+
+        def generar():
+            url = imagen_var.get().strip()
+            if not url:
+                self.aviso("Pon la URL de una imagen del producto.", "aviso")
+                return
+
+            def trabajo():
+                from app.services import video_generator_service
+                return video_generator_service.generar(self.db, p["id"], url, p["nombre"], hook_var.get().strip())
+
+            def listo(resultado):
+                self.aviso(resultado.get("aviso") or f"Job #{resultado['id']}: {resultado['estado']}",
+                          "ok" if resultado["estado"] == "generado" else "aviso")
+                pintar_historico()
+
+            self.en_hilo(trabajo, listo, lambda e: self.aviso(f"Error al generar: {e}", "error"))
+
+        boton(d.cuerpo, "🎬 Generar", generar, COLOR_PRIMARY).pack(anchor="w", pady=(8, 0))
+        pintar_historico()
+
     def _demanda(self, p: Dict[str, Any]) -> None:
         import os
         d = Dialogo(self, "Demanda (fake door) y creativo")
