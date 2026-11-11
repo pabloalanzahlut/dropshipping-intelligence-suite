@@ -60,7 +60,7 @@ Todos los archivos tienen `[PLACEHOLDER]` marcados. Sustituirlos antes de public
 ## Verificación GEM OS superada
 
 - ✅ Tiempos de envío: mínimo 6 días laborables en todos los archivos
-- ✅ Sin promesas de envío exprés o 24-48h
+- ✅ Sin promesas de plazos de envío que el proveedor no confirme
 - ✅ Política de reembolso cubre "pedido no recibido"
 - ✅ Menú principal ≤ 6 items nivel 1
 - ✅ FAQ coherente con políticas legales

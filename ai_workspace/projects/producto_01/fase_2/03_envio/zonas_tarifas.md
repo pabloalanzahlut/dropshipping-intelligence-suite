@@ -26,7 +26,7 @@
 - ✅ Nunca prometer entrega < 6 días laborables
 - ✅ Siempre incluir "laborables" (no días naturales)
 - ✅ Mencionar código de rastreo disponible
-- ❌ No usar "envío exprés" ni "24-48h"
+- ❌ No prometer plazos de envío más cortos que los reales del proveedor
 
 ---
 

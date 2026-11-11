@@ -56,4 +56,4 @@ Envío en {{DIAS_ENVIO_PROVEEDOR}} días laborables. {{GARANTIA_REAL_DE_LA_TIEND
 URL handle: [handle-coleccion]
 ```
 
-> NUNCA poner "envío en 24h" o "envío exprés" en ninguna descripción de colección.
+> NUNCA prometer en una descripción de colección plazos de envío que el proveedor no confirme.
