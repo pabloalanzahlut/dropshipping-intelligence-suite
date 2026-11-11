@@ -56,6 +56,17 @@ class GenerarCopyTests(Base):
             r = svc.generar("tiktok_ads", "x")
         self.assertFalse(r["gate_pass"])
 
+    def test_copy_anidado_por_error_del_modelo_se_aplana_para_el_gate(self):
+        """Bug real encontrado en vivo: el modelo a veces devuelve un objeto por canal en
+        vez de los campos planos pedidos. El gate debe revisar ese texto igualmente, no
+        saltárselo en silencio."""
+        respuesta = ('{"copy": {"Google Ads": {"titulo_1": "El mejor organizador del mundo"}, '
+                     '"TikTok Ads": {"hook_video": "normal"}}}')
+        with mock.patch.object(svc, "chat", return_value=respuesta):
+            r = svc.generar("google_ads", "x")
+        self.assertFalse(r["gate_pass"])
+        self.assertTrue(r["gate_violations"])
+
     def test_sin_respuesta_no_rompe(self):
         with mock.patch.object(svc, "chat", return_value=None):
             r = svc.generar("amazon", "x")
