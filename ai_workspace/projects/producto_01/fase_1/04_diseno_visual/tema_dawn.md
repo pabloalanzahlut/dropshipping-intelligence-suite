@@ -1,15 +1,12 @@
-# CONFIGURACIÓN TEMA DAWN — [MARCA]
-> Shopify Admin → Online Store → Themes → Dawn → Customize
+# CONFIGURACIÓN DE TEMA — [MARCA]
+> AVISO (corregido 2026-11-11): este archivo se escribió para Dawn, pero el curso (`Q4Ykcwh5Osc` 00:35:31) usa el tema gratuito **Sense**, que además ya es el tema activo en la tienda. **No instalar Dawn.** Los ajustes de abajo (colores, tipografía, logo, header, carrito) existen en cualquier tema 2.0, pero los nombres exactos pueden variar en Sense: verificar en el editor.
+> Shopify Admin → Online Store → Themes → Sense → Customize
 
 ---
 
-## Por qué Dawn (metodología Adrián Sáenz)
+## Tema: Sense (el del curso)
 
-Dawn es el tema gratuito oficial de Shopify 2.0. Adrián Sáenz lo recomienda para empezar porque:
-- Carga rápida (Core Web Vitals altos → mejor SEO y conversión)
-- Compatible con todas las apps de dropshipping
-- Secciones arrastrables sin código
-- Se ve profesional con la configuración correcta
+En el vídeo (`Q4Ykcwh5Osc` 00:35:31) se elige entre los temas gratuitos de la Theme Store y se publica **Sense**. Flujo del curso: nombre y logo (00:36–00:59) → 2 esquemas de color (01:00:12) → bloques `Liquid personalizado` (01:04:12) → menú (03:16:37). Dawn no aparece en el vídeo.
 
 ---
 

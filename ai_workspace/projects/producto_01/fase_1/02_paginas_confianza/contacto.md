@@ -11,7 +11,7 @@
 
 ### ¿Tienes alguna pregunta?
 
-Estamos aquí para ayudarte. Escríbenos y te respondemos en menos de **24 horas** (días laborables).
+Estamos aquí para ayudarte. Escríbenos y te respondemos en menos de **48 horas laborables**.
 
 ---
 

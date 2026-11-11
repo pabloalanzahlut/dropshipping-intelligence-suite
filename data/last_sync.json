@@ -1,15 +1,15 @@
 {
-  "fecha_sincronizacion": "2026-11-11T17:22:05",
+  "fecha_sincronizacion": "2026-11-11T18:52:05",
   "canales_procesados": 7,
-  "videos_descargados": 0,
-  "transcripciones_procesadas": 0,
+  "videos_descargados": 1,
+  "transcripciones_procesadas": 1,
   "duplicados": 0,
   "sin_subtitulos": 1,
   "fuera_de_tema": 0,
   "errores": 0,
-  "tokens_ahorrados": 0,
+  "tokens_ahorrados": 16,
   "cancelado": false,
   "limitado": true,
   "lote_completo": false,
-  "reintentar_a": "2026-11-11T18:18:39"
+  "reintentar_a": "2026-11-11T19:48:59"
 }

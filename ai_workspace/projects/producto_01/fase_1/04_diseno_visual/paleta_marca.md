@@ -1,11 +1,11 @@
 # PALETA DE MARCA — [MARCA]
-> Referencia para Dawn + todos los materiales visuales
+> Referencia para el tema activo (Sense) + todos los materiales visuales
 
 ---
 
-## Regla de Adrián Sáenz: máximo 2 colores
+## Criterio del curso: 2 esquemas de color
 
-Una tienda de dropshipping no es una agencia creativa. Más de 2 colores = distracción = menos conversión.
+Fuente: `Q4Ykcwh5Osc` 01:00:12 — en Configuración del tema → Colores se editan *esquemas de color* y "con dos de estos sets ya nos basta": uno de resalte (color de marca) y uno básico. Los hex de abajo son propuestas de GEM OS, no del curso.
 
 ---
 
@@ -72,7 +72,7 @@ TEXTO:            [HEX]
 | Cuerpo y botones | DM Sans | Helvetica, sans-serif |
 
 **Por qué esta combinación:**
-Playfair Display da autoridad y premium. DM Sans es la fuente más legible en móvil a tamaño pequeño. Adrián Sáenz usa combinaciones serif/sans-serif para transmitir confianza sin parecer una tienda genérica.
+Criterio del curso (`Q4Ykcwh5Osc` 00:53:53): la fuente con serifa se asocia a elegante/premium/lujo (belleza); sin serifa, a producto tecnológico; fantasía o manuscrita, a juguetes y mascotas. En el vídeo la fuente se elige para el logotipo (nombre de marca en Canva) y el logo + nombre se exporta en PNG transparente (~1500×400). La pareja Playfair Display + DM Sans de arriba es propuesta de GEM OS, no del curso.
 
 ---
 
