@@ -1,91 +1,151 @@
-# Skill: Buscar Producto Ganador (Mobile-First)
+# Skill: Buscar Producto Ganador
 
 **ID:** `buscar_producto`
-**Versión:** 1.0.0
-**Propósito:** Descubrir productos candidatos a dropshipping usando AutoDS Trending, Shopify Analytics móvil y Ad Spy, aplicando pre-filtrado financiero antes de pasar al clasificador.
+**Versión:** 2.0.0
+**Actualizado:** 2026-11-11
+**Propósito:** Descubrir candidatos a dropshipping aplicando pre-filtrado financiero correcto (coste landed, no coste suelto) antes de pasar al clasificador.
 
 **Trigger:** Manual vía `/buscar-producto` o automático desde el Orchestrator Core.
 **Output destino:** `clasificar_productos` (handoff directo) + `ai_workspace/projects/producto_01/market_analysis.json`
 
 ---
 
-## Reglas de Pre-filtrado (INMUTABLES — igual que clasificar_productos)
+## Reglas de Pre-filtrado (INMUTABLES)
+
+Fuente: CLAUDE.md v3.0 — Adrián Sáenz `Q4Ykcwh5Osc 17:50 y 24:40`
 
 | Criterio | Umbral | Acción si falla |
 |----------|--------|-----------------|
+| Multiplicador mínimo | PVP ≥ 2× **coste landed** (producto + envío) | DESCARTAR |
+| Multiplicador objetivo | PVP ≥ 3× **coste landed** | Clasifica COLD si queda entre 2-3× |
+| Coste de origen | $5–15 | DESCARTAR fuera de rango |
 | Baterías de litio sueltas | Prohibido | DESCARTAR |
 | Categorías prohibidas | Armas, adultos, medicamentos | DESCARTAR |
 
+**Lo que el curso NO menciona (no aplicar):** umbral de margen %, límite de peso en kg.
+
+**El multiplicador va sobre coste landed, nunca sobre el producto solo.**
+Ejemplo: $5 producto + $2 envío = landed $7 → PVP mínimo 2× = $14 · objetivo 3× = $21.
+Un coste $5 vendido a $15 aparenta 3× cuando es 2,14× sobre landed.
+
 ---
 
-## Fase 1 — AutoDS Trending Products
+## Clasificación
 
-### Pasos
-1. Abrir AutoDS app móvil → sección **Trending Products** o **TikTok Analytics**
-2. Aplicar filtros:
-   - Categoría: Electronics / Home & Living / Fitness / Pet Supplies (únicas permitidas para HOT)
-   - Tendencia: ordenar por "más viral" o "crecimiento últimas 24h"
-   - Coste: filtrar $5-15 (Q4Ykcwh5Osc 17:50)
-3. Para cada producto candidato, registrar:
-   - Nombre del producto
-   - Precio del proveedor (costo origen)
-   - Precio de venta sugerido por AutoDS
-   - Peso declarado por el proveedor
-   - País de origen del proveedor
-   - Número de pedidos últimos 30 días
-4. Aplicar pre-filtrado: descartar cualquier producto que falle alguna regla de la tabla anterior
-5. Pasar máximo **5 candidatos** a la Fase 2
+| Clasificación | Multiplicador sobre landed |
+|--------------|---------------------------|
+| HOT          | ≥ 5×                      |
+| WARM         | 3–5×                      |
+| COLD         | 2–3×                      |
+| DISCARD      | < 2×                      |
 
-### Señales de producto HOT en AutoDS
-- Órdenes últimos 30 días: >500
-- Aparece en sección TikTok Analytics
-- Rating proveedor: ≥ 4.5 estrellas
+---
+
+## Nichos objetivo
+
+Fuente: `Q4Ykcwh5Osc 17:04:27`
+
+1. **Mascotas**
+2. **Bebés**
+3. **Fitness**
+4. **Cocina**
+
+Priorizar productos con factor WOW visual (se demuestran solos en video) y precio de venta < $40 para compra por impulso.
+
+---
+
+## Vía 1 — MCP oficial de AutoDS (preferente)
+
+El MCP de AutoDS está disponible en esta sesión (`mcp__d3daeaff-*`). Usar siempre que el conector responda; cubre 8M de productos sin scraping manual.
+
+### Búsqueda de winning products
+
+```
+get_winning_products(
+    offset=0,
+    limit=20,
+    sort="-orders_count",
+    item_cost="5-15",
+    orders=70
+)
+```
+
+### Búsqueda por nicho en el catálogo
+
+```
+search_products(body={
+    "order_by": {"name": "spv_param", "direction": "desc"},
+    "filters": [
+        {"name": "search_query", "value": "<nicho>", "value_type": "string", "op": "search"},
+        {"name": "variations.variation_details.price", "value": "5,15", "value_type": "float", "op": "between"}
+    ]
+})
+```
+
+Pasar máximo **5 candidatos** a la Fase de Validación Financiera.
+
+---
+
+## Vía 2 — AutoDS Trending Products (si el MCP no responde)
+
+### Filtros confirmados (probados el 2026-11-11)
+
+| Filtro | Valor | Nota |
+|--------|-------|------|
+| **Sell Price Range** | **5-15** | Obligatorio |
+| **Sold Range** | **More than 10 000** | Obligatorio |
+| Likes | vacío | Combinarlo da 0 resultados |
+| Impressions | vacío | Combinarlo da 0 resultados |
+| Interaction Rate | vacío | Combinarlo da 0 resultados |
+| Profit Range | vacío | — |
+| Last Comment Time | vacío | — |
+
+> Estos filtros se combinan con AND. Añadir más sin verificar puede dar 0 resultados.
+
+**Sort By:** `Sold Growth % (last 7d)` — opción real de la interfaz; equivale a "más viral".
+
+**Categorías a explorar (en orden):** Pets · Home & Garden · Sports & Fitness · Toys & Hobbies · Beauty & Personal Care.
+
+### Señales de producto HOT en Trending
+
+- Sold: >10 000 (ya garantizado por el filtro)
+- Aparece en sección TikTok Analytics: sí
+- Rating proveedor: ≥ 4,5 estrellas
 - Stock disponible: >100 unidades
 
 ---
 
-## Fase 2 — Shopify Analytics Móvil
+## Fase final — Validación financiera obligatoria
 
-### Propósito
-Validar que el contexto actual de la tienda es compatible con los candidatos (tráfico disponible, categorías que ya convierten, AOV objetivo).
+Antes de pasar al clasificador, calcular el multiplicador real sobre coste landed:
 
-### Pasos
-1. Abrir app Shopify → **Analytics** → panel del día
-2. Registrar las siguientes métricas de contexto:
-   - **Conversion rate actual** de la tienda (referencia de expectativa)
-   - **AOV (Average Order Value)** — el precio de venta del candidato debe estar dentro del ±30% del AOV actual
-   - **Top fuentes de tráfico** — confirmar que hay tráfico compatible con la categoría del candidato
-   - **Categoría que más convierte hoy** — priorizar candidatos de esa categoría
-3. Revisar **Shopify Inbox**: si hay preguntas frecuentes sobre un tipo de producto, ese pain point es señal de oportunidad
-4. Ajustar la lista de candidatos: si el AOV del candidato supera AOV+30%, marcar como RIESGO_PRECIO
+```python
+from app.services.financial_validator import FinancialValidator
+v = FinancialValidator()
+r = v.validar_producto(
+    sku,
+    costo_origen=coste_producto,
+    costo_envio=coste_envio_real,   # DATA_GAP si no se tiene
+    pvp_sugerido=pvp,
+    moneda_costo="USD",
+    moneda_pvp="EUR"
+)
+```
 
-### Métricas de alerta
-- Conversion rate < 1%: advertir, no descartar
-- AOV candidato > AOV actual × 1.5: marcar RIESGO_PRECIO en el output
+**Si no se tiene el coste de envío al destino real (UE/Italia): DATA_GAP — no asumir $0 ni inventar.**
 
 ---
 
-## Fase 3 — AutoDS Ad Spy (Espionaje de Anuncios)
+## Ad Spy (antes del handoff)
 
-### Propósito
-Validar que el mercado ya tiene demanda probada analizando los anuncios activos de la competencia.
+Para cada candidato que supera el filtro financiero:
 
-### Pasos
-1. Para cada candidato que supera Fases 1 y 2:
-   - Abrir AutoDS Ad Spy → buscar el producto por nombre/categoría
-   - Plataformas a revisar: Facebook Ads, Instagram Ads, TikTok Ads
-2. Para cada anuncio encontrado, registrar:
-   - **Hook (primeros 3 segundos)**: ¿es visual o verbal? ¿problema o solución?
-   - **Formato**: video corto (15-30s) / imagen / carrusel
-   - **Copy principal**: ¿usa urgencia? ¿garantía? ¿comparación?
-   - **CTA**: "Shop Now" / "Get Yours" / "Order Today" / otro
-   - **Engagement estimado**: likes/comentarios si es visible
-   - **Antigüedad del anuncio**: si lleva >30 días activo = producto probado
-3. Señales de validación (mercado probado):
-   - Anuncio activo hace >30 días: fuerte señal positiva
-   - Múltiples anunciantes para el mismo producto: mercado saturado (revisar diferenciación)
-   - Solo 1-2 anunciantes: oportunidad de entrar
-4. Registrar `notas_ad_spy` con el resumen de hallazgos
+1. AutoDS Ad Spy → buscar por nombre/categoría
+2. Plataformas: Facebook Ads, TikTok Ads
+3. Registrar:
+   - Anuncio activo >30 días → mercado probado ✅
+   - Solo 1–2 anunciantes → oportunidad de entrada ✅
+   - Muchos anunciantes → evaluar diferenciación antes de continuar
 
 ---
 
@@ -95,24 +155,24 @@ Validar que el mercado ya tiene demanda probada analizando los anuncios activos 
 {
   "busqueda_id": "BSQ-{YYYYMMDD}-{NNN}",
   "fecha": "YYYY-MM-DD",
-  "fuente": "autods_trending | autods_adspy | shopify_analytics",
+  "via": "autods_mcp | autods_trending",
   "producto_candidato": {
     "nombre": "",
     "categoria": "",
     "pais_origen": "",
-    "peso_kg": 0.0,
     "tiene_bateria_litio": false
   },
   "financiero": {
-    "precio_proveedor_estimado": 0.00,
-    "precio_competencia": 0.00,
-    "margen_calculado": 0.0,
-    "ratio_x": 0.0,
-    "aov_tienda_actual": 0.00,
-    "riesgo_precio": false
+    "costo_producto_usd": 0.00,
+    "costo_envio_usd": 0.00,
+    "costo_landed_usd": 0.00,
+    "pvp_eur": 0.00,
+    "tipo_cambio_usado": 0.0,
+    "multiplicador_x": 0.0,
+    "data_gap_envio": false
   },
   "autods_metrics": {
-    "ordenes_30d": 0,
+    "ordenes_totales": 0,
     "rating_proveedor": 0.0,
     "stock_disponible": 0,
     "aparece_tiktok_analytics": false
@@ -122,8 +182,6 @@ Validar que el mercado ya tiene demanda probada analizando los anuncios activos 
     "plataformas": [],
     "anuncio_mas_antiguo_dias": 0,
     "hook_dominante": "",
-    "formato_dominante": "",
-    "cta_dominante": "",
     "nivel_competencia": "bajo | medio | alto"
   },
   "clasificacion_preliminar": "HOT | WARM | COLD | DISCARD",
@@ -132,11 +190,12 @@ Validar que el mercado ya tiene demanda probada analizando los anuncios activos 
 }
 ```
 
-### Regla de `clasificacion_preliminar`
-- `HOT`: ratio_x ≥ 5.0 y anuncios_encontrados ≥ 1 y anuncio_mas_antiguo_dias ≥ 30
-- `WARM`: ratio_x ≥ 3.0 y ratio_x < 5.0
-- `COLD`: ratio_x ≥ 1.5 y ratio_x < 3.0
-- `DISCARD`: ratio_x < 1.5 o falla cualquier regla de pre-filtrado
+### Regla de `clasificacion_preliminar` (siempre sobre coste landed)
+
+- `HOT`: multiplicador_x ≥ 5,0
+- `WARM`: multiplicador_x ≥ 3,0 y < 5,0
+- `COLD`: multiplicador_x ≥ 2,0 y < 3,0
+- `DISCARD`: multiplicador_x < 2,0 o falla cualquier regla de pre-filtrado
 
 ---
 
@@ -144,12 +203,9 @@ Validar que el mercado ya tiene demanda probada analizando los anuncios activos 
 
 Si `apto_para_clasificador = true`:
 1. Guardar el JSON en `ai_workspace/projects/producto_01/market_analysis.json`
-2. Notificar a Orchestrator Core → trigger `/clasificar-producto`
-3. Incluir en el handoff: `busqueda_id`, `clasificacion_preliminar`, `notas_ad_spy`
+2. Trigger `/clasificar-producto`
+3. Incluir: `busqueda_id`, `clasificacion_preliminar`, `notas_ad_spy`
 
 Si `apto_para_clasificador = false`:
 - Registrar en `ai_workspace/memory/productos_descartados.json` con motivo
 - No avanzar en el pipeline
-
-
-
