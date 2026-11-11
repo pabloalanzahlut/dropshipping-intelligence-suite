@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Canales Pagados{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Canales Pagados</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="canalesApp()" x-init="cargarChecklist()">
+
+  <div style="margin-bottom:24px;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+      Canales <span style="background:linear-gradient(90deg,#fbbf24,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Pagados</span>
+    </h1>
+    <p style="font-size:12px;color:#4a5080;margin:0;">
+      Checklist operativo (de los procedimientos reales) + copy guiado por IA — sin conexión en vivo a las APIs de Google/TikTok/Amazon.
+      Para campañas con pauta real, usa Meta/TikTok Ads tal como hoy, registrando el gasto a mano en Negocio.
+    </p>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <template x-for="c in canales" :key="c.v">
+      <button @click="canal = c.v; cargarChecklist()" class="btn-ghost" :class="canal === c.v ? 'btn-primary' : ''"
+              style="font-size:12px;padding:8px 14px;" x-text="c.t"></button>
+    </template>
+  </div>
+
+  <div x-show="error" x-cloak style="background:rgba(244,63,94,0.07);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+    <p style="font-size:12px;color:#fb7185;margin:0;" x-text="error"></p>
+  </div>
+
+  <div class="g-resp" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="card">
+      <div class="section-title">Checklist operativo</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <template x-for="(item, i) in checklistActual" :key="i">
+          <label class="ctl" style="align-items:flex-start;gap:8px;">
+            <input type="checkbox" style="margin-top:3px;">
+            <span x-text="item"></span>
+          </label>
+        </template>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Copy guiado por IA</div>
+      <textarea x-model="contextoProducto" class="input-field" rows="3" placeholder="Nombre, categoría, PVP, beneficio clave del producto…" style="width:100%;margin-bottom:10px;"></textarea>
+      <button @click="generar()" :disabled="cargando" class="btn-primary">
+        <span x-text="cargando ? 'Generando…' : '✨ Generar copy'"></span>
+      </button>
+
+      <template x-for="r in historial" :key="r.id">
+        <div style="border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;margin-top:12px;background:#08091a;">
+          <p style="font-size:11px;margin:0 0 6px;">
+            <span :style="r.gate_pass ? 'color:#34d399;' : 'color:#fb7185;'" x-text="r.gate_pass ? '✓ Gate OK' : '✗ Gate falló'"></span>
+            <span style="color:#7880b0;"> · <span x-text="(r.creado_at || '').slice(0,16)"></span></span>
+          </p>
+          <template x-for="(v, k) in (r.copy || {})" :key="k">
+            <p style="font-size:11px;color:#c8d0f0;margin:0 0 4px;"><strong x-text="k + ':'"></strong> <span x-text="v"></span></p>
+          </template>
+          <p x-show="!r.gate_pass" style="font-size:10px;color:#fb7185;margin:6px 0 0;" x-text="(r.gate_violations || []).join(' · ')"></p>
+        </div>
+      </template>
+      <p x-show="!historial.length" style="font-size:12px;color:#4a5080;margin-top:10px;">Sin copy generado todavía para este canal.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+.ctl { display: flex; font-size: 12px; color: #a8b0d8; cursor: default; }
+.ctl input { accent-color: #22d3ee; }
+</style>
+
+<script>
+function canalesApp() {
+  return {
+    canales: [{ v: 'google_ads', t: 'Google Ads' }, { v: 'tiktok_ads', t: 'TikTok Ads' },
+             { v: 'amazon', t: 'Amazon' }, { v: 'tiktok_shop', t: 'TikTok Shop' }],
+    canal: 'google_ads', checklistActual: [], contextoProducto: '', historial: [], cargando: false, error: '',
+    async cargarChecklist() {
+      this.error = '';
+      try {
+        const [r1, r2] = await Promise.all([
+          fetch('/api/canales-pagados/checklist/' + this.canal),
+          fetch('/api/canales-pagados?canal=' + this.canal),
+        ]);
+        this.checklistActual = r1.ok ? (await r1.json()).checklist : [];
+        this.historial = r2.ok ? await r2.json() : [];
+      } catch (e) { this.error = 'Error de conexión con el servidor.'; }
+    },
+    async generar() {
+      this.cargando = true; this.error = '';
+      try {
+        const res = await fetch('/api/canales-pagados/generar', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ canal: this.canal, contexto_producto: this.contextoProducto }) });
+        if (!res.ok) { const err = await res.json(); this.error = err.detail || 'Error al generar.'; return; }
+        await this.cargarChecklist();
+      } catch (e) { this.error = 'Error de conexión con el servidor.'; }
+      finally { this.cargando = false; }
+    }
+  }
+}
+</script>
+{% endblock %}
