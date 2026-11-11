@@ -10,10 +10,10 @@ Configuración para usar modelos económicos via OpenRouter en tareas de volumen
 |---|---|---|---|
 | Regla 3x / validación financiera | `anthropic/claude-sonnet-5.5` | $3/M tokens | ✅ Siempre |
 | Generación ficha Shopify (1 producto) | `anthropic/claude-sonnet-5.5` | $3/M tokens | ✅ Preferido |
-| Generación masiva fichas (10+ productos) | `deepseek/deepseek-chat-v3-0324` | $0.14/M tokens | ❌ OpenRouter |
+| Generación masiva fichas (10+ productos) | `anthropic/claude-haiku-5.5` | $0.14/M tokens | ❌ OpenRouter |
 | Traducción ES→EN de listings | `google/gemini-2.5-flash` | $0.08/M tokens | ❌ OpenRouter |
-| Variantes de copy A/B testing | `deepseek/deepseek-chat-v3-0324` | $0.14/M tokens | ❌ OpenRouter |
-| Scripts TikTok (borrador inicial) | `deepseek/deepseek-chat-v3-0324` | $0.14/M tokens | ❌ OpenRouter |
+| Variantes de copy A/B testing | `anthropic/claude-haiku-5.5` | $0.14/M tokens | ❌ OpenRouter |
+| Scripts TikTok (borrador inicial) | `anthropic/claude-haiku-5.5` | $0.14/M tokens | ❌ OpenRouter |
 | Scripts TikTok (revisión final) | `anthropic/claude-sonnet-5.5` | $3/M tokens | ✅ Calidad |
 | Clasificación HOT/WARM/COLD | `anthropic/claude-sonnet-5.5` | $3/M tokens | ✅ Siempre |
 
@@ -103,10 +103,10 @@ def generar_fichas_masivas(productos: list[dict]) -> list[dict]:
 
 | Modelo | Mejor para | Costo/M tokens |
 |--------|-----------|----------------|
-| `deepseek/deepseek-chat-v3-0324` | Copy masivo, fichas, traducciones | $0.14 |
+| `anthropic/claude-haiku-5.5` | Copy masivo, fichas, traducciones (defecto de volumen desde 2026-11-11) | $0.10 in / $0.50 out |
 | `google/gemini-2.5-flash` | Multimodal + multilenguaje | $0.30 in / $2.50 out |
 | `meta-llama/llama-3.3-70b-instruct` | Fallback de volumen (los `:free` ya no están en el catálogo) | $0.71 |
-| `anthropic/claude-haiku-5.5` | Balance calidad/precio | $0.10 in / $0.50 out |
+| `deepseek/deepseek-chat-v3-0324` | Alternativa de volumen / reversión | $0.29 in / $1.14 out |
 | `deepseek/deepseek-r1-0528` | Razonamiento complejo (ficha técnica difícil) | $0.50 in / $2.15 out |
 
 ---
@@ -157,7 +157,7 @@ resultado = chat(
     user_message=transcripcion_limpia,
 )
 
-# Ficha masiva → DeepSeek V3 (21x más barato)
+# Ficha masiva → DeepSeek V3 (volumen barato)
 ficha = chat(
     task="generar_ficha_shopify",
     system_prompt="Genera ficha Shopify sin superlativos...",

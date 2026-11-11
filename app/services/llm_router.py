@@ -28,8 +28,10 @@ MODEL_ROUTING = {
     # IDs verificados contra https://openrouter.ai/api/v1/models el 2026-11-11
     # (OpenRouter usa punto: claude-sonnet-5.5, no guion).
     "default_critical": "anthropic/claude-sonnet-5.5",
-    # Volumen alto → DeepSeek V3 (calidad excelente, ~7x más barato que Sonnet)
-    "default_volume":   "deepseek/deepseek-chat-v3-0324",
+    # Volumen alto → Haiku 5.5 ($0.10/$0.50 por M, ~20x más barato que Sonnet).
+    # A/B 2026-11-11 (10 productos reales, gate + DATA_GAP): empate de calidad con
+    # DeepSeek V3-0324 ($0.29/$1.14), más rápido. Para revertir: "deepseek/deepseek-chat-v3-0324".
+    "default_volume":   "anthropic/claude-haiku-5.5",
     # Traducción / multimodal rápido (imagen → texto)
     "translate":        "google/gemini-2.5-flash",
     # Razonamiento complejo (specs técnicas difíciles)
