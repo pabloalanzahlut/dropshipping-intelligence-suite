@@ -1,4 +1,6 @@
 # ⛔ ERRORES COMUNES — Tráfico Orgánico TikTok / Instagram / Facebook
+
+> ⚠️ **BORRADOR — no extraído del vídeo del curso.** Los títulos de capítulo y timestamps son reales; el contenido es conocimiento general. Umbrales y cifras sin verificar. Pendiente de reconstruir desde la transcripción en la KB (`/ingerir_transcripcion_kb`).
 > Curso Adrián Sáenz `Q4Ykcwh5Osc 14:27:20` | GEM OS v3.0
 
 ---
@@ -26,7 +28,7 @@ No hay aviso. Solo caída abrupta de views.
 ```
 
 ### Señales de que tienes shadowban activo
-- Views < 200 en las primeras 2h (cuenta nueva: < 50)
+- Caída brusca de views frente a tu media (sin umbral oficial: medir con tus propias métricas)
 - El video no aparece al buscar tus propios hashtags
 - Cero nuevos seguidores tras publicar
 
@@ -74,7 +76,7 @@ Categorías que generan ban de cuenta (no shadowban, sino eliminación permanent
 - [ ] Usar 3-5 hashtags específicos + 1-2 de nicho (nunca #fyp solo, ya no funciona)
 - [ ] Responder TODOS los comentarios en las primeras 2h (señal de cuenta activa)
 - [ ] No borrar videos con pocas views — el algoritmo puede relanzarlos días después
-- [ ] Para videos con IA (Higgsfield): **no añadir la etiqueta AI** si el estilo es realista; añadirla si lo exige la plataforma (Facebook la detecta automáticamente desde 2025)
+- [ ] Videos con IA (Higgsfield): **etiquetar como contenido generado por IA** cuando sea realista, con la etiqueta nativa de TikTok / Instagram / Facebook. Las plataformas lo exigen; no etiquetar arriesga eliminación y sanciones
 
 ---
 

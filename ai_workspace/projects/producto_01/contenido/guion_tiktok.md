@@ -21,17 +21,17 @@
 > **[TOMA 2 - USO]** Mano usando el producto. Resultado visible en 3 segundos.
 > **[TOMA 3 - DETALLE]** Zoom al {{CARACTERISTICA_CLAVE}} del producto.
 
-**VO / Caption:** *"{{BENEFICIO_EMOCIONAL_1}}. Sin cables. Sin complicaciones. {{BENEFICIO_EMOCIONAL_2}} desde casa."*
+**VO / Caption:** *"{{BENEFICIO_1_SEGUN_PROVEEDOR}}. {{BENEFICIO_2_SEGUN_PROVEEDOR}}."*
 
 ---
 
 ### 🟢 CTA — 15 a 30 segundos
 
 > **[PANTALLA LIMPIA - FONDO BLANCO O NEGRO]**
-> **[TEXTO GRANDE]** "Envío gratuito 🌍 | Llega en 6-12 días"
-> **[TEXTO PEQUEÑO]** "Garantía 30 días o te devolvemos el dinero"
+> **[TEXTO GRANDE]** "Envío: {{DIAS_ENVIO_PROVEEDOR}} días hábiles"
+> **[TEXTO PEQUEÑO]** "{{GARANTIA_REAL_DE_LA_TIENDA}}"
 
-**VO / Caption:** *"Link en bio — {{PRECIO_VENTA}}€ solo hoy. ¡Quedan {{UNIDADES_DISPONIBLES}} unidades!"*
+**VO / Caption:** *"Link en bio — {{PRECIO_VENTA}}€."* (sin urgencia ni escasez salvo que sea real y verificable)
 
 ---
 
@@ -42,7 +42,7 @@
 ```
 
 ## ⚠️ REGLAS GEM OS (NO IGNORAR)
-- ❌ NO prometer envío en 24-48h (ban de cuenta TikTok/Meta)
-- ❌ NO usar: "el mejor del mundo", "único en el mercado" (superlativos vacíos)
-- ✅ SÍ mencionar "6-12 días laborables" exactamente
+- ❌ NO prometer plazos de envío que el proveedor no confirme (riesgo de ban en TikTok/Meta)
+- ❌ NO usar superlativos vacíos (lista cerrada en `app/services/deterministic_gate.py`)
+- ✅ SÍ usar los días de envío reales del proveedor ({{DIAS_ENVIO_PROVEEDOR}}); el curso muestra 2-5 días hábiles (Shopify) y 5-7 (TikTok Shop)
 - ✅ SÍ mostrar demostración visual real del producto

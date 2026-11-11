@@ -54,20 +54,20 @@
 │   🛒 CONSÍGUELO HOY         │
 │                             │
 │   💰 {{PRECIO_VENTA}}€      │
-│   🌍 Envío gratis           │
-│   📅 Llega en 6-12 días     │
-│   🔄 Garantía 30 días       │
+│   🌍 Envío: {{COSTE_ENVIO_REAL}}
+│   📅 {{DIAS_ENVIO_PROVEEDOR}} días hábiles
+│   🔄 {{GARANTIA_REAL}}
 │                             │
 │   👆 Link en bio            │
 └─────────────────────────────┘
 ```
 
 **Link sticker:** URL de la tienda Shopify
-**Texto sticker:** "¡Quedan pocas unidades! ⚡"
+**Texto sticker:** solo si el stock limitado es real y verificable
 
 ---
 
 ## ⚠️ REGLAS GEM OS
-- ❌ NO prometer envío express / 24-48h
+- ❌ NO prometer plazos de envío que el proveedor no confirme
 - ✅ SÍ usar countdown real (no inventado)
 - ✅ SÍ añadir poll en slide 1 para aumentar engagement

@@ -1,4 +1,6 @@
 # 🎯 ELECCIÓN DE PRODUCTO PARA TRÁFICO ORGÁNICO
+
+> ⚠️ **BORRADOR — no extraído del vídeo del curso.** Los títulos de capítulo y timestamps son reales; el contenido es conocimiento general. Umbrales y cifras sin verificar. Pendiente de reconstruir desde la transcripción en la KB (`/ingerir_transcripcion_kb`).
 > Curso Adrián Sáenz `Q4Ykcwh5Osc 17:04:27` | GEM OS v3.0
 
 ---
@@ -14,7 +16,7 @@
 | Copy | Texto puede vender | **El video DEBE demostrar solo** |
 | Frecuencia de contenido | 2-5 creativos/semana | **1-2 videos/día mínimo** |
 
-> **Regla de Adrián Sáenz:** Para orgánico el producto tiene que "venderse solo" con una demostración visual. Si necesitas explicación, no es producto para orgánico.
+> **Criterio de trabajo (no extraído del curso):** para orgánico, el producto debería poder demostrarse visualmente sin explicación.
 
 ---
 
@@ -52,7 +54,7 @@ El video debe provocar una reacción en los primeros 3 segundos:
 ```
 
 ### 3. Precio asequible (impulso de compra)
-- Rango ideal para orgánico: **€15-45**
+- Rango de precio: **por definir con datos reales**. El curso fija coste de origen $5–15 y PVP ≥ 2× coste landed (objetivo 3×)
 - Por encima de €50: necesita más confianza → mejor para paid ads + retargeting
 - Por debajo de €10: margen insuficiente (regla 2x/3x GEM OS sobre coste landed)
 
@@ -78,11 +80,11 @@ AutoDS Trending: clasificación HOT o WARM (skill /clasificar-producto)
 
 ```
 ¿Tiene factor WOW visual?
-    SÍ → ¿Precio €15-45?
+    SÍ → ¿PVP ≥ 2× coste landed (objetivo 3×)?
             SÍ → ¿Fácil de demostrar en 7s?
                     SÍ → ✅ IDEAL para ORGÁNICO
                     NO → ⚡ Orgánico + Paid combinado
-            NO (> €45) → ⚡ Mejor PAID ADS + retargeting orgánico
+            NO → ⚡ Revisar con /validar-financiero antes de decidir canal
     NO → ❌ Paid Ads únicamente (el copy puede compensar)
 ```
 

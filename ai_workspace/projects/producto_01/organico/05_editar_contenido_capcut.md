@@ -1,4 +1,6 @@
 # ✂️ CÓMO EDITAR CONTENIDO — Workflow CapCut
+
+> ⚠️ **BORRADOR — no extraído del vídeo del curso.** Los títulos de capítulo y timestamps son reales; el contenido es conocimiento general. Umbrales y cifras sin verificar. Pendiente de reconstruir desde la transcripción en la KB (`/ingerir_transcripcion_kb`).
 > Curso Adrián Sáenz `Q4Ykcwh5Osc 15:49:01` | GEM OS v3.0
 > Plataformas: TikTok + Instagram Reels + Facebook Reels
 
@@ -39,7 +41,7 @@ CapCut → Texto → Auto-subtítulos
 → Posición: Tercio inferior del video (nunca sobre el producto)
 → Color: Blanco con sombra negra (legible en cualquier fondo)
 ```
-✅ Los subtítulos aumentan la retención hasta un 40% (audiencia sin sonido activado)
+✅ Los subtítulos ayudan a quien ve sin sonido (efecto no medido aquí; validar con métricas propias)
 
 ### PASO 4 — Música y audio
 
@@ -67,7 +69,7 @@ Duración: 1.5-2 segundos máximo
 
 **Precio / CTA (últimos 3s):**
 ```
-Texto: "Solo XX€ | Envío gratis"
+Texto: "{{PRECIO_VENTA}}€ | Envío: {{ENVIO_REAL}}"
 Posición: inferior centrado
 Fondo: rectángulo negro semitransparente
 Tamaño: legible sin zoom

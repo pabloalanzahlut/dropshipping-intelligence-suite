@@ -20,7 +20,7 @@
 
 ---
 
-## ⏱️ TIEMPO REAL POR TAREA (Tabla del curso Adrián Sáenz)
+## ⏱️ TIEMPO POR TAREA (tabla del texto aportado por el usuario, no extraída del vídeo)
 
 | Tarea | Tiempo | Dispositivo |
 |-------|--------|-------------|
@@ -49,8 +49,8 @@ GEM OS genera guion_tiktok.md
 ## ✅ CHECKLIST ANTES DE PUBLICAR
 
 - [ ] Producto validado como HOT (≥5x) o WARM (3-5x) por `/clasificar-producto`
-- [ ] Copy revisado: sin superlativos vacíos, sin "24-48h"
-- [ ] Tiempo de envío mencionado: "6-12 días laborables"
-- [ ] Garantía mencionada: "30 días devolución"
+- [ ] Copy pasado por `verificar_copy` (`deterministic_gate.py`): sin superlativos ni plazos de envío no confirmados
+- [ ] Días de envío mencionados = los reales del proveedor ({{DIAS_ENVIO_PROVEEDOR}})
+- [ ] Garantía mencionada = la de la política de reembolso real de la tienda
 - [ ] Hashtags mínimos: 3 (TikTok) / hasta 30 (Instagram)
 - [ ] Link en bio actualizado con URL del producto Shopify

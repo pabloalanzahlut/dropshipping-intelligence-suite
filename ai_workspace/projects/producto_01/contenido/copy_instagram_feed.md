@@ -9,7 +9,7 @@
 
 > **"{{TITULO_6_PALABRAS_MAXIMO}}"**
 
-*Ejemplo: "Duerme mejor cada noche garantizado"*
+*Ejemplo: "Duerme mejor cada noche"*
 *Ejemplo: "Resuelve {{PROBLEMA}} en 30 segundos"*
 
 ---
@@ -20,22 +20,22 @@
 
 ¿Cansado de {{DOLOR_PRINCIPAL_CLIENTE}}? 🙋
 
-✅ **{{BENEFICIO_EMOCIONAL_1}}** — sin esfuerzo extra
-✅ **{{BENEFICIO_EMOCIONAL_2}}** — desde el primer uso
-✅ **{{BENEFICIO_EMOCIONAL_3}}** — compatible con cualquier estilo de vida
+✅ **{{BENEFICIO_EMOCIONAL_1}}**
+✅ **{{BENEFICIO_EMOCIONAL_2}}**
+✅ **{{BENEFICIO_EMOCIONAL_3}}**
 
 ---
 
 ## 🟠 DESEO (Matar objeciones + logística real)
 
-> *Miles de familias en Europa ya lo usan. Envío internacional gratuito — llega en **6-12 días laborables**. Garantía de devolución 30 días sin preguntas.*
+> *Envío: {{DIAS_ENVIO_PROVEEDOR}} días hábiles. {{GARANTIA_REAL_DE_LA_TIENDA}}.*
 
 ---
 
 ## 🟢 ACCIÓN (CTA minimalista)
 
 > 🛒 **Comprar Ahora** → Link en bio
-> 💰 Solo {{PRECIO_VENTA}}€ (precio especial esta semana)
+> 💰 {{PRECIO_VENTA}}€
 
 ---
 
@@ -43,12 +43,12 @@
 
 ```
 #{{NICHO}} #lifestyle #hogar #{{PAIS_OBJETIVO}} #productosvirales
-#shopify #tiendaonline #{{PRODUCTO_CATEGORIA}} #oferta #enviogratis
+#shopify #tiendaonline #{{PRODUCTO_CATEGORIA}}
 ```
 
 ---
 
 ## ⚠️ REGLAS GEM OS
 - ❌ NO alterar dimensiones ni materiales del proveedor
-- ✅ SÍ usar tiempos reales: "6-12 días laborables"
+- ✅ SÍ usar los días de envío reales del proveedor ({{DIAS_ENVIO_PROVEEDOR}})
 - ✅ SÍ mencionar garantía de reembolso explícita

@@ -1,5 +1,7 @@
 # Plan orgánico 14 días: TikTok + Instagram Reels + Facebook Reels (NovaBuy)
 
+> ⚠️ **BORRADOR — no extraído del vídeo del curso.** Los títulos de capítulo y timestamps son reales; el contenido es conocimiento general. Umbrales y cifras sin verificar. Pendiente de reconstruir desde la transcripción en la KB (`/ingerir_transcripcion_kb`).
+
 Fuente: skill `trafico_organico` (Adrián Sáenz `Q4Ykcwh5Osc 14:18:11`). Sin ads, sin píxel Meta (portfolio restringido). Mercado: Italia primero.
 
 ## Regla de producción: 1 vídeo → 3 plataformas

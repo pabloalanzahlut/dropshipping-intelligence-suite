@@ -1,4 +1,6 @@
 # 🖼️ CÓMO CREAR EL PERFIL Y BIO OPTIMIZADOS
+
+> ⚠️ **BORRADOR — no extraído del vídeo del curso.** Los títulos de capítulo y timestamps son reales; el contenido es conocimiento general. Umbrales y cifras sin verificar. Pendiente de reconstruir desde la transcripción en la KB (`/ingerir_transcripcion_kb`).
 > Curso Adrián Sáenz `Q4Ykcwh5Osc 14:49:24` | TikTok + Instagram + Facebook
 
 ---
@@ -63,25 +65,25 @@ Linktree: https://linktr.ee/nombretienda
 ### Fórmula: Qué haces + Para quién + CTA
 ```
 [Nicho/Producto] para [audiencia] ✅
-🚚 Envío gratis | 🔄 30 días devolución
+🚚 {{ENVIO_REAL}} | 🔄 {{GARANTIA_REAL}}
 👇 Ver productos
 ```
 
 ### Ejemplos por nicho
 ```
 Gadgets para organizar tu hogar 🏠
-🚚 Envío gratis Europa | 🔄 30 días
+🚚 {{ENVIO_REAL}} | 🔄 {{GARANTIA_REAL}}
 👇 Tienda en el link
 ```
 ```
 Productos para dormir mejor 😴
 Sin pastillas. Sin trucos. Solo diseño.
-👇 Envío gratis →
+👇 Ver tienda →
 ```
 
 ### Reglas de bio
 - [ ] Emoji al inicio de cada línea (aumenta legibilidad en móvil)
-- [ ] Mencionar envío gratis o garantía (reduce fricción de compra)
+- [ ] Mencionar envío o garantía solo si son reales y constan en la política de la tienda
 - [ ] CTA en la última línea siempre
 - [ ] Sin hashtags en la bio de TikTok (no funcionan ahí)
 

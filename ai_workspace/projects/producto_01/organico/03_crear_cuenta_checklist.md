@@ -1,4 +1,6 @@
 # ✅ CHECKLIST CREACIÓN DE CUENTAS — TikTok / Instagram / Facebook Business
+
+> ⚠️ **BORRADOR — no extraído del vídeo del curso.** Los títulos de capítulo y timestamps son reales; el contenido es conocimiento general. Umbrales y cifras sin verificar. Pendiente de reconstruir desde la transcripción en la KB (`/ingerir_transcripcion_kb`).
 > Curso Adrián Sáenz `Q4Ykcwh5Osc 14:58:10` | GEM OS v3.0
 
 ---
