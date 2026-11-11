@@ -57,7 +57,7 @@
             <span style="color:#7880b0;"> · <span x-text="(r.creado_at || '').slice(0,16)"></span></span>
           </p>
           <template x-for="(v, k) in (r.copy || {})" :key="k">
-            <p style="font-size:11px;color:#c8d0f0;margin:0 0 4px;"><strong x-text="k + ':'"></strong> <span x-text="v"></span></p>
+            <p style="font-size:11px;color:#c8d0f0;margin:0 0 4px;"><strong x-text="k + ':'"></strong> <span x-text="typeof v === 'string' ? v : JSON.stringify(v)"></span></p>
           </template>
           <p x-show="!r.gate_pass" style="font-size:10px;color:#fb7185;margin:6px 0 0;" x-text="(r.gate_violations || []).join(' · ')"></p>
         </div>
