@@ -27,6 +27,7 @@ from app.ui.components.sistema_panel import SistemaPanel
 from app.ui.components.imagenes_panel import ImagenesPanel
 from app.ui.components.propuestas_panel import PropuestasPanel
 from app.ui.components.nicho_panel import NichoPanel
+from app.ui.components.canales_panel import CanalesPanel
 from app.database.connection import DatabaseConnection
 from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 from app.ui.themes.jack_styles import apply_jack_styles
