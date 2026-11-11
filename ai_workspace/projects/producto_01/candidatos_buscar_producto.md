@@ -49,3 +49,15 @@ Datos de la ficha AutoDS: 1078 reseñas, 4,6/5, coste $7,99, competidores en Sho
 
 ## Siguiente paso
 Pasar este candidato por `/clasificar-producto` → `/refutar-producto` → `/validar-financiero` solo después de resolver el DATA_GAP 2 (envío a la UE).
+
+## Ronda 2 (búsqueda filtrada del usuario: Beauty, $5–15, «octopus scalp massager»)
+
+| Producto | Coste | Reseñas / pedidos | Resultado |
+|---|---|---|---|
+| Gua sha comb cobre (AliExpress 3256805103810099) | $30,05 | 1 / 7 | Descartado: coste y pocas ventas |
+| Japanese Premium Scalp Massager (1005007385117935) | $13,38 | 0 / 2 | Descartado: sin reseñas, 16 días hábiles |
+| URAQT Gua Sha facial (Amazon B0CYZLXR15) | $5,27 | 4,3 (15) | Descartado: valoración < 4,5 y 15 reseñas |
+| Octopus Electric Scalp Massager; 15ml Hair Oil Applicator Microcurrent; Electric Head Massager 20 Contracts | $11–14 | sin revisar | Descartados por ser eléctricos (batería) |
+| 4 Pcs Head Massager Scratcher (eBay) | $12,95 | sin revisar | Pendiente |
+
+Rendimiento: 1 de 8 fichas cumple los filtros; las tarjetas del marketplace no muestran reseñas ni ventas.
