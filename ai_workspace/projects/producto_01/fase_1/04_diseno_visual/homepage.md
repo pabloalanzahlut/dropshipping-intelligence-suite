@@ -27,7 +27,7 @@
 
 ### Copy del Hero
 
-> **Regla Adrián Sáenz:** el hero responde en 3 segundos a "¿Esto es para mí?". Sin esa respuesta, el cliente se va.
+> Criterio GEM OS (no del curso): el hero debe responder en pocos segundos a "¿Esto es para mí?".
 
 **Título (H1 — máx. 6 palabras):**
 ```
