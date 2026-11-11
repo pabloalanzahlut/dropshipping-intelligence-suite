@@ -404,7 +404,7 @@ class ShopifyClient:
     MAX_VARIANTES = 100
 
     @classmethod
-    def _variantes(cls, precio: float, opciones: Optional[Dict[str, List[str]]]) -> Tuple[List[dict], List[dict]]:
+    def construir_variantes(cls, precio: float, opciones: Optional[Dict[str, List[str]]]) -> Tuple[List[dict], List[dict]]:
         """(options, variants) del payload. Sin opciones: una única variante «Default Title»."""
         base = {"price": f"{precio:.2f}", "inventory_management": None}
         if not opciones:
@@ -437,7 +437,7 @@ class ShopifyClient:
         Returns:
             ID del producto creado (string)
         """
-        options, variants = self._variantes(precio, opciones)
+        options, variants = self.construir_variantes(precio, opciones)
         payload = {
             "product": {
                 "title": titulo,
