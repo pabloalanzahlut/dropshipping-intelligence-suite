@@ -25,15 +25,17 @@ CRITICAL_TASKS = {
 
 MODEL_ROUTING = {
     # Críticas → Claude Sonnet via OpenRouter (sin necesitar ANTHROPIC_API_KEY)
-    "default_critical": "anthropic/claude-sonnet-5-5",
-    # Volumen alto → DeepSeek V3 (calidad excelente, ~21x más barato que Sonnet)
+    # IDs verificados contra https://openrouter.ai/api/v1/models el 2026-11-11
+    # (OpenRouter usa punto: claude-sonnet-5.5, no guion).
+    "default_critical": "anthropic/claude-sonnet-5.5",
+    # Volumen alto → DeepSeek V3 (calidad excelente, ~7x más barato que Sonnet)
     "default_volume":   "deepseek/deepseek-chat-v3-0324",
-    # Traducción / multilenguaje rápido
-    "translate":        "google/gemini-flash-1.5",
+    # Traducción / multimodal rápido (imagen → texto)
+    "translate":        "google/gemini-2.5-flash",
     # Razonamiento complejo (specs técnicas difíciles)
-    "reasoning":        "deepseek/deepseek-r1",
-    # Fallback gratuito (tier básico OpenRouter)
-    "free_fallback":    "meta-llama/llama-3.3-70b-instruct:free",
+    "reasoning":        "deepseek/deepseek-r1-0528",
+    # Fallback barato de pago (los :free ya no existen en el catálogo)
+    "free_fallback":    "meta-llama/llama-3.3-70b-instruct",
 }
 
 TASK_MODEL_MAP = {
@@ -53,7 +55,7 @@ TASK_MODEL_MAP = {
     "clonar_seccion":        MODEL_ROUTING["default_volume"],
     "copy_canal_pagado":     MODEL_ROUTING["default_volume"],   # checklist+copy Google/TikTok Ads, Amazon, TikTok Shop
     # ── Multimodal: imagen → texto → Gemini Flash ───────────────────────────
-    "analizar_imagen":       MODEL_ROUTING["translate"],   # gemini-flash-1.5 multimodal
+    "analizar_imagen":       MODEL_ROUTING["translate"],   # gemini-2.5-flash multimodal
     "extraer_specs_imagen":  MODEL_ROUTING["translate"],
     "detectar_categoria":    MODEL_ROUTING["translate"],
     # ── Traducción / multilenguaje ───────────────────────────────────────────
