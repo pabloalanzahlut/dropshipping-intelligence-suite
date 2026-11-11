@@ -742,3 +742,40 @@ def mig_0028_video_jobs(conn: sqlite3.Connection):
         )
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_video_jobs_producto ON video_jobs(producto_id)")
+
+
+@migration(29, "Ofertas multi-unidad 1+1/2+2 validadas (skill oferta-multiunidad)")
+def mig_0029_ofertas_multiunidad(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS ofertas_multiunidad (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            producto_id INTEGER,
+            escalones_json TEXT NOT NULL DEFAULT '{}',
+            veredicto TEXT DEFAULT '',
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_ofertas_multiunidad_producto ON ofertas_multiunidad(producto_id)")
+
+
+@migration(30, "Secciones de la competencia clonadas a Liquid (skill clonar-seccion)")
+def mig_0030_secciones_clonadas(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS secciones_clonadas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            producto_id INTEGER,
+            que_resuelve TEXT DEFAULT '',
+            patron TEXT DEFAULT '',
+            liquid_code TEXT DEFAULT '',
+            css_code TEXT DEFAULT '',
+            variables_json TEXT NOT NULL DEFAULT '[]',
+            gate_pass INTEGER NOT NULL DEFAULT 0,
+            gate_violations_json TEXT NOT NULL DEFAULT '[]',
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE SET NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_secciones_clonadas_producto ON secciones_clonadas(producto_id)")
