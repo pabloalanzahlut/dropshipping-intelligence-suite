@@ -21,16 +21,23 @@ URL2 = "https://es.aliexpress.com/item/1005000000000002.html"
 
 
 class ShopifyFalso:
-    def __init__(self, moneda="EUR"):
+    def __init__(self, moneda="EUR", acepta_imagenes=True):
         self.moneda = moneda
+        self.acepta_imagenes = acepta_imagenes
         self.llamadas = []
+        self.productos = {}
 
     def shop_info(self):
         return {"moneda": self.moneda}
 
     def create_draft_product(self, **kw):
         self.llamadas.append(kw)
-        return str(1000 + len(self.llamadas))
+        pid = str(1000 + len(self.llamadas))
+        self.productos[pid] = list(kw.get("imagenes") or []) if self.acepta_imagenes else []
+        return pid
+
+    def get_product(self, pid):
+        return {"images": [{"src": s} for s in self.productos[pid]]}
 
 
 def pagina(titulo="Producto de prueba", imagenes=()):
@@ -52,7 +59,7 @@ class Base(unittest.TestCase):
 
     def nuevo(self, **kw):
         kw.setdefault("pagina_fn", pagina())
-        return BulkUrlImporter(self.db, shopify=self.shopify, pausa=0, **kw)
+        return BulkUrlImporter(self.db, shopify=self.shopify, pausa=0, espera_imagenes=0, intervalo_imagenes=0, **kw)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -236,6 +243,18 @@ class TestImportador(Base):
         imp = self.nuevo(pagina_fn=pagina(imagenes=["https://cdn.x/pagina.jpg"]))
         imp.importar_lote([self.item(imagenes=["https://mis.fotos/a.jpg", "data:image/png;base64,AA"])])
         self.assertEqual(self.shopify.llamadas[0]["imagenes"], ["https://mis.fotos/a.jpg"])
+
+    def test_imagenes_verificadas_en_shopify(self):
+        r = self.imp.importar_lote([self.item(imagenes=["https://a/1.jpg", "https://a/2.jpg"])])[0]
+        self.assertEqual(r["imagenes"], 2)
+        self.assertNotIn("aviso", r)
+
+    def test_imagenes_descartadas_por_shopify_se_avisan(self):
+        self.shopify.acepta_imagenes = False
+        r = self.imp.importar_lote([self.item(imagenes=["https://bloqueado/1.jpg"])])[0]
+        self.assertEqual(r["status"], "success")        # el borrador existe; solo faltan las fotos
+        self.assertEqual(r["imagenes"], 0)
+        self.assertIn("solo aceptó 0 de 1", r["aviso"])
 
     def test_demasiadas_variantes_se_omiten_sin_tocar_shopify(self):
         grande = {"A": [str(i) for i in range(11)], "B": [str(i) for i in range(11)]}
