@@ -1525,6 +1525,70 @@ async def api_producto_video_listar(producto_id: int) -> List[Dict[str, Any]]:
     return video_generator_service.listar(DB_PATH, producto_id)
 
 
+class OfertaMultiunidadIn(BaseModel):
+    costo_landed_unidad: float
+    pvp_entrada: float
+    pvp_principal: float
+    pvp_upsell: Optional[float] = None
+    moneda_costo: str = "USD"
+    moneda_pvp: str = "USD"
+
+
+@app.post("/api/productos/{producto_id}/oferta-multiunidad")
+async def api_producto_oferta_multiunidad(producto_id: int, body: OfertaMultiunidadIn) -> Dict[str, Any]:
+    from app.services import oferta_multiunidad_service
+    p = product_catalog.obtener(DB_PATH, producto_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    try:
+        resultado = oferta_multiunidad_service.calcular(
+            sku=p["nombre"], costo_landed_unidad=body.costo_landed_unidad, pvp_entrada=body.pvp_entrada,
+            pvp_principal=body.pvp_principal, pvp_upsell=body.pvp_upsell,
+            moneda_costo=body.moneda_costo, moneda_pvp=body.moneda_pvp)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    resultado["id"] = oferta_multiunidad_service.guardar(DB_PATH, producto_id, resultado)
+    return resultado
+
+
+@app.get("/api/productos/{producto_id}/oferta-multiunidad")
+async def api_producto_oferta_multiunidad_listar(producto_id: int) -> List[Dict[str, Any]]:
+    from app.services import oferta_multiunidad_service
+    return oferta_multiunidad_service.listar(DB_PATH, producto_id)
+
+
+class ClonarSeccionIn(BaseModel):
+    html_competencia: str
+    nota: str = ""
+
+
+@app.post("/api/productos/{producto_id}/clonar-seccion")
+async def api_producto_clonar_seccion(producto_id: int, body: ClonarSeccionIn) -> Dict[str, Any]:
+    from app.services import clonar_seccion_service
+    if not product_catalog.obtener(DB_PATH, producto_id):
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+
+    def _trabajo():
+        try:
+            resultado = clonar_seccion_service.clonar(body.html_competencia, body.nota)
+        except ValueError as exc:
+            return {"_error_422": str(exc)}
+        resultado["id"] = clonar_seccion_service.guardar(DB_PATH, producto_id, resultado)
+        return resultado
+
+    loop = asyncio.get_running_loop()
+    resultado = await loop.run_in_executor(None, _trabajo)
+    if "_error_422" in resultado:
+        raise HTTPException(status_code=422, detail=resultado["_error_422"])
+    return resultado
+
+
+@app.get("/api/productos/{producto_id}/clonar-seccion")
+async def api_producto_clonar_seccion_listar(producto_id: int) -> List[Dict[str, Any]]:
+    from app.services import clonar_seccion_service
+    return clonar_seccion_service.listar(DB_PATH, producto_id)
+
+
 @app.put("/api/productos/{producto_id}/demanda")
 async def api_producto_demanda(producto_id: int, body: DemandaIn) -> Dict[str, Any]:
     return _producto_o_error(lambda: product_catalog.guardar_demanda(DB_PATH, producto_id, body.demanda, body.creativo_ok))
