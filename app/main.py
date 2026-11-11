@@ -28,6 +28,7 @@ from app.ui.components.imagenes_panel import ImagenesPanel
 from app.ui.components.propuestas_panel import PropuestasPanel
 from app.ui.components.nicho_panel import NichoPanel
 from app.ui.components.canales_panel import CanalesPanel
+from app.ui.components.bulk_import_panel import BulkImportPanel
 from app.database.connection import DatabaseConnection
 from app.ui.themes.design_tokens import NEON_COLORS, DARK_BASE, TEXT_COLORS
 from app.ui.themes.jack_styles import apply_jack_styles
@@ -37,7 +38,7 @@ ERROR_COLOR = NEON_COLORS["pink"]
 # Posición de cada panel nuevo en `_create_panels` (los antiguos conservan sus números: la consola
 # de Ingesta, por ejemplo, está fija en el 7)
 (IDX_CONFIG, IDX_PRODUCTOS, IDX_NEGOCIO, IDX_INSIGHTS, IDX_SISTEMA, IDX_IMAGENES, IDX_PROPUESTAS, IDX_NICHO,
- IDX_CANALES) = (10, 11, 12, 13, 14, 15, 16, 17, 18)
+ IDX_CANALES, IDX_IMPORTAR) = (10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
 
 
 class GEMOSApplication:
@@ -105,6 +106,7 @@ class GEMOSApplication:
             _item("🧭", "Investigar nicho", IDX_NICHO),
             (SECCION, "Tienda", None),
             _item("🛒", "Tienda", 9),
+            _item("📥", "Importación masiva", IDX_IMPORTAR),
             _item("📢", "Canales pagados", IDX_CANALES),
             (SECCION, "Sistema", None),
             _item("🛠", "Alertas y registros", IDX_SISTEMA),
@@ -229,6 +231,7 @@ class GEMOSApplication:
             ("Propuestas IA", lambda parent: PropuestasPanel(parent, db_manager=self.db_manager)),
             ("Investigar nicho", lambda parent: NichoPanel(parent, db_manager=self.db_manager)),
             ("Canales pagados", lambda parent: CanalesPanel(parent, db_manager=self.db_manager)),
+            ("Importación masiva", lambda parent: BulkImportPanel(parent, db_manager=self.db_manager)),
         ]
         self._panel_factories = specs
         self._panel_loaded = [False] * len(specs)
