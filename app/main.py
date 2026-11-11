@@ -36,8 +36,8 @@ from app.services.provider_monitor_engine import ProviderMonitorEngine
 ERROR_COLOR = NEON_COLORS["pink"]
 # Posición de cada panel nuevo en `_create_panels` (los antiguos conservan sus números: la consola
 # de Ingesta, por ejemplo, está fija en el 7)
-IDX_CONFIG, IDX_PRODUCTOS, IDX_NEGOCIO, IDX_INSIGHTS, IDX_SISTEMA, IDX_IMAGENES, IDX_PROPUESTAS, IDX_NICHO = (
-    10, 11, 12, 13, 14, 15, 16, 17)
+(IDX_CONFIG, IDX_PRODUCTOS, IDX_NEGOCIO, IDX_INSIGHTS, IDX_SISTEMA, IDX_IMAGENES, IDX_PROPUESTAS, IDX_NICHO,
+ IDX_CANALES) = (10, 11, 12, 13, 14, 15, 16, 17, 18)
 
 
 class GEMOSApplication:
