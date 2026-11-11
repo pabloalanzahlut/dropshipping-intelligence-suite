@@ -141,6 +141,7 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 | Self-Heal GEM OS (`self-heal.yml`) | workflow_run, pull_request, schedule, workflow_dispatch |
 | Setup Repository Labels (`setup-labels.yml`) | workflow_dispatch |
 | Stale Issues & PRs (`stale.yml`) | schedule, workflow_dispatch |
+| Tests GEM OS (`tests.yml`) | pull_request, push, workflow_dispatch |
 | Validate GEM OS Pipeline (`validate-pipeline.yml`) | pull_request, push, schedule, workflow_dispatch |
 <!-- /AUTO:workflows -->
 
