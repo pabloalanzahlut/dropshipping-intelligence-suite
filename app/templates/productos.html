@@ -155,6 +155,54 @@
           <p x-show="!hookMatrices.length" style="font-size:12px;color:#4a5080;">Sin matrices generadas todavía.</p>
         </div>
 
+        <!-- Anuncios Meta -->
+        <div x-show="tab === 'meta'">
+          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Imagen única, carousel de 3 tarjetas y 2 variantes A/B — sin superlativos ni envíos &lt;6 días.</p>
+          <button @click="generarAnunciosMeta()" :disabled="metaCargando" class="btn-primary" style="margin-bottom:12px;">
+            <span x-text="metaCargando ? 'Generando…' : '✨ Generar anuncios'"></span>
+          </button>
+          <template x-for="m in anunciosMeta" :key="m.id">
+            <div style="border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#08091a;">
+              <p style="font-size:11px;margin:0 0 8px;">
+                <span :style="m.gate_pass ? 'color:#34d399;' : 'color:#fb7185;'" x-text="m.gate_pass ? '✓ Gate OK' : '✗ Gate falló'"></span>
+                <span style="color:#7880b0;"> · <span x-text="(m.creado_at || '').slice(0,16)"></span></span>
+              </p>
+              <p style="font-size:11px;color:#c8d0f0;margin:0 0 6px;"><strong>A (imagen única):</strong> <span x-text="m.formato_a?.primary_text"></span> — <em x-text="m.formato_a?.headline"></em></p>
+              <p style="font-size:11px;color:#c8d0f0;margin:0 0 6px;"><strong>B (carousel):</strong>
+                <span x-text="'1) ' + (m.formato_b?.problema?.headline || '')"></span> ·
+                <span x-text="'2) ' + (m.formato_b?.solucion?.headline || '')"></span> ·
+                <span x-text="'3) ' + (m.formato_b?.oferta?.headline || '')"></span>
+              </p>
+              <p style="font-size:11px;color:#c8d0f0;margin:0;"><strong>C (A/B):</strong> <span x-text="m.formato_c?.dolor"></span> / <span x-text="m.formato_c?.resultado"></span></p>
+              <p x-show="!m.gate_pass" style="font-size:10px;color:#fb7185;margin:6px 0 0;" x-text="(m.gate_violations || []).join(' · ')"></p>
+            </div>
+          </template>
+          <p x-show="!anunciosMeta.length" style="font-size:12px;color:#4a5080;">Sin anuncios generados todavía.</p>
+        </div>
+
+        <!-- Vídeo IA -->
+        <div x-show="tab === 'video'">
+          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Gemini Vision analiza la foto → Higgsfield genera el vídeo. Sin HIGGSFIELD_API_KEY, entrega los specs y el prompt para producirlo a mano.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+            <input x-model="videoImagenUrl" class="input-field" placeholder="URL pública de la imagen del producto">
+            <input x-model="videoHook" class="input-field" placeholder="Hook visual (ej: gira sobre sí mismo mostrando el detalle)">
+            <button @click="generarVideo()" :disabled="videoCargando" class="btn-primary">
+              <span x-text="videoCargando ? 'Generando…' : '🎬 Generar vídeo'"></span>
+            </button>
+          </div>
+          <template x-for="v in videoJobs" :key="v.id">
+            <div style="border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#08091a;">
+              <p style="font-size:11px;margin:0 0 6px;">
+                <span :style="v.estado === 'generado' ? 'color:#34d399;' : v.estado === 'error' ? 'color:#fb7185;' : 'color:#fbbf24;'" x-text="v.estado"></span>
+                <span style="color:#7880b0;"> · <span x-text="(v.creado_at || '').slice(0,16)"></span></span>
+              </p>
+              <p x-show="v.video_url" style="font-size:11px;"><a :href="v.video_url" target="_blank" style="color:#22d3ee;">Ver vídeo</a></p>
+              <p style="font-size:11px;color:#c8d0f0;margin:0;" x-text="v.prompt_movimiento"></p>
+            </div>
+          </template>
+          <p x-show="!videoJobs.length" style="font-size:12px;color:#4a5080;">Sin vídeos generados todavía.</p>
+        </div>
+
         <!-- Demanda y creativo -->
         <div x-show="tab === 'demanda'">
           <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Test de demanda (fake door): mide el interés sin stock ni ads. Registra lo que midió, o usa la página pública de abajo y calcula automáticamente.</p>
