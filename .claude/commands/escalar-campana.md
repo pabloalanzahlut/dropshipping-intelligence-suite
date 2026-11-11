@@ -1,3 +1,6 @@
+---
+model: sonnet
+---
 # /escalar-campana
 
 Lee `ai_workspace/skills/escalar_campana/procedimiento.md` y decide si escalar, mantener, optimizar o cortar la campaña.

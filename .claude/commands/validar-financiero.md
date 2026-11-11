@@ -1,3 +1,6 @@
+---
+model: sonnet
+---
 # Skill: Validación Financiera de Producto
 
 Ejecuta la validación financiera completa de un producto según las reglas inmutables de GEM OS.

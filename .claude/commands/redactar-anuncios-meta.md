@@ -1,3 +1,6 @@
+---
+model: haiku
+---
 # /redactar-anuncios-meta
 
 Lee `ai_workspace/skills/redactar_anuncios_meta/procedimiento.md` y genera copy para Meta Ads estáticos.

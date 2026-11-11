@@ -1,3 +1,6 @@
+---
+model: haiku
+---
 # /redactar-ficha-shopify
 
 Lee `ai_workspace/skills/redactar_ficha_shopify/procedimiento.md` y genera ficha completa de producto para Shopify (v2.0: multi-ángulo AIDA + SEO enriquecido).

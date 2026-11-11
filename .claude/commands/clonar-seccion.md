@@ -1,3 +1,6 @@
+---
+model: haiku
+---
 # Skill: Clonar Sección de la Competencia a Liquid
 
 Convierte una sección de una tienda que ya funciona en código Liquid para Shopify.

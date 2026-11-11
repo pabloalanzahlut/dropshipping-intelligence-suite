@@ -1,3 +1,6 @@
+---
+model: haiku
+---
 # /hook-matrix
 
 Lee `ai_workspace/skills/redactar_hook_matrix/procedimiento.md` y genera una matriz de ≥10 hooks por fórmula.

@@ -1,3 +1,6 @@
+---
+model: sonnet
+---
 # Skill: Refutar un Producto Ganador
 
 Antes de invertir en pauta, intenta **demostrar que el producto no funciona**.

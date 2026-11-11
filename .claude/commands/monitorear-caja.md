@@ -1,3 +1,6 @@
+---
+model: sonnet
+---
 # /monitorear-caja
 
 Lee `ai_workspace/skills/monitorear_flujo_caja/procedimiento.md` y analiza la salud financiera del día/semana.

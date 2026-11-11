@@ -1,3 +1,6 @@
+---
+model: sonnet
+---
 # Skill: /matriz-precios — Matriz de Precios 2x/3x
 
 Genera la matriz de precios con clasificación HOT/WARM/COLD/DISCARD para un lote de productos.
