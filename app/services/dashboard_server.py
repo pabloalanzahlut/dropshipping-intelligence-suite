@@ -1470,6 +1470,61 @@ async def api_producto_hook_matrix_listar(producto_id: int) -> List[Dict[str, An
     return hook_matrix_service.listar(DB_PATH, producto_id)
 
 
+class AnunciosMetaIn(BaseModel):
+    contexto_producto: str = ""
+
+
+@app.post("/api/productos/{producto_id}/anuncios-meta")
+async def api_producto_anuncios_meta_generar(producto_id: int, body: AnunciosMetaIn) -> Dict[str, Any]:
+    from app.services import anuncios_meta_service
+    p = product_catalog.obtener(DB_PATH, producto_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    contexto = body.contexto_producto.strip() or (
+        f"Nombre: {p['nombre']}\nCategoría: {p.get('categoria') or '—'}\n"
+        f"PVP: {p.get('pvp') or '—'}\nNotas: {p.get('notas') or '—'}")
+
+    def _trabajo():
+        resultado = anuncios_meta_service.generar(contexto)
+        resultado["id"] = anuncios_meta_service.guardar(DB_PATH, producto_id, resultado)
+        return resultado
+
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(None, _trabajo)
+
+
+@app.get("/api/productos/{producto_id}/anuncios-meta")
+async def api_producto_anuncios_meta_listar(producto_id: int) -> List[Dict[str, Any]]:
+    from app.services import anuncios_meta_service
+    return anuncios_meta_service.listar(DB_PATH, producto_id)
+
+
+class VideoIn(BaseModel):
+    imagen_url: str
+    hook_visual: str = ""
+
+
+@app.post("/api/productos/{producto_id}/video")
+async def api_producto_video_generar(producto_id: int, body: VideoIn) -> Dict[str, Any]:
+    from app.services import video_generator_service
+    p = product_catalog.obtener(DB_PATH, producto_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Producto no encontrado.")
+    if not body.imagen_url.strip():
+        raise HTTPException(status_code=422, detail="Falta la URL de la imagen del producto.")
+
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(
+        None, lambda: video_generator_service.generar(
+            DB_PATH, producto_id, body.imagen_url.strip(), p["nombre"], body.hook_visual.strip()))
+
+
+@app.get("/api/productos/{producto_id}/video")
+async def api_producto_video_listar(producto_id: int) -> List[Dict[str, Any]]:
+    from app.services import video_generator_service
+    return video_generator_service.listar(DB_PATH, producto_id)
+
+
 @app.put("/api/productos/{producto_id}/demanda")
 async def api_producto_demanda(producto_id: int, body: DemandaIn) -> Dict[str, Any]:
     return _producto_o_error(lambda: product_catalog.guardar_demanda(DB_PATH, producto_id, body.demanda, body.creativo_ok))
