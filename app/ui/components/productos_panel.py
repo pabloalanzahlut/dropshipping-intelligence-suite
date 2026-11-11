@@ -392,6 +392,99 @@ class ProductosPanel(PanelBase):
         boton(d.cuerpo, "🎬 Generar", generar, COLOR_PRIMARY).pack(anchor="w", pady=(8, 0))
         pintar_historico()
 
+    def _oferta_multiunidad(self, p: Dict[str, Any]) -> None:
+        d = Dialogo(self, f"Oferta multiunidad — {p['nombre']}", ancho=680)
+        _, landed_var, _ = self.campo(d.cuerpo, "Coste landed / unidad", ancho=20)
+        _, entrada_var, _ = self.campo(d.cuerpo, "PVP Entrada (1 ud)", ancho=20)
+        _, principal_var, _ = self.campo(d.cuerpo, "PVP Principal (1+1)", ancho=20)
+        _, upsell_var, _ = self.campo(d.cuerpo, "PVP Upsell (2+2, opcional)", ancho=20)
+        resultados_frame = tk.Frame(d.cuerpo, bg=BG_CARD)
+        resultados_frame.pack(fill=tk.BOTH, expand=True, pady=(8, 0))
+
+        def pintar_historico():
+            for w in resultados_frame.winfo_children():
+                w.destroy()
+            from app.services import oferta_multiunidad_service
+            for o in oferta_multiunidad_service.listar(self.db, p["id"]):
+                etiqueta(resultados_frame, f"{o['veredicto']} · ticket medio ~{o['resultado'].get('ticket_medio_estimado')} · {o['creado_at']}",
+                        "ok" if o["veredicto"] == "validado" else "aviso").pack(anchor="w", pady=(6, 0))
+                for nombre, esc in o["resultado"].get("escalones", {}).items():
+                    etiqueta(resultados_frame,
+                            f"{nombre} ({esc['unidades_entregadas']} ud): PVP {esc['pvp']} · "
+                            f"mult {esc['multiplicador']}x · neto {esc['margen_neto_unidad']}",
+                            "ok" if esc["validado"] else "error").pack(anchor="w")
+
+        def calcular() -> None:
+            try:
+                landed = float(landed_var.get())
+                entrada = float(entrada_var.get())
+                principal = float(principal_var.get())
+                upsell = float(upsell_var.get()) if upsell_var.get().strip() else None
+            except ValueError:
+                self.aviso("Los importes deben ser números.", "error")
+                return
+
+            def trabajo():
+                from app.services import oferta_multiunidad_service
+                resultado = oferta_multiunidad_service.calcular(p["nombre"], landed, entrada, principal, upsell)
+                oferta_multiunidad_service.guardar(self.db, p["id"], resultado)
+                return resultado
+
+            def listo(_resultado):
+                self.aviso("Oferta calculada.", "ok")
+                pintar_historico()
+
+            self.en_hilo(trabajo, listo, lambda e: self.aviso(f"Error: {e}", "error"))
+
+        boton(d.cuerpo, "🧮 Calcular", calcular, COLOR_PRIMARY).pack(anchor="w", pady=(8, 0))
+        pintar_historico()
+
+    def _clonar_seccion(self, p: Dict[str, Any]) -> None:
+        d = Dialogo(self, f"Clonar sección — {p['nombre']}", ancho=760)
+        etiqueta(d.cuerpo, "HTML de la sección (Inspeccionar → Copy outerHTML):", "suave").pack(anchor="w")
+        html_txt = tk.Text(d.cuerpo, height=6, wrap=tk.WORD, bg="#08091a", fg="#a8b0d8", relief=tk.FLAT, font=("Consolas", 9))
+        html_txt.pack(fill=tk.X, pady=(2, 8))
+        _, nota_var, _ = self.campo(d.cuerpo, "Qué quieres conservar (opcional)", ancho=60)
+        resultados_frame = tk.Frame(d.cuerpo, bg=BG_CARD)
+        resultados_frame.pack(fill=tk.BOTH, expand=True, pady=(8, 0))
+
+        def pintar_historico():
+            for w in resultados_frame.winfo_children():
+                w.destroy()
+            from app.services import clonar_seccion_service
+            for c in clonar_seccion_service.listar(self.db, p["id"]):
+                etiqueta(resultados_frame,
+                        f"{'✓ Gate OK' if c['gate_pass'] else '✗ Gate falló'} · patrón: {c['patron']} · {c['creado_at']}",
+                        "ok" if c["gate_pass"] else "error").pack(anchor="w", pady=(6, 0))
+                etiqueta(resultados_frame, c.get("que_resuelve", ""), "suave", wrap=700).pack(anchor="w")
+                codigo = tk.Text(resultados_frame, height=6, wrap=tk.WORD, bg="#0d0f1f", fg="#a8b0d8",
+                                 relief=tk.FLAT, font=("Consolas", 8))
+                codigo.insert("1.0", c.get("liquid_code", ""))
+                codigo.config(state=tk.DISABLED)
+                codigo.pack(fill=tk.X, pady=(2, 6))
+
+        def clonar() -> None:
+            html = html_txt.get("1.0", tk.END).strip()
+            if not html:
+                self.aviso("Pega el HTML de la sección.", "aviso")
+                return
+
+            def trabajo():
+                from app.services import clonar_seccion_service
+                resultado = clonar_seccion_service.clonar(html, nota_var.get())
+                clonar_seccion_service.guardar(self.db, p["id"], resultado)
+                return resultado
+
+            def listo(resultado):
+                self.aviso("Sección clonada." if resultado.get("generado") else "El modelo no respondió.",
+                          "ok" if resultado.get("gate_pass") else "aviso")
+                pintar_historico()
+
+            self.en_hilo(trabajo, listo, lambda e: self.aviso(f"Error: {e}", "error"))
+
+        boton(d.cuerpo, "🧬 Clonar", clonar, COLOR_PRIMARY).pack(anchor="w", pady=(0, 8))
+        pintar_historico()
+
     def _demanda(self, p: Dict[str, Any]) -> None:
         import os
         d = Dialogo(self, "Demanda (fake door) y creativo")
