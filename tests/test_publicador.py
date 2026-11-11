@@ -94,7 +94,8 @@ def test_procesar_actualiza_estado(tmp_path, monkeypatch):
     mock_resp.raise_for_status.return_value = None
     mock_resp.json.return_value = {"ok": True}
 
-    with patch("app.services.publicador.requests.post", return_value=mock_resp):
+    with patch("app.services.publicador.requests.post", return_value=mock_resp), \
+         patch("app.services.publicador._gdrive_upload", return_value="https://drive.google.com/uc?id=FAKE"):
         pub.procesar_cola(ruta, dry_run=False)
 
     cola2 = pub.cargar_cola(ruta)
