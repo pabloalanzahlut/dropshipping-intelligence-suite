@@ -90,36 +90,36 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 | `/amazon-dropshipping` | Lee ai_workspace/skills/amazon_dropshipping/procedimiento.md y configura el canal Amazon como complemento a Sh |
 | `/autods-notas` | Genera notas profesionales en inglés para enviar a proveedores chinos a través de AutoDS |
 | `/buscar-producto` | Descubre candidatos aplicando los 5 criterios de producto ganador |
-| `/clasificar-producto` | Eres el **Product Hunter** de GEM OS |
-| `/clonar-seccion` | Convierte una sección de una tienda que ya funciona en código Liquid para Shopify |
+| `/clasificar-producto` | model: sonnet |
+| `/clonar-seccion` | model: haiku |
 | `/configurar-tienda` | Lee ai_workspace/skills/configurar_tienda/procedimiento.md y guía al usuario por el checklist completo de conf |
 | `/consolidar-manual` | Convierte toda la Knowledge Base en **un manual paso a paso**, no en una lista |
 | `/consultar-kb` | Lee ai_workspace/skills/consultar_kb_agente/procedimiento.md y responde la consulta del operador basándose en  |
 | `/destilar-skill` | Reescribe una skill a partir de lo que **realmente pasó**, no de lo que creíamos |
-| `/escalar-campana` | Lee ai_workspace/skills/escalar_campana/procedimiento.md y decide si escalar, mantener, optimizar o cortar la  |
-| `/estructurar-landing` | Eres el **Funnel Builder** de GEM OS |
+| `/escalar-campana` | model: sonnet |
+| `/estructurar-landing` | model: haiku |
 | `/fake-door` | Mide si un producto interesa **antes de comprar stock o gastar en ads** |
 | `/generar-video-ia` | Genera un video de producto para TikTok Ads usando **Higgsfield AI** — sin filmar, sin equipo |
 | `/gestionar-meta-ads` | Lee ai_workspace/skills/gestionar_meta_ads/procedimiento.md y genera naming de campañas + hooks s0–s3 estilo R |
 | `/google-ads` | Lee ai_workspace/skills/google_ads/procedimiento.md y configura/optimiza campañas de Google Ads |
-| `/hook-matrix` | Lee ai_workspace/skills/redactar_hook_matrix/procedimiento.md y genera una matriz de ≥10 hooks por fórmula |
+| `/hook-matrix` | model: haiku |
 | `/importar-masivo` | Lee ai_workspace/skills/importar_masivo/procedimiento.md y procesa URLs de AliExpress/CJ/Temu → valida regla 3 |
 | `/investigar-nicho` | Lee ai_workspace/skills/investigar_nicho/procedimiento.md y genera un informe de 10 ángulos de ataque para el  |
-| `/matriz-precios` | Genera la matriz de precios con clasificación HOT/WARM/COLD/DISCARD para un lote de productos |
-| `/monitorear-caja` | Lee ai_workspace/skills/monitorear_flujo_caja/procedimiento.md y analiza la salud financiera del día/semana |
+| `/matriz-precios` | model: sonnet |
+| `/monitorear-caja` | model: sonnet |
 | `/monitorear-skool` | Lee ai_workspace/skills/monitorear_skool/procedimiento.md |
 | `/oferta-multiunidad` | Diseña la estructura de oferta que sube el ticket medio sin tocar el precio unitario |
 | `/pipeline-completo` | Ejecuta el pipeline completo de GEM OS sobre una transcripción de video o datos de producto |
 | `/recuperar-carrito` | Webhook Shopify → Make.com → email nocturno 20–23h para recuperación de carritos abandonados |
-| `/redactar-anuncios-meta` | Lee ai_workspace/skills/redactar_anuncios_meta/procedimiento.md y genera copy para Meta Ads estáticos |
-| `/redactar-ficha-shopify` | Lee ai_workspace/skills/redactar_ficha_shopify/procedimiento.md y genera ficha completa de producto para Shopi |
-| `/redactar-guion` | Eres el **Media Buyer** de GEM OS |
-| `/refutar-producto` | Antes de invertir en pauta, intenta **demostrar que el producto no funciona** |
+| `/redactar-anuncios-meta` | model: haiku |
+| `/redactar-ficha-shopify` | model: haiku |
+| `/redactar-guion` | model: haiku |
+| `/refutar-producto` | model: sonnet |
 | `/resolver-github` | Lee ai_workspace/skills/resolver_github/procedimiento.md y diagnostica/resuelve problemas GitHub (CI, PRs, Dep |
 | `/tiktok-ads` | Lee ai_workspace/skills/tiktok_ads/procedimiento.md y configura/gestiona campañas de TikTok Ads pagados |
 | `/tiktok-shop` | Lee ai_workspace/skills/tiktok_shop/procedimiento.md y configura/opera el canal TikTok Shop sin stock |
 | `/trafico-organico` | Lee ai_workspace/skills/trafico_organico/procedimiento.md y ejecuta el flujo de contenido orgánico para TikTok |
-| `/validar-financiero` | Ejecuta la validación financiera completa de un producto según las reglas inmutables de GEM OS |
+| `/validar-financiero` | model: sonnet |
 <!-- /AUTO:skills -->
 
 ---
