@@ -89,7 +89,13 @@ def test_procesar_actualiza_estado(tmp_path, monkeypatch):
     ruta = tmp_path / "cola.json"
     pub.guardar_cola(cola, ruta)
 
-    pub.procesar_cola(ruta, dry_run=True)
+    # Mock requests.post para no llamar webhooks reales
+    mock_resp = MagicMock()
+    mock_resp.raise_for_status.return_value = None
+    mock_resp.json.return_value = {"ok": True}
+
+    with patch("app.services.publicador.requests.post", return_value=mock_resp):
+        pub.procesar_cola(ruta, dry_run=False)
 
     cola2 = pub.cargar_cola(ruta)
     assert cola2[0]["estado"] in ("publicado", "publicado_parcial")
