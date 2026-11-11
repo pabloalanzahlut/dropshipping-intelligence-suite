@@ -272,7 +272,8 @@ class BulkUrlImporter:
 
     def __init__(self, db: Optional[DatabaseConnection] = None, shopify: Any = None,
                  pagina_fn: Callable[[str], Dict[str, Any]] = obtener_datos_pagina,
-                 hoja_fn: Optional[Callable[[Dict[str, Any]], None]] = None, pausa: float = 0.5):
+                 hoja_fn: Optional[Callable[[Dict[str, Any]], None]] = None, pausa: float = 0.5,
+                 espera_imagenes: float = 15.0, intervalo_imagenes: float = 3.0):
         self.db = db or DatabaseConnection()
         self.validator = FinancialValidator(self.db)
         self._shopify = shopify
@@ -280,6 +281,8 @@ class BulkUrlImporter:
         self._pagina_fn = pagina_fn
         self._hoja_fn = hoja_fn
         self._pausa = pausa
+        self._espera_imagenes = espera_imagenes
+        self._intervalo_imagenes = intervalo_imagenes
 
     # ── API pública ──────────────────────────────────────────────────────────
 
@@ -317,9 +320,36 @@ class BulkUrlImporter:
             if crear and r["status"] == "success" and self._pausa:
                 time.sleep(self._pausa)
         if crear:
+            self._verificar_imagenes(resultados)
             exitosos = sum(1 for r in resultados if r["status"] == "success")
             logger.info(f"[BULK] Lote finalizado: {exitosos}/{len(resultados)} borradores creados")
         return resultados
+
+    def _verificar_imagenes(self, resultados: List[Dict]) -> None:
+        """Shopify acepta el producto y descarta en silencio las imágenes que no puede bajar (p. ej. hosts que
+        bloquean su descargador). Tras el lote se consulta cuántas imágenes tiene cada borrador de verdad."""
+        pendientes = [r for r in resultados if r["status"] == "success" and r.get("imagenes")]
+        if not pendientes:
+            return
+        enviadas = {id(r): r["imagenes"] for r in pendientes}
+        limite = time.monotonic() + self._espera_imagenes
+        while True:
+            for r in list(pendientes):
+                try:
+                    n = len(self._cliente().get_product(r["shopify_draft_id"]).get("images", []))
+                except Exception as e:                       # no verificable: se deja lo enviado
+                    logger.warning(f"[BULK] No se pudo verificar imágenes de {r['shopify_draft_id']}: {e}")
+                    pendientes.remove(r)
+                    continue
+                r["imagenes"] = n
+                if n >= enviadas[id(r)]:
+                    pendientes.remove(r)
+            if not pendientes or time.monotonic() >= limite:
+                break
+            time.sleep(self._intervalo_imagenes)
+        for r in pendientes:
+            r["aviso"] = (f"Shopify solo aceptó {r['imagenes']} de {enviadas[id(r)]} imágenes "
+                          f"(el servidor de origen puede bloquear su descarga)")
 
     def _resultado(self, url: str, plataforma: str, pid: str, status: str, error: Optional[str] = None,
                    draft: Optional[str] = None, validacion: Optional[Dict] = None, guardar: bool = True,

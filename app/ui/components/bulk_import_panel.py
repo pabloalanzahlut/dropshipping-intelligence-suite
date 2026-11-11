@@ -96,7 +96,8 @@ class BulkImportPanel(PanelBase):
                           r.get("titulo") or r["url"], r.get("pvp") if r.get("pvp") is not None else "—",
                           v.get("multiplicador", "—"), r.get("imagenes", 0), r.get("variantes", 1),
                           r.get("shopify_draft_id") or "—", r.get("hoja") or "—",
-                          r.get("error") or " · ".join(v.get("advertencias", [])) or "OK"))
+                          r.get("error") or " · ".join(([r["aviso"]] if r.get("aviso") else [])
+                                                      + v.get("advertencias", [])) or "OK"))
         llenar_tabla(self._tree, filas, [_COLOR_ESTADO.get(r["status"], "") for r in resultados])
         if crear:
             creados = sum(1 for r in resultados if r["status"] == "success")

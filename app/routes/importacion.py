@@ -50,7 +50,8 @@ def _fila(r: Dict[str, Any]) -> Dict[str, Any]:
     return {"url": r["url"], "plataforma": r["plataforma"], "product_id": r.get("product_id", ""),
             "status": r["status"], "error": r.get("error"), "shopify_draft_id": r.get("shopify_draft_id"),
             "pvp": r.get("pvp"), "multiplicador": v.get("multiplicador"), "costo_landed": v.get("costo_landed"),
-            "advertencias": v.get("advertencias", []), "titulo": r.get("titulo"),
+            "advertencias": ([r["aviso"]] if r.get("aviso") else []) + v.get("advertencias", []),
+            "titulo": r.get("titulo"),
             "imagenes": r.get("imagenes", 0), "variantes": r.get("variantes", 1), "hoja": r.get("hoja")}
 
 
