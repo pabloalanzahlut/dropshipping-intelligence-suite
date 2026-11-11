@@ -62,4 +62,4 @@ Ofrecemos garantía de satisfacción de 30 días. Para garantías de fabricante 
 - Sustituir todos los `[PLACEHOLDER]` antes de publicar
 - Las respuestas de envío **deben coincidir** con la Política de Envío (siempre los días reales del proveedor, nunca menos)
 - Actualizar sección de pagos según los métodos que actives en Shopify Payments
-- Formato recomendado: acordeón (FAQ accordion) si el tema lo soporta — mejora UX
+- El curso no usa una página de FAQ: usa un bloque acordeón en la ficha de producto (`Q4Ykcwh5Osc` 03:06:48), cubierto por `fase_2/04_componentes_conversion/05_acordeon_faq.md`. Esta página es opcional; la tienda ya tiene `/pages/faqs` publicada y vacía.

@@ -51,4 +51,4 @@ Escríbenos a [EMAIL] con:
 - Sustituir `[EMAIL]` por el email real de soporte
 - Opción avanzada: instalar la app **AfterShip** o **Track123** (plan gratuito) y sustituir 17track.net por el widget embebido — mejora la experiencia y reduce tickets
 - La tabla de tiempos **debe coincidir** con la Política de Envío
-- El texto "3-5 días en actualizarse" es clave — reduce ansiedad del cliente y tickets innecesarios
+- Esta página no está en el curso: el vídeo pone el tracking en la política de envío y lo envía por email (`Q4Ykcwh5Osc` 22:14:28). Es opcional; si se publica, usar el handle `track-order` que ya existe vacío en la tienda.

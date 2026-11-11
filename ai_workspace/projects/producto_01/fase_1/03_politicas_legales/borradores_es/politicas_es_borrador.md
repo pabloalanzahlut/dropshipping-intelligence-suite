@@ -1,5 +1,5 @@
 # BORRADORES POLÍTICAS (ES) — pendientes de revisión, NO publicados
-> Idioma: español (único idioma publicado de la tienda). Base: plantillas de Adrián Sáenz (30 días, sin devolución física en defecto/daño, mínimo 6 días de tránsito) + derecho de desistimiento de 14 días de la UE (Directiva 2011/83/UE, criterio propio, no del curso: validar con un profesional).
+> Idioma: español (único idioma publicado de la tienda). Base: plantillas propias de GEM OS de `fase_1/03_politicas_legales` (no son del curso: el curso usa las plantillas de Shopify, `Q4Ykcwh5Osc` 03:51:39), con 30 días (criterio del curso, 22:29:46) y sin devolución física en defecto/daño + derecho de desistimiento de 14 días de la UE (Directiva 2011/83/UE, criterio propio, no del curso: validar con un profesional).
 > Datos que NO tengo (DATA_GAP_REQUEST): nombre comercial, titular legal, domicilio, NIF/ID fiscal, país de operación. Marcados con [CORCHETES].
 > Plazos de entrega: verificados solo para Italia (AliExpress, 20–30 nov desde pedido del 11 nov = 9–19 días). Otros países: sin verificar.
 
