@@ -1,5 +1,6 @@
 # HOMEPAGE — [MARCA]
-> Shopify Admin → Online Store → Themes → Dawn → Customize → Home page
+> Shopify Admin → Online Store → Themes → Sense → Customize → Home page
+> AVISO: el curso construye la home con bloques `Liquid personalizado` (`Q4Ykcwh5Osc` 01:04:12), no con secciones nativas; los nombres de sección de abajo son de Dawn y pueden variar en Sense. Equivalentes en `fase_2/04_componentes_conversion`.
 > Construir de arriba abajo en el editor de secciones
 
 ---

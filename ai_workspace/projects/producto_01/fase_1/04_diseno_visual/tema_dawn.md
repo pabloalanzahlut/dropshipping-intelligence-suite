@@ -36,7 +36,7 @@ Pegar los valores exactos de `paleta_marca.md`:
 | Headings | **Playfair Display** | Autoridad, modernidad, se ve premium |
 | Body text | **DM Sans** | Legibilidad perfecta en móvil |
 
-> En Dawn: ir a Typography → Headings → Browse free fonts → buscar "Playfair Display"
+> En el editor: ir a Typography → Headings → Browse free fonts → buscar "Playfair Display"
 > Para body: buscar "DM Sans"
 
 **Tamaños base:**
@@ -88,7 +88,7 @@ Pegar los valores exactos de `paleta_marca.md`:
 
 ### 7. Secciones a eliminar del Home por defecto
 
-Dawn viene con secciones de demo. **Borrar antes de añadir las nuestras:**
+El tema trae secciones de demo. **Borrar antes de añadir las nuestras:**
 - "Rich text" de demo con texto genérico
 - "Image banner" con imagen de placeholder
 - "Featured collection" con colección vacía

@@ -64,7 +64,7 @@ TEXTO:            [HEX]
 
 ---
 
-## Tipografías (ya configuradas en Dawn)
+## Tipografías (propuesta de GEM OS)
 
 | Rol | Fuente | Fallback |
 |---|---|---|
@@ -89,7 +89,7 @@ Criterio del curso (`Q4Ykcwh5Osc` 00:53:53): la fuente con serifa se asocia a el
 ## Checklist
 
 - [ ] Opción elegida: ___
-- [ ] Hex primario copiado en Dawn (Colors → Buttons)
-- [ ] Hex secundario copiado en Dawn (Colors → Secondary background)
-- [ ] Tipografías configuradas en Dawn (ver `tema_dawn.md`)
+- [ ] Hex primario copiado en el tema (Colors → Buttons)
+- [ ] Hex secundario copiado en el tema (Colors → Secondary background)
+- [ ] Tipografías configuradas en el tema (ver `tema_dawn.md`)
 - [ ] Logo con colores de la paleta subido
