@@ -14,7 +14,7 @@
 | Zona | Países incluidos | Tarifa | Plazo |
 |------|-----------------|--------|-------|
 | `[ZONA_1]` | `[PAISES_1]` | `[PRECIO_ENV_1]` | {{DIAS_ENVIO_PROVEEDOR}} días lab. |
-| `[ZONA_2]` | `[PAISES_2]` | `[PRECIO_ENV_2]` | 8-15 días lab. |
+| `[ZONA_2]` | `[PAISES_2]` | `[PRECIO_ENV_2]` | {{DIAS_ENVIO_PROVEEDOR}} días lab. |
 | Envío gratuito | Todas las zonas | Gratis | {{DIAS_ENVIO_PROVEEDOR}} días lab. |
 
 **Umbral envío gratuito:** `[IMPORTE_GRATIS]` (ej. 35€)

@@ -17,7 +17,7 @@ all-products (Todos los Productos)
 
 ---
 
-## Colecciones Obligatorias (Adrián Sáenz)
+## Colecciones base (criterio GEM OS, solo tienda multiproducto)
 
 ### 1. Más Vendidos (`mas-vendidos`)
 - **Tipo:** Manual
