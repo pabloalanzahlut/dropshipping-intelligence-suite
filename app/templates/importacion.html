@@ -58,7 +58,7 @@
     <table class="data-table">
       <thead><tr><th>Estado</th><th>Producto</th><th>PVP</th><th>Mult.</th><th>Img</th><th>Var.</th><th>Borrador</th><th>Sheets</th><th>Detalle</th></tr></thead>
       <tbody>
-        <template x-for="f in filas" :key="f.url">
+        <template x-for="(f, i) in filas" :key="i">
           <tr>
             <td><span :class="clase(f.status)" x-text="nombre(f.status)"></span></td>
             <td><span x-text="f.titulo || corta(f.url)" :title="f.url"></span> <span style="color:#4a5080;font-size:10px;" x-text="f.plataforma"></span></td>
@@ -80,7 +80,7 @@
     <table class="data-table" x-show="historial.length">
       <thead><tr><th>Fecha</th><th>Estado</th><th>Plataforma</th><th>URL</th><th>Borrador</th></tr></thead>
       <tbody>
-        <template x-for="h in historial" :key="h.creada_at + h.url_origen">
+        <template x-for="(h, i) in historial" :key="i">
           <tr><td x-text="h.creada_at"></td><td><span :class="clase(h.status)" x-text="nombre(h.status)"></span></td>
               <td x-text="h.plataforma"></td><td x-text="corta(h.url_origen)" :title="h.url_origen"></td><td x-text="h.shopify_draft_id || '—'"></td></tr>
         </template>
