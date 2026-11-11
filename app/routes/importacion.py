@@ -111,9 +111,12 @@ async def api_importar(p: Peticion) -> Dict[str, Any]:
 
 @importacion_router.get("/historial")
 async def api_historial(limite: int = Query(50, ge=1, le=200)) -> Dict[str, Any]:
-    with closing(sqlite3.connect(DB_PATH)) as conn:
-        conn.row_factory = sqlite3.Row
-        filas = conn.execute(
-            "SELECT url_origen, plataforma, status, shopify_draft_id, error_msg, creada_at "
-            "FROM importaciones_masivas ORDER BY id DESC LIMIT ?", (limite,)).fetchall()
+    try:
+        with closing(sqlite3.connect(DB_PATH)) as conn:
+            conn.row_factory = sqlite3.Row
+            filas = conn.execute(
+                "SELECT url_origen, plataforma, status, shopify_draft_id, error_msg, creada_at "
+                "FROM importaciones_masivas ORDER BY id DESC LIMIT ?", (limite,)).fetchall()
+    except sqlite3.OperationalError:                      # migración 0013 aún no aplicada
+        filas = []
     return {"historial": [dict(f) for f in filas]}
