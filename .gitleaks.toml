@@ -8,6 +8,5 @@ useDefault = true
 description = "OpenRouter placeholders in docs, .env.example y tests"
 regexTarget = "secret"
 regexes = [
-  '''^selfheal\-SECRETO\-placeholder\-0000000$''',
   '''^sk-or-v1-(?:tu_clave|TU_API_KEY_AQUI|X{8,}|[A-Z]{8,}[0-9]+)$''',
 ]
