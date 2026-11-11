@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Importación masiva{% endblock %}
+{% block topbar_title %}
+<span style="font-size:12px;color:#4a5080;">GEM OS</span>
+<span style="font-size:12px;color:#252844;margin:0 6px;">/</span>
+<span style="font-size:12px;font-weight:600;color:#c8d0f0;">Importación masiva</span>
+{% endblock %}
+
+{% block content %}
+<div x-data="importacion()" x-init="init()">
+
+  <div style="margin-bottom:20px;">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#e8ecff;margin:0 0 4px;">
+      Importación <span style="background:linear-gradient(90deg,#34d399,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">masiva</span>
+    </h1>
+    <p style="font-size:12px;color:#4a5080;margin:0;">Una línea por producto con su coste y su envío. Cada uno se valida sobre coste landed (mínimo x2, objetivo x3) y se crea como <strong style="color:#a8b0d8;">borrador</strong> en Shopify; nada se publica.</p>
+  </div>
+
+  <div x-show="error" x-cloak role="alert" style="background:rgba(244,63,94,0.08);border:1px solid rgba(251,113,133,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#fb7185;" x-text="error"></div>
+
+  <div x-show="est && !est.shopify.configurada" x-cloak style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.22);border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+    <p style="font-size:12px;color:#fbbf24;margin:0;" x-text="(est?.shopify.aviso) || ('Shopify no está configurado. Faltan en .env: ' + ((est?.shopify.faltan) || []).join(', '))"></p>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="section-title">Productos</div>
+    <label class="form-label" for="texto">Formato por línea</label>
+    <p style="font-size:11px;color:#7880b0;margin:0 0 8px;line-height:1.7;">
+      <code>URL coste envío</code> · envío <code>0</code> si es gratis · coma decimal admitida<br>
+      Opcional: <code>img=URL</code> (repetible) y <code>var=Color:Rojo/Azul</code> (usa <code>_</code> para espacios). Sin <code>img=</code> se intentan las imágenes de la página; las variantes solo salen de <code>var=</code>.
+    </p>
+    <textarea id="texto" x-model="texto" rows="7" class="input-field" spellcheck="false"
+              style="width:100%;font-family:ui-monospace,Consolas,monospace;font-size:12px;"
+              placeholder="https://es.aliexpress.com/item/1005006789123456.html 10 2 var=Color:Rojo/Azul"></textarea>
+
+    <div class="flex gap-3 items-end flex-wrap" style="margin-top:12px;">
+      <div>
+        <label class="form-label" for="moneda">Divisa del proveedor</label>
+        <input id="moneda" x-model="moneda" maxlength="3" class="input-field" style="width:90px;text-transform:uppercase;">
+      </div>
+      <div>
+        <label class="form-label" for="lote">Etiqueta del lote (opcional)</label>
+        <input id="lote" x-model="lote" maxlength="40" class="input-field" style="width:200px;" placeholder="test-2026-11">
+      </div>
+      <label style="font-size:12px;color:#a8b0d8;display:flex;gap:6px;align-items:center;"><input type="checkbox" x-model="psico"> Precio ,99</label>
+      <label style="font-size:12px;color:#a8b0d8;display:flex;gap:6px;align-items:center;" :title="est && !est.hoja_configurada ? 'Google Sheets no está configurado en .env' : ''">
+        <input type="checkbox" x-model="hoja" :disabled="est && !est.hoja_configurada"> Anotar en Google Sheets</label>
+      <button class="btn-ghost" @click="enviar('previsualizar')" :disabled="ocupado || !texto.trim()" x-text="ocupado === 'previsualizar' ? 'Calculando…' : 'Previsualizar'"></button>
+      <button class="btn-primary" @click="enviar('importar')" :disabled="ocupado || !texto.trim()" x-text="ocupado === 'importar' ? 'Importando…' : 'Crear borradores'"></button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;overflow-x:auto;" x-show="filas.length" x-cloak>
+    <div class="flex items-center justify-between gap-2" style="margin-bottom:8px;">
+      <div class="section-title" style="margin:0;" x-text="titulo"></div>
+      <span style="font-size:11px;color:#7880b0;" x-text="resumen"></span>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Estado</th><th>Producto</th><th>PVP</th><th>Mult.</th><th>Img</th><th>Var.</th><th>Borrador</th><th>Sheets</th><th>Detalle</th></tr></thead>
+      <tbody>
+        <template x-for="f in filas" :key="f.url">
+          <tr>
+            <td><span :class="clase(f.status)" x-text="nombre(f.status)"></span></td>
+            <td><span x-text="f.titulo || corta(f.url)" :title="f.url"></span> <span style="color:#4a5080;font-size:10px;" x-text="f.plataforma"></span></td>
+            <td x-text="f.pvp != null ? Number(f.pvp).toLocaleString('es-ES', {minimumFractionDigits:2}) : '—'"></td>
+            <td x-text="f.multiplicador != null ? f.multiplicador + '×' : '—'"></td>
+            <td x-text="f.imagenes || 0"></td>
+            <td x-text="f.variantes || 1"></td>
+            <td x-text="f.shopify_draft_id || '—'"></td>
+            <td x-text="f.hoja || '—'"></td>
+            <td style="max-width:320px;white-space:normal;font-size:11px;" :style="f.status === 'error' ? 'color:#fb7185' : 'color:#a8b0d8'" x-text="f.error || (f.advertencias || []).join(' · ') || 'OK'"></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <div class="section-title">Historial</div>
+    <table class="data-table" x-show="historial.length">
+      <thead><tr><th>Fecha</th><th>Estado</th><th>Plataforma</th><th>URL</th><th>Borrador</th></tr></thead>
+      <tbody>
+        <template x-for="h in historial" :key="h.creada_at + h.url_origen">
+          <tr><td x-text="h.creada_at"></td><td><span :class="clase(h.status)" x-text="nombre(h.status)"></span></td>
+              <td x-text="h.plataforma"></td><td x-text="corta(h.url_origen)" :title="h.url_origen"></td><td x-text="h.shopify_draft_id || '—'"></td></tr>
+        </template>
+      </tbody>
+    </table>
+    <p x-show="!historial.length" style="font-size:12px;color:#4a5080;margin:0;">Todavía no se ha importado nada.</p>
+  </div>
+</div>
+
+<style>
+code { background: #111328; border: 1px solid #252844; border-radius: 4px; padding: 0 4px; font-size: 11px; color: #c8d0f0; }
+</style>
+
+<script>
+function importacion() {
+  return {
+    texto: '', moneda: 'USD', lote: '', psico: true, hoja: true,
+    est: null, filas: [], historial: [], titulo: '', resumen: '', error: '', ocupado: '',
+    get toast() { return Alpine.store('toast'); },
+    nombre(s) { return { success: 'CREADO', skipped: 'OMITIDO', error: 'ERROR', preview: 'LISTO' }[s] || s; },
+    clase(s) { return { success: 'badge badge-done', skipped: 'badge badge-pending', error: 'badge badge-fail', preview: 'badge badge-info' }[s] || 'badge'; },
+    corta(u) { return u && u.length > 60 ? u.slice(0, 57) + '…' : u; },
+    async mensaje(r, d) { try { const j = await r.json(); return typeof j.detail === 'string' ? j.detail : d; } catch (e) { return d; } },
+    async init() {
+      try {
+        const r = await fetch('/api/importacion/estado');
+        if (r.ok) { this.est = await r.json(); if (!this.est.hoja_configurada) this.hoja = false; }
+      } catch (e) { this.error = 'No se pudo leer el estado: ' + e.message; }
+      await this.cargarHistorial();
+    },
+    async cargarHistorial() {
+      try { const r = await fetch('/api/importacion/historial?limite=30'); if (r.ok) this.historial = (await r.json()).historial; } catch (e) {}
+    },
+    async enviar(accion) {
+      this.ocupado = accion; this.error = '';
+      try {
+        const r = await fetch('/api/importacion/' + accion, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texto: this.texto, moneda_costo: (this.moneda || 'USD').toUpperCase(), precio_psicologico: this.psico,
+                                 etiqueta_lote: this.lote.trim(), sincronizar_hoja: this.hoja }),
+        });
+        if (!r.ok) { this.error = await this.mensaje(r, 'Error ' + r.status); return; }
+        const d = await r.json();
+        this.filas = d.resultados;
+        if (accion === 'importar') {
+          this.titulo = 'Resultado de la importación';
+          this.resumen = d.creados + ' de ' + d.resultados.length + ' borradores creados';
+          (d.creados ? this.toast.ok : this.toast.error)(this.resumen);
+          await this.cargarHistorial();
+        } else {
+          this.titulo = 'Previsualización (no se ha creado nada)';
+          this.resumen = d.resultados.filter(f => f.status === 'preview').length + ' de ' + d.resultados.length + ' listos para importar';
+        }
+      } catch (e) { this.error = 'No se pudo completar la operación: ' + e.message; }
+      finally { this.ocupado = ''; }
+    },
+  };
+}
+</script>
+{% endblock %}
