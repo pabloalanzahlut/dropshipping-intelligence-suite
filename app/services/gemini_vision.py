@@ -6,7 +6,7 @@ Elimina la necesidad de copiar manualmente dimensiones, materiales y colores.
 
 API: Google AI Studio → https://aistudio.google.com → API Keys
 Variable de entorno: GOOGLE_AI_API_KEY
-Alternativa: vía OpenRouter con model "google/gemini-flash-1.5"
+Alternativa: vía OpenRouter con model "google/gemini-2.5-flash"
 """
 
 import os
@@ -77,7 +77,7 @@ def _analyze_via_openrouter(image_url: str, prompt: str, api_key: str) -> Option
     import json
 
     payload = {
-        "model": "google/gemini-flash-1.5",
+        "model": "google/gemini-2.5-flash",
         "messages": [{
             "role": "user",
             "content": [

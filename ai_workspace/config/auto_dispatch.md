@@ -47,6 +47,20 @@ Cuando el usuario hace una consulta en lenguaje natural, GEM OS mapea automátic
 4. **Claude Skills** — cargar las Claude skills indicadas antes de ejecutar
 5. **Ambigüedad** — si más de 2 skills matchean con igual peso → preguntar al usuario cuál es el objetivo principal
 
+## Delegación por modelo (Claude Code, desktop y web)
+
+Aunque el usuario no use slash commands, delegar en el subagente adecuado (`.claude/agents/`):
+
+| Tipo de tarea | Subagente | Modelo |
+|---------------|-----------|--------|
+| Fichas, hooks, guiones, anuncios Meta, clonar sección, AIDA (borradores) | `gem-bulk-copy` | Haiku |
+| Validación 3x/2x, coste landed, HOT/WARM/COLD, escalado, caja | `gem-financial-guard` | Sonnet |
+| Auditoría o diseño de arquitectura global | `gem-architect` | Fable, solo si el usuario lo pide explícitamente |
+
+- El copy de `gem-bulk-copy` siempre pasa por `verificar_copy` (`deterministic_gate.py`) antes de publicarse.
+- Los números los valida `gem-financial-guard` y el gate; el modelo barato nunca decide cifras.
+- Fable nunca se activa automáticamente.
+
 ## Prioridad de pipeline
 
 Si la consulta es sobre un producto nuevo → forzar orden del DAG:

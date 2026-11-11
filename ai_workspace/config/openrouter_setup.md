@@ -8,14 +8,14 @@ Configuración para usar modelos económicos via OpenRouter en tareas de volumen
 
 | Tarea GEM OS | Modelo recomendado | Costo aprox. | Claude oficial |
 |---|---|---|---|
-| Regla 3x / validación financiera | `claude-sonnet-4-6` (oficial) | $3/M tokens | ✅ Siempre |
-| Generación ficha Shopify (1 producto) | `claude-sonnet-4-6` | $3/M tokens | ✅ Preferido |
+| Regla 3x / validación financiera | `anthropic/claude-sonnet-5.5` | $3/M tokens | ✅ Siempre |
+| Generación ficha Shopify (1 producto) | `anthropic/claude-sonnet-5.5` | $3/M tokens | ✅ Preferido |
 | Generación masiva fichas (10+ productos) | `deepseek/deepseek-chat-v3-0324` | $0.14/M tokens | ❌ OpenRouter |
-| Traducción ES→EN de listings | `google/gemini-flash-1.5` | $0.08/M tokens | ❌ OpenRouter |
+| Traducción ES→EN de listings | `google/gemini-2.5-flash` | $0.08/M tokens | ❌ OpenRouter |
 | Variantes de copy A/B testing | `deepseek/deepseek-chat-v3-0324` | $0.14/M tokens | ❌ OpenRouter |
 | Scripts TikTok (borrador inicial) | `deepseek/deepseek-chat-v3-0324` | $0.14/M tokens | ❌ OpenRouter |
-| Scripts TikTok (revisión final) | `claude-sonnet-4-6` (oficial) | $3/M tokens | ✅ Calidad |
-| Clasificación HOT/WARM/COLD | `claude-sonnet-4-6` (oficial) | $3/M tokens | ✅ Siempre |
+| Scripts TikTok (revisión final) | `anthropic/claude-sonnet-5.5` | $3/M tokens | ✅ Calidad |
+| Clasificación HOT/WARM/COLD | `anthropic/claude-sonnet-5.5` | $3/M tokens | ✅ Siempre |
 
 ---
 
@@ -63,7 +63,7 @@ def get_client(task_type: str) -> anthropic.Anthropic:
 def get_model(task_type: str) -> str:
     CRITICAL_TASKS = {"validar_financiero", "clasificar_producto", "regla_3x"}
     if task_type in CRITICAL_TASKS:
-        return "claude-sonnet-4-6"
+        return "anthropic/claude-sonnet-5.5"
     return "deepseek/deepseek-chat-v3-0324"
 
 
@@ -99,15 +99,15 @@ def generar_fichas_masivas(productos: list[dict]) -> list[dict]:
 
 ---
 
-## Modelos Recomendados en OpenRouter (2026)
+## Modelos Recomendados en OpenRouter (IDs verificados 2026-11-11)
 
 | Modelo | Mejor para | Costo/M tokens |
 |--------|-----------|----------------|
 | `deepseek/deepseek-chat-v3-0324` | Copy masivo, fichas, traducciones | $0.14 |
-| `google/gemini-flash-1.5` | Velocidad + multilenguaje | $0.08 |
-| `meta-llama/llama-3.3-70b-instruct` | Calidad cercana a Claude, gratis en tier básico | $0.00-$0.59 |
-| `anthropic/claude-3-haiku` | Balance calidad/precio | $0.25 |
-| `deepseek/deepseek-r1` | Razonamiento complejo (ficha técnica difícil) | $0.55 |
+| `google/gemini-2.5-flash` | Multimodal + multilenguaje | $0.30 in / $2.50 out |
+| `meta-llama/llama-3.3-70b-instruct` | Fallback de volumen (los `:free` ya no están en el catálogo) | $0.71 |
+| `anthropic/claude-haiku-5.5` | Balance calidad/precio | $0.10 in / $0.50 out |
+| `deepseek/deepseek-r1-0528` | Razonamiento complejo (ficha técnica difícil) | $0.50 in / $2.15 out |
 
 ---
 
