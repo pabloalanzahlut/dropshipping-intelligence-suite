@@ -368,7 +368,42 @@ function productos() {
         this.cargarFakeDoor();
         this.cargarAnunciosMeta();
         this.cargarVideoJobs();
+        this.cargarOfertas();
+        this.cargarClones();
       } catch (e) { this.toast.error('No se pudo abrir el producto: ' + e.message); }
+    },
+    async cargarOfertas() {
+      try {
+        const r = await fetch('/api/productos/' + this.det.id + '/oferta-multiunidad');
+        this.ofertas = r.ok ? await r.json() : [];
+      } catch (e) { this.ofertas = []; }
+    },
+    async calcularOferta() {
+      this.ofertaCargando = true;
+      try {
+        const r = await fetch('/api/productos/' + this.det.id + '/oferta-multiunidad', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.ofertaForm) });
+        if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo calcular.')); return; }
+        this.toast.ok('Oferta calculada.'); await this.cargarOfertas();
+      } catch (e) { this.toast.error('Error de conexión con el servidor.'); }
+      finally { this.ofertaCargando = false; }
+    },
+    async cargarClones() {
+      try {
+        const r = await fetch('/api/productos/' + this.det.id + '/clonar-seccion');
+        this.clones = r.ok ? await r.json() : [];
+      } catch (e) { this.clones = []; }
+    },
+    async clonarSeccion() {
+      if (!this.clonarHtml.trim()) { this.toast.error('Pega el HTML de la sección.'); return; }
+      this.clonarCargando = true;
+      try {
+        const r = await fetch('/api/productos/' + this.det.id + '/clonar-seccion', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html_competencia: this.clonarHtml, nota: this.clonarNota }) });
+        if (!r.ok) { this.toast.error(await this.mensaje(r, 'No se pudo clonar la sección.')); return; }
+        this.toast.ok('Sección clonada.'); await this.cargarClones();
+      } catch (e) { this.toast.error('Error de conexión con el servidor.'); }
+      finally { this.clonarCargando = false; }
     },
     async cargarAnunciosMeta() {
       try {
