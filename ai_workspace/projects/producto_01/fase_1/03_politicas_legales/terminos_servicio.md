@@ -1,6 +1,7 @@
 # TÉRMINOS DEL SERVICIO — [MARCA]
 > Shopify Admin → Settings → Policies → "Terms of Service"
 > (también accesible en /policies/terms-of-service)
+> AVISO: SUPERADA el 2026-11-11 por los Términos publicados (`borradores_es/politicas_es_borrador.md`), que añaden las cláusulas específicas del producto. Esta plantilla es genérica: no republicar.
 
 ---
 
