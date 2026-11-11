@@ -228,6 +228,7 @@ class GEMOSApplication:
             ("Imágenes", lambda parent: ImagenesPanel(parent, db_manager=self.db_manager)),
             ("Propuestas IA", lambda parent: PropuestasPanel(parent, db_manager=self.db_manager)),
             ("Investigar nicho", lambda parent: NichoPanel(parent, db_manager=self.db_manager)),
+            ("Canales pagados", lambda parent: CanalesPanel(parent, db_manager=self.db_manager)),
         ]
         self._panel_factories = specs
         self._panel_loaded = [False] * len(specs)
