@@ -60,7 +60,7 @@ class GenerarCopyTests(Base):
         """Bug real encontrado en vivo: el modelo a veces devuelve un objeto por canal en
         vez de los campos planos pedidos. El gate debe revisar ese texto igualmente, no
         saltárselo en silencio."""
-        respuesta = ('{"copy": {"Google Ads": {"titulo_1": "El mejor organizador del mundo"}, '
+        respuesta = ('{"copy": {"Google Ads": {"titulo_1": "Un organizador increible"}, '
                      '"TikTok Ads": {"hook_video": "normal"}}}')
         with mock.patch.object(svc, "chat", return_value=respuesta):
             r = svc.generar("google_ads", "x")
