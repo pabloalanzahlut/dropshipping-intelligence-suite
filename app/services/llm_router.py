@@ -50,6 +50,7 @@ TASK_MODEL_MAP = {
     "hook_matrix":           MODEL_ROUTING["default_volume"],
     "redactar_anuncio_meta": MODEL_ROUTING["default_volume"],
     "clonar_seccion":        MODEL_ROUTING["default_volume"],
+    "copy_canal_pagado":     MODEL_ROUTING["default_volume"],   # checklist+copy Google/TikTok Ads, Amazon, TikTok Shop
     # ── Multimodal: imagen → texto → Gemini Flash ───────────────────────────
     "analizar_imagen":       MODEL_ROUTING["translate"],   # gemini-flash-1.5 multimodal
     "extraer_specs_imagen":  MODEL_ROUTING["translate"],
