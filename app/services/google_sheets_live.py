@@ -110,12 +110,15 @@ def upsert_producto_pipeline(producto: Dict) -> bool:
         producto.get("roas", ""),
     ]
 
-    # Buscar SKU existente
+    # Buscar SKU existente. gspread ≥ 6 devuelve None si no lo encuentra; las versiones antiguas lanzan CellNotFound.
     try:
         cell = sheet.find(sku, in_column=2)
+    except getattr(gspread.exceptions, "CellNotFound", ()):
+        cell = None
+    if cell is not None:
         sheet.update(f"A{cell.row}:J{cell.row}", [nueva_fila])
         logger.info(f"[SHEETS] Actualizado: {sku} → {clasificacion}")
-    except gspread.CellNotFound:
+    else:
         sheet.append_row(nueva_fila)
         logger.info(f"[SHEETS] Insertado: {sku} → {clasificacion}")
 
