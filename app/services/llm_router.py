@@ -7,6 +7,7 @@ Sin costo de API externa adicional: todo pasa por la OPENROUTER_API_KEY ya confi
 """
 
 import os
+import time
 import logging
 import requests
 from typing import Optional
@@ -67,6 +68,11 @@ TASK_MODEL_MAP = {
 
 def get_model(task: str) -> str:
     """Devuelve el model_id óptimo para la tarea dada."""
+    if task not in TASK_MODEL_MAP:
+        logger.warning(
+            f"[LLM_ROUTER] tarea desconocida '{task}' → modelo de volumen por defecto; "
+            "si es una tarea crítica, añádela a TASK_MODEL_MAP/CRITICAL_TASKS"
+        )
     return TASK_MODEL_MAP.get(task, MODEL_ROUTING["default_volume"])
 
 
@@ -107,23 +113,32 @@ def chat(
         "temperature": temperature,
     }
 
+    critical = task in CRITICAL_TASKS
     for attempt in range(3):
+        resp = None
         try:
             resp = requests.post(url, headers=headers, json=payload, timeout=60)
             resp.raise_for_status()
-            content = resp.json()["choices"][0]["message"]["content"].strip()
-            logger.info(f"[LLM_ROUTER] task={task} model={model} tokens={resp.json().get('usage', {})}")
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"].strip()
+            logger.info(f"[LLM_ROUTER] task={task} model={payload['model']} tokens={data.get('usage', {})}")
             return content
         except requests.HTTPError as e:
-            if resp.status_code == 429:
-                import time; time.sleep(2 ** attempt)
+            status = resp.status_code if resp is not None else 0
+            if status == 429 or status >= 500:
+                if attempt < 2:
+                    time.sleep(2 ** attempt)
             else:
-                logger.error(f"[LLM_ROUTER] HTTP {resp.status_code} en intento {attempt+1}: {e}")
+                logger.error(f"[LLM_ROUTER] HTTP {status} en intento {attempt+1}: {e}")
                 break
         except Exception as e:
             logger.error(f"[LLM_ROUTER] Error intento {attempt+1}: {e}")
-            if attempt == 2:
-                # Último recurso: modelo free
+            # Último recurso: modelo free, SOLO para tareas de volumen.
+            # Las críticas (3x, HOT/WARM/COLD, specs) nunca bajan de modelo:
+            # si fallan, se devuelve None y el pipeline se detiene.
+            if attempt == 1 and not critical:
                 payload["model"] = MODEL_ROUTING["free_fallback"]
 
+    if critical:
+        logger.error(f"[LLM_ROUTER] tarea crítica '{task}' falló: sin fallback, se detiene la cadena")
     return None
