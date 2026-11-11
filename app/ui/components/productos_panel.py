@@ -152,6 +152,8 @@ class ProductosPanel(PanelBase):
                 boton(botones, "✨ Hook Matrix", lambda: self._hook_matrix(p), COLOR_SECONDARY).pack(fill=tk.X, pady=2)
                 boton(botones, "📢 Anuncios Meta", lambda: self._anuncios_meta(p), COLOR_SECONDARY).pack(fill=tk.X, pady=2)
                 boton(botones, "🎬 Vídeo IA", lambda: self._video_ia(p), COLOR_SECONDARY).pack(fill=tk.X, pady=2)
+                boton(botones, "🧮 Oferta multiunidad", lambda: self._oferta_multiunidad(p), COLOR_SECONDARY).pack(fill=tk.X, pady=2)
+                boton(botones, "🧬 Clonar sección", lambda: self._clonar_seccion(p), COLOR_SECONDARY).pack(fill=tk.X, pady=2)
             boton(botones, "✏ Editar datos", lambda: self._editar(p), BG_TERTIARY, TXT_2).pack(fill=tk.X, pady=2)
             boton(botones, "✖ Descartar", lambda: self._mover(p["id"], "descartado", pedir_nota=True),
                   BG_TERTIARY, COLOR_ERROR).pack(fill=tk.X, pady=2)
