@@ -385,7 +385,7 @@ class BulkUrlImporter:
             ShopifyClient.construir_variantes(1.0, opciones)
         except ValueError as e:
             return omitir(str(e))
-        if crear and self._ya_importada(url):
+        if self._ya_importada(url):
             return omitir("Duplicado: esta URL ya tiene un borrador creado")
 
         try:
