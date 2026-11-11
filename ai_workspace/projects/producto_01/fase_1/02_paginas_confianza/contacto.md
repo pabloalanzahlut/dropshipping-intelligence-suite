@@ -17,11 +17,15 @@ Estamos aquí para ayudarte. Escríbenos y te respondemos en menos de **48 horas
 
 **Correo electrónico:** [EMAIL]
 
+**Dirección:** [DIRECCIÓN]
+
+**Teléfono:** [TELÉFONO]
+
 **Horario de atención:** Lunes a viernes, 9:00 — 18:00 h
 
 ---
 
-*Para consultas sobre el estado de tu pedido, utiliza nuestra página de [Seguimiento de Pedido](/pages/seguimiento-pedido) — es la forma más rápida.*
+*Para consultas sobre el estado de tu pedido, revisa el email de seguimiento que recibes al enviarse el pedido y nuestra [Política de envío](/policies/shipping-policy).*
 
 ---
 
