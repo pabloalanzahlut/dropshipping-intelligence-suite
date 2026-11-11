@@ -361,6 +361,14 @@ try:
 except Exception as _tienda_err:
     log.warning(f"[SERVER] API de la tienda no disponible: {_tienda_err}")
 
+# Importación masiva: URLs → borradores en Shopify
+try:
+    from app.routes.importacion import importacion_router
+    app.include_router(importacion_router)
+    log.info("[SERVER] API de importación masiva montada en /api/importacion")
+except Exception as _imp_err:
+    log.warning(f"[SERVER] API de importación masiva no disponible: {_imp_err}")
+
 # ── Jinja2 Templates ─────────────────────────────────────────────────────────
 _jinja_env: Optional[jinja2.Environment] = (
     jinja2.Environment(
@@ -645,6 +653,11 @@ async def negocio_page(request: Request):
 @app.get("/tienda", response_class=HTMLResponse)
 async def tienda_page(request: Request):
     return _render(request, "tienda.html")
+
+
+@app.get("/importacion", response_class=HTMLResponse)
+async def importacion_page(request: Request):
+    return _render(request, "importacion.html")
 
 
 @app.get("/transcripciones", response_class=HTMLResponse)
