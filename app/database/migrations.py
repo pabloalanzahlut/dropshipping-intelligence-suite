@@ -779,3 +779,22 @@ def mig_0030_secciones_clonadas(conn: sqlite3.Connection):
         )
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_secciones_clonadas_producto ON secciones_clonadas(producto_id)")
+
+
+@migration(31, "Checklist + copy de canales pagados (Google/TikTok Ads, Amazon, TikTok Shop) — opcional, última prioridad")
+def mig_0031_checklists_canal(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS checklists_canal (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            canal TEXT NOT NULL CHECK(canal IN ('google_ads', 'tiktok_ads', 'amazon', 'tiktok_shop')),
+            producto_id INTEGER,
+            checklist_json TEXT NOT NULL DEFAULT '[]',
+            copy_json TEXT NOT NULL DEFAULT '{}',
+            gate_pass INTEGER NOT NULL DEFAULT 0,
+            gate_violations_json TEXT NOT NULL DEFAULT '[]',
+            correlation_id TEXT,
+            creado_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE SET NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_checklists_canal_canal ON checklists_canal(canal)")
