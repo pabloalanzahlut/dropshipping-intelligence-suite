@@ -84,6 +84,7 @@ ai_workspace/config/*credentials*.json
 ai_workspace/config/*secret*.json
 **/service_account*.json
 **/*_credentials.json
+**/gem-os-*.json
 
 # Cookies de sesión — NUNCA commitear (contienen auth_tokens activos)
 *cookies*.json
