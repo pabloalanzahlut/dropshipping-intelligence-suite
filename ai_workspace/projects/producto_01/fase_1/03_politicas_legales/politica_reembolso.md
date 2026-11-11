@@ -1,6 +1,7 @@
 # POLÍTICA DE REEMBOLSO — [MARCA]
 > Shopify Admin → Settings → Policies → "Refund Policy"
 > (también accesible en /policies/refund-policy)
+> AVISO: SUPERADA el 2026-11-11 por la política publicada (`borradores_es/politicas_es_borrador.md`, que incluye el desistimiento UE de 14 días). Esta plantilla excluye el "cambio de opinión", lo que no es válido para consumidores de la UE, y sus plazos (p. ej. 20 días laborables) eran ejemplos sin verificar. No publicar ni reutilizar.
 
 ---
 
@@ -69,5 +70,5 @@ Salvo indicación expresa por nuestra parte, **no es necesario devolver el artí
 
 - Sustituir `[MARCA]`, `[EMAIL]` y `[FECHA]`
 - Esta política está diseñada para **proteger al vendedor** de dropshipping: no se obliga a devolución física (el proveedor gestiona el reemplazo directamente)
-- El plazo de 30 días es el estándar recomendado por Adrián Sáenz — suficientemente generoso para el cliente, manejable para el vendedor
+- 30 días: criterio del curso (`Q4Ykcwh5Osc` 22:29:46: "14 es lo legal, 30 es lo correcto"). El curso (22:12:06) pide al menos 5 puntos: proceso de devolución/reembolso, circunstancias, plazo de la devolución, plazo del reembolso y duración total del proceso.
 - **Nunca reducir** el plazo de envío en esta política — debe decir exactamente lo mismo que `envio_entrega.md`

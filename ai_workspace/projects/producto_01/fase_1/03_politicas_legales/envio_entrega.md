@@ -1,6 +1,7 @@
 # POLÍTICA DE ENVÍO Y ENTREGA — [MARCA]
 > Shopify Admin → Settings → Policies → "Shipping Policy"
 > (también accesible en /policies/shipping-policy)
+> AVISO: SUPERADA el 2026-11-11 por la política publicada (`borradores_es/politicas_es_borrador.md`: 9–19 días para Italia, estimación del proveedor). Los plazos de la tabla de abajo (6-10, 8-12, 10-15 días) y los "20 días laborables" eran ejemplos sin verificar: no usarlos.
 
 ---
 
@@ -77,7 +78,7 @@ Verifica tu dirección de envío antes de confirmar el pedido. No nos responsabi
 
 ## Verificación GEM OS (obligatoria antes de publicar)
 
-- [ ] Los tiempos de envío indican **mínimo 6 días laborables** — NUNCA "24h", "48h", "2 días" o "3 días"
+- [ ] Los plazos son los reales del proveedor (`{{DIAS_ENVIO_PROVEEDOR}}`) — nunca "24h/48h" sin confirmación del proveedor (CLAUDE.md, Funnel Builder)
 - [ ] Los tiempos coinciden con los indicados en `faq.md` y `seguimiento_pedido.md`
 - [ ] `[IMPORTE]` del envío gratuito está relleno
 - [ ] `[PRECIO]` del envío estándar está relleno

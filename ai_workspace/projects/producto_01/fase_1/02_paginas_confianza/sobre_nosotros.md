@@ -20,19 +20,19 @@ Empezamos seleccionando manualmente cada producto que entra en nuestra tienda. N
 
 ### Qué nos diferencia
 
-**Selección sin relleno.** No tenemos miles de productos genéricos. Cada artículo que ves aquí ha pasado por nuestra validación de calidad y utilidad real.
+**Selección sin relleno.** No tenemos miles de productos genéricos: seleccionamos cada artículo manualmente antes de publicarlo.
 
-**Precios que tienen sentido.** Trabajamos directamente con fabricantes para que pagues por el producto, no por intermediarios innecesarios.
+**Precios claros.** Ves el precio final y el coste de envío en el pago antes de confirmar la compra.
 
-**Transparencia total.** El envío tarda entre 6 y 12 días laborables. Lo decimos claro desde el primer momento, sin sorpresas.
+**Transparencia total.** El envío tarda {{DIAS_ENVIO_PROVEEDOR}} días laborables. Lo decimos claro desde el primer momento, sin sorpresas.
 
 ---
 
 ### Nuestro compromiso
 
-Si hay algún problema con tu pedido — llegó dañado, no llegó, o simplemente no es lo que esperabas — lo resolvemos. Siempre.
+Si tu pedido llega dañado, defectuoso, equivocado o no llega, lo resolvemos con un reenvío o un reembolso (ver [Política de reembolso](/policies/refund-policy)).
 
-Escríbenos a [EMAIL] y te respondemos en menos de 24 horas.
+Escríbenos a [EMAIL] y te respondemos en menos de 48 horas laborables.
 
 ---
 
@@ -43,6 +43,7 @@ Escríbenos a [EMAIL] y te respondemos en menos de 24 horas.
 ## Notas de Implementación
 
 - Sustituir `[MARCA]`, `[EMAIL]` y `[AÑO DE FUNDACIÓN]`
-- Añadir imagen del equipo o del "fundador" (puede ser una foto de stock auténtica) — aumenta confianza según Adrián Sáenz
+- Imagen propia de la marca: no usar fotos de stock ni del proveedor (`Q4Ykcwh5Osc` 22:15:58). La historia de arriba es plantilla: sustituir por la real, sin inventar fundadores ni cifras (22:17:20: no poner información falsa).
+- Esta página no aparece en el vídeo de 27 h; es opcional. La tienda ya tiene `/pages/about-us` publicada y vacía: rellenarla o despublicarla.
 - Longitud ideal: 200-350 palabras (ni muy corto ni muy largo)
 - Tono: cercano, honesto, sin corporativismo
