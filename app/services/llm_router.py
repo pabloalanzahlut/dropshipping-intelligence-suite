@@ -49,6 +49,7 @@ TASK_MODEL_MAP = {
     "analizar_tendencia":    MODEL_ROUTING["default_volume"],
     "hook_matrix":           MODEL_ROUTING["default_volume"],
     "redactar_anuncio_meta": MODEL_ROUTING["default_volume"],
+    "clonar_seccion":        MODEL_ROUTING["default_volume"],
     # ── Multimodal: imagen → texto → Gemini Flash ───────────────────────────
     "analizar_imagen":       MODEL_ROUTING["translate"],   # gemini-flash-1.5 multimodal
     "extraer_specs_imagen":  MODEL_ROUTING["translate"],
