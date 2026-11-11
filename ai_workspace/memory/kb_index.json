@@ -3,13 +3,26 @@
   "fuente": "sqlite",
   "nota": "Generado automáticamente desde SQLite. No editar manualmente.",
   "ultima_actualizacion": "2026-11-11",
-  "total_entradas": 256,
+  "total_entradas": 261,
   "por_tipo": {
-    "productos": 79,
-    "conversion": 83,
-    "operaciones": 94
+    "productos": 80,
+    "conversion": 85,
+    "operaciones": 96
   },
   "entradas": [
+    {
+      "tipo": "producto",
+      "tabla": "product_trends",
+      "id": 125,
+      "video_id": "_AX90B2vaJU",
+      "video_title": "Cambia Esto en los Anuncios de tu Tienda Dropshipping - Caso Práctico",
+      "canal": "Curso Dropshipping",
+      "fecha_indexacion": "2026-11-11",
+      "nombre": "Producto Extraído por IA",
+      "nicho": "Mujeres que quieren arreglarse el pelo",
+      "wow_factor": "Conexión emocional con el cliente mediante anuncios que muestran usuarias reales",
+      "margen_estimado": 3.0
+    },
     {
       "tipo": "producto",
       "tabla": "product_trends",
@@ -1036,6 +1049,32 @@
       "nicho": "Seguridad en bicicletas y patinetes eléctricos",
       "wow_factor": "Resuelve el problema de seguridad al ser escuchado por los coches en la calle",
       "margen_estimado": 3.0
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 127,
+      "video_id": "_AX90B2vaJU",
+      "video_title": "Cambia Esto en los Anuncios de tu Tienda Dropshipping - Caso Práctico",
+      "canal": "Curso Dropshipping",
+      "fecha_indexacion": "",
+      "categoria": "anuncio | landingpage",
+      "framework": "Conexión emocional (no nombrado explícitamente como AIDA/PAS)",
+      "estructura": "2. Estructuras de Conversión y Copy  \nCategoría: anuncio | landing_page  \nFramework: Conexión emocional (no nombrado explícitamente como AIDA/PAS)  \nApps: No especificado  \n\n- Anuncios con vídeos de usuarias reales (mujeres arreglándose el pelo) para mayor identificación.  \n- Landing page inspirada ",
+      "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "conversion",
+      "tabla": "conversion_formulas",
+      "id": 126,
+      "video_id": "Y_EiiZsUJE0",
+      "video_title": "Cómo Duplicar Creativos de Dropshipping para Testear Rápido",
+      "canal": "Curso Dropshipping",
+      "fecha_indexacion": "",
+      "categoria": "anuncio",
+      "framework": "AIDA",
+      "estructura": "2. Estructuras de Conversión y Copy (Ganchos, landing pages, apps)\nCategoría: anuncio  \nFramework: No especificado  \nApps: Meta Ads  \n\n- Táctica de duplicación de conjuntos de anuncios para testear diferentes vídeos dentro de la misma campaña.  \n- Configuración de anuncios para segmentar por país (e",
+      "triggers": "Gatillos detectados en pauta"
     },
     {
       "tipo": "conversion",
@@ -2115,6 +2154,32 @@
       "framework": "AIDA",
       "estructura": "2. Estructuras de Conversión y Copy\nCategoría: landing_page  \nFramework: No especificado  \nApps: Shopify, Cloud, OpenAI  \n\n- Conectar Shopify con Cloud para automatizar la selección y carga de productos.  \n- Usar OpenAI para mejorar imágenes del producto y generar contenido visual profesional.  \n- C",
       "triggers": "Gatillos detectados en pauta"
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 128,
+      "video_id": "TdYeuWWLUMs",
+      "video_title": "Qué es Meta Ads y Cuándo Usarlo",
+      "canal": "Curso Dropshipping",
+      "fecha_indexacion": "",
+      "fuente_trafico": "Meta Ads",
+      "estrategia_escalado": "Estrategia de respuesta directa con enfoque en anuncios de alto rendimiento",
+      "logistica": "No especificado",
+      "peso_kg": 0.0
+    },
+    {
+      "tipo": "operaciones",
+      "tabla": "operations_traffic",
+      "id": 127,
+      "video_id": "_AX90B2vaJU",
+      "video_title": "Cambia Esto en los Anuncios de tu Tienda Dropshipping - Caso Práctico",
+      "canal": "Curso Dropshipping",
+      "fecha_indexacion": "",
+      "fuente_trafico": "Meta Ads (anuncios en Facebook/Instagram)",
+      "estrategia_escalado": "Inversión progresiva en anuncios (no especifica estrategia concreta)",
+      "logistica": "Dropshipping desde China con transición a marca privada (logo/packaging personalizado)",
+      "peso_kg": 0.0
     },
     {
       "tipo": "operaciones",
