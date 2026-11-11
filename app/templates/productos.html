@@ -203,6 +203,58 @@
           <p x-show="!videoJobs.length" style="font-size:12px;color:#4a5080;">Sin vídeos generados todavía.</p>
         </div>
 
+        <!-- Oferta multiunidad -->
+        <div x-show="tab === 'oferta'">
+          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Escalones Entrada (1 ud) / Principal (1+1) / Upsell (2+2) — el multiplicador se mide sobre el coste landed de las unidades realmente entregadas.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:10px;">
+            <div><label class="form-label">Coste landed / ud</label><input x-model.number="ofertaForm.costo_landed_unidad" type="number" step="0.01" min="0.01" class="input-field"></div>
+            <div><label class="form-label">PVP Entrada (1 ud)</label><input x-model.number="ofertaForm.pvp_entrada" type="number" step="0.01" class="input-field"></div>
+            <div><label class="form-label">PVP Principal (1+1)</label><input x-model.number="ofertaForm.pvp_principal" type="number" step="0.01" class="input-field"></div>
+            <div><label class="form-label">PVP Upsell (2+2, opcional)</label><input x-model.number="ofertaForm.pvp_upsell" type="number" step="0.01" class="input-field"></div>
+          </div>
+          <button @click="calcularOferta()" :disabled="ofertaCargando" class="btn-primary" style="margin-bottom:12px;">
+            <span x-text="ofertaCargando ? 'Calculando…' : '🧮 Calcular'"></span>
+          </button>
+          <template x-for="o in ofertas" :key="o.id">
+            <div style="border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#08091a;">
+              <p style="font-size:11px;margin:0 0 8px;">
+                <span :style="o.veredicto === 'validado' ? 'color:#34d399;' : 'color:#fbbf24;'" x-text="o.veredicto"></span>
+                <span style="color:#7880b0;"> · ticket medio ~<span x-text="o.resultado?.ticket_medio_estimado"></span> · <span x-text="(o.creado_at || '').slice(0,16)"></span></span>
+              </p>
+              <template x-for="(esc, nombre) in (o.resultado?.escalones || {})" :key="nombre">
+                <p style="font-size:11px;color:#c8d0f0;margin:0 0 4px;">
+                  <strong x-text="nombre"></strong> (<span x-text="esc.unidades_entregadas"></span> ud): PVP <span x-text="esc.pvp"></span> ·
+                  mult <span :style="esc.validado ? 'color:#34d399;' : 'color:#fb7185;'" x-text="esc.multiplicador + 'x'"></span> ·
+                  neto <span x-text="esc.margen_neto_unidad"></span>
+                </p>
+              </template>
+            </div>
+          </template>
+          <p x-show="!ofertas.length" style="font-size:12px;color:#4a5080;">Sin ofertas calculadas todavía.</p>
+        </div>
+
+        <!-- Clonar sección -->
+        <div x-show="tab === 'clonar'">
+          <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Pega el HTML de una sección de la competencia (clic derecho → Inspeccionar → Copy outerHTML). Se copia el patrón, nunca el contenido.</p>
+          <textarea x-model="clonarHtml" class="input-field" rows="5" placeholder="&lt;div class=...&gt;...&lt;/div&gt;" style="width:100%;font-family:monospace;font-size:11px;margin-bottom:8px;"></textarea>
+          <input x-model="clonarNota" class="input-field" placeholder="Qué quieres conservar (opcional)" style="margin-bottom:10px;">
+          <button @click="clonarSeccion()" :disabled="clonarCargando" class="btn-primary" style="margin-bottom:12px;">
+            <span x-text="clonarCargando ? 'Clonando…' : '🧬 Clonar sección'"></span>
+          </button>
+          <template x-for="c in clones" :key="c.id">
+            <div style="border:1px solid #1a1d35;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#08091a;">
+              <p style="font-size:11px;margin:0 0 6px;">
+                <span :style="c.gate_pass ? 'color:#34d399;' : 'color:#fb7185;'" x-text="c.gate_pass ? '✓ Gate OK' : '✗ Gate falló'"></span>
+                <span style="color:#7880b0;"> · patrón: <span x-text="c.patron"></span> · <span x-text="(c.creado_at || '').slice(0,16)"></span></span>
+              </p>
+              <p style="font-size:11px;color:#c8d0f0;margin:0 0 6px;" x-text="c.que_resuelve"></p>
+              <pre style="font-size:10px;color:#a8b0d8;background:#0d0f1f;border-radius:6px;padding:8px;overflow-x:auto;max-height:140px;" x-text="c.liquid_code"></pre>
+              <p x-show="!c.gate_pass" style="font-size:10px;color:#fb7185;margin:6px 0 0;" x-text="(c.gate_violations || []).join(' · ')"></p>
+            </div>
+          </template>
+          <p x-show="!clones.length" style="font-size:12px;color:#4a5080;">Sin secciones clonadas todavía.</p>
+        </div>
+
         <!-- Demanda y creativo -->
         <div x-show="tab === 'demanda'">
           <p style="font-size:12px;color:#7880b0;margin:0 0 12px;">Test de demanda (fake door): mide el interés sin stock ni ads. Registra lo que midió, o usa la página pública de abajo y calcula automáticamente.</p>
