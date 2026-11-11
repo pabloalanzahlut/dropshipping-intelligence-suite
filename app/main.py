@@ -105,6 +105,7 @@ class GEMOSApplication:
             _item("🧭", "Investigar nicho", IDX_NICHO),
             (SECCION, "Tienda", None),
             _item("🛒", "Tienda", 9),
+            _item("📢", "Canales pagados", IDX_CANALES),
             (SECCION, "Sistema", None),
             _item("🛠", "Alertas y registros", IDX_SISTEMA),
             _item("📋", "Gobernanza", 5),
