@@ -68,16 +68,20 @@ if ($Escritorio) {
     $queEjecuta = "powershell.exe -File `"$script`" (oculto)"
 }
 $disparador = New-ScheduledTaskTrigger -AtLogOn -User $usuario
+# Vigilante: cada 5 min vuelve a lanzar la tarea; con IgnoreNew no duplica si ya está corriendo,
+# así que solo actúa cuando el proceso ha muerto.
+$disparador.Repetition = (New-ScheduledTaskTrigger -Once -At (Get-Date) `
+    -RepetitionInterval (New-TimeSpan -Minutes 5)).Repetition
 $ajustes = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
     -StartWhenAvailable -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) `
-    -ExecutionTimeLimit ([TimeSpan]::Zero)
+    -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew
 $principal = New-ScheduledTaskPrincipal -UserId $usuario -LogonType Interactive -RunLevel Limited
 
 if ($SoloMostrar) {
     Write-Host "Se registraría la tarea «$nombre»:"
     Write-Host "  Usuario:     $usuario (sin administrador)"
     Write-Host "  Al iniciar sesión ejecuta: $queEjecuta"
-    Write-Host "  Reintentos:  3, cada minuto, si se cae"
+    Write-Host "  Reintentos:  3, cada minuto, si se cae; vigilante cada 5 min si el proceso muere"
     exit 0
 }
 
