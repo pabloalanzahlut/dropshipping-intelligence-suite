@@ -35,7 +35,7 @@ jobs:
           grep -viE '^\s*pyinstaller' requirements.txt > "$RUNNER_TEMP/req.txt"
           .venv/bin/pip install -q -r "$RUNNER_TEMP/req.txt" pytest
 
-      - name: Tests (sin Tk ni .exe: no corren en Linux sin pantalla)
+      - name: "Tests (sin Tk ni .exe; no corren en Linux sin pantalla)"
         run: |
           .venv/bin/python -m pytest tests -q -p no:cacheprovider \
             --ignore=tests/test_dashboard_verify.py \
