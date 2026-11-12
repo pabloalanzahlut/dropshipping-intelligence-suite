@@ -149,6 +149,14 @@ class AccionesCableadasTest(unittest.TestCase):
         self.assertFalse(gsh.toca_workflows(["requirements.txt"]))
 
 
+try:
+    import yaml  # noqa: F401
+    _YAML = True
+except ImportError:
+    _YAML = False
+
+
+@unittest.skipUnless(_YAML, 'requiere PyYAML')
 class LintWorkflowsTest(unittest.TestCase):
     def setUp(self):
         sys.path.insert(0, str(ROOT / "scripts"))

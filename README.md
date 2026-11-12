@@ -164,6 +164,8 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 | jinja2 | 3.1.6 |
 | markdown | 3.11.3 |
 | apscheduler | 3.11.3 |
+| openpyxl | 3.1.5 |
+| pyyaml | 6.0.3 |
 <!-- /AUTO:deps -->
 
 ---

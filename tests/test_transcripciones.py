@@ -361,6 +361,14 @@ class AgentRouterTests(unittest.TestCase):
         self.assertEqual(nombres, {"gem-orchestrator-core", "gem-qa-validation", "gem-backend-core"})
 
 
+try:
+    import tkinter  # noqa: F401
+    _TK = True
+except ImportError:
+    _TK = False
+
+
+@unittest.skipUnless(_TK, 'requiere tkinter (no disponible en el runner Linux)')
 class EscritorioTests(unittest.TestCase):
     def test_rgba_se_convierte_a_hex_valido_para_tk(self):
         from app.ui.components.financial_validator_panel_v2 import _rgba_to_hex
