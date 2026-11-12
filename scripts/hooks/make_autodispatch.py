@@ -7,20 +7,33 @@ cargue el skill antes de responder. No modifica el mensaje ni bloquea nada.
 Reglas:
   - Solo stdlib. Nunca debe fallar: ante cualquier error sale en silencio (exit 0).
   - No registra el contenido del mensaje (puede llevar URLs de webhook o claves).
-    Solo escribe en la carpeta temporal del sistema un resumen con las CLAVES del
-    payload y banderas booleanas, para poder comprobar que el hook funciona.
+    Solo escribe en la carpeta temporal del sistema un diagnostico con claves del
+    payload, banderas y tipos de registro; nunca texto del usuario.
+
+Deteccion de capturas (comprobado el 2026-11-12):
+  El payload del hook trae solo el TEXTO (claves: cwd, hook_event_name, permission_mode,
+  prompt, prompt_id, scratchpad_dir, session_id, transcript_path). La imagen no viene.
+  Se lee la transcripcion (`transcript_path`): el mensaje del usuario se guarda como un
+  registro `user` con bloque `image` y otro `isMeta` con `[Image: source: ...]`, ambos
+  con `promptId`. Primer intento, sobre el hallazgo: replicado con 35 mensajes reales.
+  En vivo la deteccion FALLO dos veces aunque el registro se creo ~280 ms antes del hook
+  (causa sin determinar: volcado tardio a disco o prompt_id distinto), por eso:
+    1. se reintenta unos instantes hasta que aparezca el registro de este mensaje,
+    2. si no aparece, se usa un respaldo por antiguedad (registros muy recientes),
+    3. el diagnostico queda en %TEMP%/gem_make_hook_debug.json.
 """
 import json
 import os
 import re
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 
 # Terminos fuertes: casi siempre significan Make.com.
 FUERTES = re.compile(
     r"(\bmake\.com\b|\beu\d\.make\b|\bintegromat\b|MAKE_WEBHOOK|"
-    r"\bmake\b(?!\s+(?:sure|a|an|the|it|this|that|me|your|sense|sure)\b))",
+    r"\bmake\b(?!\s+(?:sure|a|an|the|it|this|that|me|your|sense)\b))",
     re.IGNORECASE,
 )
 # Terminos del vocabulario de Make; en este proyecto casi siempre hablan de Make.
@@ -33,88 +46,11 @@ DEBILES = re.compile(
 IMAGEN_EN_TEXTO = re.compile(
     r"(\[Image[^\]]*\]|\.(?:png|jpe?g|gif|webp)\b|data:image/)", re.IGNORECASE
 )
-
-
-def _hay_imagen(payload):
-    """True si el payload indica adjuntos de imagen, en el texto o en campos extra."""
-    prompt = payload.get("prompt")
-    if isinstance(prompt, str) and IMAGEN_EN_TEXTO.search(prompt):
-        return True
-    for clave in ("images", "attachments", "image_paths", "files"):
-        valor = payload.get(clave)
-        if valor:
-            return True
-    if isinstance(prompt, list):  # por si el prompt llega como bloques
-        for bloque in prompt:
-            if isinstance(bloque, dict) and bloque.get("type") == "image":
-                return True
-    return False
-
-
 MARCA_IMAGEN = re.compile(r"\[Image: source:")
 
-
-def _imagen_en_transcripcion(payload, max_edad_s=120, tope_bytes=6_000_000):
-    """Detecta capturas adjuntas leyendo la transcripcion de la sesion.
-
-    Comprobado el 2026-11-12: el hook recibe solo el TEXTO del mensaje (claves: cwd,
-    hook_event_name, permission_mode, prompt, prompt_id, scratchpad_dir, session_id,
-    transcript_path), pero la imagen ya esta escrita en la transcripcion cuando el hook
-    corre: un registro `user` con un bloque `image` y otro `isMeta` con el texto
-    `[Image: source: ...]`, ambos con el mismo `promptId` que `prompt_id` del hook.
-    Se recorren los registros desde el final hasta la respuesta anterior del asistente.
-    """
-    ruta = payload.get("transcript_path")
-    pid = payload.get("prompt_id")
-    if not isinstance(ruta, str) or not os.path.isfile(ruta):
-        return False
-    tam = os.path.getsize(ruta)
-    with open(ruta, "rb") as f:
-        f.seek(max(0, tam - tope_bytes))
-        datos = f.read()
-    lineas = datos.split(b"\n")
-    if tam > tope_bytes:
-        lineas = lineas[1:]  # la primera linea puede venir cortada
-    ahora = datetime.now(timezone.utc)
-    examinados = 0
-    for crudo in reversed(lineas):
-        crudo = crudo.strip()
-        if not crudo:
-            continue
-        try:
-            d = json.loads(crudo)
-        except Exception:
-            continue
-        tipo = d.get("type")
-        if tipo == "assistant":
-            break  # llegamos a la respuesta anterior: el mensaje actual ya se reviso
-        if tipo != "user":
-            continue
-        if pid and d.get("promptId") != pid:
-            break  # es de un mensaje anterior (o un resumen de compactacion sin promptId)
-        if not pid:
-            marca = d.get("timestamp")
-            try:
-                edad = (ahora - datetime.fromisoformat(marca.replace("Z", "+00:00"))).total_seconds()
-                if edad > max_edad_s:
-                    break
-            except Exception:
-                pass
-        contenido = (d.get("message") or {}).get("content")
-        if isinstance(contenido, list):
-            for bloque in contenido:
-                if not isinstance(bloque, dict):
-                    continue
-                if bloque.get("type") == "image":
-                    return True
-                if bloque.get("type") == "text" and MARCA_IMAGEN.search(bloque.get("text", "")):
-                    return True
-        elif isinstance(contenido, str) and MARCA_IMAGEN.search(contenido):
-            return True
-        examinados += 1
-        if examinados >= 8:
-            break
-    return False
+ESPERAS = 5      # reintentos mientras el registro del mensaje no aparece
+PAUSA_S = 0.3    # entre reintentos (maximo ~1,5 s de espera total)
+EDAD_RESPALDO_S = 20
 
 
 def _texto(payload):
@@ -128,34 +64,148 @@ def _texto(payload):
     return ""
 
 
-def _depuracion(payload, fuerte, debil, imagen):
-    """Resumen sin contenido, para verificar que el hook se ejecuta y que ve."""
+def _hay_imagen_en_payload(payload):
+    """Por si algun cliente entrega la imagen en el propio payload."""
+    prompt = payload.get("prompt")
+    if isinstance(prompt, str) and IMAGEN_EN_TEXTO.search(prompt):
+        return True
+    for clave in ("images", "attachments", "image_paths", "files"):
+        if payload.get(clave):
+            return True
+    if isinstance(prompt, list):
+        for bloque in prompt:
+            if isinstance(bloque, dict) and bloque.get("type") == "image":
+                return True
+    return False
+
+
+def _contiene_imagen(registro):
+    contenido = (registro.get("message") or {}).get("content")
+    if isinstance(contenido, list):
+        for bloque in contenido:
+            if not isinstance(bloque, dict):
+                continue
+            if bloque.get("type") == "image":
+                return True
+            if bloque.get("type") == "text" and MARCA_IMAGEN.search(bloque.get("text", "")):
+                return True
+    elif isinstance(contenido, str) and MARCA_IMAGEN.search(contenido):
+        return True
+    return False
+
+
+def _leer_cola(ruta, tope_bytes=6_000_000):
+    tam = os.path.getsize(ruta)
+    with open(ruta, "rb") as f:
+        f.seek(max(0, tam - tope_bytes))
+        datos = f.read()
+    lineas = datos.split(b"\n")
+    if tam > tope_bytes:
+        lineas = lineas[1:]  # la primera linea puede venir cortada
+    return tam, lineas
+
+
+def _escanear(lineas, pid, por_edad):
+    """Recorre la transcripcion desde el final hasta la respuesta anterior del asistente.
+
+    Devuelve (hay_imagen, vio_registro_de_este_mensaje, ultimos_tipos_para_diagnostico).
+    Con por_edad=True se ignora el prompt_id y solo cuentan registros muy recientes.
+    """
+    ahora = datetime.now(timezone.utc)
+    imagen = False
+    visto = False
+    ultimos = []
+    examinados = 0
+    for crudo in reversed(lineas):
+        crudo = crudo.strip()
+        if not crudo:
+            continue
+        try:
+            d = json.loads(crudo)
+        except Exception:
+            continue
+        tipo = d.get("type")
+        if len(ultimos) < 6:
+            ultimos.append([tipo, (d.get("promptId") or "")[:8], bool(d.get("isMeta"))])
+        if tipo == "assistant":
+            break  # respuesta anterior: el mensaje actual ya se reviso
+        if tipo != "user":
+            continue
+        if por_edad:
+            try:
+                marca = d.get("timestamp")
+                edad = (ahora - datetime.fromisoformat(marca.replace("Z", "+00:00"))).total_seconds()
+                if edad > EDAD_RESPALDO_S:
+                    break
+            except Exception:
+                break
+        elif d.get("promptId") != pid:
+            break  # mensaje anterior (o resumen de compactacion sin promptId)
+        visto = True
+        if _contiene_imagen(d):
+            imagen = True
+            break
+        examinados += 1
+        if examinados >= 8:
+            break
+    return imagen, visto, ultimos
+
+
+def _imagen_en_transcripcion(payload, diag):
+    ruta = payload.get("transcript_path")
+    pid = payload.get("prompt_id")
+    diag["prompt_id"] = (pid or "")[:8]
+    if not isinstance(ruta, str) or not os.path.isfile(ruta):
+        diag["transcript"] = False
+        return False
+    diag["transcript"] = True
+    if pid:
+        for intento in range(ESPERAS + 1):
+            tam, lineas = _leer_cola(ruta)
+            imagen, visto, ultimos = _escanear(lineas, pid, por_edad=False)
+            diag.update(intento=intento, vio_registro=visto, bytes=tam, ultimos=ultimos)
+            if imagen:
+                diag["via"] = "prompt_id"
+                return True
+            if visto:
+                diag["via"] = "prompt_id_sin_imagen"
+                return False  # el registro de este mensaje ya esta y no trae imagen
+            time.sleep(PAUSA_S)  # aun no esta escrito (o el id no coincide): esperar
+    tam, lineas = _leer_cola(ruta)
+    imagen, _, ultimos = _escanear(lineas, pid, por_edad=True)
+    diag.update(ultimos=ultimos)
+    diag["via"] = "respaldo_edad" if imagen else "ninguna"
+    return imagen
+
+
+def _guardar_diagnostico(diag):
     try:
-        resumen = {
-            "claves": sorted(payload.keys()),
-            "largo_prompt": len(_texto(payload)),
-            "fuerte": bool(fuerte),
-            "debil": bool(debil),
-            "imagen": bool(imagen),
-        }
         ruta = os.path.join(tempfile.gettempdir(), "gem_make_hook_debug.json")
         with open(ruta, "w", encoding="utf-8") as f:
-            json.dump(resumen, f)
+            json.dump(diag, f)
     except Exception:
         pass
 
 
 def main():
+    diag = {"inicio": datetime.now(timezone.utc).isoformat()}
     try:
         crudo = sys.stdin.buffer.read().decode("utf-8", "replace")
         payload = json.loads(crudo) if crudo.strip() else {}
         if not isinstance(payload, dict):
             return 0
         texto = _texto(payload)
-        fuerte = FUERTES.search(texto)
-        debil = DEBILES.search(texto)
-        imagen = _hay_imagen(payload) or _imagen_en_transcripcion(payload)
-        _depuracion(payload, fuerte, debil, imagen)
+        fuerte = bool(FUERTES.search(texto))
+        debil = bool(DEBILES.search(texto))
+        diag.update(claves=sorted(payload.keys()), largo_prompt=len(texto), fuerte=fuerte, debil=debil)
+
+        imagen = _hay_imagen_en_payload(payload)
+        if not imagen and not (fuerte or debil):
+            # Solo se mira la transcripcion si hace falta decidir (ahorra tiempo en mensajes con palabras clave).
+            imagen = _imagen_en_transcripcion(payload, diag)
+        diag["imagen"] = imagen
+        diag["fin"] = datetime.now(timezone.utc).isoformat()
+        _guardar_diagnostico(diag)
 
         if not (fuerte or debil or imagen):
             return 0
@@ -184,7 +234,9 @@ def main():
             }
         }
         sys.stdout.write(json.dumps(salida))  # ensure_ascii por defecto: seguro en cp1252
-    except Exception:
+    except Exception as exc:
+        diag["error"] = type(exc).__name__
+        _guardar_diagnostico(diag)
         return 0
     return 0
 
