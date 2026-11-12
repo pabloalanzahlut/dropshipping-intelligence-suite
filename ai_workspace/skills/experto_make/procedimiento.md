@@ -38,8 +38,16 @@ módulo) → `DATA_GAP_REQUEST`: pedir captura o texto del error. Nunca supongas
 12. **Datos viejos en la cola del webhook** («Unprocessed data in webhook queue»): pueden venir en otro formato y fallar. Elegir *Wait for new data* para una prueba limpia, o *Use existing data* solo para diagnosticar.
 13. «**Exceeded maximum wait time**» tras *Run once* sin datos **no es un fallo**: nadie envió nada.
 14. **Gmail con Raw HTML:** el texto va en *Content*. Con «Collection of contents» el cuerpo va en *Body contents*; rellenar *Signature content* deja el cuerpo vacío.
-15. **Aislar errores por ruta** con un error handler *Ignore* en las rutas no críticas. *Conocimiento general de Make, no del curso* (el curso lo trata como secundario, `00:24:26`): Make desactiva un escenario tras varios errores seguidos, y con un solo webhook caerían todas las rutas a la vez. Comprobar el ajuste exacto en la configuración del escenario.
+15. **Aislar errores por ruta** con un error handler *Ignore* en las rutas no críticas. *Conocimiento general de Make, no del curso* (el curso no trata los error handlers; se comprobó con la transcripción completa): Make desactiva un escenario tras varios errores seguidos, y con un solo webhook caerían todas las rutas a la vez. Comprobar el ajuste exacto en la configuración del escenario.
 16. **Secretos:** la URL del webhook es un secreto (`.env`, nunca en logs ni en el chat). Las claves de API (ej. Klaviyo `pk_`) se pegan solo en el módulo; si salen en una captura, **rotarlas**.
+
+### Ampliadas tras contrastar con la transcripción completa (2026-11-12)
+17. **Instantáneo o programado:** el rayito en el disparador indica instantáneo. Sheets «Watch rows» y Gmail «Watch emails» **no** lo son (`01:07:41`, `01:04:02`, `01:51:08`). Para avisos de GEM OS usar siempre webhook.
+18. **Créditos por operación:** cada módulo ejecutado gasta. Activar las monedas en *Canvas options* para verlo (`00:48:47`–`00:49:06`). Un escenario con Router gasta solo los módulos de la ruta que recorre.
+19. **Gmail caduca:** la conexión se reautoriza cada ~6 meses (`01:45:55`). La de este Make avisa de **4 mayo 2027, 21:44** (visto en el panel del propio módulo). Reautorizar antes; si no, las alertas dejan de llegar sin error visible.
+20. **Poner el campo From** en el módulo Gmail (`01:44:54`–`01:45:33`); hoy está vacío.
+21. **Datos de clientes:** valorar marcar el escenario como de datos confidenciales (`00:59:52`–`01:00:09`), ya que el carrito lleva el email del cliente. Comprobar el nombre exacto en *Scenario settings*.
+22. **Fallos conocidos de Make:** módulo fantasma (guardar y recargar, `02:02:56`); columnas de Sheets sin actualizar (borrar y recolocar el módulo, `01:31:40`); no hay «pin data» (`02:48:33`).
 
 ## Escenario unificado de GEM OS (estado a 2026-11-12)
 Escenario **8432832** «GEM OS – Carrito abandonado → Klaviyo». Un webhook → Router con 3 rutas.
@@ -84,6 +92,8 @@ Escenario **8432832** «GEM OS – Carrito abandonado → Klaviyo». Un webhook 
 
 ## Pendiente para v1.0
 - Leer `Phal-sPAunk` desde `07:17:35` (Funciones de Make) y `MGvUGEk1O9Y` (n8n) y volcar a la KB con marcas de tiempo.
-- Comprobar en pantalla la opción de créditos que sigue consumiendo (`WxCxyRAnVQM 00:41:26`).
+- Comprobar en la cuenta de Make que la recarga automática de créditos está desactivada (regla 6).
+- Valorar la notificación push por la app de Make (`WxCxyRAnVQM 02:11:32`) como canal alternativo de alertas; falta ver si el plan gratuito la permite.
+- Reautorizar Gmail antes del 4 mayo 2027 (regla 19).
 - Decidir si se evalúa el Make MCP.
 - Subir la ruta Facebook/Instagram al Router y desactivar los escenarios antiguos.
