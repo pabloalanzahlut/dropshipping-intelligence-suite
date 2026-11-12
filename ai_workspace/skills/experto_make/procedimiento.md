@@ -27,7 +27,7 @@ módulo) → `DATA_GAP_REQUEST`: pedir captura o texto del error. Nunca supongas
 3. Nombrar siempre las conexiones y los módulos (`00:27:50`, `01:09:51`).
 4. Router: un filtro por rama; sin filtro el dato va por todas (`02:17:40`); orden de arriba abajo (`02:26:16`).
 5. Probar con **Run once** y revisar el detalle módulo a módulo y qué filtro dejó pasar (`02:08:43`, `00:48:46`).
-6. Vigilar la opción de créditos que sigue consumiendo sin límite (`00:41:26`–`00:41:50`).
+6. **Desactivar la recarga automática de créditos**: el ponente la sufrió y recomienda quitarla (`WxCxyRAnVQM 00:41:33`–`00:41:52`). Comprobar en la cuenta que no está activa.
 
 ### De la práctica en GEM OS (2026-11-12, verificado en el propio Make)
 7. **Plan gratuito: máximo 2 escenarios activos.** Por eso el diseño es **un solo webhook + Router** (ver «Escenario unificado»).
