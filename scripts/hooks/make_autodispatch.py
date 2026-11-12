@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import tempfile
+from datetime import datetime, timezone
 
 # Terminos fuertes: casi siempre significan Make.com.
 FUERTES = re.compile(
@@ -47,6 +48,72 @@ def _hay_imagen(payload):
         for bloque in prompt:
             if isinstance(bloque, dict) and bloque.get("type") == "image":
                 return True
+    return False
+
+
+MARCA_IMAGEN = re.compile(r"\[Image: source:")
+
+
+def _imagen_en_transcripcion(payload, max_edad_s=120, tope_bytes=6_000_000):
+    """Detecta capturas adjuntas leyendo la transcripcion de la sesion.
+
+    Comprobado el 2026-11-12: el hook recibe solo el TEXTO del mensaje (claves: cwd,
+    hook_event_name, permission_mode, prompt, prompt_id, scratchpad_dir, session_id,
+    transcript_path), pero la imagen ya esta escrita en la transcripcion cuando el hook
+    corre: un registro `user` con un bloque `image` y otro `isMeta` con el texto
+    `[Image: source: ...]`, ambos con el mismo `promptId` que `prompt_id` del hook.
+    Se recorren los registros desde el final hasta la respuesta anterior del asistente.
+    """
+    ruta = payload.get("transcript_path")
+    pid = payload.get("prompt_id")
+    if not isinstance(ruta, str) or not os.path.isfile(ruta):
+        return False
+    tam = os.path.getsize(ruta)
+    with open(ruta, "rb") as f:
+        f.seek(max(0, tam - tope_bytes))
+        datos = f.read()
+    lineas = datos.split(b"\n")
+    if tam > tope_bytes:
+        lineas = lineas[1:]  # la primera linea puede venir cortada
+    ahora = datetime.now(timezone.utc)
+    examinados = 0
+    for crudo in reversed(lineas):
+        crudo = crudo.strip()
+        if not crudo:
+            continue
+        try:
+            d = json.loads(crudo)
+        except Exception:
+            continue
+        tipo = d.get("type")
+        if tipo == "assistant":
+            break  # llegamos a la respuesta anterior: el mensaje actual ya se reviso
+        if tipo != "user":
+            continue
+        if pid and d.get("promptId") and d.get("promptId") != pid:
+            break  # es de un mensaje anterior
+        if not pid:
+            marca = d.get("timestamp")
+            try:
+                edad = (ahora - datetime.fromisoformat(marca.replace("Z", "+00:00"))).total_seconds()
+                if edad > max_edad_s:
+                    break
+            except Exception:
+                pass
+        contenido = (d.get("message") or {}).get("content")
+        if isinstance(contenido, list):
+            for bloque in contenido:
+                if not isinstance(bloque, dict):
+                    continue
+                if bloque.get("type") == "image":
+                    return True
+                if bloque.get("type") == "text" and MARCA_IMAGEN.search(bloque.get("text", "")):
+                    return True
+        elif isinstance(contenido, str) and MARCA_IMAGEN.search(contenido):
+            return True
+        examinados += 1
+        if examinados >= 8:
+            break
     return False
 
 
@@ -87,7 +154,7 @@ def main():
         texto = _texto(payload)
         fuerte = FUERTES.search(texto)
         debil = DEBILES.search(texto)
-        imagen = _hay_imagen(payload)
+        imagen = _hay_imagen(payload) or _imagen_en_transcripcion(payload)
         _depuracion(payload, fuerte, debil, imagen)
 
         if not (fuerte or debil or imagen):
