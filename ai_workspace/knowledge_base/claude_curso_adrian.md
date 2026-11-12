@@ -227,8 +227,8 @@ Marco de Adrián para saber dónde se está y qué toca aprender (`00:00:00`–`
 - Modos: solicitar permiso, aceptar ediciones, planificación; y dos que se activan en Ajustes → Claude Code:
   **omitir permisos** («haz lo que quieras») y **automático** (un filtro de IA pide permiso solo si lo ve
   peligroso) (`03:38:02`–`03:39:03`).
-- Omitir permisos sirve para ejecuciones largas sin vigilancia, pero **con archivos de valor (contraseñas,
-  cifrados, cosas que proteger) no dar permisos automáticos: aceptar a mano** (`03:39:03`–`03:40:00`).
+- Omitir permisos sirve para ejecuciones largas sin vigilancia (`03:39:03`), pero **con archivos de valor
+  (contraseñas, cifrados, cosas que proteger) no dar permisos automáticos: aceptar a mano** (`03:40:00`).
 
 ### Consumo: modelo y esfuerzo
 - Una tarea grande con el plan Pro puede quedarse a media ejecución: usar Sonnet o Haiku (`03:21:00`–`03:22:00`).
@@ -271,7 +271,7 @@ Marco de Adrián para saber dónde se está y qué toca aprender (`00:00:00`–`
 - Varias tareas a la vez (New task) solo si **no** están relacionadas; el consumo se multiplica por 2 o 3.
   Si están relacionadas, en el mismo chat (`04:23:01`–`04:25:01`).
 - El ponente omite las aprobaciones en Cowork y lo considera «menos peligroso incluso que en Claude Code»
-  (`04:22:00`). *Nota GEM OS: es su opinión; aquí se aplica la cautela de `03:39:03` porque el repo tiene `.env`.*
+  (`04:22:00`). *Nota GEM OS: es su opinión; aquí se aplica la cautela de `03:40:00` porque el repo tiene `.env`.*
 
 ### Dispatch: ordenar desde el móvil (`04:28:18`–`04:38:25`)
 - El móvil manda la orden y el ordenador, encendido y con «mantener este equipo activo», la ejecuta sobre

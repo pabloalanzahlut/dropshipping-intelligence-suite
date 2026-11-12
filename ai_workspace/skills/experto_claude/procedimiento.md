@@ -75,7 +75,7 @@ el skill `claude-api`, no el curso.
 ### E. Verificación
 18. **Comprobar contra la fuente** lo que Claude afirma o cita (`imAjmQy8p8c 03:03:02`, `04:57:01`).
 19. **Comprobar que los entregables existen:** puede pararse a medias sin avisar (`imAjmQy8p8c 05:10:00`).
-20. **Lo visual se verifica mirándolo** (capturas), no solo por código (`imAjmQy8p8c 03:24:01`, `05:08:01`).
+20. **Lo visual se verifica mirándolo** (capturas), no solo por código (`imAjmQy8p8c 03:25:00`, `05:08:01`).
 21. **Pedir hoja de incidencias** en tareas por lotes: duplicados, dudosos, lo que no cuadra con el encargo
     (`imAjmQy8p8c 04:35:00`).
 22. *Regla GEM OS, por encima de las anteriores:* números y copy comercial pasan por
@@ -83,7 +83,7 @@ el skill `claude-api`, no el curso.
 
 ### F. Permisos y seguridad
 23. **En este repo no se omiten permisos.** El propio curso lo desaconseja cuando hay contraseñas o archivos
-    que proteger (`imAjmQy8p8c 03:39:03`), y aquí están `.env` y credenciales.
+    que proteger (`imAjmQy8p8c 03:40:00`), y aquí están `.env` y credenciales.
 24. **Comando que no se entiende, no se aprueba:** preguntar antes qué hace y a qué expone; los delicados son
     los que borran y los que instalan (`imAjmQy8p8c 03:36:01`–`03:37:01`).
 25. **Navegación sin supervisión = riesgo de inyección de prompt** (`imAjmQy8p8c 04:43:01`). Lo que diga una

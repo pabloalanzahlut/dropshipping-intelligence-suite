@@ -155,6 +155,8 @@ Circuit breakers: 3 errores consecutivos → FALLBACK_MODE | 5 en 10 ejecuciones
 - `ai_workspace/skills/tiktok_shop/procedimiento.md` — TikTok Shop sin stock: cuenta, productos, afiliados, LIVE, caso de éxito
 - `ai_workspace/skills/experto_make/procedimiento.md` — Especialista Make.com v0.1 (parcial): diseño, diagnóstico y checklist de escenarios; escenario unificado de GEM OS
 - `ai_workspace/knowledge_base/make_curso_adrian.md` — Extractos del curso de Make de Adrián Sáenz con `video hh:mm:ss`; marca qué fuentes faltan por leer
+- `ai_workspace/skills/experto_claude/procedimiento.md` — Especialista en usar Claude v0.1: superficie y modelo, prompts (6 claves), skills, verificación, permisos; protocolos de diagnóstico
+- `ai_workspace/knowledge_base/claude_curso_adrian.md` — Extractos de los vídeos de Claude del canal de Adrián Sáenz con `video hh:mm:ss`; tabla de cobertura y choques con GEM OS
 - `ai_workspace/scripts/skool_scraper.py` — Script de extracción autenticada de posts Skool → KB
 - `ai_workspace/knowledge_base/skool_productos.json` — Base de datos de productos extraídos de Skool
 - `ai_workspace/config/openrouter_setup.md` — Modelos económicos para volumen alto
@@ -210,6 +212,7 @@ Usa estos comandos slash para activar workflows sin prompts largos:
 | `/amazon-dropshipping` | Dropshipping en Amazon: proveedor, listings, envíos, devoluciones, AutoDS |
 | `/tiktok-shop` | Vender en TikTok Shop sin stock: cuenta, productos virales, afiliados, LIVE |
 | `/experto-make` | Especialista Make.com: diseñar, diagnosticar y documentar escenarios (webhook único + Router, créditos, filtros) |
+| `/experto-claude` | Especialista en usar Claude: elegir superficie y modelo, redactar prompts, crear skills, diagnosticar malos resultados, permisos y consumo |
 
 ---
 
