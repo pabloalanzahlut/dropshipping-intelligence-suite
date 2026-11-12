@@ -481,15 +481,16 @@ def vigilar_pat(gh: GitHub | None, dry_run: bool, dias_aviso: int = 14) -> list[
 
 
 def borrar_ramas_selfheal_fusionadas(gh: GitHub, dry_run: bool) -> list[str]:
-    """Borra ramas selfheal/* cuyo PR ya se fusionó (el merge por API no las elimina)."""
+    """Borra ramas selfheal/* fusionadas y dependabot/* con PR cerrado (el merge por API no las elimina)."""
     informe = []
     for pr in gh.req("GET", "/pulls?state=closed&per_page=50"):
         ref = pr["head"]["ref"]
-        if ref.startswith("selfheal/") and pr.get("merged_at"):
+        # selfheal/*: solo si se fusionó; dependabot/*: PR cerrado (Dependabot recrea la rama si aún hace falta)
+        if (ref.startswith("selfheal/") and pr.get("merged_at")) or ref.startswith("dependabot/"):
             try:
                 if not dry_run:
                     gh.req("DELETE", f"/git/refs/heads/{ref}")
-                informe.append(f"Rama {ref} ya fusionada -> borrada")
+                informe.append(f"Rama {ref} con PR cerrado -> borrada")
             except urllib.error.HTTPError as e:
                 if e.code != 422:  # 422 = ya no existe
                     raise
