@@ -160,3 +160,147 @@ Marco de Adrián para saber dónde se está y qué toca aprender (`00:00:00`–`
 - Truco: pasarle a Claude el material de las 6 claves y pedirle que las respete al redactar prompts (`00:41:00`).
 - Combinadas dan respuesta específica, formato predecible y cero iteraciones (ejemplo: comparar tres ofertas de
   luz con la factura propia, indicando consumo, teletrabajo y prioridades) (`00:48:00`–`00:54:02`).
+
+## 4. Personalización, memoria y proyectos (`imAjmQy8p8c 02:48:24`–`03:12:28`)
+
+- Personalizar ahorra prompts e iteraciones, y con ello límite de uso (`02:49:00`).
+- **Preferencias personales** (Ajustes): ejemplo del curso, «respuestas de texto concisas, pero cuando te pida
+  crear algo (artefacto, código, HTML) que el resultado sea muy trabajado» (`02:50:01`).
+- **Avisos al terminar** una tarea en Chat, Code y Dispatch: se lanza el encargo y se trabaja en otro chat
+  mientras tanto (`02:51:00`–`02:52:01`).
+- **Memoria:** dos interruptores, recordar conversaciones pasadas y recordar lo generado dentro de proyectos
+  (`02:53:00`). Se revisa y se le pide borrar lo que sobre (`02:53:00`–`02:54:01`). Al importar memoria de otra IA,
+  **leer y corregir el resumen** antes de darlo por bueno (`02:54:01`–`02:56:03`).
+- La memoria es general (vale para todas las conversaciones); un **proyecto** dirige el contexto a un grupo
+  de conversaciones: un cliente, un canal, una tienda (`02:56:03`–`02:57:00`).
+- Dentro del proyecto, **un chat por entregable** (landing, posts, blog, emails) para no mezclarlos (`02:57:00`–`02:58:01`).
+- Las instrucciones del proyecto dicen qué es cada archivo subido y cómo usarlo: brief (servicios, precios,
+  público), identidad de marca (palabras que usar y que evitar) y reseñas reales (`03:00:00`).
+- Tres archivos ocuparon un 1 % de la capacidad del proyecto: cabe mucho material de referencia (`03:01:00`).
+- Con el contexto ya en el proyecto basta un prompt corto: «Arranca la landing, empieza por la sección que
+  más va a convertir» (`03:02:01`).
+- **Comprobar contra la fuente:** el ponente buscó la reseña y los precios que Claude puso en la web y
+  coincidían con los archivos; no había inventado (`03:03:02`, `03:08:00`). La marca manda sobre lo genérico:
+  usó naranja porque la guía decía evitar el azul médico (`03:04:01`).
+- Las 6 claves pesan sobre todo en el **primer** prompt; después se itera con mensajes cortos o por voz
+  (`03:05:00`–`03:06:00`).
+- Un artefacto publicado sirve de propuesta 1.0 para el cliente; si gusta, se convierte en web real con
+  Claude Code (`03:11:00`–`03:12:00`).
+
+## 5. Claude Code (`imAjmQy8p8c 03:12:28`–`04:07:42`)
+
+### Qué es y cuándo usarlo
+- Artefactos: prototipos, MVP y microservicios. Claude Code: productos de verdad, mantenibles (`03:13:00`, `03:17:00`).
+- Pasa de un solo archivo a **carpetas y subcarpetas**: un artefacto se reescribe entero en cada cambio; con
+  archivos separados los cambios son locales (ej.: la presentación del curso, 110 diapositivas, un archivo
+  por diapositiva más un `index`) (`03:13:00`–`03:15:01`).
+- Los archivos están **en tu ordenador**: control total y editables con cualquier otro programa (`03:15:01`).
+- Ejecuta comandos: instala librerías y puede usar una base de datos propia (`03:16:01`).
+- Se le indica **la carpeta de trabajo**; admite varias; puede retomar código hecho con otra IA (`03:23:00`).
+- Es agéntico: **planifica** (descompone), **piensa**, **ejecuta la lista** marcando cada tarea y **se prueba a
+  sí mismo**: saca capturas de la web, mira que no haya textos solapados ni botones que fallen
+  (`03:24:01`–`03:25:00`). En el ejemplo copió un archivo de prueba, comprobó el flujo y limpió después (`03:41:00`).
+- Chat, Cowork y Code no comparten conversaciones: antes de pegar un prompt, mirar en cuál se está (`03:28:00`–`03:29:00`).
+
+### Permisos y seguridad
+- Decir en el prompt sobre qué carpeta debe actuar el programa, para que no toque una real por defecto
+  (`03:29:00`–`03:30:00`).
+- «Confiar en el espacio de trabajo» solo en carpetas seguras: ahí va a editar archivos (`03:30:00`).
+- Cada comando pide autorización; «permitir siempre» vale por comando (`03:32:00`).
+- **Si no entiendes un comando, cópialo y pregunta en el chat qué hace y a qué te expones** (`03:36:01`–`03:37:01`).
+  Los delicados: los que borran archivos y los que instalan paquetes (`03:37:01`).
+- Modos: solicitar permiso, aceptar ediciones, planificación; y dos que se activan en Ajustes → Claude Code:
+  **omitir permisos** («haz lo que quieras») y **automático** (un filtro de IA pide permiso solo si lo ve
+  peligroso) (`03:38:02`–`03:39:03`).
+- Omitir permisos sirve para ejecuciones largas sin vigilancia, pero **con archivos de valor (contraseñas,
+  cifrados, cosas que proteger) no dar permisos automáticos: aceptar a mano** (`03:39:03`–`03:40:00`).
+
+### Consumo: modelo y esfuerzo
+- Una tarea grande con el plan Pro puede quedarse a media ejecución: usar Sonnet o Haiku (`03:21:00`–`03:22:00`).
+  Haiku puede quedarse corto para tareas complejas; mejor Sonnet (`03:34:01`).
+- **Esfuerzo:** cuánto razonamiento dedica. No hay baremo; calibrar y usar **el mínimo que complete bien la
+  tarea**. El modelo es la marcha grande y el esfuerzo la fina (`03:34:01`–`03:35:00`).
+- Empezar bajo (esfuerzo bajo, Sonnet) y subir solo si no lo consigue (`03:35:00`–`03:36:01`).
+- Code muestra los tokens consumidos (`03:33:01`).
+- ⚠ **Cifras que no cuadran dentro del propio vídeo:** aquí dice Pro 40.000 tokens/5 h, plan de 100 $
+  100.000 y el suyo 400.000 (`03:33:01`, `03:36:01`); antes dijo Pro 220.000 y gratis 40.000 (`00:16:02`, `00:18:00`).
+  No usar ninguna como dato: mirar el consumo real en la cuenta.
+
+### De artefacto a web publicada
+- Descargar el artefacto como HTML y **refactorizar** en Code: separar en `index.html`, carpeta `css`
+  (aspecto) y carpeta `js` (lógica), con estilos reutilizables. No es obligatorio, pero facilita mantenerla
+  (`03:50:01`–`03:51:01`, `03:56:00`). El chat no trabaja con archivos locales; Code sí (`03:52:01`).
+- Tras refactorizar, Code compara con capturas que la web se vea igual: refactor 1 a 1 (`03:54:00`–`03:55:00`).
+- Publicar en Hostinger: añadir sitio → «PHP/HTML» → dominio temporal (no caduca) o comprado → Archivos →
+  `public_html` → arrastrar todo (`03:57:00`–`03:59:00`). Si es un solo archivo, debe llamarse `index.html` (`04:01:01`).
+- Claude Design tiene «handoff to Claude Code» para pasar un diseño a Code (`04:02:01`–`04:03:01`).
+- Code puede editar los archivos de cualquier programa (Blender, Unity, n8n…) y crear plugins (Chrome,
+  Premiere, VS Code) (`04:04:00`–`04:06:01`).
+
+## 6. Cowork (`imAjmQy8p8c 04:07:42`–`04:51:15`)
+
+- «Una especie de agencia con muchos trabajadores»: lanza muchos agentes a la vez y junta sus resultados (`04:08:01`).
+  Divide la tarea en un plan de pasos y, si se le pide, asigna cada paso a un agente (`04:09:01`).
+- **Code o Cowork:** a Code se le da una instrucción concreta, sigue el camino que marcas y pregunta;
+  Cowork es un «empleado autónomo» que decide sus pasos y puede trabajar horas solo. La palabra clave es
+  autonomía (`04:10:01`–`04:11:00`). Cowork entrega uno o pocos archivos, sin estructura compleja (`04:14:01`).
+- Encargo tipo: darle **todo el contexto** del proyecto y la situación, y pedir un plan; el ejemplo dio un
+  documento de 34 páginas tras más de una hora (`04:12:00`–`04:13:01`).
+- Subagentes: 20 agentes hicieron en horas lo que uno tardaría días (`04:15:01`). Se pide en el prompt («lanza
+  20 subagentes en paralelo»); en la demo decidió lanzar 4 (`04:18:00`–`04:21:00`): el número es orientativo.
+- Con varios agentes, uno parado esperando un permiso no detiene a los demás (`04:21:00`–`04:22:00`).
+- Admite órdenes desde el móvil, conectores (ej.: Drive con informes anteriores como modelo de formato) y
+  usar el navegador como una persona en webs que bloquean a los agentes (`04:15:01`–`04:16:00`).
+- Consume muchos tokens: con Pro, modelo ligero; «siempre el modelo que menos consuma pero capaz de hacer
+  la tarea». No hay regla fija: probar. No está en el plan gratuito (`04:19:01`).
+- Varias tareas a la vez (New task) solo si **no** están relacionadas; el consumo se multiplica por 2 o 3.
+  Si están relacionadas, en el mismo chat (`04:23:01`–`04:25:01`).
+- El ponente omite las aprobaciones en Cowork y lo considera «menos peligroso incluso que en Claude Code»
+  (`04:22:00`). *Nota GEM OS: es su opinión; aquí se aplica la cautela de `03:39:03` porque el repo tiene `.env`.*
+
+## 7. Conectores (`imAjmQy8p8c 04:51:15`–`05:02:42`)
+
+- Un conector es la vía oficial para que Claude trabaje con un servicio que quiere ser integrado (Drive,
+  Notion, GitHub, Slack, Jira, Asana, Salesforce…) (`04:51:02`–`04:53:01`).
+- Activar: Ajustes → Conectores → explorar → iniciar sesión en el servicio y aceptar su lista de permisos
+  (leer, escribir, crear) (`04:53:01`–`04:55:01`).
+- **En cada tarea hay que activarlo:** viene desactivado por defecto; desactivar los que no se van a usar (`04:55:01`).
+- Las conexiones caducan y hay que reconectar (pasó con Slack en la demo) (`04:59:01`).
+- Encuentra archivos con pistas vagas: «carpeta curso Claude o algo parecido, modificado hace menos de 30
+  minutos» bastó, con el archivo tres carpetas adentro (`04:56:03`–`04:57:01`). El ponente abrió el documento y
+  comprobó que la respuesta coincidía (`04:57:01`).
+- Uso de más valor: una carpeta con trabajos propios como referencia de formato y tono para generar uno
+  nuevo (`04:58:02`).
+- Encadenar conectores: leer un guion en Drive y enviar por Slack un resumen de 3 puntos de unas 10 palabras,
+  «tono breve, directo, para leer en el móvil» (`04:59:01`–`05:00:01`). Claude añadió por su cuenta «enviado
+  usando Claude» y el enlace al documento (`05:01:02`).
+- Omitir aprobaciones con conectores «siempre tiene cierto riesgo» (`04:57:01`).
+- Preguntarle a Claude: «tengo este problema, ¿qué conectores me sugieres?». Buscar tareas con mucho
+  procesado de datos o mucho trabajo de confección (`05:02:00`).
+
+## 8. Skills y plugins (`imAjmQy8p8c 05:02:42`–`05:23:02`)
+
+- Problema que resuelven: Claude puede hacer casi cualquier tarea, pero no sabe el **camino óptimo**; sin él
+  gasta tokens de más, necesita varios prompts o lo hace de forma incorrecta (`05:03:01`).
+- Una skill es un mini manual hecho por quien ya pasó por el proceso: instrucciones paso a paso, plantillas
+  y ejemplos, y recursos extra (ej.: una librería de iconos etiquetados) (`05:03:01`–`05:04:01`).
+- «Hacen una cosa muy específica, pero la hacen muy bien». Claude detecta sola qué skill conviene (`05:04:01`).
+- Vienen skills preinstaladas (PDF, tablas, lectura de archivos, web, PowerPoint, Word…) (`05:05:00`, `05:08:01`).
+- Estructura: una carpeta con `SKILL.md` (el núcleo, las instrucciones) y archivos complementarios, por
+  ejemplo un script de Python (`05:15:00`).
+- **Skills de terceros:** suelen estar en repositorios de GitHub. Antes de instalar, pasarle el enlace a
+  Claude y preguntar si hay vulnerabilidades; mirar también las estrellas (`05:12:01`–`05:13:00`). Algunas piden
+  una clave de API (voz, imágenes) (`05:13:00`–`05:14:01`).
+- Instalar: descargar el zip del repositorio, sacar solo la carpeta de la skill, comprimirla y subirla en
+  Personalizar → Habilidades → Crear habilidad → Cargar (`05:16:00`–`05:18:02`).
+- **Cuándo crear una propia:** cuando un proceso se repite; así Claude no vuelve a pensarlo desde cero, va
+  más rápido y gasta menos tokens (`05:18:02`–`05:19:00`).
+- **Cómo:** en el mismo chat donde se hizo el trabajo, pedir «todo este proceso… créame una skill para ello»
+  (`05:19:00`–`05:20:00`). Candidatos: empaquetar un `.exe`, empaquetar un plugin, refactorizar un artefacto a web
+  (`05:20:00`–`05:21:00`).
+- **Plugin** = paquete de skills relacionadas que trabajan juntas, con instrucciones de cuándo usar cada una (`05:21:00`–`05:22:00`).
+- Durante una tarea Claude a veces pregunta con opciones y propone un plan antes de ejecutar (`05:07:01`–`05:08:01`).
+- Verificación visual: convirtió cada diapositiva en imagen y encontró un texto desbordado que por código
+  no veía (`05:08:01`–`05:09:00`).
+- Puede pararse a media ejecución sin avisar: el ponente tuvo que preguntar «¿terminaste? no veo los
+  documentos» y faltaba un paso (`05:10:00`). **Comprobar que los entregables existen** antes de darlo por hecho.
