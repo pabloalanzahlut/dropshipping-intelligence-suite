@@ -70,6 +70,24 @@ La transcripción es automática: los nombres propios y las cifras pueden estar 
 - Probar en un «entorno de pruebas» separado y elegir desde qué módulo arranca la prueba (`02:25:31`, `01:53:33`, `02:50:58`).
 - Tras cada ejecución se puede abrir el detalle de lo ocurrido, módulo a módulo, y los créditos gastados (`00:48:46`, `01:44:25`).
 
+### Ajustes, trucos y fallos conocidos (de `WxCxyRAnVQM`)
+- Organizar los escenarios en **carpetas** (`00:25:48`). Añadir **notas** al lienzo con clic derecho (`01:00:09`–`01:00:26`).
+- **Versiones del escenario** («preview versions») para volver atrás (`01:00:26`–`01:00:43`).
+- Ajuste de escenario para marcar los datos como **confidenciales** (p. ej. datos de personas) (`00:59:52`–`01:00:09`).
+  Relevante para el carrito abandonado, que lleva el email del cliente. Comprobar el nombre exacto del ajuste en pantalla.
+- *Run this module only* (clic derecho) para probar un solo módulo (`00:49:06`, `00:58:19`).
+  Clonar un módulo con clic derecho; se engancha al módulo vecino «como un imán» (`01:50:20`–`01:50:38`); no siempre se deja (`02:18:53`).
+- **Make no tiene «pin data»** (fijar la salida de un módulo para no repetir el flujo): se repite desde el inicio (`02:48:33`–`02:48:53`).
+- **Módulo fantasma:** tras borrar un módulo puede quedar una burbuja sin función; se quita guardando y recargando (`02:02:56`–`02:03:17`).
+- **Sheets, columnas que no se actualizan** tras cambiar los encabezados: error común; se arregla borrando el módulo y volviéndolo a poner (`01:31:40`–`01:32:03`).
+- **Gmail:** la conexión caduca y hay que reautorizarla cada ~6 meses (`01:45:55`). Con Gmail personal hace falta crear
+  un cliente OAuth propio en Google Cloud (ID y secreto) (`01:33:39`–`01:34:12`). Poner el campo **From** es lo recomendable (`01:44:54`–`01:45:33`).
+- **Notificación push al móvil** con el módulo de Apple y la app de Make, conectada por QR (`02:11:32`–`02:12:38`). Alternativa a Gmail/Telegram para las alertas.
+  *No verificado si funciona en el plan gratuito.*
+- **IA dentro de Make:** rol `user` = entrada, `system` = instrucción (`02:20:05`); pedir el prompt a otro modelo (`02:22:47`);
+  decirle «solo dame la salida, sin texto extra» (`02:26:58`). Útil si algún día un escenario genera copy.
+- WhatsApp automatizado (fuera de alcance hoy): un mensaje automático a alguien que no te ha escrito en 24 h cuenta como marketing y exige plantilla aprobada (`03:10:18`–`03:11:12`).
+
 ## Pendiente de verificar con transcripción
 - `Phal-sPAunk` desde `07:17:35` (Funciones de Make, ~33 min): sin leer.
 - `MGvUGEk1O9Y` (n8n): sin leer. Decisión mientras tanto: **Make es suficiente**; n8n del curso va
