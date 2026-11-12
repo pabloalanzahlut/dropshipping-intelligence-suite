@@ -1,4 +1,5 @@
 ---
+description: Especialista Make.com para GEM OS. Usar SIEMPRE que la conversación hable de Make.com (escenarios, webhooks, routers, módulos, filtros, créditos, errores) o el usuario adjunte capturas de pantalla de Make.
 model: sonnet
 ---
 # /experto-make

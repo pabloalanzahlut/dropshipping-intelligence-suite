@@ -30,6 +30,19 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "python scripts/hooks/make_autodispatch.py",
+            "timeout": 10,
+            "statusMessage": "Comprobando si aplica /experto-make..."
+          }
+        ]
+      }
     ]
   }
 }

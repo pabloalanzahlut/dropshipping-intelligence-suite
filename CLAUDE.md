@@ -346,6 +346,9 @@ Ante cualquier consulta en lenguaje natural, GEM OS mapea automáticamente al sk
 → **Tabla completa en [`ai_workspace/config/auto_dispatch.md`](ai_workspace/config/auto_dispatch.md)**
 → **Mapa de conectores en [`ai_workspace/config/connector_map.md`](ai_workspace/config/connector_map.md)**
 
+### Activación obligatoria de `/experto-make`
+Cuando la conversación hable de **Make.com** (Make, escenario, webhook, router, módulo, filtro, créditos, Integromat) **o el usuario adjunte capturas de pantalla**, cargar el skill `experto-make` **antes de responder**, sin esperar a que se pida. Si es una captura, comprobar primero si es de Make; si no lo es, ignorarlo. Lo refuerza el hook `UserPromptSubmit` (`scripts/hooks/make_autodispatch.py`, registrado en `.claude/settings.json`), que inyecta el aviso aunque no se recuerde esta regla. Quien edite esas palabras clave lo hace en ese script.
+
 ### Lógica de routing rápida
 1. Detectar intención del usuario → buscar keywords en tabla auto_dispatch
 2. Activar skill primario correspondiente
