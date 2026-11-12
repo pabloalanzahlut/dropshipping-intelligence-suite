@@ -90,8 +90,8 @@ def _imagen_en_transcripcion(payload, max_edad_s=120, tope_bytes=6_000_000):
             break  # llegamos a la respuesta anterior: el mensaje actual ya se reviso
         if tipo != "user":
             continue
-        if pid and d.get("promptId") and d.get("promptId") != pid:
-            break  # es de un mensaje anterior
+        if pid and d.get("promptId") != pid:
+            break  # es de un mensaje anterior (o un resumen de compactacion sin promptId)
         if not pid:
             marca = d.get("timestamp")
             try:
