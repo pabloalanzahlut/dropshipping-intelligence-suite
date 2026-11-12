@@ -28,6 +28,7 @@ Cuando el usuario hace una consulta en lenguaje natural, GEM OS mapea automátic
 | consultar KB, qué tenemos en la KB, estrategias guardadas | `/consultar-kb` | Google Sheets, Google Drive | dataviz |
 | skool, comunidad ecommerce, Dr. Marcus Chen | `/monitorear-skool` | Google Sheets, Google Drive | artifact-design |
 | carrito abandonado, recuperar carrito, email nocturno | `/recuperar-carrito` | Gmail, Google Sheets, Stripe | dataviz |
+| make, escenario, webhook, router, filtro make, módulo http, créditos make, automatización make | `/experto-make` | Gmail, Google Sheets | artifact-design |
 | github, CI, PR bloqueado, Dependabot, secrets | `/resolver-github` | Google Drive, Gmail | — |
 | refutar, demoler tesis, 8 intentos, método Pavel | `/refutar-producto` | — | — |
 | fake door, medir demanda, sin stock, pop-up captura | `/fake-door` | Google Sheets | artifact-design |
