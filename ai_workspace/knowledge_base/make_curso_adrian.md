@@ -8,7 +8,7 @@ La transcripción es automática: los nombres propios y las cifras pueden estar 
 
 | ID | Título | Duración | Estado |
 |----|--------|----------|--------|
-| `WxCxyRAnVQM` | Curso Completo De Make: Cómo Crear y Vender Automatizaciones IA (Adrián Sáenz con Juan Pe) | 3 h 55 min | **Leído** (transcripción completa extraída; 1.836 segmentos) |
+| `WxCxyRAnVQM` | Curso Completo De Make: Cómo Crear y Vender Automatizaciones IA (Adrián Sáenz con Juan Pe) | 3 h 55 min | **Leído entero** (1.836 segmentos del panel de YouTube) y **contrastado** con la transcripción completa que pegó el usuario el 2026-11-12. Las marcas son de párrafo (±15 s). |
 | `MGvUGEk1O9Y` | Esta IA Crea Contenido Diario Para Redes Sociales (100 % automático) | 48 min | **Solo descripción.** Es de **n8n**, no de Make (enlaza un servidor n8n en Hostinger VPS). Transcripción pendiente. |
 | `Phal-sPAunk` | El Mejor Curso Gratis De Inteligencia Artificial | 23 h | **Solo índice.** Para Make: `07:17:35` «Funciones de Make», `07:50:13` «Funciones de N8N», y desde `17:40:48` un bloque que repite el curso `WxCxyRAnVQM`. Transcripción pendiente. |
 
@@ -27,12 +27,22 @@ La transcripción es automática: los nombres propios y las cifras pueden estar 
 - Make funciona por créditos, la «moneda de cambio» (`00:23:39`, `00:23:54`).
 - Una operación = un crédito (`01:32:32`). Cada módulo que se ejecuta cuenta.
 - Las funciones de IA de Make también consumen créditos (`00:41:22`).
-- Vigilar el panel de créditos (`00:40:51`). Avisa de una opción activada que puede seguir consumiendo
-  operaciones sin límite «hasta quedarnos pobres» y recomienda quitarla (`00:41:26`–`00:41:50`).
-  *La transcripción no nombra la opción: comprobar en pantalla cuál es antes de actuar.*
+- Vigilar el panel de créditos (`00:40:50`). Los créditos se reponen cada mes y no se acumulan (`00:41:14`).
+- **Recarga automática de créditos:** el ponente la tenía activada y «se recargaba hasta el infinito, hasta
+  quedarnos pobres». Recomienda **quitarla** para que no se cargue nada sin quererlo (`00:41:33`–`00:41:52`).
+  *(Resuelto con la transcripción completa: la opción pendiente era esta.)*
+- «Cada ejecución» gasta créditos (`00:23:46`, `00:40:50`), pero en el lienzo cada módulo muestra su moneda
+  de crédito (`00:48:47`–`00:49:06`): la cuenta real es por **operación** (módulo), no por escenario.
+  Un escenario de varios módulos gasta varios. Se ve activando las monedas en *Canvas options* (`00:49:06`).
+  `01:08:44`: unas pruebas gastaron 48 créditos. Verificar el consumo real en *Usage*.
 - Un disparador por intervalo se ejecuta y gasta créditos aunque no haya datos nuevos (`01:06:02`);
   uno instantáneo se ejecuta solo cuando entra el dato, no por intervalo (`01:06:45`–`01:07:32`,
   «esto es importante»).
+- Cómo distinguirlos: los disparadores llevan etiqueta lila; los **instantáneos llevan un rayito** y ofrecen
+  «Immediately as data arrives» (`01:07:41`–`01:07:59`). Google Sheets «Watch rows» **no es instantáneo**: se
+  programa, mínimo cada 15 min en el plan del ponente (`00:58:51`, `01:04:02`–`01:04:24`; bajar a 1 min también gasta más, `01:05:39`).
+  Gmail «Watch emails» es su único disparador y **tampoco es instantáneo** (`01:51:08`–`01:51:32`).
+  Un webhook sí lo es (`01:28:31`–`01:30:11`).
 
 ### Conexiones y webhooks
 - Poner **siempre** un nombre a cada conexión, para localizarla luego (`00:27:42`, `00:27:50`).
@@ -64,5 +74,7 @@ La transcripción es automática: los nombres propios y las cifras pueden estar 
 - `Phal-sPAunk` desde `07:17:35` (Funciones de Make, ~33 min): sin leer.
 - `MGvUGEk1O9Y` (n8n): sin leer. Decisión mientras tanto: **Make es suficiente**; n8n del curso va
   autoalojado en un VPS (según la descripción del vídeo), lo que añade mantenimiento y coste.
-- Manejo de errores avanzado (error handlers, reintentos): el curso lo trata como secundario
-  (`00:24:26`: «yo esto no lo utilizo»). Lo que usa GEM OS sobre esto viene de la práctica, no del curso.
+- Manejo de errores (error handlers, reintentos): **el curso no lo trata** (comprobado con la transcripción
+  completa). Lo que usa GEM OS sobre esto viene de la práctica y del conocimiento general de Make.
+  *Corrección 2026-11-12:* una versión anterior de este fichero citaba `00:24:26` como «el curso lo trata como
+  secundario». Esa frase habla del panel **Grid** (`00:24:08`–`00:24:32`), no de errores. Citado mal por mí.
