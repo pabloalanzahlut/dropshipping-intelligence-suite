@@ -258,6 +258,31 @@ Marco de Adrián para saber dónde se está y qué toca aprender (`00:00:00`–`
 - El ponente omite las aprobaciones en Cowork y lo considera «menos peligroso incluso que en Claude Code»
   (`04:22:00`). *Nota GEM OS: es su opinión; aquí se aplica la cautela de `03:39:03` porque el repo tiene `.env`.*
 
+### Dispatch: ordenar desde el móvil (`04:28:18`–`04:38:25`)
+- El móvil manda la orden y el ordenador, encendido y con «mantener este equipo activo», la ejecuta sobre
+  sus archivos (`04:29:01`–`04:30:00`). Los permisos pendientes llegan también al móvil (`04:33:00`).
+- En movilidad vale un prompt corto si lleva lo esencial: ruta de la carpeta, quién eres, entregables
+  concretos, número de subagentes y plazo (`04:32:00`).
+- No hay barra de progreso: preguntarle «¿cuánto te falta?» (`04:34:01`).
+- Claude añadió una **hoja de incidencias** sin que se la pidieran al detalle: 8 facturas duplicadas, 11 gastos
+  con pinta de personales, 16 operaciones extranjeras al 0 %, y avisó de que las fechas no eran del
+  trimestre que decía el prompt (`04:33:00`, `04:35:00`–`04:38:02`). Conviene pedirla siempre en tareas por lotes.
+
+### Usar el navegador (`04:38:25`–`04:51:15`)
+- Con la extensión de Chrome de Claude, Cowork navega y hace clic como una persona (`04:41:00`). Sirve para
+  probar algo propio en muchos escenarios y pedir un informe de dónde funcionó y dónde no (`04:39:01`).
+- Investigación de mercado de ejemplo (Etsy): 25 más vendidos → Excel con precio, etiquetas y reseñas →
+  análisis de patrones (percentiles de precio, palabras más usadas en títulos) → estrategia → ficha con
+  título SEO, descripción, etiquetas y precio (`04:40:01`, `04:46:00`–`04:47:00`).
+- **Riesgo de inyección de prompt:** con «actuar sin preguntar» en el navegador, una web puede colarle
+  instrucciones a Claude. «El riesgo es bajo, pero está ahí»; el ponente usa para esto un navegador sin
+  nada importante (`04:43:01`).
+- Cowork investiga y maqueta; Code construye el producto final con ese material (`04:41:00`, `04:51:02`).
+- Las proyecciones de ingresos que genera son estimaciones que dependen de la ejecución y del mercado
+  (`04:48:00`, `04:50:01`). *Nota GEM OS: no son dato; las cifras pasan por `deterministic_gate.py`.*
+- El vídeo presenta esto como forma de leer webs que bloquean el acceso automático (`04:45:01`, `04:51:02`).
+  *Nota GEM OS: no se usa para saltar captchas ni bloqueos; si una web bloquea, se pide al usuario el dato.*
+
 ## 7. Conectores (`imAjmQy8p8c 04:51:15`–`05:02:42`)
 
 - Un conector es la vía oficial para que Claude trabaje con un servicio que quiere ser integrado (Drive,
