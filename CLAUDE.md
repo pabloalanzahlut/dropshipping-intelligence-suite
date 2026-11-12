@@ -346,6 +346,9 @@ Ante cualquier consulta en lenguaje natural, GEM OS mapea automáticamente al sk
 → **Tabla completa en [`ai_workspace/config/auto_dispatch.md`](ai_workspace/config/auto_dispatch.md)**
 → **Mapa de conectores en [`ai_workspace/config/connector_map.md`](ai_workspace/config/connector_map.md)**
 
+### Activación obligatoria de `detector-imagenes`
+Ante **cualquier imagen adjunta, captura de pantalla** o palabras como "captura", "screenshot", "imagen", "pantalla", "mira esto", cargar el skill `detector-imagenes` (`.claude/skills/detector-imagenes/SKILL.md`) **antes de responder** y analizar de inmediato, sin preguntas previas. Si se menciona una captura sin adjunto, ejecutar `.claude/skills/detector-imagenes/scripts/ultima_captura.ps1` para localizar la más reciente. Si la imagen es de Make.com, aplicar también `/experto-make`.
+
 ### Activación obligatoria de `/experto-make`
 Cuando la conversación hable de **Make.com** (Make, escenario, webhook, router, módulo, filtro, créditos, Integromat) **o el usuario adjunte capturas de pantalla**, cargar el skill `experto-make` **antes de responder**, sin esperar a que se pida. Si es una captura, comprobar primero si es de Make; si no lo es, ignorarlo. Lo refuerza el hook `UserPromptSubmit` (`scripts/hooks/make_autodispatch.py`, registrado en `.claude/settings.json`), que inyecta el aviso aunque no se recuerde esta regla. Quien edite esas palabras clave lo hace en ese script.
 
