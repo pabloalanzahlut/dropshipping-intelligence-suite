@@ -38,6 +38,11 @@ def main() -> int:
                 m = patron.search(linea)
                 if m and not PLACEHOLDER.search(m.group(0)):
                     hallazgos.append(f"{nombre} en {archivo}")
+    staged = git("diff", "--cached", "--name-only", "--diff-filter=AM").splitlines()
+    if any(r.startswith(".github/workflows/") and r.endswith(".yml") for r in staged):
+        lint = subprocess.run([sys.executable, "scripts/lint_workflows.py"], capture_output=True, text=True)
+        if lint.returncode != 0:  # un workflow inválido genera runs 'Invalid workflow file' sin log
+            hallazgos.append("workflow YAML inválido (ver scripts/lint_workflows.py --fix)")
     if shutil.which("gitleaks"):  # red extra: si gitleaks está instalado, también escanea lo staged
         g = subprocess.run(["gitleaks", "protect", "--staged", "--config", ".gitleaks.toml", "--redact", "--no-banner"],
                            capture_output=True, text=True)

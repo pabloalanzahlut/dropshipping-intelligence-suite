@@ -149,5 +149,27 @@ class AccionesCableadasTest(unittest.TestCase):
         self.assertFalse(gsh.toca_workflows(["requirements.txt"]))
 
 
+class LintWorkflowsTest(unittest.TestCase):
+    def setUp(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import lint_workflows
+        self.lw = lint_workflows
+
+    def test_name_con_dos_puntos_es_invalido_y_se_repara(self):
+        roto = "name: X\njobs:\n  a:\n    steps:\n      - name: Tests (sin Tk ni .exe: no corren)\n        run: echo hola\n"
+        self.assertIsNotNone(self.lw.validar(roto))
+        arreglado = self.lw.entrecomillar_names(roto)
+        self.assertIsNone(self.lw.validar(arreglado))
+        self.assertIn('"Tests (sin Tk ni .exe; no corren)"', arreglado)
+
+    def test_yaml_valido_no_se_toca(self):
+        ok = "name: X\njobs:\n  a:\n    steps:\n      - name: Paso normal\n        run: echo 'a: b'\n"
+        self.assertEqual(self.lw.entrecomillar_names(ok), ok)
+
+    def test_todos_los_workflows_del_repo_son_validos(self):
+        for wf in sorted(self.lw.WORKFLOWS.glob("*.yml")):
+            self.assertIsNone(self.lw.validar(wf.read_bytes().decode("utf-8")), wf.name)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -23,6 +23,7 @@
 | F-010 | SECRETS_SECURITY/PLAYWRIGHT_DATA | grabaciones playwright de sesiones autenticadas en git | git rm --cached .playwright-mcp/ + .gitignore | 1 |
 | F-011 | SECRETS_SECURITY/HISTORY_LEAK | secret en historial de git (cualquier archivo) | git filter-repo --path <archivo> --invert-paths --force + force push | 2 |
 | F-012 | SECRETS_SECURITY/FALSE_POSITIVE | gitleaks generic-api-key con entropía < 4.0 sobre valor placeholder (test) | Regex exacta en allowlist de .gitleaks.toml (nunca allowlist por commit) | 2 |
+| F-013 | WORKFLOW_CONFIG/INVALID_YAML | 'Invalid workflow file' / 'error in your yaml syntax' (sin log; anotación) | `name:` con ': ' sin comillas -> entrecomillar (scripts/lint_workflows.py --fix) | 1 |
 
 ---
 

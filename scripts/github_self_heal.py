@@ -379,6 +379,8 @@ def resolver(log: str, catalogo: dict, dry_run: bool, gh: GitHub | None = None) 
                         archivos += fix_secrets_a_env(wf)
             elif fix["accion"] == "bump_actions":
                 archivos += fix_bump_actions(catalogo, os.getenv("GITHUB_TOKEN"))
+            elif fix["accion"] == "reparar_yaml_workflow":
+                pass  # lo ejecuta reparar_workflows_invalidos() en main (valida y revalida el YAML)
             elif fix["accion"] == "cerrar_dependabot_obsoleto" and gh is not None:
                 informe += cerrar_dependabot_obsoletos(gh, dry_run=False)
     else:
@@ -417,6 +419,83 @@ def cerrar_dependabot_obsoletos(gh: GitHub, dry_run: bool) -> list[str]:
     return informe
 
 
+def reparar_workflows_invalidos(gh: GitHub | None, catalogo: dict, dry_run: bool) -> list[str]:
+    """F-013: valida el YAML de los workflows y entrecomilla los `name:` rotos (PR + merge)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import lint_workflows
+
+    informe: list[str] = []
+    rotos = [w for w in sorted(lint_workflows.WORKFLOWS.glob("*.yml"))
+             if lint_workflows.validar(w.read_bytes().decode("utf-8"))]
+    if not rotos:
+        return informe
+    nombres = [w.relative_to(ROOT).as_posix() for w in rotos]
+    informe.append(f"Workflows YAML inválidos (F-013): {', '.join(nombres)}")
+    if dry_run or gh is None:
+        return informe
+    subprocess.run(["git", "checkout", "-q", "master"], cwd=ROOT)
+    for w in rotos:
+        if ruta_prohibida(w.relative_to(ROOT).as_posix(), catalogo):
+            informe.append(f"{w.name} está en rutas prohibidas: no se toca, se abre Issue")
+            gh.issue(f"Workflow inválido sin autoarreglo: {w.name}", "Revisar el YAML a mano.", ["selfheal", "workflow"])
+            return informe
+    lint_workflows.main(["--fix"])
+    cambiados = [a for a in subprocess.run(["git", "diff", "--name-only"], cwd=ROOT, capture_output=True, text=True).stdout.split() if a.startswith(".github/workflows/")]
+    if not cambiados:
+        gh.issue("Workflow YAML inválido sin autoarreglo", "\n".join(nombres), ["selfheal", "workflow"])
+        informe.append("Sin autoarreglo posible -> Issue")
+        return informe
+    inc = registrar_kb("F-013", "AUTO", "Invalid workflow file (YAML)", "✅ PR automático")
+    informe.append(abrir_pr_y_fusionar(gh, f"selfheal/{inc.lower()}", f"F-013 ({inc})",
+                                       f"Entrecomillado de `name:` inválidos. Ver {inc} en la KB.",
+                                       cambiados + ["ai_workspace/knowledge_base/github_kb.md"]))
+    return informe
+
+
+def vigilar_pat(gh: GitHub | None, dry_run: bool, dias_aviso: int = 14) -> list[str]:
+    """Avisa (Issue) cuando SELF_HEAL_TOKEN caduca en <= 14 días o ya no es válido."""
+    pat = os.getenv("SELF_HEAL_TOKEN")
+    if not pat:
+        return ["SELF_HEAL_TOKEN ausente: los fixes de workflows saldrán como Issue con parche"]
+    r = urllib.request.Request("https://api.github.com/user", headers={
+        "Authorization": f"Bearer {pat}", "Accept": "application/vnd.github+json"})
+    try:
+        with urllib.request.urlopen(r, timeout=20) as resp:
+            expira = resp.headers.get("github-authentication-token-expiration")  # 'YYYY-MM-DD HH:MM:SS UTC'
+    except urllib.error.HTTPError as e:
+        if e.code == 401 and gh and not dry_run:
+            gh.issue("SELF_HEAL_TOKEN caducado o inválido",
+                     "Generar un PAT nuevo (Contents, Pull requests, Issues y Workflows en lectura/escritura) y "
+                     "actualizar el secreto SELF_HEAL_TOKEN del repositorio.", ["selfheal", "config"])
+        return [f"SELF_HEAL_TOKEN rechazado (HTTP {e.code})"]
+    except urllib.error.URLError:
+        return ["No se pudo comprobar la caducidad de SELF_HEAL_TOKEN (red)"]
+    if not expira:
+        return ["SELF_HEAL_TOKEN válido (sin fecha de caducidad)"]
+    dias = (dt.datetime.strptime(expira[:10], "%Y-%m-%d").date() - dt.date.today()).days
+    if dias <= dias_aviso and gh and not dry_run:
+        gh.issue(f"SELF_HEAL_TOKEN caduca el {expira[:10]}",
+                 f"Quedan {dias} días. Renovar el PAT y actualizar el secreto antes de esa fecha; "
+                 "después los fixes de workflows volverán a salir como Issue con parche.", ["selfheal", "config"])
+    return [f"SELF_HEAL_TOKEN caduca el {expira[:10]} ({dias} días)"]
+
+
+def borrar_ramas_selfheal_fusionadas(gh: GitHub, dry_run: bool) -> list[str]:
+    """Borra ramas selfheal/* cuyo PR ya se fusionó (el merge por API no las elimina)."""
+    informe = []
+    for pr in gh.req("GET", "/pulls?state=closed&per_page=50"):
+        ref = pr["head"]["ref"]
+        if ref.startswith("selfheal/") and pr.get("merged_at"):
+            try:
+                if not dry_run:
+                    gh.req("DELETE", f"/git/refs/heads/{ref}")
+                informe.append(f"Rama {ref} ya fusionada -> borrada")
+            except urllib.error.HTTPError as e:
+                if e.code != 422:  # 422 = ya no existe
+                    raise
+    return informe
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -438,6 +517,9 @@ def main() -> int:
         informe += resolver(log, catalogo, args.dry_run, gh)
     if gh:
         informe += cerrar_dependabot_obsoletos(gh, args.dry_run)
+        informe += borrar_ramas_selfheal_fusionadas(gh, args.dry_run)
+    informe += reparar_workflows_invalidos(gh, catalogo, args.dry_run)
+    informe += vigilar_pat(gh, args.dry_run)
     print("\n".join(informe) or "Sin hallazgos: repositorio sano.")
     return 0
 

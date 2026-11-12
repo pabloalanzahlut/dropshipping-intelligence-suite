@@ -359,3 +359,9 @@ git push --force origin master
 
 Acciones automáticas cableadas en `resolver()`: allowlist gitleaks (F-005/F-012), `pin_version_existente` (F-008), `secrets_a_env` (F-007), `bump_actions` (F-004), `untrack_archivo` (F-009/F-010), `cerrar_dependabot_obsoleto` (F-002).
 Prueba controlada: Actions → Self-Heal GEM OS → Run workflow → campo `log_simulado` con un log de fallo.
+
+## v3.2 — Workflows inválidos, ramas y caducidad del PAT
+
+- **F-013 `Invalid workflow file`:** GitHub no genera log, solo una anotación. `scripts/lint_workflows.py` valida el YAML (`--fix` entrecomilla `name:` con `: `). Corre en el hook de auto-sync (bloquea el commit), en cada push a `.github/workflows/**` y en el relevamiento diario; el agente repara y abre PR.
+- **Ramas `selfheal/*` fusionadas:** el agente las borra solo (el merge por API no lo hace).
+- **Caducidad de `SELF_HEAL_TOKEN`:** el relevamiento lee la cabecera `github-authentication-token-expiration` y abre un Issue con 14 días de margen, o si el token ya es inválido.

@@ -103,7 +103,7 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 | `/gestionar-meta-ads` | Lee ai_workspace/skills/gestionar_meta_ads/procedimiento.md y genera naming de campañas + hooks s0–s3 estilo R |
 | `/google-ads` | Lee ai_workspace/skills/google_ads/procedimiento.md y configura/optimiza campañas de Google Ads |
 | `/hook-matrix` | model: haiku |
-| `/importar-masivo` | Lee ai_workspace/skills/importar_masivo/procedimiento.md y procesa URLs de AliExpress/CJ/Temu → valida regla 3 |
+| `/importar-masivo` | Lee ai_workspace/skills/importar_masivo/procedimiento.md y procesa productos de AliExpress/CJ/Temu → valida so |
 | `/investigar-nicho` | Lee ai_workspace/skills/investigar_nicho/procedimiento.md y genera un informe de 10 ángulos de ataque para el  |
 | `/matriz-precios` | model: sonnet |
 | `/monitorear-caja` | model: sonnet |
@@ -138,7 +138,7 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 | Auto Sync GEM OS (`auto-sync.yml`) | push, schedule, workflow_dispatch |
 | Cleanup Stale Branches (`delete-stale-branches.yml`) | schedule, workflow_dispatch |
 | Release GEM OS (`release.yml`) | push |
-| Self-Heal GEM OS (`self-heal.yml`) | workflow_run, pull_request, schedule, workflow_dispatch |
+| Self-Heal GEM OS (`self-heal.yml`) | push, workflow_run, pull_request, schedule, workflow_dispatch |
 | Setup Repository Labels (`setup-labels.yml`) | workflow_dispatch |
 | Stale Issues & PRs (`stale.yml`) | schedule, workflow_dispatch |
 | Tests GEM OS (`tests.yml`) | pull_request, push, workflow_dispatch |

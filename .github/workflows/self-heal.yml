@@ -1,6 +1,10 @@
 name: Self-Heal GEM OS
 
 on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/**'
   workflow_run:
     workflows: ["Validate GEM OS Pipeline"]
     types: [completed]
@@ -79,6 +83,7 @@ jobs:
         if: ${{ github.event_name != 'workflow_run' && !(github.event_name == 'workflow_dispatch' && inputs.log_simulado != '') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SELF_HEAL_TOKEN: ${{ secrets.SELF_HEAL_TOKEN }}
         run: python3 scripts/github_self_heal.py
 
       - name: Sincronizar README

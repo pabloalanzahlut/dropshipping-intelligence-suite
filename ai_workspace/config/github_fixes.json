@@ -12,7 +12,8 @@
     {"id": "F-009", "tipo": "SECRETS_SECURITY/COOKIES_TRACKED", "regex": "File:\\s+\\S*cookies\\S*\\.json", "auto": true, "accion": "untrack_archivo"},
     {"id": "F-010", "tipo": "SECRETS_SECURITY/PLAYWRIGHT_DATA", "regex": "File:\\s+\\.playwright-mcp/", "auto": true, "accion": "untrack_archivo"},
     {"id": "F-011", "tipo": "SECRETS_SECURITY/HISTORY_LEAK", "regex": "leaks found: [1-9]", "auto": false, "accion": "issue_fuga"},
-    {"id": "F-012", "tipo": "SECRETS_SECURITY/FALSE_POSITIVE", "regex": "RuleID:\\s+generic-api-key", "auto": true, "accion": "allowlist_gitleaks"}
+    {"id": "F-012", "tipo": "SECRETS_SECURITY/FALSE_POSITIVE", "regex": "RuleID:\\s+generic-api-key", "auto": true, "accion": "allowlist_gitleaks"},
+    {"id": "F-013", "tipo": "WORKFLOW_CONFIG/INVALID_YAML", "regex": "Invalid workflow file|error in your yaml syntax", "auto": true, "accion": "reparar_yaml_workflow"}
   ],
   "limites": {
     "max_prs_por_dia": 2,
