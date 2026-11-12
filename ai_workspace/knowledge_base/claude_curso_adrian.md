@@ -329,3 +329,69 @@ Marco de Adrián para saber dónde se está y qué toca aprender (`00:00:00`–`
   no veía (`05:08:01`–`05:09:00`).
 - Puede pararse a media ejecución sin avisar: el ponente tuvo que preguntar «¿terminaste? no veo los
   documentos» y faltaba un paso (`05:10:00`). **Comprobar que los entregables existen** antes de darlo por hecho.
+
+## 9. Cierre del curso: de servicios a sistemas (`imAjmQy8p8c 06:24:44`–`06:32:34`)
+
+- No vender servicios a medida uno a uno: el límite es tu tiempo. Crear un sistema replicable (`06:25:00`).
+- Elegir un nicho, **lanzar cuanto antes aunque no esté pulido** y perfeccionar después (`06:25:00`–`06:26:00`).
+- Que se pueda replicar en minutos: una plantilla que se adapta a otro cliente del mismo nicho en una o dos
+  horas (logo, colores) (`06:26:00`–`06:27:01`). Así el esfuerzo va a conseguir clientes y no a personalizar (`06:27:01`).
+- Practicar con todas las funciones (Chat, Code, Cowork) y resolver **un problema real esta semana**, aunque no
+  se venda: entender una skill o un conector trae ideas que antes no se veían (`06:30:00`–`06:31:01`).
+- Iterar y afinar los prompts (`06:31:01`). Lanzar algo imperfecto también sirve para medir si hay demanda real
+  y recoger opiniones (`06:32:02`).
+
+---
+
+## 10. «Kits» de Claude Code (`xzJxHlXRVNc`, Juanpe Navarro, Divisual Project)
+
+Leído `00:00:00`–`00:45:00`, `00:50:30`–`00:57:00` y `01:14:00`–`01:29:19`. Sin leer: las demos del cazador de webs,
+agente de WhatsApp (resto), auditoría de negocio, auditoría de YouTube y editor de vídeo (`00:45:00`–`01:14:00`).
+
+### El ecosistema, bien nombrado
+- Anthropic es la empresa; Claude es la marca; dentro hay productos: app de escritorio, Claude Code, Cowork,
+  Claude en Slack, apps especializadas (Design, Science, Security) y la plataforma para desarrolladores
+  (`00:19:01`–`00:20:00`).
+- Claude Code se usa desde varias superficies: escritorio, terminal, JetBrains y la extensión de VS Code, que
+  es la del vídeo (`00:21:02`). Instalar solo la extensión **verificada por Anthropic** (`00:29:00`).
+- La IA es el **modelo** (Fable, Opus, Sonnet, Haiku), la capa común a todos los productos. Claude Code o
+  claude.ai son herramientas que lo usan (`00:23:00`–`00:24:01`).
+
+### Qué es un kit
+- Una mini-aplicación que es, literalmente, una carpeta: `CLAUDE.md`, otros `.md` y subcarpetas, que se abre
+  con Claude Code (`00:24:01`, `00:31:01`–`00:32:02`).
+- Lleva: instrucciones, asistente de instalación (`/setup`), un ejemplo de práctica y carpeta de resultados
+  (`01:24:00`). `/setup` revisa el equipo e instala lo que falte (`00:42:01`). Al saludarlo explica qué hace y qué
+  entrega (`00:37:02`, `01:20:01`). Usa comandos propios como `/personaliza` y `/deploy` (`00:55:00`).
+- Un kit contiene varias skills: «una skill es algo mucho menos potente que un kit» (`01:15:34`–`01:16:00`).
+- Coste: crear los 8 kits le llevó 54 horas y 1.200 € en tokens; ejecutar uno, 2-4 $ con un modelo de pago
+  (`00:26:01`). Crear es caro, ejecutar es barato (`01:24:08`).
+- **Regla del creador de kits:** «antes de escribir una línea compruebo de verdad que se puede hacer lo que
+  promete, y cuando está hecho lo ejecuto contra su propio ejemplo… un kit sin probar falla en manos del
+  cliente» (`01:26:01`). Cuatro tipos de tarea: analizar, generar, transformar y puntuar (`01:25:00`).
+- Cuando no puede leer un dato (métricas internas de Instagram o TikTok) lo dice y pide capturas (`01:15:01`).
+- Hablar con Claude Code sobre el propio proyecto: «¿cómo está preparado este proyecto?» (`00:43:01`).
+
+### Modelos, claves y coste
+- El modelo es «el motor del proyecto»: con uno gratuito va más lento y el resultado puede no ser el
+  adecuado (`00:27:01`, `00:36:01`).
+- Claude Code con otros modelos vía OpenRouter: un archivo `settings` dentro de `.claude` del proyecto con la
+  clave y el nombre del modelo (`00:32:02`–`00:37:02`). Vale solo para ese proyecto (`00:40:00`); tras cambiar el
+  modelo hay que reiniciar VS Code, y conviene preguntar «¿qué modelo eres?» para comprobarlo (`00:39:01`–`00:40:00`).
+  OpenRouter pide un mínimo de 5 $ de saldo aunque se use un modelo gratuito (`00:34:00`).
+- **Una clave de API por proyecto, con nombre**, para saber qué gasta cada uno (`00:34:00`–`00:35:00`, `00:51:00`).
+- En el kit del agente la clave va en `.env` (`00:51:00`–`00:52:02`).
+- Un modelo caro dentro de un agente que responde mensajes es «una máquina de consumir tokens»; ahí puso
+  Haiku (`00:56:00`).
+
+### Negocio (resumen, no es el foco de esta KB)
+- Primero **diagnosticar**, después implementar (`00:07:01`). Proyectos grandes: los gastos persiguen a los
+  ingresos; implementaciones pequeñas mantienen el margen (`00:12:01`–`00:14:01`). Vender conocimiento, no horas (`01:21:15`).
+
+> **Choques con GEM OS (no se adoptan):**
+> - En las demos pide «invéntate todas las respuestas» y «no tengo acceso a números, invéntalos» (`00:55:30`,
+>   `01:20:22`). En GEM OS rige NO INVENTAR: si falta el dato, `DATA_GAP_REQUEST`.
+> - Trabaja en *bypass permissions* por sistema (`00:42:01`, `01:14:23`). Aquí no: el repo tiene `.env` (ver §5).
+> - Pega la clave en `.claude/settings` del proyecto (`00:33:00`). En GEM OS `.claude/settings.json` va a git:
+>   las claves solo en `.env`.
+> - El «watchdog» que se automejora solo (`00:54:00`): mismo límite que el nivel 5 (§1).
