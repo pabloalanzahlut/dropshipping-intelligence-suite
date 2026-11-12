@@ -14,7 +14,7 @@ documentación oficial. Aquí se anotan como «dato del vídeo», no como hecho 
 
 | ID | Título | Fecha | Duración | Estado |
 |----|--------|-------|----------|--------|
-| `imAjmQy8p8c` | Cómo Utilizar Claude Para Principiantes \| Tutorial 2026 (lo imparte Ramón Alcaide en el canal de Adrián) | 2026-05-07 | 6 h 32 min | **Leído por capítulos:** 3 h 49 min de 6 h 32 (ver «Cobertura»). |
+| `imAjmQy8p8c` | Cómo Utilizar Claude Para Principiantes \| Tutorial 2026 (lo imparte Ramón Alcaide en el canal de Adrián) | 2026-05-07 | 6 h 32 min | **Leído por capítulos:** 3 h 23 min de 6 h 32 (ver «Cobertura»). |
 | `Ra3GIwwT4Yc` | Dame 34 Minutos y Te Doy 1000 Horas De Conocimiento Sobre Claude (Adrián + Ramón Alcaide) | 2026-09-01 | 35 min | **Leído entero.** |
 | `xzJxHlXRVNc` | La Gente Se Está Haciendo Millonaria Con Claude \| Así Lo Hacen (Juanpe Navarro, Divisual Project) | 2026-08-04 | 1 h 29 min | **Leído en parte:** 66 de 89 min (ver §10). |
 | `tP7TOlXH1pY` | La forma más rápida de ganar dinero con Claude sin inversión ni experiencia | 2026-06-16 | 34 min | **Leído entero.** Trata de vender servicios; poco de Claude. |
@@ -378,9 +378,9 @@ agente de WhatsApp (resto), auditoría de negocio, auditoría de YouTube y edito
 - Lleva: instrucciones, asistente de instalación (`/setup`), un ejemplo de práctica y carpeta de resultados
   (`01:24:00`). `/setup` revisa el equipo e instala lo que falte (`00:42:01`). Al saludarlo explica qué hace y qué
   entrega (`00:37:02`, `01:20:01`). Usa comandos propios como `/personaliza` y `/deploy` (`00:55:00`).
-- Un kit contiene varias skills: «una skill es algo mucho menos potente que un kit» (`01:15:34`–`01:16:00`).
+- Un kit contiene varias skills: «una skill es algo mucho menos potente que un kit» (`01:15:01`).
 - Coste: crear los 8 kits le llevó 54 horas y 1.200 € en tokens; ejecutar uno, 2-4 $ con un modelo de pago
-  (`00:26:01`). Crear es caro, ejecutar es barato (`01:24:08`).
+  (`00:26:01`). Crear es caro, ejecutar es barato (`01:24:00`).
 - **Regla del creador de kits:** «antes de escribir una línea compruebo de verdad que se puede hacer lo que
   promete, y cuando está hecho lo ejecuto contra su propio ejemplo… un kit sin probar falla en manos del
   cliente» (`01:26:01`). Cuatro tipos de tarea: analizar, generar, transformar y puntuar (`01:25:00`).
@@ -401,12 +401,58 @@ agente de WhatsApp (resto), auditoría de negocio, auditoría de YouTube y edito
 
 ### Negocio (resumen, no es el foco de esta KB)
 - Primero **diagnosticar**, después implementar (`00:07:01`). Proyectos grandes: los gastos persiguen a los
-  ingresos; implementaciones pequeñas mantienen el margen (`00:12:01`–`00:14:01`). Vender conocimiento, no horas (`01:21:15`).
+  ingresos; implementaciones pequeñas mantienen el margen (`00:12:01`–`00:14:01`). Vender conocimiento, no horas (`01:21:00`).
 
 > **Choques con GEM OS (no se adoptan):**
-> - En las demos pide «invéntate todas las respuestas» y «no tengo acceso a números, invéntalos» (`00:55:30`,
->   `01:20:22`). En GEM OS rige NO INVENTAR: si falta el dato, `DATA_GAP_REQUEST`.
-> - Trabaja en *bypass permissions* por sistema (`00:42:01`, `01:14:23`). Aquí no: el repo tiene `.env` (ver §5).
+> - En las demos pide «invéntate todas las respuestas» y «no tengo acceso a números, invéntalos» (`00:55:00`,
+>   `01:20:01`). En GEM OS rige NO INVENTAR: si falta el dato, `DATA_GAP_REQUEST`.
+> - Trabaja en *bypass permissions* por sistema (`00:42:01`, `01:14:01`). Aquí no: el repo tiene `.env` (ver §5).
 > - Pega la clave en `.claude/settings` del proyecto (`00:33:00`). En GEM OS `.claude/settings.json` va a git:
 >   las claves solo en `.env`.
 > - El «watchdog» que se automejora solo (`00:54:00`): mismo límite que el nivel 5 (§1).
+
+## 11. Vídeos cortos
+
+### `DBdC5Y5vNuo` — Qué es Claude (leído entero)
+- Claude es el asistente de IA por chat de Anthropic, como ChatGPT lo es de OpenAI (`00:00:00`–`00:01:02`).
+- Anthropic se fundó en 2021 por extrabajadores de OpenAI que querían centrarse en la seguridad. Entrenaron a
+  Claude con las normas **y su porqué** («no mientas, porque si mientes la gente no va a confiar en ti»), y
+  eso le da criterio propio (`00:01:02`). *Enlaza con la clave 2 de los prompts: dar el porqué.*
+- No es solo un chat: si se le pide algo complejo lo hace, con archivos y con acceso al ordenador (`00:02:00`).
+- Claude y ChatGPT hacen en lo importante lo mismo, «como elegir entre iPhone y Android». Lo que destaca de
+  Claude: enfocado al trabajo y sin anuncios (`00:03:01`). Consejo: no ser fan de ninguna herramienta; probar
+  y quedarse con la que mejor vaya (`00:03:01`–`00:04:00`).
+
+### `rn2R_xTf210` — app de inversión hecha con Claude (leído entero; solo el método)
+- No le pregunta a Claude qué va a subir: construye una herramienta que pone los datos delante para decidir
+  uno mismo (`00:00:00`–`00:01:02`).
+- **Fuentes oficiales como base:** le pasó varios tests oficiales de gestoras y reguladores para que
+  preparase uno, y la herramienta enseña cómo calcula y de dónde sale cada cosa (`00:01:02`–`00:02:01`).
+- **Darle el catálogo real:** subió la lista de productos disponibles para que solo proponga lo que existe (`00:04:04`).
+- Gráficos y rentabilidades reales, no generados (`00:06:01`, `00:11:00`).
+- **«Analiza con IA»:** la app reúne perfil, posiciones, datos, evolución, riesgo y metodología en un prompt
+  enorme y un archivo que se pega en cualquier IA. Así «no le hacemos preguntas al aire»: contesta con los
+  datos propios (`00:17:05`–`00:19:04`). Patrón reutilizable: **empaquetar el contexto antes de preguntar**.
+- Exportar e importar los datos a un archivo; la app recuerda el estado entre sesiones (`00:13:04`).
+
+### `tP7TOlXH1pY` — vender servicios con Claude (leído entero)
+- «Tenemos que eliminar de nuestro vocabulario la palabra *creo*… No lo sabemos y tampoco nos lo podemos
+  inventar»: analizar la demanda (`00:06:00`). La prueba de que algo interesa es dónde la gente gasta, no lo
+  que dice (`00:07:01`).
+- Cowork para investigar: pone en marcha «hasta 50 agentes» que buscan por internet; pedirle el precio
+  máximo y mínimo al que se vende un servicio (`00:08:00`–`00:09:00`).
+- Claude multiplica lo que ya sabes («por 10»): primero los fundamentos, después la IA (`00:11:01`–`00:12:01`).
+- Prospección con datos: extracción de Google Maps a Excel y filtrado por criterios (sin web, con teléfono)
+  (`00:23:00`–`00:24:00`). Preparar antes una muestra del trabajo para enseñarla (`00:22:01`).
+- **Contar todas las horas:** 72 €/h aparentes eran 14,40 €/h al sumar llamadas, muestra y gestión
+  (`00:25:00`–`00:26:00`). *Mismo error que mirar el multiplicador sobre el producto y no sobre el coste landed.*
+
+---
+
+## Pendiente
+- `imAjmQy8p8c`: leer los tramos sin leer de la tabla de cobertura. Los más útiles para GEM OS: archivos
+  (`00:54:28`), artefactos (`01:58:32`) y casos de uso de ingresos (`05:59:18`).
+- `xzJxHlXRVNc`: leer `00:45:00`–`01:14:00` (demos de los kits) si se va a construir un kit propio.
+- Recursos enlazados en las descripciones y **no abiertos**: `recursos.skilio.com/recursos-curso-claude/`
+  (prompts del curso), `recursos.skilio.com/5-skills-crear-webs/` (5 skills) y el Drive de kits de Divisual.
+  Antes de instalar nada de ahí, revisarlo (§8, skills de terceros).
