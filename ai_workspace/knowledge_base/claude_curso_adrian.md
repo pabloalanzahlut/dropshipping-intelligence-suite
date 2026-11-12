@@ -14,14 +14,29 @@ documentación oficial. Aquí se anotan como «dato del vídeo», no como hecho 
 
 | ID | Título | Fecha | Duración | Estado |
 |----|--------|-------|----------|--------|
-| `imAjmQy8p8c` | Cómo Utilizar Claude Para Principiantes \| Tutorial 2026 (lo imparte Ramón Alcaide en el canal de Adrián) | 2026-05-07 | 6 h 32 min | **Leído por capítulos** (ver «Cobertura» abajo). |
-| `Ra3GIwwT4Yc` | Dame 34 Minutos y Te Doy 1000 Horas De Conocimiento Sobre Claude | 2026-09-01 | 35 min | **Leído entero.** |
-| `xzJxHlXRVNc` | La Gente Se Está Haciendo Millonaria Con Claude \| Así Lo Hacen | 2026-08-04 | 1 h 29 min | Pendiente. |
-| `tP7TOlXH1pY` | La forma más rápida de ganar dinero con Claude sin inversión ni experiencia | 2026-06-16 | 34 min | **Leído entero** (texto sin tiempos); trata de vender servicios, poco de Claude. |
-| `rn2R_xTf210` | Le Pido a Claude Que Me Haga Ganar La Máxima Cantidad De Dinero Posible | 2026-06-13 | 21 min | Pendiente. |
-| `DBdC5Y5vNuo` | ¿Qué Es Claude? Explicado En 4 Minutos | 2026-11-03 | 5 min | Pendiente. Salió en la búsqueda «CLAUDE» del canal. |
+| `imAjmQy8p8c` | Cómo Utilizar Claude Para Principiantes \| Tutorial 2026 (lo imparte Ramón Alcaide en el canal de Adrián) | 2026-05-07 | 6 h 32 min | **Leído por capítulos:** 3 h 49 min de 6 h 32 (ver «Cobertura»). |
+| `Ra3GIwwT4Yc` | Dame 34 Minutos y Te Doy 1000 Horas De Conocimiento Sobre Claude (Adrián + Ramón Alcaide) | 2026-09-01 | 35 min | **Leído entero.** |
+| `xzJxHlXRVNc` | La Gente Se Está Haciendo Millonaria Con Claude \| Así Lo Hacen (Juanpe Navarro, Divisual Project) | 2026-08-04 | 1 h 29 min | **Leído en parte:** 66 de 89 min (ver §10). |
+| `tP7TOlXH1pY` | La forma más rápida de ganar dinero con Claude sin inversión ni experiencia | 2026-06-16 | 34 min | **Leído entero.** Trata de vender servicios; poco de Claude. |
+| `rn2R_xTf210` | Le Pido a Claude Que Me Haga Ganar La Máxima Cantidad De Dinero Posible | 2026-06-13 | 21 min | **Leído entero.** Es una app de inversión hecha con Claude; solo se extrae el método de trabajo, no lo financiero. |
+| `DBdC5Y5vNuo` | ¿Qué Es Claude? Explicado En 4 Minutos | 2026-11-03 | 5 min | **Leído entero.** Salió en la búsqueda «CLAUDE» del canal. |
 
 La búsqueda `@AdrianSaenz/search?query=CLAUDE` devolvió solo dos resultados: `imAjmQy8p8c` y `DBdC5Y5vNuo`.
+
+**Quién habla:** en estos vídeos Adrián presenta y cierra, pero buena parte la explican Ramón Alcaide
+(miembro de su equipo) y Juanpe Navarro (invitado). Son criterio del canal de Adrián sobre **cómo usar
+Claude**; no son reglas financieras y no tocan las de `reglas-financieras.md`.
+
+### Cobertura de `imAjmQy8p8c`
+| Tramo | Contenido | Estado |
+|-------|-----------|--------|
+| `00:00:00`–`00:14:05` | Introducción, qué es Claude, qué es un LLM, Claude vs ChatGPT | Sin leer |
+| `00:14:05`–`00:54:28` | Planes, tokens, formas de uso, interfaz, **prompts** | **Leído** |
+| `00:54:28`–`01:39:02` | Archivos: documentos, tablas, imágenes, presentaciones, código | Sin leer |
+| `01:39:02`–`02:48:24` | Respuestas visuales, artefactos, Claude Design | Sin leer |
+| `02:48:24`–`05:23:02` | **Preferencias, memoria, proyectos, Claude Code, Cowork, conectores, skills** | **Leído** |
+| `05:23:02`–`06:24:44` | Casos de uso personales y para generar ingresos | Sin leer |
+| `06:24:44`–`06:32:34` | De servicios a sistemas, siguientes pasos | **Leído** |
 
 Índice de `imAjmQy8p8c` (de la descripción): 00:07:33 Qué es Claude · 00:14:05 Cuenta y planes ·
 00:16:26 Tokens y ventana de contexto · 00:19:02 Formas de usar Claude · 00:26:10 Chat, Cowork y Code ·
