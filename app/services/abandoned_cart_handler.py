@@ -167,7 +167,21 @@ if __name__ == "__main__":
     }
 
     handler = AbandonedCartHandler()
-    if "--test" in sys.argv:
+    if "--test-shopify" in sys.argv:
+        # Simula a Shopify: en producción Shopify envía el checkout CRUDO directo al
+        # webhook de Make (GEM OS corre en local y Shopify no puede alcanzarlo).
+        if not handler.esta_configurado():
+            print("[DATA_GAP] MAKE_WEBHOOK_ABANDONED_CART no configurado")
+            sys.exit(1)
+        req = urllib.request.Request(
+            handler.webhook_url,
+            data=json.dumps(PAYLOAD_TEST).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            print(f"Checkout formato Shopify enviado (HTTP {resp.status})")
+    elif "--test" in sys.argv:
         vars_extraidas = handler.extraer_variables(PAYLOAD_TEST)
         payload_make = handler.construir_payload_make(vars_extraidas)
         print("=== Variables extraídas ===")
