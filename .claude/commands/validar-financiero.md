@@ -5,21 +5,24 @@ model: sonnet
 
 Ejecuta la validación financiera completa de un producto según las reglas inmutables de GEM OS.
 
+Lee `ai_workspace/skills/validar_financiero/procedimiento.md` y aplícalo.
+
 ## Input requerido:
 - Costo de origen (CO) del proveedor
+- Coste de envío del proveedor al cliente
 - Precio de venta sugerido (PVP)
-- Peso del producto (kg)
 - ¿Contiene baterías de litio sueltas? (sí/no)
 
-Si alguno falta → preguntar al usuario.
+Si alguno falta → preguntar al usuario (`DATA_GAP_REQUEST`). El envío nunca se estima.
+El peso es un dato del proveedor: se muestra, no valida (el curso no fija límite).
 
 ## Cálculos obligatorios:
 
 ```
-Ratio 3x      = PVP / CO  (debe ser ≥ 3.0)
 Coste landed  = costo_origen + envío
 Multiplicador = PVP / coste landed
 Margen bruto  = (PVP - coste landed) / PVP × 100  (informativo: el curso no fija umbral)
+Margen neto/unidad = PVP - coste landed - PVP × 4,0 % - PVP × 10,1 %
 ```
 
 ## Reglas de validación:
@@ -43,4 +46,4 @@ Logística: OK / PROBLEMA (baterías de litio sueltas)
 Veredicto: [explicación]
 ```
 
-**Referencia:** `.continue/rules/dropshipping_financial_rules.md`
+**Referencia:** `.claude/memory/reglas-financieras.md`
