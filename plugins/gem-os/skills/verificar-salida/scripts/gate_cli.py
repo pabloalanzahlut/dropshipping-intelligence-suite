@@ -92,8 +92,9 @@ def ejecutar(args) -> dict:
 
 
 def main(argv=None) -> int:
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8")
+    for flujo in (sys.stdout, sys.stderr):  # el gate avisa por logging → stderr
+        if hasattr(flujo, "reconfigure"):
+            flujo.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="Gate determinista de GEM OS")
     parser.add_argument("verificacion", choices=["financiera", "copy", "hooks", "refutacion", "fake-door"])
     parser.add_argument("entrada", nargs="?", help="JSON o texto; '-' o vacío para leer de stdin")

@@ -1,6 +1,6 @@
 ---
 name: validar-financiero
-description: "Valida márgenes 3x y reglas logísticas. Usar cuando el usuario hable de: validar margen, margen, 3x, 2x, coste landed, precio venta."
+description: "Valida un producto con las reglas financieras de GEM OS: multiplicador mínimo 2x y objetivo 3x sobre coste landed (producto + envío), fees 4,0 %, cancelaciones 10,1 % y CPA de equilibrio. Usar cuando el usuario hable de: validar margen, margen, 3x, 2x, coste landed, precio venta."
 ---
 
 > **Entorno Cowork — leer antes de seguir.** Esta skill se genera desde GEM OS (`.claude/commands/validar-financiero.md`) y aquí no tienes el repositorio:

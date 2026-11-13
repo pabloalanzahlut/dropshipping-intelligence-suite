@@ -1,6 +1,6 @@
 ---
 name: matriz-precios
-description: "Matriz de Precios 2x/3x."
+description: "Genera la matriz de precios 2x/3x de un lote de productos sobre coste landed, con PVP terminados en .99 y clasificación HOT/WARM/COLD/DISCARD. Usar cuando el usuario hable de: matriz de precios, precios de un lote, PVP 2x 3x, tabla de precios."
 ---
 
 > **Entorno Cowork — leer antes de seguir.** Esta skill se genera desde GEM OS (`.claude/commands/matriz-precios.md`) y aquí no tienes el repositorio:

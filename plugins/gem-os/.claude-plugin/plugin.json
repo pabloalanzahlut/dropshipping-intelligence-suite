@@ -1,7 +1,7 @@
 {
   "name": "gem-os",
   "displayName": "GEM OS",
-  "version": "1.0.0-9fffc32b95",
+  "version": "1.0.0-74c27fa275",
   "description": "GEM OS — inteligencia para dropshipping en Shopify: buscar, clasificar, refutar y validar productos; hooks, guiones, fichas y anuncios; caja, ROAS y escalado. Con las reglas financieras de Adrián Sáenz y un gate determinista.",
   "author": {
     "name": "GEM OS"

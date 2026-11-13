@@ -1,6 +1,6 @@
 ---
 name: autods-notas
-description: "Notas para Proveedores AutoDS."
+description: "Redacta en inglés las notas para proveedores de AutoDS/AliExpress: declaración de dropshipping, packaging, factura sin precios, control de calidad, envío y devoluciones. Usar cuando el usuario hable de: notas proveedor, nota AutoDS, mensaje al proveedor, instrucciones de packaging."
 ---
 
 > **Entorno Cowork — leer antes de seguir.** Esta skill se genera desde GEM OS (`.claude/commands/autods-notas.md`) y aquí no tienes el repositorio:

@@ -14,7 +14,8 @@ GATE_CLI = bc.PLUGIN_DIR / "skills" / "verificar-salida" / "scripts" / "gate_cli
 
 
 def gate(*args):
-    r = subprocess.run([sys.executable, str(GATE_CLI), *args], capture_output=True, text=True, encoding="utf-8")
+    r = subprocess.run([sys.executable, str(GATE_CLI), *args], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     return r.returncode, json.loads(r.stdout)
 
 
