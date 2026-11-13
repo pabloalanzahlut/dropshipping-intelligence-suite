@@ -458,7 +458,11 @@ class PropuestasReviewTests(Base):
 
     def test_self_improve_escribe_fila_estructurada(self):
         from app.services import self_improve
+        # El Markdown va a un temporal: sin esto cada ejecución de la suite añadía una
+        # propuesta de prueba al propuestas_ajuste.md real (y el auto-commit la subía).
+        md_tmp = os.path.join(os.path.dirname(self.db), "propuestas_ajuste.md")
         with mock.patch.object(self_improve, "chat", return_value="Sube el umbral de X."), \
+             mock.patch.object(self_improve, "PROPUESTAS", md_tmp), \
              mock.patch.object(self_improve, "MetricsAggregator") as Agg:
             instancia = Agg.return_value
             instancia.resumen.return_value = {
@@ -469,6 +473,9 @@ class PropuestasReviewTests(Base):
             instancia.construir_vista.return_value = []
             r = self_improve.analizar_y_proponer(dias=21, db_path=self.db)
         self.assertTrue(r["propuestas_generadas"])
+        self.assertEqual(r["ruta"], md_tmp)
+        with open(md_tmp, encoding="utf-8") as f:
+            self.assertIn("PENDIENTE DE REVISIÓN", f.read())
         fila = propuestas_review.obtener(self.db, r["propuesta_id"])
         self.assertEqual(fila["estado"], "pendiente")
         self.assertIn("Sube el umbral", fila["analisis_md"])
