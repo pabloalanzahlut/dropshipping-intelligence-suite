@@ -147,7 +147,7 @@ TEXTO = (".md", ".json", ".py", ".txt")
 ESPEJO: Tuple[Tuple[str, Tuple[str, ...], str], ...] = (
     (".claude/memory", ("reglas-financieras.md", "verificacion-determinista.md"), "reglas"),
     ("ai_workspace/knowledge_base", ("**/*.md", "skool_productos.json"), "kb"),
-    ("ai_workspace/context", ("manual_tactico_consolidado.md",), "manual"),
+    ("ai_workspace/context", ("*.md",), "manual"),
     ("ai_workspace/projects/producto_01", ("**/*.md", "**/*.json"), "proyecto_activo"),
     ("ai_workspace/memory", ("kb_index.json",), ""),
 )
