@@ -360,7 +360,13 @@ def construir_plugin() -> Dict[str, bytes]:
         "siguiente generación: edita la fuente.\n\n"
         f"- Skills: {len(SKILLS_COWORK) + len(SKILLS_BASE)}\n"
         f"- Agentes: {len(AGENTES_COWORK)}\n"
-        "- Guía de uso: `cowork/GUIA.md`\n"
+        "- Guía de uso: `cowork/GUIA.md`\n\n"
+        "## Instalación\n\n"
+        "En Cowork o claude.ai: *Customize → Plugins → Add → Add marketplace* con el "
+        "repositorio de GEM OS, y añadir `gem-os`. En Claude Code:\n\n"
+        "```\n"
+        f"/plugin install {PLUGIN} --marketplace <owner>/<repo>\n"
+        "```\n"
     )
 
     huella = hashlib.sha256()

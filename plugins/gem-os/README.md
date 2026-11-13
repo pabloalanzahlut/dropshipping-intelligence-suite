@@ -5,3 +5,11 @@ Lo genera `scripts/build_cowork.py` desde `.claude/commands/`, `ai_workspace/ski
 - Skills: 30
 - Agentes: 2
 - Guía de uso: `cowork/GUIA.md`
+
+## Instalación
+
+En Cowork o claude.ai: *Customize → Plugins → Add → Add marketplace* con el repositorio de GEM OS, y añadir `gem-os`. En Claude Code:
+
+```
+/plugin install gem-os --marketplace <owner>/<repo>
+```
