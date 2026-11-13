@@ -1,10 +1,12 @@
 """
 PricingMatrix — Generador de Matriz de Precios 2x/3x
-Aplica las reglas de negocio de GEM OS:
-  - Precios terminados en .99
-  - Clasificación HOT/WARM/COLD/DISCARD por ratio PVP/CO
-  - Margen neto = (PVP - CO - envío) / PVP × 100
-  - Delega compliance 3x a FinancialValidator (no duplica lógica)
+Aplica las reglas de negocio de GEM OS (.claude/memory/reglas-financieras.md):
+  - Todo múltiplo se calcula sobre el coste LANDED (producto + envío)
+  - Precios terminados en .99, nunca por debajo del múltiplo
+  - Clasificación HOT/WARM/COLD/DISCARD por ratio PVP/landed (product_catalog.clasificar)
+  - Margen = (PVP - landed) / PVP × 100 (informativo: el curso no fija umbral)
+  - El envío es un dato del proveedor: sin él no se calcula (DATA_GAP_REQUEST)
+  - Delega la validación a FinancialValidator (no duplica lógica)
 """
 
 import math
@@ -15,24 +17,8 @@ from typing import Dict, List, Optional
 from datetime import datetime
 
 from app.services.financial_validator import FinancialValidator
+from app.services.product_catalog import clasificar
 from app.database.connection import DatabaseConnection
-
-
-SHIPPING_DEFAULTS: Dict[str, float] = {
-    "electronics": 5.0,
-    "electrónica": 5.0,
-    "electrónica y tech": 5.0,
-    "fashion": 3.5,
-    "moda": 3.5,
-    "moda y accesorios": 3.5,
-    "home": 6.5,
-    "hogar": 6.5,
-    "hogar y jardín": 6.5,
-    "beauty": 3.5,
-    "belleza": 3.5,
-    "belleza y cuidado": 3.5,
-    "default": 4.5,
-}
 
 
 class PricingMatrix:
@@ -40,10 +26,6 @@ class PricingMatrix:
     Genera la matriz de precios 2x/3x con auditoría financiera completa.
     Importa FinancialValidator para compliance — no duplica reglas de negocio.
     """
-
-    HOT_THRESHOLD = 5.0
-    WARM_THRESHOLD = 3.0
-    COLD_THRESHOLD = 1.5
 
     def __init__(self, db_manager: Optional[DatabaseConnection] = None):
         self.db = db_manager or DatabaseConnection()
@@ -55,26 +37,25 @@ class PricingMatrix:
 
     @staticmethod
     def _to_99(price: float) -> float:
-        """Redondea al dólar superior y resta un centavo: $28.50 → $28.99"""
-        ceiled = math.ceil(price)
-        return round(ceiled - 0.01, 2)
+        """
+        Primer precio terminado en .99 que sea >= price: $14.00 → $14.99, $28.50 → $28.99.
+
+        Nunca redondea hacia abajo: $13.99 sobre un landed de $7.00 es 1,998x y no
+        cumple el mínimo 2x.
+        """
+        cents = math.ceil(round(price * 100, 6))
+        return round(cents // 100 + 0.99, 2)
 
     @staticmethod
-    def _get_shipping(vertical: str, override: Optional[float]) -> float:
-        if override is not None:
-            return float(override)
-        key = vertical.lower().strip()
-        return SHIPPING_DEFAULTS.get(key, SHIPPING_DEFAULTS["default"])
-
-    @classmethod
-    def _classify(cls, ratio: float) -> str:
-        if ratio >= cls.HOT_THRESHOLD:
-            return "HOT"
-        if ratio >= cls.WARM_THRESHOLD:
-            return "WARM"
-        if ratio >= cls.COLD_THRESHOLD:
-            return "COLD"
-        return "DISCARD"
+    def _dato_requerido(p: Dict, *claves: str) -> float:
+        """Devuelve el primer campo presente. Sin dato no hay cálculo: nunca se estima."""
+        for clave in claves:
+            if p.get(clave) is not None:
+                return float(p[clave])
+        raise ValueError(
+            f"DATA_GAP_REQUEST: falta '{claves[0]}' del producto "
+            f"'{p.get('name', '?')}'. Pídeselo al usuario; no se asume ningún valor."
+        )
 
     @staticmethod
     def _make_sku(name: str) -> str:
@@ -94,38 +75,49 @@ class PricingMatrix:
             products: lista de dicts con claves:
                 - name (str, requerido)
                 - cost_usd (float, requerido)
-                - weight_kg (float, opcional, default 0.0)
-                - vertical (str, opcional, default "default")
-                - shipping_override (float, opcional)
+                - shipping_usd (float, requerido; se acepta el alias shipping_override)
+                - weight_kg (float, opcional, informativo)
+                - vertical (str, opcional, solo etiqueta)
             budget_month: "YYYY-MM" para auditoría
 
         Returns:
             Lista de dicts con resultados por producto.
+
+        Raises:
+            ValueError: DATA_GAP_REQUEST si falta el coste o el envío de un producto.
         """
         results = []
         for p in products:
             name = p["name"]
-            cost = float(p["cost_usd"])
+            cost = self._dato_requerido(p, "cost_usd")
+            shipping = self._dato_requerido(p, "shipping_usd", "shipping_override")
             weight = float(p.get("weight_kg", 0.0))
             vertical = p.get("vertical", "default")
-            shipping = self._get_shipping(vertical, p.get("shipping_override"))
             sku = self._make_sku(name)
 
-            pvp_2x = self._to_99(cost * 2)
-            pvp_3x = self._to_99(cost * 3)
+            landed = round(cost + shipping, 2)
+            if landed <= 0:
+                raise ValueError(
+                    f"DATA_GAP_REQUEST: el coste landed de '{name}' es {landed}; "
+                    "revisa coste y envío con el usuario."
+                )
 
-            ratio_2x = round(pvp_2x / cost, 2) if cost > 0 else 0.0
-            ratio_3x = round(pvp_3x / cost, 2) if cost > 0 else 0.0
+            pvp_2x = self._to_99(landed * 2)
+            pvp_3x = self._to_99(landed * 3)
 
-            margin_2x = round((pvp_2x - cost - shipping) / pvp_2x * 100, 1) if pvp_2x > 0 else 0.0
-            margin_3x = round((pvp_3x - cost - shipping) / pvp_3x * 100, 1) if pvp_3x > 0 else 0.0
+            ratio_2x = pvp_2x / landed
+            ratio_3x = pvp_3x / landed
 
-            # Delegate 3x compliance to FinancialValidator
+            margin_2x = round((pvp_2x - landed) / pvp_2x * 100, 1)
+            margin_3x = round((pvp_3x - landed) / pvp_3x * 100, 1)
+
+            # La validación (mínimo 2x sobre landed, fees, cancelaciones) es de FinancialValidator
             fv = self.validator.validar_producto(
                 sku=sku,
                 costo_origen=cost,
                 peso_kg=weight,
                 pvp_sugerido=pvp_3x,
+                costo_envio=shipping,
             )
 
             results.append({
@@ -135,14 +127,15 @@ class PricingMatrix:
                 "weight_kg": weight,
                 "vertical": vertical,
                 "shipping_usd": shipping,
+                "landed_usd": landed,
                 "pvp_2x": pvp_2x,
                 "pvp_3x": pvp_3x,
-                "ratio_2x": ratio_2x,
-                "ratio_3x": ratio_3x,
+                "ratio_2x": round(ratio_2x, 2),
+                "ratio_3x": round(ratio_3x, 2),
                 "margin_net_2x": margin_2x,
                 "margin_net_3x": margin_3x,
-                "classification_2x": self._classify(ratio_2x),
-                "classification_3x": self._classify(ratio_3x),
+                "classification_2x": clasificar(ratio_2x),
+                "classification_3x": clasificar(ratio_3x),
                 "fv_compliant": fv["validado"],
                 "fv_note": fv.get("nota_auditoria", ""),
                 "budget_month": budget_month,
@@ -157,7 +150,7 @@ class PricingMatrix:
     def format_ascii_table(results: List[Dict]) -> str:
         col_name = 24
         header = (
-            f"{'Producto':<{col_name}} {'CO':>6} {'Ship':>5} "
+            f"{'Producto':<{col_name}} {'CO':>6} {'Ship':>5} {'Landed':>7} "
             f"{'PVP 2x':>8} {'Mg2x':>6} {'Cls2x':>7} "
             f"{'PVP 3x':>8} {'Mg3x':>6} {'Cls3x':>7} {'FV':>5}"
         )
@@ -169,6 +162,7 @@ class PricingMatrix:
                 f"{r['name'][:col_name]:<{col_name}} "
                 f"${r['cost_usd']:>5.2f} "
                 f"${r['shipping_usd']:>4.2f} "
+                f"${r['landed_usd']:>6.2f} "
                 f"${r['pvp_2x']:>7.2f} "
                 f"{r['margin_net_2x']:>5.1f}% "
                 f"{r['classification_2x']:>7} "
