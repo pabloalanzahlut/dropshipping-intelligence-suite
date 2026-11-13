@@ -97,3 +97,10 @@ ai_workspace/config/*secret*.json
 skool_page.png
 *_page.png
 .playwright-mcp/_selfheal_probe.json
+
+# Cowork — material de trabajo y espejo generado (scripts/build_cowork.py); no versionar
+cowork/entradas/*
+cowork/salidas/*
+cowork/contexto/
+!cowork/entradas/.gitkeep
+!cowork/salidas/.gitkeep
