@@ -170,6 +170,24 @@ def job_self_improve() -> None:
         logger.error(f"[SELF_IMPROVE] {e}")
 
 
+def job_cowork_sync() -> None:
+    """
+    Refresca `cowork/contexto/`, el espejo de solo lectura que ve Cowork.
+
+    En la instalación normal lo lanza el APScheduler de `dashboard_server.py` (id
+    `cowork_sync`); aquí queda para dispararlo a mano junto al resto del ciclo.
+    """
+    try:
+        from app.services import cowork_sync
+        r = cowork_sync.sincronizar()
+        if r["ok"]:
+            logger.info("[COWORK_SYNC] Espejo actualizado")
+        else:
+            logger.warning(f"[COWORK_SYNC] No actualizado: {r['motivo']}")
+    except Exception as e:
+        logger.error(f"[COWORK_SYNC] {e}")
+
+
 def _update_google_sheets(date: str, hot: int, warm: int) -> None:
     """Añade fila al tab ROAS_Diario del dashboard GEM OS."""
     try:
@@ -205,6 +223,10 @@ def setup_schedule() -> None:
     schedule.every(sync_hours).hours.do(
         _run_job, "transcript_cleaner", job_transcript_cleaner, _lock_youtube
     )
+    # Espejo para Cowork: tras la ingesta, para que vea la KB nueva
+    schedule.every(sync_hours).hours.do(
+        _run_job, "cowork_sync", job_cowork_sync, _lock_youtube
+    )
 
     # Clasificación: cada 6 horas
     schedule.every(6).hours.do(
@@ -232,6 +254,7 @@ def run_once() -> None:
     logger.info("[SCHEDULER] Modo --once: ejecutando todos los jobs")
     _run_job("youtube_monitor",   job_youtube_monitor,   _lock_youtube)
     _run_job("transcript_cleaner", job_transcript_cleaner, _lock_youtube)
+    _run_job("cowork_sync",       job_cowork_sync,       _lock_youtube)
     _run_job("classify_products", job_classify_products, _lock_classify)
     _run_job("daily_report",      job_daily_report,      _lock_report)
     logger.info("[SCHEDULER] Ciclo único completado")

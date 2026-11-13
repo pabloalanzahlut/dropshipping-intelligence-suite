@@ -273,6 +273,16 @@ async def lifespan(app: FastAPI):
         except Exception as exc:
             log.warning(f"[SERVER] Self-improve falló: {exc}")
 
+    def _scheduled_cowork_sync() -> None:
+        """Refresca cowork/contexto/ (espejo de solo lectura de reglas y KB que ve Cowork)."""
+        try:
+            from app.services import cowork_sync
+            r = cowork_sync.sincronizar()
+            if not r["ok"]:
+                log.warning(f"[SERVER] Espejo de Cowork no actualizado: {r['motivo']}")
+        except Exception as exc:
+            log.warning(f"[SERVER] Espejo de Cowork falló: {exc}")
+
     if _scheduler_available and _scheduler is not None and engine is not None:
         _scheduler.add_job(_scheduled_mantenimiento, "cron", day_of_week="sun", hour=4, minute=0,
                            id="mantenimiento_semanal", replace_existing=True, misfire_grace_time=24 * 3600,
@@ -315,6 +325,13 @@ async def lifespan(app: FastAPI):
         # Self-improve: propuestas de ajuste a las 03:00 (nunca aplica nada).
         _scheduler.add_job(_scheduled_self_improve, "cron", hour=3, minute=0, id="self_improve_auto",
                            replace_existing=True, misfire_grace_time=3 * 3600, coalesce=True)
+        # Espejo de solo lectura para Cowork (cowork/contexto/), cada 2 h. La KB crece sola y
+        # Cowork solo ve esa carpeta. GEM_OS_AUTO_COWORK_MIN=0 lo desactiva.
+        min_cowork = int(os.getenv("GEM_OS_AUTO_COWORK_MIN", "120") or 0)
+        if min_cowork > 0:
+            _scheduler.add_job(_scheduled_cowork_sync, "interval", minutes=min_cowork, id="cowork_sync",
+                               max_instances=1, misfire_grace_time=1800, replace_existing=True,
+                               next_run_time=datetime.now() + timedelta(minutes=6))
         # Copia de seguridad diaria (03:30) y una al arrancar si la última tiene más de 24 h
         _scheduler.add_job(_scheduled_backup, "cron", hour=3, minute=30, id="backup_auto",
                            replace_existing=True, misfire_grace_time=3600)
