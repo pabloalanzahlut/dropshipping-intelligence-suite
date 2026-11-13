@@ -11,6 +11,8 @@ Cuando el usuario hace una consulta en lenguaje natural, GEM OS mapea automátic
 | guion, script, TikTok, video, 15 segundos, 30 segundos | `/redactar-guion` | — | artifact-design |
 | landing, página, AIDA, copy de venta, estructura tienda | `/estructurar-landing` | Ahrefs | artifact-design |
 | validar margen, margen, 3x, 2x, coste landed, precio venta | `/validar-financiero` | Google Sheets, Stripe | dataviz |
+| matriz de precios, precios de un lote, PVP 2x 3x, tabla de precios | `/matriz-precios` | Google Sheets | dataviz |
+| notas proveedor, nota AutoDS, mensaje al proveedor, instrucciones de packaging | `/autods-notas` | — | — |
 | ficha shopify, descripción producto, título SEO | `/redactar-ficha-shopify` | Ahrefs, Google Sheets | artifact-design |
 | anuncio meta, Facebook Ads, Instagram Ads, copy ads | `/redactar-anuncios-meta` | Ahrefs, Google Sheets, Figma | artifact-design |
 | hook, gancho, primeros 3 segundos, matriz de hooks | `/hook-matrix` | Ahrefs | artifact-design |
@@ -62,6 +64,20 @@ Aunque el usuario no use slash commands, delegar en el subagente adecuado (`.cla
 - El copy de `gem-bulk-copy` siempre pasa por `verificar_copy` (`deterministic_gate.py`) antes de publicarse.
 - Los números los valida `gem-financial-guard` y el gate; el modelo barato nunca decide cifras.
 - Fable nunca se activa automáticamente.
+
+## En Cowork
+
+Cowork no lee esta tabla ni `.claude/commands/`: allí las skills llegan por el plugin `gem-os`
+(`plugins/gem-os/`, generado por `scripts/build_cowork.py`).
+
+- **Routing:** cada skill del plugin lleva en su `description` la función y las palabras clave
+  de su fila de arriba. Editar una fila aquí cambia cuándo se activa la skill en Cowork.
+- **Conectores:** por nombre (Google Sheets, Stripe, Gmail, Google Drive). Los IDs
+  `mcp__xxxxxxxx` son de una sesión de Claude Code y el generador los elimina.
+- **Qué se exporta:** solo la lista blanca `SKILLS_COWORK` del generador. Las skills que
+  necesitan `.env`, scripts locales, cookies o git se quedan en Claude Code.
+- **Subagentes:** `gem-financial-guard` y `gem-bulk-copy` viajan en el plugin; `gem-architect` no.
+- Guía de uso: `cowork/GUIA.md`.
 
 ## Prioridad de pipeline
 

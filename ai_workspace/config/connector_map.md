@@ -86,6 +86,18 @@ Mapa completo de conectores activos y sus casos de uso por skill.
 
 ---
 
+## En Cowork
+
+Los IDs entre paréntesis (`mcp__69f3b6ec`, `mcp__1cc6d3ec`…) identifican el conector **en una
+sesión de Claude Code**. En Cowork el mismo conector se usa por su nombre y hay que tenerlo
+conectado en *Customize → Connectors*. `scripts/build_cowork.py` sustituye los IDs por el
+nombre al generar el plugin `gem-os`; un ID nuevo se añade a `CONECTORES` en ese script.
+
+Permisos recomendados en Cowork: Stripe y Gmail en solo lectura (escritura y envío en
+*Needs approval* o *Blocked*); Google Sheets con escritura bajo aprobación.
+
+---
+
 ## Reglas de uso
 
 1. **Nunca inventar IDs de conectores** — usar solo los listados aquí

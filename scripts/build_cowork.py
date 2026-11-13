@@ -82,6 +82,23 @@ PROCEDIMIENTOS_SOLO_CODE = frozenset({
     "publicar_tiktok_automatico", "generar_imagen_producto", "experto_claude",
     "ingerir_transcripcion_kb",
 })
+# La descripción decide cuándo Cowork carga la skill. Sale de la tabla de skills de
+# CLAUDE.md; aquí solo se fijan las que no están en esa tabla o la tienen poco precisa.
+FUNCIONES = {
+    "validar-financiero": (
+        "Valida un producto con las reglas financieras de GEM OS: multiplicador mínimo 2x y "
+        "objetivo 3x sobre coste landed (producto + envío), fees 4,0 %, cancelaciones 10,1 % "
+        "y CPA de equilibrio"
+    ),
+    "matriz-precios": (
+        "Genera la matriz de precios 2x/3x de un lote de productos sobre coste landed, con "
+        "PVP terminados en .99 y clasificación HOT/WARM/COLD/DISCARD"
+    ),
+    "autods-notas": (
+        "Redacta en inglés las notas para proveedores de AutoDS/AliExpress: declaración de "
+        "dropshipping, packaging, factura sin precios, control de calidad, envío y devoluciones"
+    ),
+}
 AGENTES_COWORK: Tuple[str, ...] = ("gem-financial-guard", "gem-bulk-copy")
 SKILLS_BASE: Tuple[str, ...] = ("reglas-gem-os", "verificar-salida")
 
@@ -253,7 +270,7 @@ def _descripcion(cmd: str, meta: Dict[str, str], cuerpo: str,
                  funciones: Dict[str, str], keywords: Dict[str, str]) -> str:
     if meta.get("description"):
         return meta["description"]
-    funcion = (funciones.get(cmd) or _titulo(cuerpo, cmd)).rstrip(". ")
+    funcion = (FUNCIONES.get(cmd) or funciones.get(cmd) or _titulo(cuerpo, cmd)).rstrip(". ")
     desc = f"{funcion}."
     if keywords.get(cmd):
         desc += f" Usar cuando el usuario hable de: {keywords[cmd]}."

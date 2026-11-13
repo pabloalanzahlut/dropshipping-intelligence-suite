@@ -1,0 +1,14 @@
+{
+  "name": "gem-os-suite",
+  "description": "Plugins de GEM OS (uso personal)",
+  "owner": {
+    "name": "GEM OS"
+  },
+  "plugins": [
+    {
+      "name": "gem-os",
+      "source": "./plugins/gem-os",
+      "description": "GEM OS — inteligencia para dropshipping en Shopify: buscar, clasificar, refutar y validar productos; hooks, guiones, fichas y anuncios; caja, ROAS y escalado. Con las reglas financieras de Adrián Sáenz y un gate determinista."
+    }
+  ]
+}
