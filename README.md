@@ -83,7 +83,7 @@ Datos, registros y copias del `.exe` viven en `%APPDATA%\GEM_OS_Suite\` (`GEM_OS
 Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`](CLAUDE.md)). Pipeline: producto → clasificar → refutar → validar financiero → creativo → tienda → escalado.
 
 <!-- AUTO:skills -->
-33 comandos disponibles:
+35 comandos disponibles:
 
 | Comando | Función |
 |---|---|
@@ -98,6 +98,8 @@ Se invocan con `/comando` o en lenguaje natural (auto-dispatch, ver [`CLAUDE.md`
 | `/destilar-skill` | Reescribe una skill a partir de lo que **realmente pasó**, no de lo que creíamos |
 | `/escalar-campana` | model: sonnet |
 | `/estructurar-landing` | model: haiku |
+| `/experto-claude` | description: Especialista en usar Claude para GEM OS |
+| `/experto-make` | description: Especialista Make.com para GEM OS |
 | `/fake-door` | Mide si un producto interesa **antes de comprar stock o gastar en ads** |
 | `/generar-video-ia` | Genera un video de producto para TikTok Ads usando **Higgsfield AI** — sin filmar, sin equipo |
 | `/gestionar-meta-ads` | Lee ai_workspace/skills/gestionar_meta_ads/procedimiento.md y genera naming de campañas + hooks s0–s3 estilo R |
